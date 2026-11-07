@@ -571,9 +571,37 @@
     function setMode(next) {
       mode = next;
       var signingUp = mode === 'signup';
+      var screen = document.getElementById('account-screen');
+      var kicker = document.getElementById('account-kicker');
+      var lead = document.getElementById('account-lead');
+      var zh = document.getElementById('account-zh');
+      var note = document.getElementById('account-aside-note');
+      var formKicker = document.getElementById('account-form-kicker');
+      if (screen) screen.setAttribute('data-mode', signingUp ? 'signup' : 'signin');
+      if (kicker) kicker.textContent = signingUp ? 'New account' : 'Welcome back';
       if (title) title.textContent = signingUp ? 'Create account' : 'Sign in';
+      if (lead) {
+        lead.textContent = signingUp
+          ? 'Choose a username and a password. No email, and nothing to confirm.'
+          : 'Units and dictation work with no account. Sign in to save progress and badges.';
+      }
+      if (zh) {
+        zh.textContent = signingUp
+          ? '用使用者名稱和密碼註冊。不用電郵，也不用確認。'
+          : '單元和默書不用登入。登入後，進度和徽章會存在這個帳號。';
+      }
+      if (note) {
+        note.textContent = signingUp
+          ? 'One device at a time. A new sign-in closes the other device.'
+          : 'A new sign-in closes the other device.';
+      }
+      if (formKicker) formKicker.textContent = signingUp ? 'Create a new username' : 'Sign in with your username';
       if (submit) submit.textContent = signingUp ? 'Create account' : 'Sign in';
-      if (toggle) toggle.textContent = signingUp ? 'Already have a username? Sign in' : 'Need a username? Create one';
+      if (toggle) {
+        toggle.textContent = signingUp
+          ? 'Already have an account? Sign in here.'
+          : "Don't have an account? Create one here.";
+      }
       if (password) password.autocomplete = signingUp ? 'new-password' : 'current-password';
     }
     if (toggle) {

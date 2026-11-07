@@ -8,12 +8,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&family=Noto+Sans+TC:wght@500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/site.css?v=35" />
-  <link rel="stylesheet" href="assets/account.css?v=1" />
+  <link rel="stylesheet" href="assets/account.css?v=2" />
   <script src="assets/supabase-public.js?v=1"></script>
   <script src="assets/progress-sync.js?v=1"></script>
-  <script src="assets/account.js?v=1"></script>
+  <script src="assets/account.js?v=2"></script>
 </head>
-<body>
+<body class="account-page">
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="index.html">English Revision</a>
@@ -24,40 +24,45 @@
       </nav>
     </div>
   </header>
-  <main class="account-main">
-    <h1 id="account-mode-title">Sign in</h1>
-    <p class="account-lead">Units and dictation work with no account. Sign in to save progress and badges to a username.</p>
-    <p class="account-zh" lang="zh-Hant">單元和默書不用登入。登入後，進度和徽章會存在這個帳號。同一時間只可以一部裝置登入。</p>
-    <p class="account-hint">A new sign-in closes the account on the other device.</p>
-
-    <p id="account-pending" class="account-hint" hidden>Checking this account…</p>
-
-    <section id="account-signed-in" class="account-card" hidden>
-      <h2>Signed in as <span id="account-current-name"></span></h2>
-      <p class="account-lead">Progress and badges on this device save to this username.</p>
-      <div class="account-actions">
-        <a class="btn btn-primary" href="index.html">Back to packs</a>
-        <button type="button" class="btn btn-ink" id="account-signout">Sign out</button>
-      </div>
+  <main class="account-split" id="account-screen" data-mode="signin">
+    <section class="account-aside" aria-labelledby="account-mode-title">
+      <p class="account-kicker" id="account-kicker">Welcome back</p>
+      <h1 id="account-mode-title">Sign in</h1>
+      <p class="account-lead" id="account-lead">Units and dictation work with no account. Sign in to save progress and badges.</p>
+      <p class="account-zh" id="account-zh" lang="zh-Hant">單元和默書不用登入。登入後，進度和徽章會存在這個帳號。</p>
+      <p class="account-aside-note" id="account-aside-note">A new sign-in closes the other device.</p>
     </section>
+    <section class="account-panel">
+      <p id="account-pending" class="account-hint" hidden>Checking this account…</p>
 
-    <form id="account-form" class="account-card" method="post" action="account.html">
-      <label class="account-field" for="account-username-input">
-        Username <span lang="zh-Hant">使用者名稱</span>
-        <input id="account-username-input" name="username" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20" required />
-      </label>
-      <p class="account-hint">3–20 characters. Start with a letter. Letters, numbers, and underscores. Not an email.</p>
-      <label class="account-field" for="account-password">
-        Password <span lang="zh-Hant">密碼</span>
-        <input id="account-password" name="password" type="password" autocomplete="current-password" minlength="6" maxlength="72" required />
-      </label>
-      <p class="account-hint">At least 6 characters.</p>
-      <p id="account-error" class="account-error" role="alert" hidden></p>
-      <div class="account-actions">
-        <button type="submit" class="btn btn-primary" id="account-submit">Sign in</button>
-        <button type="button" class="account-text-btn" id="account-toggle">Need a username? Create one</button>
-      </div>
-    </form>
+      <section id="account-signed-in" class="account-card" hidden>
+        <h2>Signed in as <span id="account-current-name"></span></h2>
+        <p class="account-lead">Progress and badges on this device save to this username.</p>
+        <div class="account-actions">
+          <a class="btn btn-primary" href="index.html">Back to packs</a>
+          <button type="button" class="btn btn-ink" id="account-signout">Sign out</button>
+        </div>
+      </section>
+
+      <form id="account-form" class="account-card" method="post" action="account.html">
+        <p class="account-form-kicker" id="account-form-kicker">Sign in with your username</p>
+        <label class="account-field" for="account-username-input">
+          <span class="account-field-name">Username <span lang="zh-Hant">使用者名稱</span></span>
+          <input id="account-username-input" name="username" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20" required />
+        </label>
+        <p class="account-hint">3–20 characters. Start with a letter. Not an email.</p>
+        <label class="account-field" for="account-password">
+          <span class="account-field-name">Password <span lang="zh-Hant">密碼</span></span>
+          <input id="account-password" name="password" type="password" autocomplete="current-password" minlength="6" maxlength="72" required />
+        </label>
+        <p class="account-hint">At least 6 characters.</p>
+        <p id="account-error" class="account-error" role="alert" hidden></p>
+        <div class="account-actions">
+          <button type="submit" class="btn btn-primary" id="account-submit">Sign in</button>
+          <button type="button" class="account-text-btn" id="account-toggle">Don't have an account? Create one here.</button>
+        </div>
+      </form>
+    </section>
   </main>
 </body>
 </html>
