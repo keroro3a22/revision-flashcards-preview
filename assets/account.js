@@ -207,8 +207,8 @@
     if (!form && !panel) return;
     if (pending) pending.hidden = true;
     if (displayName && userId) {
-      if (panel) panel.hidden = false;
       if (form) form.hidden = true;
+      if (panel && !document.getElementById('profile-form')) panel.hidden = false;
       paintSettings();
     } else {
       settingsPainted = false;

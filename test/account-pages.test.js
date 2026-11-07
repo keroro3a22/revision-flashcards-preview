@@ -16,7 +16,8 @@ test('sign in and profile are different pages', () => {
   assert.match(sign, /id="account-toggle"/);
   assert.doesNotMatch(sign, /id="account-settings"/);
   assert.doesNotMatch(sign, /id="account-signout"/);
-  assert.match(profile, /id="account-settings"/);
+  assert.match(profile, /id="account-settings"[^>]*hidden/);
+  assert.match(read('assets/account.js'), /profile-form/);
   assert.match(profile, /id="profile-form"/);
   assert.match(profile, /id="tab-account"/);
   assert.match(profile, /id="settings-password-2"/);
