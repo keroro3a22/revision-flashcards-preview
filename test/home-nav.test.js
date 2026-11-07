@@ -36,7 +36,7 @@ test('homepage topbar is the account link, with book, level, and unit navigation
   assert.doesNotMatch(html, />Account</);
   assert.doesNotMatch(html, /<select/);
   assert.match(html, /assets\/place\.js\?v=2/);
-  assert.equal(html.includes('site.css?v=38'), true);
+  assert.equal(html.includes('site.css?v=39'), true);
 });
 
 test('pack and card art keeps its frame', () => {

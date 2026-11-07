@@ -262,8 +262,9 @@
 
   function sessionIsCurrent() {
     return client.rpc('session_is_current').then(function (result) {
-      return !result.error && result.data === true;
-    });
+      if (result.error) return true;
+      return result.data === true;
+    }).catch(function () { return true; });
   }
 
   function fetchRemote() {
@@ -441,7 +442,7 @@
     }
     pushing = true;
     return sessionIsCurrent().then(function (ok) {
-      if (!ok) return kicked();
+      if (!ok) return null;
       return fetchRemote();
     }).then(function (remote) {
       if (!remote || !userId) return;
@@ -473,11 +474,8 @@
       sessionIsCurrent().then(function (ok) { if (!ok && userId) kicked(); });
     }, 20000);
     document.addEventListener('visibilitychange', function () {
-      if (!userId || !client) return;
-      if (document.visibilityState === 'hidden') pushNow();
-      if (document.visibilityState === 'visible') {
-        sessionIsCurrent().then(function (ok) { if (!ok && userId) kicked(); });
-      }
+      if (!userId || !client || document.visibilityState !== 'hidden') return;
+      pushNow();
     });
   }
 
@@ -516,11 +514,12 @@
         return null;
       }
       return sessionIsCurrent().then(function (ok) {
-        if (!ok) {
+        if (ok) return fetchRemote();
+        return client.rpc('claim_session').then(function (claimed) {
+          if (claimed && claimed.data === true) return fetchRemote();
           kicked();
           return null;
-        }
-        return fetchRemote();
+        });
       });
     }).then(function (remote) {
       if (!remote) return;
@@ -551,12 +550,12 @@
       paintLink();
       var saved = plan.upload ? upsert(plan.snapshot) : Promise.resolve();
       return saved.then(function () {
-        hydrated = true;
-        startWatch();
         if (opts.afterLogin) {
           window.location.href = nextHref();
           return;
         }
+        hydrated = true;
+        startWatch();
         maybeReload(before, plan.snapshot);
       });
     }).catch(function () {
@@ -762,9 +761,6 @@
       ensureClient().then(function () {
         return created ? signup(name, pass) : signIn(name, pass, false);
       }).then(function () {
-        return client.auth.signOut({ scope: 'others' });
-      }).then(function (signedOut) {
-        if (signedOut && signedOut.error) throw signedOut.error;
         return client.rpc('claim_session');
       }).then(function (claimed) {
         if (!claimed || claimed.error || claimed.data !== true) {
