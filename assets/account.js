@@ -136,7 +136,8 @@
   function paintLink() {
     var link = document.getElementById('account-link');
     if (link) {
-      link.textContent = displayName || (link.classList.contains('account-link-fab') ? 'Sign in' : 'Sign in / Sign up');
+      if (link.classList.contains('account-entry')) link.textContent = 'Account';
+      else link.textContent = displayName || (link.classList.contains('account-link-fab') ? 'Sign in' : 'Sign in / Sign up');
       link.setAttribute('href', accountHref());
     }
     var form = document.getElementById('account-form');

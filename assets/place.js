@@ -1,38 +1,86 @@
-/* Book, level, and unit for the home screen.
-   The choice is remembered on this device. Account settings do not store it. */
+/* Book, level, and the last home view.
+   Saved on this device. Updated whenever the reader changes book, level, or tab. */
 window.RevisionPlace = (function () {
   var STORAGE_KEY = 'revision-place-v1';
-  var BUILDING = '這個單元還在砌緊。';
+  var HOME = 'home';
 
   var books = [
-    { id: 'longman', label: 'Longman' },
-    { id: 'oxford', label: 'Oxford' }
+    { id: 'longman', label: 'Longman', image: 'covers/unit2.jpg' },
+    { id: 'oxford', label: 'Oxford', image: 'covers/unit1.jpg' }
   ];
   var levels = [
-    { id: 'p1', label: 'P1' },
-    { id: 'p2', label: 'P2' },
-    { id: 'p3', label: 'P3' },
-    { id: 'p4', label: 'P4' },
-    { id: 'p5', label: 'P5' },
-    { id: 'p6', label: 'P6' }
+    { id: 'p1', label: 'P1', image: 'unit1/thumb_01.jpg' },
+    { id: 'p2', label: 'P2', image: 'unit2/thumb_01.png' },
+    { id: 'p3', label: 'P3', image: 'unit3/thumb_01.jpg' },
+    { id: 'p4', label: 'P4', image: 'unit4/thumb_02.png' },
+    { id: 'p5', label: 'P5', image: 'dictation3/thumb_01.png' },
+    { id: 'p6', label: 'P6', image: 'covers/unit4.jpg' }
   ];
 
-  function unitsFor(book, level) {
-    if (book === 'oxford' && level === 'p6') {
-      return [
-        { id: 'unit1', label: 'Unit 1', title: 'For a good cause' },
-        { id: 'unit2', label: 'Unit 2', title: 'Lend a helping hand' },
-        { id: 'unit3', label: 'Unit 3', title: 'Junior Super Chef' },
-        { id: 'unit4', label: 'Unit 4', title: 'Film magic' },
-        { id: 'dictation3', label: 'Dictation', title: 'Films and similes' }
-      ];
+  var cardArt = {
+    unit1: {
+      words: 'unit1/thumb_01.jpg',
+      grammar: 'practice/grammar/illust/u1_09_fair.jpg',
+      revision: 'covers/unit1.jpg',
+      game: 'game/illust/intro/detective.png',
+      practice: 'unit1/thumb_08.jpg'
+    },
+    unit2: {
+      words: 'unit2/thumb_03.png',
+      grammar: 'practice/grammar/illust/u2_06_typhoon.jpg',
+      revision: 'covers/unit2.jpg',
+      game: 'practice/grammar/illust/u2_07_floodroad.png',
+      practice: 'unit2/thumb_09.jpg'
+    },
+    unit3: {
+      words: 'unit3/thumb_01.jpg',
+      grammar: 'unit3/thumb_06.jpg',
+      revision: 'covers/unit3.jpg',
+      game: 'unit3/thumb_12.jpg',
+      practice: 'unit3/thumb_04.jpg'
+    },
+    unit4: {
+      words: 'unit4/thumb_01.png',
+      grammar: 'practice/grammar/illust/u4_sparkly_finale.jpg',
+      revision: 'covers/unit4.jpg',
+      game: 'game/illust/intro/map.png',
+      practice: 'unit4/thumb_10.jpg'
+    },
+    dictation3: {
+      words: 'dictation3/thumb_01.png',
+      grammar: 'dictation3/thumb_05.png',
+      revision: 'covers/dictation3.jpg',
+      game: 'dictation3/card_01_action_film.png',
+      practice: 'dictation3/thumb_12.png'
     }
-    return [
-      { id: 'unit1', label: 'Unit 1', title: '' },
-      { id: 'unit2', label: 'Unit 2', title: '' },
-      { id: 'unit3', label: 'Unit 3', title: '' },
-      { id: 'unit4', label: 'Unit 4', title: '' }
-    ];
+  };
+
+  var covers = {
+    unit1: 'covers/unit1.jpg',
+    unit2: 'covers/unit2.jpg',
+    unit3: 'covers/unit3.jpg',
+    unit4: 'covers/unit4.jpg',
+    dictation3: 'covers/dictation3.jpg'
+  };
+
+  function unitsFor(book, level) {
+    var titles = book === 'oxford' && level === 'p6'
+      ? [
+          ['unit1', 'Unit 1', 'For a good cause'],
+          ['unit2', 'Unit 2', 'Lend a helping hand'],
+          ['unit3', 'Unit 3', 'Junior Super Chef'],
+          ['unit4', 'Unit 4', 'Film magic'],
+          ['dictation3', 'Dictation', 'Films and similes']
+        ]
+      : [
+          ['unit1', 'Unit 1', ''],
+          ['unit2', 'Unit 2', ''],
+          ['unit3', 'Unit 3', ''],
+          ['unit4', 'Unit 4', '']
+        ];
+    return titles.map(function (row) {
+      return { id: row[0], label: row[1], title: row[2], cover: covers[row[0]] };
+    });
   }
 
   function labelOf(list, id) {
@@ -52,7 +100,7 @@ window.RevisionPlace = (function () {
     if (!input || typeof input !== 'object') return null;
     if (!known(books, input.book) || !known(levels, input.level)) return null;
     var units = unitsFor(input.book, input.level);
-    var unit = known(units, input.unit) ? input.unit : units[0].id;
+    var unit = input.unit === HOME || known(units, input.unit) ? input.unit : HOME;
     return { book: input.book, level: input.level, unit: unit };
   }
 
@@ -79,16 +127,17 @@ window.RevisionPlace = (function () {
     return normalize({
       book: next.book || (base ? base.book : ''),
       level: next.level || (base ? base.level : ''),
-      unit: Object.prototype.hasOwnProperty.call(next, 'unit') ? next.unit : (base ? base.unit : '')
+      unit: Object.prototype.hasOwnProperty.call(next, 'unit') ? next.unit : (base ? base.unit : HOME)
     });
   }
 
-  function door(id, label, href) {
-    if (href) return { id: id, label: label, href: href, ready: true, note: '' };
-    return { id: id, label: label, href: '', ready: false, note: BUILDING };
+  function door(id, label, href, image) {
+    return { id: id, label: label, href: href || '', ready: !!href, note: '', image: image || '' };
   }
 
   function entriesFor(place) {
+    if (!place || place.unit === HOME) return [];
+    var art = cardArt[place.unit] || cardArt.unit1;
     var names = [
       ['words', 'Words'],
       ['grammar', 'Grammar'],
@@ -98,23 +147,23 @@ window.RevisionPlace = (function () {
     ];
     var live = place.book === 'oxford' && place.level === 'p6';
     if (!live) {
-      return names.map(function (pair) { return door(pair[0], pair[1], ''); });
+      return names.map(function (pair) { return door(pair[0], pair[1], '', art[pair[0]]); });
     }
     var unit = place.unit;
     var card = unit === 'dictation3' ? 'dictation3/index.html' : unit + '/index.html';
     var grammar = unit === 'dictation3' ? '' : 'practice/grammar/' + unit + '-hub.html';
     return [
-      door('words', 'Words', card),
-      door('grammar', 'Grammar', grammar),
-      door('revision', 'Revision 卡', card),
-      door('game', 'Game', 'game/index.html'),
-      door('practice', 'Practice', 'practice/index.html?unit=' + encodeURIComponent(unit))
+      door('words', 'Words', card, art.words),
+      door('grammar', 'Grammar', grammar, art.grammar),
+      door('revision', 'Revision 卡', card, art.revision),
+      door('game', 'Game', 'game/index.html', art.game),
+      door('practice', 'Practice', 'practice/index.html?unit=' + encodeURIComponent(unit), art.practice)
     ];
   }
 
   return {
     STORAGE_KEY: STORAGE_KEY,
-    BUILDING: BUILDING,
+    HOME: HOME,
     books: books,
     levels: levels,
     unitsFor: unitsFor,

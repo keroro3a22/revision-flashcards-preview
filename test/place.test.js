@@ -10,7 +10,10 @@ test('books are Longman and Oxford, levels are P1 to P6', () => {
   const P = place();
   assert.equal(P.books.map((book) => book.id).join(','), 'longman,oxford');
   assert.equal(P.levels.map((level) => level.id).join(','), 'p1,p2,p3,p4,p5,p6');
+  assert.equal(P.books.every((book) => book.image), true);
+  assert.equal(P.levels.every((level) => level.image), true);
   assert.equal(P.headerText({ book: 'oxford', level: 'p6' }), 'Oxford · P6');
+  assert.equal(P.HOME, 'home');
 });
 
 test('Oxford P6 keeps the live units and other books use four empty units', () => {
@@ -33,17 +36,21 @@ test('Oxford P6 unit doors open the pages that already exist', () => {
     practice: 'practice/index.html?unit=unit1'
   });
   assert.equal(doors.every((door) => door.ready), true);
+  const other = P.entriesFor({ book: 'oxford', level: 'p6', unit: 'unit2' });
+  assert.notEqual(doors.map((door) => door.image).join('|'), other.map((door) => door.image).join('|'));
 });
 
-test('a book without pages says the unit is still being built', () => {
+test('a book without pages keeps the doors and pictures, with no status line yet', () => {
   const P = place();
   const doors = P.entriesFor({ book: 'longman', level: 'p1', unit: 'unit2' });
   assert.equal(doors.map((door) => door.id).join(','), 'words,grammar,revision,game,practice');
   doors.forEach((door) => {
     assert.equal(door.ready, false);
     assert.equal(door.href, '');
-    assert.equal(door.note, '這個單元還在砌緊。');
+    assert.equal(door.note, '');
+    assert.equal(door.image.length > 0, true);
   });
+  assert.equal(JSON.stringify(doors).includes('砌緊'), false);
 });
 
 test('dictation keeps its cards and practice, and grammar stays unfinished', () => {
@@ -54,7 +61,8 @@ test('dictation keeps its cards and practice, and grammar stays unfinished', () 
   assert.equal(href.revision, 'dictation3/index.html');
   assert.equal(href.grammar, '');
   assert.equal(href.practice, 'practice/index.html?unit=dictation3');
-  assert.equal(doors.find((door) => door.id === 'grammar').note, P.BUILDING);
+  assert.equal(doors.find((door) => door.id === 'grammar').note, '');
+  assert.notEqual(doors.find((door) => door.id === 'words').image, doors.find((door) => door.id === 'grammar').image);
 });
 
 test('the last place is remembered on this device and a missing unit falls back', () => {
@@ -65,8 +73,10 @@ test('the last place is remembered on this device and a missing unit falls back'
   assert.equal(JSON.stringify(saved), JSON.stringify({ book: 'oxford', level: 'p6', unit: 'dictation3' }));
   assert.equal(JSON.stringify(P.read(storage)), JSON.stringify(saved));
 
+  const started = P.write(storage, { book: 'oxford', level: 'p6', unit: 'home' });
+  assert.equal(started.unit, 'home');
   const moved = P.withChange(saved, { book: 'longman', level: 'p5' });
-  assert.equal(moved.unit, 'unit1');
+  assert.equal(moved.unit, 'home');
   assert.equal(JSON.stringify(P.write(storage, moved)), JSON.stringify(moved));
 
   const kept = P.withChange({ book: 'oxford', level: 'p6', unit: 'unit4' }, { book: 'longman' });

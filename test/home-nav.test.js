@@ -16,20 +16,23 @@ function nav(file) {
 test('homepage topbar is the account link, with book, level, and unit navigation', () => {
   const { html, nav: bar } = nav('index.html');
   assert.match(bar, /href="account\.html"/);
-  assert.match(bar, />Sign in \/ Sign up</);
+  assert.match(bar, />Account</);
   assert.equal(bar.match(/<a\b/g).length, 1);
   assert.doesNotMatch(bar, />Revision</);
   assert.doesNotMatch(bar, />Practice</);
   assert.doesNotMatch(bar, />Game</);
   assert.match(html, /id="place-guide"/);
-  assert.match(html, /選好之後，這部裝置會記住。/);
+  assert.doesNotMatch(html, /選好之後，這部裝置會記住。/);
+  assert.doesNotMatch(html, /砌緊/);
   assert.match(html, /id="place-header"/);
-  assert.match(html, /id="book-button"/);
-  assert.match(html, /id="level-button"/);
+  assert.match(html, /<header class="topbar">[\s\S]*id="book-button"/);
+  assert.match(html, /<header class="topbar">[\s\S]*id="level-button"/);
   assert.match(html, /id="unit-tabs" role="tablist"/);
+  assert.match(html, /id="home-overview"/);
+  assert.match(html, /id="grade-covers"/);
   assert.doesNotMatch(html, /<select/);
-  assert.match(html, /assets\/place\.js\?v=1/);
-  assert.equal(html.includes('site.css?v=36'), true);
+  assert.match(html, /assets\/place\.js\?v=2/);
+  assert.equal(html.includes('site.css?v=37'), true);
 });
 
 test('pack and card art keeps its frame', () => {
@@ -117,6 +120,6 @@ test('badges page has no illustration caption and links Sign in / Sign up', () =
   assert.equal(html.includes('schoolboy'), false);
   assert.doesNotMatch(html, /index\.html#packs/);
   assert.match(bar, /href="account\.html"/);
-  assert.match(bar, />Sign in \/ Sign up</);
+  assert.match(bar, />Account</);
   assert.equal(bar.match(/<a\b/g).length, 1);
 });

@@ -1,4 +1,4 @@
-/* Home guide, book and level menus, and the unit tab bar. */
+/* Guide, top-bar book and level menus, Get started, and unit cards. */
 (function () {
   var P = window.RevisionPlace;
   if (!P) return;
@@ -47,14 +47,74 @@
     });
   }
 
+  function renderCovers(place) {
+    var box = document.getElementById('grade-covers');
+    if (!box) return;
+    box.replaceChildren();
+    P.unitsFor(place.book, place.level).forEach(function (unit) {
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'grade-cover';
+      var img = document.createElement('img');
+      img.src = unit.cover;
+      img.alt = '';
+      var caption = document.createElement('span');
+      caption.textContent = unitText(unit);
+      button.appendChild(img);
+      button.appendChild(caption);
+      button.addEventListener('click', function () {
+        save(P.withChange(place, { unit: unit.id }));
+      });
+      box.appendChild(button);
+    });
+  }
+
+  function renderEntries(place) {
+    var box = document.getElementById('place-entries');
+    var heading = document.getElementById('unit-heading');
+    box.replaceChildren();
+    if (place.unit === P.HOME) {
+      heading.textContent = '';
+      return;
+    }
+    var selected = P.unitsFor(place.book, place.level).filter(function (unit) {
+      return unit.id === place.unit;
+    })[0];
+    heading.textContent = selected ? unitText(selected) : '';
+    P.entriesFor(place).forEach(function (item) {
+      var el = document.createElement(item.ready ? 'a' : 'div');
+      el.className = 'place-entry tone-' + item.id + (item.ready ? '' : ' is-building');
+      if (item.ready) el.href = item.href;
+      if (item.image) {
+        var img = document.createElement('img');
+        img.src = item.image;
+        img.alt = '';
+        el.appendChild(img);
+      }
+      var title = document.createElement('h3');
+      title.textContent = item.label;
+      el.appendChild(title);
+      if (item.ready) {
+        var note = document.createElement('p');
+        note.textContent = blurbs[item.id];
+        el.appendChild(note);
+      }
+      box.appendChild(el);
+    });
+  }
+
   function renderShell(place) {
+    document.documentElement.setAttribute('data-view', place.unit === P.HOME ? 'home' : 'unit');
+    document.documentElement.setAttribute('data-level-live', place.book === 'oxford' && place.level === 'p6' ? 'yes' : 'no');
     document.getElementById('place-header').textContent = P.headerText(place);
-    document.getElementById('book-button').textContent = P.books.filter(function (item) {
-      return item.id === place.book;
-    })[0].label;
-    document.getElementById('level-button').textContent = P.levels.filter(function (item) {
-      return item.id === place.level;
-    })[0].label;
+    var bookLabel = P.books.filter(function (item) { return item.id === place.book; })[0].label;
+    var levelLabel = P.levels.filter(function (item) { return item.id === place.level; })[0].label;
+    var bookButton = document.getElementById('book-button');
+    var levelButton = document.getElementById('level-button');
+    bookButton.textContent = bookLabel;
+    levelButton.textContent = levelLabel;
+    bookButton.setAttribute('aria-label', 'Books, ' + bookLabel);
+    levelButton.setAttribute('aria-label', 'Levels, ' + levelLabel);
     fillMenu('book', P.books, place.book, function (id) {
       save(P.withChange(place, { book: id }));
     });
@@ -62,10 +122,10 @@
       save(P.withChange(place, { level: id }));
     });
 
-    var units = P.unitsFor(place.book, place.level);
+    var views = [{ id: P.HOME, label: 'Get started' }].concat(P.unitsFor(place.book, place.level));
     var tabs = document.getElementById('unit-tabs');
     tabs.replaceChildren();
-    units.forEach(function (unit, index) {
+    views.forEach(function (unit, index) {
       var tab = document.createElement('button');
       tab.type = 'button';
       tab.className = 'unit-tab';
@@ -78,34 +138,18 @@
       });
       tab.addEventListener('keydown', function (event) {
         var next = index;
-        if (event.key === 'ArrowRight') next = Math.min(units.length - 1, index + 1);
+        if (event.key === 'ArrowRight') next = Math.min(views.length - 1, index + 1);
         else if (event.key === 'ArrowLeft') next = Math.max(0, index - 1);
         else return;
         event.preventDefault();
-        save(P.withChange(place, { unit: units[next].id }));
+        save(P.withChange(place, { unit: views[next].id }));
         var buttons = tabs.querySelectorAll('.unit-tab');
         if (buttons[next]) buttons[next].focus();
       });
       tabs.appendChild(tab);
     });
-
-    var selected = units.filter(function (unit) { return unit.id === place.unit; })[0];
-    document.getElementById('unit-heading').textContent = selected ? unitText(selected) : '';
-
-    var box = document.getElementById('place-entries');
-    box.replaceChildren();
-    P.entriesFor(place).forEach(function (item) {
-      var el = document.createElement(item.ready ? 'a' : 'div');
-      el.className = 'place-entry tone-' + item.id + (item.ready ? '' : ' is-building');
-      if (item.ready) el.href = item.href;
-      var title = document.createElement('h3');
-      title.textContent = item.label;
-      var note = document.createElement('p');
-      note.textContent = item.ready ? blurbs[item.id] : item.note;
-      el.appendChild(title);
-      el.appendChild(note);
-      box.appendChild(el);
-    });
+    renderCovers(place);
+    renderEntries(place);
     closeMenus();
   }
 
@@ -121,26 +165,30 @@
     var title = document.getElementById('place-guide-title');
     var back = document.getElementById('place-guide-back');
     var choices = document.getElementById('place-guide-choices');
-    var headings = { book: 'Pick a book', level: 'Pick a level', unit: 'Pick a unit' };
-    title.textContent = headings[step];
+    title.textContent = step === 'book' ? 'Pick a book' : 'Pick a level';
+    choices.className = 'place-choices is-' + step;
     back.hidden = step === 'book';
     choices.replaceChildren();
-    var items = step === 'book' ? P.books : (step === 'level' ? P.levels : P.unitsFor(draft.book, draft.level));
+    var items = step === 'book' ? P.books : P.levels;
     items.forEach(function (item) {
       var button = document.createElement('button');
       button.type = 'button';
       button.className = 'place-choice';
-      button.textContent = step === 'unit' ? unitText(item) : item.label;
+      var img = document.createElement('img');
+      img.src = item.image;
+      img.alt = '';
+      var label = document.createElement('span');
+      label.textContent = item.label;
+      button.appendChild(img);
+      button.appendChild(label);
       button.addEventListener('click', function () {
-        if (step === 'book') renderGuide('level', { book: item.id, level: '', unit: '' });
-        else if (step === 'level') renderGuide('unit', { book: draft.book, level: item.id, unit: '' });
-        else save({ book: draft.book, level: draft.level, unit: item.id });
+        if (step === 'book') renderGuide('level', { book: item.id, level: '', unit: P.HOME });
+        else save({ book: draft.book, level: item.id, unit: P.HOME });
       });
       choices.appendChild(button);
     });
     back.onclick = function () {
-      if (step === 'unit') renderGuide('level', draft);
-      else renderGuide('book', { book: '', level: '', unit: '' });
+      renderGuide('book', { book: '', level: '', unit: P.HOME });
     };
   }
 
@@ -169,10 +217,19 @@
     document.addEventListener('keydown', function (event) {
       if (event.key === 'Escape') closeMenus();
     });
+    var brand = document.querySelector('.brand');
+    if (brand) {
+      brand.addEventListener('click', function (event) {
+        var place = P.read(window.localStorage);
+        if (!place) return;
+        event.preventDefault();
+        save(P.withChange(place, { unit: P.HOME }));
+      });
+    }
     var place = P.read(window.localStorage);
     if (!place) {
       show('guide');
-      renderGuide('book', { book: '', level: '', unit: '' });
+      renderGuide('book', { book: '', level: '', unit: P.HOME });
       return;
     }
     show('ready');
