@@ -111,6 +111,11 @@
     return name || 'Account';
   }
 
+  function pageHref(file) {
+    var root = siteRoot();
+    return (root || '') + file;
+  }
+
   function accountHref() {
     var root = siteRoot();
     var account = (root || '') + 'account.html';
@@ -501,10 +506,15 @@
         }
         paintLink();
         unhide();
+        if (document.getElementById('account-settings')) window.location.replace(pageHref('account.html'));
         return null;
       }
       userId = session.user.id;
       displayName = labelFromUser(session.user);
+      if (!opts.afterLogin && document.getElementById('account-form') && !document.getElementById('account-settings')) {
+        window.location.replace(pageHref('profile.html'));
+        return null;
+      }
       return sessionIsCurrent().then(function (ok) {
         if (!ok) {
           kicked();
@@ -605,6 +615,7 @@
   }
 
   function wireForm() {
+    wireSettings();
     var form = document.getElementById('account-form');
     if (!form) return;
     var mode = 'signin';
@@ -664,6 +675,8 @@
         if (error) error.hidden = true;
       });
     }
+  function wireSettings() {
+    var signOutBtn = document.getElementById('account-signout');
     if (signOutBtn) signOutBtn.addEventListener('click', function () { signOutLocal(''); });
     var settingsForm = document.getElementById('account-settings');
     if (settingsForm) {
@@ -730,6 +743,8 @@
         });
       });
     }
+  }
+
     form.addEventListener('submit', function (event) {
       event.preventDefault();
       var name = P.normalizeUsername(username.value);

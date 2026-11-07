@@ -12,9 +12,8 @@
   <link rel="stylesheet" href="assets/account.css?v=4" />
   <script src="assets/supabase-public.js?v=1"></script>
   <script src="assets/progress-sync.js?v=1"></script>
-  <script src="practice/badges.js?v=1"></script>
-  <script src="assets/profile.js?v=4"></script>
-  <script src="assets/account.js?v=5"></script>
+  <script src="assets/profile.js?v=5"></script>
+  <script src="assets/account.js?v=6"></script>
 </head>
 <body class="account-page">
   <header class="topbar">
@@ -38,34 +37,6 @@
     </section>
     <section class="account-panel">
       <p id="account-pending" class="account-hint" hidden>Checking this account…</p>
-
-      <form id="account-settings" class="account-card" hidden>
-        <section id="account-signed-in">
-          <h2>Your account</h2>
-          <p class="account-lead">Change the picture, name, username, or password for this account.</p>
-          <p class="account-field-name">Picture</p>
-          <div class="settings-avatars" id="settings-avatars"></div>
-          <label class="account-field" for="settings-name">
-            <span class="account-field-name">Name <span lang="zh-Hant">名字</span></span>
-            <input id="settings-name" name="name" type="text" autocomplete="nickname" maxlength="16" required />
-          </label>
-          <label class="account-field" for="settings-username">
-            <span class="account-field-name">Username <span lang="zh-Hant">使用者名稱</span></span>
-            <input id="settings-username" name="username" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20" required />
-          </label>
-          <p class="account-hint">Changing the username changes the name you use to sign in.</p>
-          <label class="account-field" for="settings-password">
-            <span class="account-field-name">New password <span lang="zh-Hant">新密碼</span></span>
-            <input id="settings-password" name="password" type="password" autocomplete="new-password" minlength="6" maxlength="72" />
-          </label>
-          <p class="account-hint">Leave this blank to keep the current password.</p>
-          <p id="settings-message" class="account-hint" role="status" hidden></p>
-          <div class="account-actions">
-            <button type="submit" class="btn btn-primary" id="settings-save">Save</button>
-            <button type="button" class="btn btn-ink" id="account-signout">Log out</button>
-          </div>
-        </section>
-      </form>
 
       <form id="account-form" class="account-card" method="post" action="account.html">
         <p class="account-form-kicker" id="account-form-kicker">Sign in with your username</p>
