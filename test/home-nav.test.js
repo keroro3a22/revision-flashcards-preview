@@ -13,14 +13,14 @@ function nav(file) {
   return { html, nav: match[0] };
 }
 
-test('homepage header is Revision, Practice, and Sign in', () => {
+test('homepage header is Revision, Practice, and Sign in / Sign up', () => {
   const { nav: bar } = nav('index.html');
   assert.match(bar, /href="#packs"/);
   assert.match(bar, />Revision</);
   assert.match(bar, /href="practice\/grammar\/practice-entry.html"/);
   assert.match(bar, />Practice</);
   assert.match(bar, /href="account\.html"/);
-  assert.match(bar, />Sign in</);
+  assert.match(bar, />Sign in \/ Sign up</);
   assert.doesNotMatch(bar, /href="game\/index.html"/);
   assert.doesNotMatch(bar, />Game</);
   assert.doesNotMatch(bar, />Packs</);
@@ -119,7 +119,7 @@ print('ok')
   assert.match(out, /ok/);
 });
 
-test('badges page has no illustration caption and links Revision, Practice, and Sign in', () => {
+test('badges page has no illustration caption and links Revision, Practice, and Sign in / Sign up', () => {
   const { html, nav: bar } = nav('badges.html');
   assert.equal(html.includes('Illustrations of people'), false);
   assert.equal(html.includes('badge-credit'), false);
@@ -128,6 +128,6 @@ test('badges page has no illustration caption and links Revision, Practice, and 
   assert.match(bar, />Revision</);
   assert.match(bar, />Practice</);
   assert.match(bar, /href="account\.html"/);
-  assert.match(bar, />Sign in</);
+  assert.match(bar, />Sign in \/ Sign up</);
   assert.equal(bar.match(/<a\b/g).length, 3);
 });

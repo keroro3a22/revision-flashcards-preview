@@ -136,7 +136,7 @@
   function paintLink() {
     var link = document.getElementById('account-link');
     if (link) {
-      link.textContent = displayName || 'Sign in';
+      link.textContent = displayName || (link.classList.contains('account-link-fab') ? 'Sign in' : 'Sign in / Sign up');
       link.setAttribute('href', accountHref());
     }
     var form = document.getElementById('account-form');
@@ -162,14 +162,15 @@
     }
     var link = document.createElement('a');
     link.id = 'account-link';
-    link.textContent = 'Sign in';
     link.href = accountHref();
     var nav = document.querySelector('.nav-plain');
     if (nav) {
       link.className = 'nav-jump';
+      link.textContent = 'Sign in / Sign up';
       nav.appendChild(link);
       return;
     }
+    link.textContent = 'Sign in';
     link.className = 'account-link-fab';
     document.body.appendChild(link);
   }

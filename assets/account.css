@@ -66,10 +66,9 @@ body.account-page .topbar { position: relative; flex: none; }
   display: flex;
   flex-direction: column;
   justify-content: center;
-  border-radius: 28px;
-  padding: clamp(1.25rem, 3vh, 2.4rem);
-  background: var(--navy, #243c6c);
-  color: var(--cream, #fcf0d8);
+  padding: clamp(0.5rem, 2vh, 1rem) 0;
+  background: transparent;
+  color: var(--navy, #243c6c);
 }
 
 .account-kicker,
@@ -81,7 +80,7 @@ body.account-page .topbar { position: relative; flex: none; }
   font-size: 0.82rem;
 }
 
-.account-kicker { color: var(--pale-yellow, #fcc03c); }
+.account-kicker { color: var(--navy, #243c6c); }
 
 .account-aside h1 {
   margin-top: 0.35rem;
@@ -102,14 +101,14 @@ body.account-page .topbar { position: relative; flex: none; }
 .account-lead,
 .account-zh { margin-top: 0.75rem; }
 
-.account-aside .account-lead { color: var(--cream, #fcf0d8); }
+.account-aside .account-lead { color: var(--navy, #243c6c); }
 
-.account-aside .account-zh { color: rgba(252, 240, 216, 0.82); }
+.account-aside .account-zh { color: var(--muted, #5a6570); }
 
 .account-aside-note {
   margin-top: 1.25rem;
   font-weight: 750;
-  color: var(--pale-yellow, #fcc03c);
+  color: var(--navy, #243c6c);
 }
 
 .account-panel {
@@ -119,11 +118,6 @@ body.account-page .topbar { position: relative; flex: none; }
 }
 
 .account-form-kicker { color: var(--navy, #243c6c); }
-
-#account-screen[data-mode="signup"] .account-aside {
-  background: var(--coral, #fc903c);
-  color: var(--navy, #243c6c);
-}
 
 #account-screen[data-mode="signup"] .account-kicker,
 #account-screen[data-mode="signup"] .account-aside .account-lead,
