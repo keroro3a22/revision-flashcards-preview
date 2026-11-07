@@ -13,33 +13,26 @@ function nav(file) {
   return { html, nav: match[0] };
 }
 
-test('homepage header is Revision, Practice, and Sign in / Sign up', () => {
-  const { nav: bar } = nav('index.html');
-  assert.match(bar, /href="#packs"/);
-  assert.match(bar, />Revision</);
-  assert.match(bar, /href="practice\/grammar\/practice-entry.html"/);
-  assert.match(bar, />Practice</);
+test('homepage topbar is the account link, with book, level, and unit navigation', () => {
+  const { html, nav: bar } = nav('index.html');
   assert.match(bar, /href="account\.html"/);
   assert.match(bar, />Sign in \/ Sign up</);
-  assert.doesNotMatch(bar, /href="game\/index.html"/);
+  assert.equal(bar.match(/<a\b/g).length, 1);
+  assert.doesNotMatch(bar, />Revision</);
+  assert.doesNotMatch(bar, />Practice</);
   assert.doesNotMatch(bar, />Game</);
-  assert.doesNotMatch(bar, />Packs</);
-  assert.doesNotMatch(bar, />Start</);
-  assert.doesNotMatch(bar, /nav-action/);
-  assert.equal(bar.match(/<a\b/g).length, 3);
+  assert.match(html, /id="place-guide"/);
+  assert.match(html, /選好之後，這部裝置會記住。/);
+  assert.match(html, /id="place-header"/);
+  assert.match(html, /id="book-button"/);
+  assert.match(html, /id="level-button"/);
+  assert.match(html, /id="unit-tabs" role="tablist"/);
+  assert.doesNotMatch(html, /<select/);
+  assert.match(html, /assets\/place\.js\?v=1/);
+  assert.equal(html.includes('site.css?v=36'), true);
 });
 
-test('packs are a swipe carousel, not a grid', () => {
-  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-  assert.match(html, /class="pack-track"/);
-  assert.match(html, /id="pack-status"/);
-  assert.doesNotMatch(html, /id="pack-prev"/);
-  assert.doesNotMatch(html, /id="pack-next"/);
-  assert.doesNotMatch(html, />Previous</);
-  assert.doesNotMatch(html, />Next</);
-  assert.doesNotMatch(html, /61 words/);
-  assert.doesNotMatch(html, /pack-grid/);
-  assert.equal((html.match(/class="pack-card/g) || []).length, 5);
+test('pack and card art keeps its frame', () => {
   const css = fs.readFileSync(path.join(root, 'assets/site.css'), 'utf8');
   assert.match(css, /scroll-snap-type:\s*x mandatory/);
   const cover = css.slice(css.indexOf('.pack-cover {'), css.indexOf('.pack-body'));
@@ -47,8 +40,6 @@ test('packs are a swipe carousel, not a grid', () => {
   assert.match(cover, /object-fit:\s*contain/);
   assert.doesNotMatch(cover, /object-fit:\s*cover/);
   assert.doesNotMatch(cover, /#000|black/);
-  assert.match(html, /covers\/unit2\.jpg\?v=2/);
-  assert.equal(html.includes('site.css?v=35'), true);
   assert.match(css, /\.how-card\.tone-sunny \.how-art,\s*\.how-card\.tone-pink \.how-art \{[^}]*aspect-ratio:\s*4 \/ 3/);
   assert.match(css, /\.how-card\.tone-sunny \.how-art img,\s*\.how-card\.tone-pink \.how-art img \{[^}]*object-fit:\s*contain/);
   assert.match(css, /\.daily-img \{[^}]*object-fit:\s*contain/);
@@ -119,15 +110,13 @@ print('ok')
   assert.match(out, /ok/);
 });
 
-test('badges page has no illustration caption and links Revision, Practice, and Sign in / Sign up', () => {
+test('badges page has no illustration caption and links Sign in / Sign up', () => {
   const { html, nav: bar } = nav('badges.html');
   assert.equal(html.includes('Illustrations of people'), false);
   assert.equal(html.includes('badge-credit'), false);
   assert.equal(html.includes('schoolboy'), false);
-  assert.match(bar, /href="index\.html#packs"/);
-  assert.match(bar, />Revision</);
-  assert.match(bar, />Practice</);
+  assert.doesNotMatch(html, /index\.html#packs/);
   assert.match(bar, /href="account\.html"/);
   assert.match(bar, />Sign in \/ Sign up</);
-  assert.equal(bar.match(/<a\b/g).length, 3);
+  assert.equal(bar.match(/<a\b/g).length, 1);
 });

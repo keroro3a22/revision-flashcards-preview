@@ -270,7 +270,14 @@ window.Profile = (function () {
     });
 
     paintChip();
-    if (!load().nickname && !document.getElementById('account-notice')) open('setup');
+    function maybeSetup() {
+      if (!load().nickname && !document.getElementById('account-notice')) open('setup');
+    }
+    if (document.documentElement.getAttribute('data-place') === 'guide') {
+      document.addEventListener('revision-place-ready', maybeSetup, { once: true });
+    } else {
+      maybeSetup();
+    }
   }
 
   function buildChip() {

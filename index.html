@@ -8,7 +8,19 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/site.css?v=35" />
+  <link rel="stylesheet" href="assets/site.css?v=36" />
+  <script>
+  (function () {
+    var mode = 'guide';
+    try {
+      var data = JSON.parse(localStorage.getItem('revision-place-v1') || 'null');
+      if (data && (data.book === 'longman' || data.book === 'oxford') && /^p[1-6]$/.test(data.level) && data.unit) {
+        mode = 'ready';
+      }
+    } catch (e) {}
+    document.documentElement.setAttribute('data-place', mode);
+  })();
+  </script>
   <link rel="stylesheet" href="assets/profile.css?v=2" />
 <link rel="stylesheet" href="assets/account.css?v=1" />
 <script src="assets/supabase-public.js?v=1"></script>
@@ -16,25 +28,43 @@
 <script src="assets/account.js?v=3"></script>
 </head>
 <body>
-  <a class="sr-only skip" href="#packs">Skip to packs</a>
+  <a class="sr-only skip" href="#place-header">Skip to the unit</a>
 
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="#top">English Revision</a>
       <div id="profile-slot" class="profile-slot"></div>
-      <nav class="nav-plain" aria-label="Primary">
-        <a class="nav-jump" href="#packs">Revision</a>
-        <a class="nav-jump" href="practice/grammar/practice-entry.html">Practice</a>
+      <nav class="nav-plain" aria-label="Account">
         <a class="nav-jump" id="account-link" href="account.html">Sign in / Sign up</a>
       </nav>
     </div>
   </header>
 
   <main id="top">
-    <!-- Hero: navy board + yellow title (no folder tabs) -->
-    <section class="hero hero-simple" aria-labelledby="hero-title">
-      <h1 class="hero-title" id="hero-title">English Revision</h1>
-      <p class="hero-support">Flashcards, games, quizzes</p>
+    <section class="place-guide" id="place-guide" aria-labelledby="place-guide-title">
+      <h1 id="place-guide-title">Pick a book</h1>
+      <p class="place-guide-note" lang="zh-Hant">選好之後，這部裝置會記住。</p>
+      <div class="place-choices" id="place-guide-choices"></div>
+      <button type="button" class="place-back" id="place-guide-back" hidden>Back</button>
+    </section>
+
+    <section class="place-shell" id="place-shell" aria-labelledby="place-header">
+      <h1 class="place-header" id="place-header">Oxford · P6</h1>
+      <nav class="place-nav" aria-label="Books and levels">
+        <div class="place-drop">
+          <span class="place-drop-label" id="book-label">Books</span>
+          <button type="button" id="book-button" aria-haspopup="listbox" aria-expanded="false" aria-controls="book-menu">Oxford</button>
+          <div class="place-menu" id="book-menu" role="listbox" aria-labelledby="book-label" hidden></div>
+        </div>
+        <div class="place-drop">
+          <span class="place-drop-label" id="level-label">Levels</span>
+          <button type="button" id="level-button" aria-haspopup="listbox" aria-expanded="false" aria-controls="level-menu">P6</button>
+          <div class="place-menu" id="level-menu" role="listbox" aria-labelledby="level-label" hidden></div>
+        </div>
+      </nav>
+      <div class="unit-tabs" id="unit-tabs" role="tablist" aria-label="Units"></div>
+      <h2 class="unit-heading" id="unit-heading">Unit 1</h2>
+      <div class="place-entries" id="place-entries"></div>
     </section>
 
     <section class="badge-prompt" aria-labelledby="badge-prompt-title">
@@ -77,71 +107,6 @@
           <p class="daily-kicker">Continue last <span lang="zh-Hant">繼續上次</span></p>
           <p class="daily-continue-copy" id="daily-continue-copy">No card yet. Start with Unit 1.</p>
           <a class="btn btn-primary" id="daily-resume" href="unit1/index.html#c1">Start Unit 1</a>
-        </div>
-      </div>
-    </section>
-
-    <!-- Simple pack cards grid -->
-    <section class="section packs" id="packs" aria-labelledby="packs-title">
-      <div class="packs-field">
-        <div class="sheet reveal">
-          <a class="detective-peek" href="game/clue-hunt.html">
-            <img src="practice/grammar/illust/u4_curious.png" alt="" width="56" height="56" />
-            <span>Be a Detective</span>
-          </a>
-          <h2 class="sheet-title" id="packs-title">The packs</h2>
-          <p class="sheet-note">Swipe left or right. Pick a pack to open.</p>
-
-          <div class="pack-carousel">
-          <div class="pack-track" id="pack-index" tabindex="0" role="region" aria-roledescription="carousel" aria-label="Revision packs">
-            <article class="pack-card tone-coral reveal reveal-delay-1" aria-roledescription="slide" aria-label="Unit 1 of 5">
-              <div class="pack-cover"><img src="covers/unit1.jpg" alt="Unit 1 cover: For a good cause" width="640" height="480" loading="lazy" /></div>
-              <div class="pack-body">
-                <h3>Unit 1 · For a good cause</h3>
-                <p>Charity verbs. adopt a pet, donate money, walkathon.</p>
-                <p class="pack-tags"><span class="tag">Unit 1</span><span class="tag nums">10 words</span></p>
-                <a class="btn btn-primary pack-open" href="unit1/index.html">Open Unit 1</a>
-              </div>
-            </article>
-            <article class="pack-card tone-green reveal reveal-delay-2" aria-roledescription="slide" aria-label="Unit 2 of 5">
-              <div class="pack-cover"><img src="covers/unit2.jpg?v=2" alt="Unit 2 cover: Lend a helping hand" width="640" height="480" loading="lazy" /></div>
-              <div class="pack-body">
-                <h3>Unit 2 · Lend a helping hand</h3>
-                <p>Natural disasters and how we help. drought, flood, rescue.</p>
-                <p class="pack-tags"><span class="tag">Unit 2</span><span class="tag nums">10 words</span></p>
-                <a class="btn btn-primary pack-open" href="unit2/index.html">Open Unit 2</a>
-              </div>
-            </article>
-            <article class="pack-card tone-sky reveal reveal-delay-3" aria-roledescription="slide" aria-label="Unit 3 of 5">
-              <div class="pack-cover"><img src="covers/unit3.jpg" alt="Unit 3 cover: Junior Super Chef" width="640" height="480" loading="lazy" /></div>
-              <div class="pack-body">
-                <h3>Unit 3 · Junior Super Chef</h3>
-                <p>Kitchen verbs. beat, grate, simmer, and more for cooking class.</p>
-                <p class="pack-tags"><span class="tag">Unit 3</span><span class="tag nums">12 words</span></p>
-                <a class="btn btn-primary pack-open" href="unit3/index.html">Open Unit 3</a>
-              </div>
-            </article>
-            <article class="pack-card tone-sunny reveal reveal-delay-4" aria-roledescription="slide" aria-label="Unit 4 of 5">
-              <div class="pack-cover"><img src="covers/unit4.jpg" alt="Unit 4 cover: Film magic" width="640" height="480" loading="lazy" /></div>
-              <div class="pack-body">
-                <h3>Unit 4 · Film magic</h3>
-                <p>Genres and cinema words. action film, comedy, fantasy, musical.</p>
-                <p class="pack-tags"><span class="tag">Unit 4</span><span class="tag nums">14 words</span></p>
-                <a class="btn btn-primary pack-open" href="unit4/index.html">Open Unit 4</a>
-              </div>
-            </article>
-            <article class="pack-card tone-pink reveal reveal-delay-5" aria-roledescription="slide" aria-label="Dictation 3 of 5">
-              <div class="pack-cover"><img src="covers/dictation3.jpg" alt="Dictation 3 cover" width="640" height="480" loading="lazy" /></div>
-              <div class="pack-body">
-                <h3>Dictation 3 · Films and similes</h3>
-                <p>Film genres plus similes. blind as a bat, busy as a bee.</p>
-                <p class="pack-tags"><span class="tag">Dictation</span><span class="tag nums">15 cards</span></p>
-                <a class="btn btn-primary pack-open" href="dictation3/index.html">Open Dictation 3</a>
-              </div>
-            </article>
-          </div>
-          <p class="pack-carousel-status nums" id="pack-status" aria-live="polite">1 of 5</p>
-          </div>
         </div>
       </div>
     </section>
@@ -301,6 +266,8 @@
   })();
   </script>
 
+  <script src="assets/place.js?v=1"></script>
+  <script src="assets/place-ui.js?v=1"></script>
   <script src="practice/data/unit1.js"></script>
   <script src="practice/data/unit2.js"></script>
   <script src="practice/data/unit3.js"></script>
