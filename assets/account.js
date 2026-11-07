@@ -169,9 +169,14 @@
       img.width = 72;
       img.height = 72;
       var label = document.createElement('span');
-      label.textContent = item.unlocked ? item.label : 'Locked';
+      label.className = 'settings-avatar-name';
+      label.textContent = item.label;
+      var note = document.createElement('span');
+      note.className = 'settings-avatar-note';
+      note.textContent = item.unlocked ? (item.zh || 'Free picture') : item.lockLabel;
       choice.appendChild(img);
       choice.appendChild(label);
+      choice.appendChild(note);
       if (item.unlocked) {
         choice.addEventListener('click', function () {
           settingsAvatar = item.id;
@@ -327,38 +332,12 @@
   }
 
   function signOutLocal(message) {
-    var held = false;
-    var owner = '';
-    var snap = P.emptySnapshot();
-    var times = { profileAt: 0, lastAt: 0 };
-    try {
-      held = localStorage.getItem(P.HELD_KEY) === '1';
-      owner = localStorage.getItem(P.OWNER_KEY) || '';
-      snap = P.read(localStorage);
-      times.profileAt = Number(localStorage.getItem(P.PROFILE_AT)) || 0;
-      times.lastAt = Number(localStorage.getItem(P.LAST_AT)) || 0;
-    } catch (e) {}
     var job = client ? client.auth.signOut({ scope: 'local' }) : Promise.resolve();
     return job.catch(function () {}).then(function () {
-      if (held && owner) {
-        P.stash(localStorage, owner, snap, times);
-        var anon = P.readStash(localStorage, 'anon');
-        quiet = true;
-        try {
-          P.write(localStorage, anon.snapshot);
-          localStorage.setItem(P.PROFILE_AT, String(anon.profileAt || 0));
-          localStorage.setItem(P.LAST_AT, String(anon.lastAt || 0));
-          localStorage.removeItem(P.OWNER_KEY);
-          localStorage.removeItem(P.HELD_KEY);
-          localStorage.removeItem(P.CHOICE_KEY);
-        } finally {
-          quiet = false;
-        }
-        P.clearStash(localStorage, 'anon');
-      }
       userId = '';
       displayName = '';
       hydrated = false;
+      try { P.clearDevice(localStorage); } catch (e4) {}
       if (message) {
         try { sessionStorage.setItem(NOTICE_KEY, message); } catch (e2) {}
       }
@@ -371,7 +350,7 @@
     return signOutLocal('This account is signed in on another device, so this one was signed out.');
   }
 
-  function askSave(username) {
+  function askSave(username, freshAccount) {
     return new Promise(function (resolve) {
       unhide();
       var wrap = document.createElement('div');
@@ -383,12 +362,16 @@
       panel.setAttribute('aria-labelledby', 'account-ask-title');
       var title = document.createElement('h2');
       title.id = 'account-ask-title';
-      title.textContent = 'Save this device’s progress?';
+      title.textContent = freshAccount ? 'Keep this device’s practice?' : 'Save this device’s progress?';
       var copy = document.createElement('p');
-      copy.textContent = 'Badges and practice already on this device can be saved to ' + username + '. You can also keep them on this device only.';
+      copy.textContent = freshAccount
+        ? 'This device already has badges and practice. Save them to ' + username + ', or start the new account empty.'
+        : 'Badges and practice already on this device can be saved to ' + username + '. You can also keep them on this device only.';
       var zh = document.createElement('p');
       zh.lang = 'zh-Hant';
-      zh.textContent = '這部裝置上的進度和徽章可以存入這個帳號，也可以只留在這部裝置。';
+      zh.textContent = freshAccount
+        ? '這部裝置已有進度和徽章。可以存入新帳號，也可以讓新帳號從空白開始。'
+        : '這部裝置上的進度和徽章可以存入這個帳號，也可以只留在這部裝置。';
       var actions = document.createElement('div');
       actions.className = 'account-ask-actions';
       var saveBtn = document.createElement('button');
@@ -533,6 +516,7 @@
         remoteAt: remote.remoteAt,
         localOwner: owner,
         userId: userId,
+        freshAccount: !!opts.freshAccount,
         choice: readChoice(userId),
         profileAt: Number(localStorage.getItem(P.PROFILE_AT)) || 0,
         lastAt: Number(localStorage.getItem(P.LAST_AT)) || 0,
@@ -541,7 +525,7 @@
         stashLastAt: stash.lastAt
       });
       if (plan.action === 'ask') {
-        return askSave(displayName || 'this account').then(function (choice) {
+        return askSave(displayName || 'this account', !!opts.freshAccount).then(function (choice) {
           localStorage.setItem(P.CHOICE_KEY, userId + ':' + choice);
           return hydrate(opts);
         });
@@ -675,6 +659,44 @@
       });
     }
   function wireSettings() {
+    var profileTab = document.getElementById('tab-profile');
+    var accountTab = document.getElementById('tab-account');
+    var profileForm = document.getElementById('profile-form');
+    var accountPanel = document.getElementById('account-settings');
+    function showPanel(which) {
+      if (profileForm) profileForm.hidden = which !== 'profile';
+      if (accountPanel) accountPanel.hidden = which !== 'account';
+      if (profileTab) profileTab.setAttribute('aria-selected', which === 'profile' ? 'true' : 'false');
+      if (accountTab) accountTab.setAttribute('aria-selected', which === 'account' ? 'true' : 'false');
+    }
+    if (profileTab) profileTab.addEventListener('click', function () { showPanel('profile'); });
+    if (accountTab) accountTab.addEventListener('click', function () { showPanel('account'); });
+    if (profileForm) {
+      profileForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        var message = document.getElementById('profile-message');
+        function showProfile(text, bad) {
+          if (!message) return;
+          message.textContent = text;
+          message.hidden = !text;
+          message.classList.toggle('account-error', !!bad);
+        }
+        if (!window.Profile) return;
+        var saved = window.Profile.save({
+          nickname: document.getElementById('settings-name').value,
+          avatar: settingsAvatar || window.Profile.load().avatar
+        });
+        if (!saved.ok) {
+          showProfile(saved.reason === 'storage' ? 'Could not save on this device.' : 'Type a name to continue.', true);
+          return;
+        }
+        var chipName = document.querySelector('.profile-chip-name');
+        if (chipName) chipName.textContent = saved.profile.nickname;
+        var chipImg = document.querySelector('.profile-chip-avatar');
+        if (chipImg) chipImg.src = window.Profile.display(saved.profile).src;
+        showProfile('Saved.', false);
+      });
+    }
     var signOutBtn = document.getElementById('account-signout');
     if (signOutBtn) signOutBtn.addEventListener('click', function () { signOutLocal(''); });
     var settingsForm = document.getElementById('account-settings');
@@ -685,6 +707,7 @@
         var name = document.getElementById('settings-name').value;
         var username = window.ProgressSync.normalizeUsername(document.getElementById('settings-username').value);
         var password = document.getElementById('settings-password').value;
+        var repeat = document.getElementById('settings-password-2').value;
         function showSettings(text, bad) {
           if (!message) return;
           message.textContent = text;
@@ -706,9 +729,15 @@
           showSettings('Use 3–20 letters, numbers, or underscores, and start with a letter.', true);
           return;
         }
-        if (password && (password.length < 6 || password.length > 72)) {
-          showSettings('Use a password with 6 to 72 characters.', true);
-          return;
+        if (password || repeat) {
+          if (password !== repeat) {
+            showSettings('Type the same password in both boxes.', true);
+            return;
+          }
+          if (password.length < 6 || password.length > 72) {
+            showSettings('Use a password with 6 to 72 characters.', true);
+            return;
+          }
         }
         showSettings('Saving…', false);
         ensureClient().then(function () {
@@ -766,7 +795,7 @@
         if (!claimed || claimed.error || claimed.data !== true) {
           throw new Error('Could not keep this device signed in.');
         }
-        return hydrate({ afterLogin: true });
+        return hydrate({ afterLogin: true, freshAccount: created });
       }).catch(function (err) {
         if (submit) submit.disabled = false;
         showError((err && err.message) || 'Sign-in failed. Try again.');

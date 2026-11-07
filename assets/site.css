@@ -1367,11 +1367,17 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   font-weight: 800;
   text-decoration: underline;
 }
-.badge-card.is-locked .badge-how { color: var(--navy); }
+.badge-name,
+.badge-english,
+.badge-how {
+  display: block;
+  max-width: 16rem;
+}
+.badge-card.is-locked .badge-how,
 .badge-card.is-locked .badge-name,
 .badge-card.is-locked .badge-english,
 .badge-card.is-locked .badge-unit {
-  color: #8d8d8d;
+  color: var(--navy);
 }
 /* Book, level, and unit home */
 html[data-place="guide"] .place-shell,

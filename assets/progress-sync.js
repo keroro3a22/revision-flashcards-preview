@@ -95,6 +95,22 @@
     storage.removeItem(STASH_PREFIX + id);
   }
 
+  function clearDevice(storage) {
+    write(storage, emptySnapshot());
+    storage.removeItem(OWNER_KEY);
+    storage.removeItem(PROFILE_AT);
+    storage.removeItem(LAST_AT);
+    storage.removeItem(CHOICE_KEY);
+    storage.removeItem(HELD_KEY);
+    if (typeof storage.key !== 'function' || typeof storage.length !== 'number') return;
+    var drop = [];
+    for (var i = 0; i < storage.length; i++) {
+      var key = storage.key(i);
+      if (key && key.indexOf(STASH_PREFIX) === 0) drop.push(key);
+    }
+    drop.forEach(function (key) { storage.removeItem(key); });
+  }
+
   function num(value) {
     var n = Number(value);
     return isFinite(n) ? n : 0;
@@ -340,25 +356,19 @@
     var owner = opts.localOwner || '';
     var userId = opts.userId;
     var remoteAt = num(opts.remoteAt);
-    if (owner && owner !== userId) {
-      var prior = normalize(opts.stashed || emptySnapshot());
-      var switched = merge(prior, remote, {
-        remoteAt: remoteAt,
-        profileAt: num(opts.stashProfileAt),
-        lastAt: num(opts.stashLastAt)
-      });
+    if (!opts.freshAccount && (!owner || owner !== userId)) {
       return {
         action: 'apply',
-        snapshot: switched,
-        upload: !same(switched, remote),
-        stashLocalAs: owner,
+        snapshot: normalize(remote),
+        upload: false,
+        stashLocalAs: hasProgress(local) ? (owner || 'anon') : '',
         holdAnon: false,
         owner: userId,
-        profileAt: Math.max(num(opts.stashProfileAt), remoteAt),
-        lastAt: Math.max(num(opts.stashLastAt), remoteAt)
+        profileAt: remoteAt,
+        lastAt: remoteAt
       };
     }
-    if (!owner && hasProgress(local) && opts.choice !== 'save' && opts.choice !== 'separate') {
+    if (opts.freshAccount && hasProgress(local) && opts.choice !== 'save' && opts.choice !== 'separate') {
       return { action: 'ask' };
     }
     if (!owner && opts.choice === 'separate') {
@@ -430,6 +440,7 @@
     stash: stash,
     readStash: readStash,
     clearStash: clearStash,
+    clearDevice: clearDevice,
     normalize: normalize,
     same: same,
     merge: merge,

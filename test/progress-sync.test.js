@@ -79,12 +79,25 @@ test('anonymous progress asks before it is saved to an account', () => {
   const P = setup();
   const local = P.emptySnapshot();
   local.badges = { earned: { starter: { earnedAt: 1 } } };
+  const signIn = P.planHydration({
+    local: local,
+    remote: P.emptySnapshot(),
+    localOwner: '',
+    userId: 'user-b',
+    choice: '',
+    freshAccount: false
+  });
+  assert.equal(signIn.action, 'apply');
+  assert.equal(signIn.upload, false);
+  assert.equal(signIn.stashLocalAs, 'anon');
+  assert.equal(P.hasProgress(signIn.snapshot), false);
   const ask = P.planHydration({
     local: local,
     remote: P.emptySnapshot(),
     localOwner: '',
     userId: 'user-b',
-    choice: ''
+    choice: '',
+    freshAccount: true
   });
   assert.equal(ask.action, 'ask');
   const saved = P.planHydration({
@@ -92,7 +105,8 @@ test('anonymous progress asks before it is saved to an account', () => {
     remote: P.emptySnapshot(),
     localOwner: '',
     userId: 'user-b',
-    choice: 'save'
+    choice: 'save',
+    freshAccount: true
   });
   assert.equal(saved.action, 'apply');
   assert.equal(saved.upload, true);
@@ -102,7 +116,8 @@ test('anonymous progress asks before it is saved to an account', () => {
     remote: P.emptySnapshot(),
     localOwner: '',
     userId: 'user-b',
-    choice: 'separate'
+    choice: 'separate',
+    freshAccount: true
   });
   assert.equal(separate.upload, false);
   assert.equal(separate.holdAnon, true);

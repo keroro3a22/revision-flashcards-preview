@@ -4,8 +4,56 @@ html.account-booting body { visibility: hidden; }
 
 .profile-page {
   width: min(40rem, calc(100% - 2 * var(--margin, 1.25rem)));
-  margin: 1.5rem auto 3rem;
+  margin: 1.25rem auto 3rem;
 }
+body.account-page:has(.profile-page) {
+  height: auto;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.profile-page h1 {
+  font-family: var(--font-display, "Fredoka", sans-serif);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--navy, #243c6c);
+  margin-bottom: 0.8rem;
+}
+.profile-tabs {
+  display: flex;
+  gap: 0.45rem;
+  margin-bottom: 0.85rem;
+}
+.profile-tabs button {
+  min-height: 44px;
+  padding: 0.35rem 0.95rem;
+  border-radius: 999px;
+  background: var(--white, #fff);
+  color: var(--navy, #243c6c);
+  font-weight: 800;
+}
+.profile-tabs button[aria-selected="true"] {
+  background: var(--navy, #243c6c);
+  color: var(--cream, #fcf0d8);
+}
+.profile-logout { margin-top: 0.85rem; }
+.settings-avatars button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.45rem 0.35rem 0.55rem;
+  text-align: center;
+}
+.settings-avatars .settings-avatar-name,
+.settings-avatars .settings-avatar-note {
+  display: block;
+  max-width: 100%;
+  color: var(--navy, #243c6c);
+  line-height: 1.25;
+}
+.settings-avatars .settings-avatar-name { font-weight: 800; }
+.settings-avatars .settings-avatar-note { font-size: 0.75rem; font-weight: 650; }
 
 .settings-avatars {
   display: grid;
@@ -189,7 +237,7 @@ body.account-page .topbar { position: relative; flex: none; }
 }
 
 @media (min-width: 861px) and (min-height: 681px) {
-  body.account-page {
+  body.account-page:not(:has(.profile-page)) {
     height: 100dvh;
     overflow: hidden;
   }
