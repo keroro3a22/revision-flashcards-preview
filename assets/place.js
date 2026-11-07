@@ -3,6 +3,7 @@
 window.RevisionPlace = (function () {
   var STORAGE_KEY = 'revision-place-v1';
   var HOME = 'home';
+  var SOON = 'Coming soon';
 
   var books = [
     { id: 'longman', label: 'Longman', image: 'covers/unit2.jpg' },
@@ -132,7 +133,8 @@ window.RevisionPlace = (function () {
   }
 
   function door(id, label, href, image) {
-    return { id: id, label: label, href: href || '', ready: !!href, note: '', image: image || '' };
+    if (href) return { id: id, label: label, href: href, ready: true, note: '', image: image || '' };
+    return { id: id, label: label, href: '', ready: false, note: SOON, image: '' };
   }
 
   function entriesFor(place) {
@@ -141,7 +143,7 @@ window.RevisionPlace = (function () {
     var names = [
       ['words', 'Words'],
       ['grammar', 'Grammar'],
-      ['revision', 'Revision 卡'],
+      ['revision', 'Revision card'],
       ['game', 'Game'],
       ['practice', 'Practice']
     ];
@@ -155,7 +157,7 @@ window.RevisionPlace = (function () {
     return [
       door('words', 'Words', card, art.words),
       door('grammar', 'Grammar', grammar, art.grammar),
-      door('revision', 'Revision 卡', card, art.revision),
+      door('revision', 'Revision card', card, art.revision),
       door('game', 'Game', 'game/index.html', art.game),
       door('practice', 'Practice', 'practice/index.html?unit=' + encodeURIComponent(unit), art.practice)
     ];
@@ -164,6 +166,7 @@ window.RevisionPlace = (function () {
   return {
     STORAGE_KEY: STORAGE_KEY,
     HOME: HOME,
+    SOON: SOON,
     books: books,
     levels: levels,
     unitsFor: unitsFor,

@@ -47,28 +47,6 @@
     });
   }
 
-  function renderCovers(place) {
-    var box = document.getElementById('grade-covers');
-    if (!box) return;
-    box.replaceChildren();
-    P.unitsFor(place.book, place.level).forEach(function (unit) {
-      var button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'grade-cover';
-      var img = document.createElement('img');
-      img.src = unit.cover;
-      img.alt = '';
-      var caption = document.createElement('span');
-      caption.textContent = unitText(unit);
-      button.appendChild(img);
-      button.appendChild(caption);
-      button.addEventListener('click', function () {
-        save(P.withChange(place, { unit: unit.id }));
-      });
-      box.appendChild(button);
-    });
-  }
-
   function renderEntries(place) {
     var box = document.getElementById('place-entries');
     var heading = document.getElementById('unit-heading');
@@ -83,22 +61,26 @@
     heading.textContent = selected ? unitText(selected) : '';
     P.entriesFor(place).forEach(function (item) {
       var el = document.createElement(item.ready ? 'a' : 'div');
-      el.className = 'place-entry tone-' + item.id + (item.ready ? '' : ' is-building');
+      el.className = 'place-entry tone-' + item.id + (item.ready ? '' : ' is-soon');
       if (item.ready) el.href = item.href;
-      if (item.image) {
+      var copy = document.createElement('div');
+      copy.className = 'place-entry-copy';
+      if (item.ready && item.image) {
+        var frame = document.createElement('div');
+        frame.className = 'place-entry-media';
         var img = document.createElement('img');
         img.src = item.image;
         img.alt = '';
-        el.appendChild(img);
+        frame.appendChild(img);
+        el.appendChild(frame);
       }
       var title = document.createElement('h3');
       title.textContent = item.label;
-      el.appendChild(title);
-      if (item.ready) {
-        var note = document.createElement('p');
-        note.textContent = blurbs[item.id];
-        el.appendChild(note);
-      }
+      var note = document.createElement('p');
+      note.textContent = item.ready ? blurbs[item.id] : (item.note || 'Coming soon');
+      copy.appendChild(title);
+      copy.appendChild(note);
+      el.appendChild(copy);
       box.appendChild(el);
     });
   }
@@ -148,7 +130,6 @@
       });
       tabs.appendChild(tab);
     });
-    renderCovers(place);
     renderEntries(place);
     closeMenus();
   }

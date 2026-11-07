@@ -12,16 +12,19 @@
 <link rel="stylesheet" href="assets/account.css?v=1" />
 <script src="assets/supabase-public.js?v=1"></script>
 <script src="assets/progress-sync.js?v=1"></script>
-<script src="assets/account.js?v=4"></script>
+<script src="assets/profile.js?v=4"></script>
+<script src="assets/account.js?v=5"></script>
 </head>
 <body>
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="index.html">English Revision</a>
-      <div id="profile-slot" class="profile-slot"></div>
-      <nav class="nav-plain" aria-label="Account">
-        <a class="nav-jump account-entry" id="account-link" href="account.html">Account</a>
-      </nav>
+      <div class="topbar-account">
+        <nav class="nav-plain" aria-label="Account">
+          <a class="nav-jump" id="account-link" href="account.html">Sign in / Sign up</a>
+        </nav>
+        <div id="profile-slot" class="profile-slot"></div>
+      </div>
     </div>
   </header>
   <main class="badge-main">
@@ -71,6 +74,5 @@
     });
   })();
   </script>
-  <script src="assets/profile.js"></script>
 </body>
 </html>

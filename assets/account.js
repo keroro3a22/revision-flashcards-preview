@@ -17,13 +17,19 @@
   var hydrated = false;
   var userId = '';
   var displayName = '';
+  var settingsPainted = false;
+  var settingsAvatar = '';
   var pushTimer = 0;
   var pushing = false;
   var pushAgain = false;
   var watching = false;
 
   try {
-    if (localStorage.getItem(AUTH_KEY)) document.documentElement.classList.add('account-booting');
+    var savedSession = localStorage.getItem(AUTH_KEY) || '';
+    if (savedSession) document.documentElement.classList.add('account-booting');
+    if (savedSession.indexOf('access_token') !== -1) {
+      document.documentElement.setAttribute('data-signed-in', 'yes');
+    }
   } catch (e) { /* private mode */ }
 
   setTimeout(function () {
@@ -133,24 +139,69 @@
     return new URL(safe, root).href;
   }
 
+  function paintSettings() {
+    if (settingsPainted || !userId) return;
+    var nameInput = document.getElementById('settings-name');
+    var userInput = document.getElementById('settings-username');
+    var grid = document.getElementById('settings-avatars');
+    if (!nameInput || !userInput || !grid || !window.Profile) return;
+    settingsPainted = true;
+    var profile = window.Profile.load();
+    settingsAvatar = profile.avatar;
+    nameInput.value = profile.nickname || '';
+    userInput.value = displayName && displayName !== 'Account' ? displayName : '';
+    grid.replaceChildren();
+    window.Profile.list().forEach(function (item) {
+      var choice = document.createElement('button');
+      choice.type = 'button';
+      choice.className = 'profile-choice' + (item.unlocked ? '' : ' is-locked') + (item.id === settingsAvatar ? ' is-on' : '');
+      choice.disabled = !item.unlocked;
+      choice.setAttribute('aria-pressed', item.id === settingsAvatar ? 'true' : 'false');
+      choice.setAttribute('aria-label', item.unlocked ? item.label : item.lockLabel);
+      var img = document.createElement('img');
+      img.src = item.src.indexOf('../') === 0 ? item.src : item.src;
+      img.alt = '';
+      img.width = 72;
+      img.height = 72;
+      var label = document.createElement('span');
+      label.textContent = item.unlocked ? item.label : 'Locked';
+      choice.appendChild(img);
+      choice.appendChild(label);
+      if (item.unlocked) {
+        choice.addEventListener('click', function () {
+          settingsAvatar = item.id;
+          var buttons = grid.querySelectorAll('button');
+          for (var i = 0; i < buttons.length; i++) {
+            var on = buttons[i] === choice;
+            buttons[i].classList.toggle('is-on', on);
+            buttons[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+          }
+        });
+      }
+      grid.appendChild(choice);
+    });
+  }
+
   function paintLink() {
+    document.documentElement.setAttribute('data-signed-in', userId ? 'yes' : 'no');
     var link = document.getElementById('account-link');
     if (link) {
-      if (link.classList.contains('account-entry')) link.textContent = 'Account';
-      else link.textContent = displayName || (link.classList.contains('account-link-fab') ? 'Sign in' : 'Sign in / Sign up');
+      if (link.classList.contains('account-link-fab')) link.textContent = 'Sign in';
+      else link.textContent = 'Sign in / Sign up';
       link.setAttribute('href', accountHref());
     }
+    if (window.Profile && window.Profile.labelChip) window.Profile.labelChip(displayName);
     var form = document.getElementById('account-form');
-    var panel = document.getElementById('account-signed-in');
+    var panel = document.getElementById('account-settings');
     var pending = document.getElementById('account-pending');
-    var nameEl = document.getElementById('account-current-name');
     if (!form && !panel) return;
     if (pending) pending.hidden = true;
     if (displayName && userId) {
-      if (nameEl) nameEl.textContent = displayName;
       if (panel) panel.hidden = false;
       if (form) form.hidden = true;
+      paintSettings();
     } else {
+      settingsPainted = false;
       if (panel) panel.hidden = true;
       if (form) form.hidden = false;
     }
@@ -614,6 +665,71 @@
       });
     }
     if (signOutBtn) signOutBtn.addEventListener('click', function () { signOutLocal(''); });
+    var settingsForm = document.getElementById('account-settings');
+    if (settingsForm) {
+      settingsForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        var message = document.getElementById('settings-message');
+        var name = document.getElementById('settings-name').value;
+        var username = window.ProgressSync.normalizeUsername(document.getElementById('settings-username').value);
+        var password = document.getElementById('settings-password').value;
+        function showSettings(text, bad) {
+          if (!message) return;
+          message.textContent = text;
+          message.hidden = !text;
+          message.classList.toggle('account-error', !!bad);
+        }
+        if (!window.Profile) return;
+        var saved = window.Profile.save({ nickname: name, avatar: settingsAvatar || window.Profile.load().avatar });
+        if (!saved.ok) {
+          showSettings(saved.reason === 'storage' ? 'Could not save on this device.' : 'Type a name to continue.', true);
+          return;
+        }
+        if (window.Profile.labelChip) window.Profile.labelChip(displayName);
+        var chipName = document.querySelector('.profile-chip-name');
+        if (chipName) chipName.textContent = saved.profile.nickname;
+        var chipImg = document.querySelector('.profile-chip-avatar');
+        if (chipImg) chipImg.src = window.Profile.display(saved.profile).src;
+        if (!username || !window.ProgressSync.usernameOk(username)) {
+          showSettings('Use 3–20 letters, numbers, or underscores, and start with a letter.', true);
+          return;
+        }
+        if (password && (password.length < 6 || password.length > 72)) {
+          showSettings('Use a password with 6 to 72 characters.', true);
+          return;
+        }
+        showSettings('Saving…', false);
+        ensureClient().then(function () {
+          var job = Promise.resolve();
+          if (username !== displayName) {
+            job = client.rpc('change_username', { new_username: username }).then(function (result) {
+              if (result.error) throw result.error;
+              displayName = username;
+              return client.auth.refreshSession();
+            });
+          }
+          if (password) {
+            job = job.then(function () {
+              return client.auth.updateUser({ password: password }).then(function (result) {
+                if (result.error) throw result.error;
+              });
+            });
+          }
+          return job;
+        }).then(function () {
+          var passwordInput = document.getElementById('settings-password');
+          if (passwordInput) passwordInput.value = '';
+          showSettings('Saved.', false);
+        }).catch(function (err) {
+          var text = (err && err.message) || 'Could not save the account.';
+          if (/taken/i.test(text)) text = 'That username is taken.';
+          else if (/invalid username/i.test(text)) text = 'Use 3–20 letters, numbers, or underscores, and start with a letter.';
+          else if (/password/i.test(text) && text.length < 180) text = text;
+          else if (/change_username|function/i.test(text)) text = 'Username changes are not available yet.';
+          showSettings(text, true);
+        });
+      });
+    }
     form.addEventListener('submit', function (event) {
       event.preventDefault();
       var name = P.normalizeUsername(username.value);

@@ -2,6 +2,30 @@
 
 html.account-booting body { visibility: hidden; }
 
+.settings-avatars {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+  gap: 0.55rem;
+  margin: 0.4rem 0 1rem;
+}
+.settings-avatars button {
+  min-height: 6.5rem;
+  border-radius: 16px;
+  background: var(--white, #fff);
+  color: var(--navy, #243c6c);
+  box-shadow: 0 8px 18px rgba(36, 60, 108, 0.1);
+}
+.settings-avatars button.is-on { outline: 3px solid var(--coral, #fc903c); }
+.settings-avatars img {
+  width: 56px;
+  height: 56px;
+  margin: 0.35rem auto 0.2rem;
+  border-radius: 50%;
+  object-fit: cover;
+  background: transparent;
+}
+.settings-avatars button.is-locked { opacity: 0.55; }
+
 .account-link-fab {
   position: fixed;
   z-index: 25;

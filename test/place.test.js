@@ -47,8 +47,8 @@ test('a book without pages keeps the doors and pictures, with no status line yet
   doors.forEach((door) => {
     assert.equal(door.ready, false);
     assert.equal(door.href, '');
-    assert.equal(door.note, '');
-    assert.equal(door.image.length > 0, true);
+    assert.equal(door.note, 'Coming soon');
+    assert.equal(door.image, '');
   });
   assert.equal(JSON.stringify(doors).includes('砌緊'), false);
 });
@@ -61,7 +61,9 @@ test('dictation keeps its cards and practice, and grammar stays unfinished', () 
   assert.equal(href.revision, 'dictation3/index.html');
   assert.equal(href.grammar, '');
   assert.equal(href.practice, 'practice/index.html?unit=dictation3');
-  assert.equal(doors.find((door) => door.id === 'grammar').note, '');
+  assert.equal(doors.find((door) => door.id === 'grammar').note, 'Coming soon');
+  assert.equal(doors.find((door) => door.id === 'grammar').image, '');
+  assert.equal(doors.find((door) => door.id === 'revision').label, 'Revision card');
   assert.notEqual(doors.find((door) => door.id === 'words').image, doors.find((door) => door.id === 'grammar').image);
 });
 

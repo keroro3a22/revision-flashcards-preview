@@ -6,6 +6,7 @@
  */
 window.Profile = (function () {
   var KEY = 'p6-flash-profile-v1';
+  var sessionLabel = '';
   var BADGE_KEY = 'p6-flash-badges-v1';
   var DEFAULT_AVATAR = 'cat';
   var MAX_NAME = 16;
@@ -155,15 +156,13 @@ window.Profile = (function () {
 
     function paintChip() {
       var profile = load();
-      var ready = !!profile.nickname;
-      slot.classList.toggle('is-ready', ready);
-      chip.button.hidden = !ready;
-      if (!ready) return;
       var shown = display(profile);
+      slot.classList.add('is-ready');
+      chip.button.hidden = false;
       chip.img.src = resolve(shown.src);
       chip.img.alt = '';
-      chip.name.textContent = profile.nickname;
-      chip.button.setAttribute('aria-label', 'Edit profile, ' + profile.nickname);
+      chip.name.textContent = profile.nickname || sessionLabel || 'Account';
+      chip.button.setAttribute('aria-label', 'Account, ' + chip.name.textContent);
     }
 
     function paintGrid() {
@@ -251,7 +250,6 @@ window.Profile = (function () {
       close();
     }
 
-    chip.button.addEventListener('click', function () { open('edit'); });
     sheet.save.addEventListener('click', commit);
     sheet.cancel.addEventListener('click', close);
     sheet.backdrop.addEventListener('click', function () {
@@ -270,21 +268,23 @@ window.Profile = (function () {
     });
 
     paintChip();
-    function maybeSetup() {
-      if (!load().nickname && !document.getElementById('account-notice')) open('setup');
-    }
-    if (document.documentElement.getAttribute('data-place') === 'guide') {
-      document.addEventListener('revision-place-ready', maybeSetup, { once: true });
-    } else {
-      maybeSetup();
-    }
+  }
+
+  function accountHref() {
+    try {
+      var path = (typeof location !== 'undefined' && location.pathname) || '';
+      if (path.indexOf('/practice/grammar/') !== -1) return '../../account.html';
+      if (path.indexOf('/practice/') !== -1 || path.indexOf('/game/') !== -1 || path.indexOf('/dictation') !== -1 || /\/unit[1-4]\//.test(path)) {
+        return '../account.html';
+      }
+    } catch (e) {}
+    return 'account.html';
   }
 
   function buildChip() {
-    var button = document.createElement('button');
-    button.type = 'button';
+    var button = document.createElement('a');
     button.className = 'profile-chip';
-    button.hidden = true;
+    button.href = accountHref();
     var img = document.createElement('img');
     img.className = 'profile-chip-avatar';
     img.alt = '';
@@ -292,12 +292,8 @@ window.Profile = (function () {
     img.height = 36;
     var name = document.createElement('span');
     name.className = 'profile-chip-name';
-    var edit = document.createElement('span');
-    edit.className = 'profile-chip-edit';
-    edit.textContent = 'Edit';
     button.appendChild(img);
     button.appendChild(name);
-    button.appendChild(edit);
     return { button: button, img: img, name: name };
   }
 
@@ -399,6 +395,13 @@ window.Profile = (function () {
     };
   }
 
+  function labelChip(text) {
+    sessionLabel = text || '';
+    var name = document.querySelector('.profile-chip-name');
+    if (!name) return;
+    if (!load().nickname) name.textContent = sessionLabel || 'Account';
+  }
+
   function boot() {
     var slot = document.getElementById('profile-slot');
     if (slot) mount(slot);
@@ -422,6 +425,7 @@ window.Profile = (function () {
     load: load,
     save: save,
     display: display,
-    mount: mount
+    mount: mount,
+    labelChip: labelChip
   };
 })();

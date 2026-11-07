@@ -1545,26 +1545,47 @@ a.account-entry:hover { background: var(--coral); color: var(--navy); }
   gap: 0.75rem;
   margin-top: 0.85rem;
 }
+.place-entries { align-items: stretch; }
 .place-entry {
   display: flex;
-  min-height: 16rem;
+  height: 100%;
+  min-height: 0;
   flex-direction: column;
-  justify-content: flex-end;
-  padding: 0 0 1rem;
+  justify-content: flex-start;
+  padding: 0;
   overflow: hidden;
   border-radius: 22px;
   color: var(--navy);
   box-shadow: 0 10px 22px rgba(36, 60, 108, 0.12);
 }
-.place-entry img {
-  width: 100%;
+.place-entry-media {
   aspect-ratio: 4 / 3;
-  object-fit: cover;
-  margin-bottom: 0.75rem;
+  width: 100%;
+  overflow: hidden;
   background: color-mix(in srgb, var(--sky) 42%, #fff);
 }
-.place-entry h3,
-.place-entry p { padding-left: 1rem; padding-right: 1rem; }
+.place-entry-media img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  margin: 0;
+  object-fit: cover;
+  object-position: center;
+}
+.place-entry-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.25rem;
+  min-height: 6.4rem;
+  padding: 0.9rem 1rem 1rem;
+}
+.place-entry.is-soon {
+  justify-content: center;
+  min-height: 8.75rem;
+}
+.place-entry.is-soon .place-entry-copy { min-height: 0; }
 .grade-covers {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
@@ -1611,10 +1632,15 @@ a.account-entry:hover { background: var(--coral); color: var(--navy); }
 .place-entry.tone-revision { background: color-mix(in srgb, var(--coral) 58%, white); }
 .place-entry.tone-game { background: color-mix(in srgb, var(--green) 38%, white); }
 .place-entry.tone-practice { background: color-mix(in srgb, var(--pink) 62%, white); }
-.place-entry.is-building {
-  background: var(--cream);
-  box-shadow: inset 0 0 0 2px var(--navy);
+.topbar-account {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
 }
+html:not([data-signed-in="yes"]) #profile-slot { display: none; }
+html[data-signed-in="yes"] #account-link { display: none; }
+html[data-signed-in="yes"] #profile-slot { display: block; }
 .place-entry:hover { transform: translateY(-2px); }
 @media (prefers-reduced-motion: reduce) {
   .place-entry { transition: none; }
