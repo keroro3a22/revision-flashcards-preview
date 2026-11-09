@@ -68,10 +68,13 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
 .studio-mark,
 .studio-upload,
 .studio-table .is-actions button {
-  display: block;
   width: 100%;
   margin: 0.28rem 0 0;
   padding: 0.2rem 0.15rem;
   font-size: 0.72rem;
   white-space: normal;
 }
+.studio-upload,
+.studio-table .is-actions button { display: block; }
+.studio-mark { display: none; }
+.studio-pair:focus-within .studio-mark { display: block; }
