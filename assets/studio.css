@@ -5,8 +5,8 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
 .studio-back { color: #16324f; font-weight: 700; }
 .studio-filters { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: end; margin: 0.8rem 0; }
 .studio-filters label { display: grid; gap: 0.2rem; font-size: 0.85rem; }
-.studio-scroll { overflow-x: hidden; background: #fff; }
-.studio-table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+.studio-scroll { overflow-x: auto; background: #fff; }
+.studio-table { border-collapse: collapse; width: 100%; min-width: 80.3rem; table-layout: fixed; }
 .studio-table col.col-num { width: 2.4rem; }
 .studio-table col.col-photo { width: 5.4rem; }
 .studio-table col.col-text { width: 7rem; }

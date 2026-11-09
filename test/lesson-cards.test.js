@@ -50,7 +50,10 @@ test('the studio edits the same place and publishes a snapshot', () => {
   assert.match(page, />Back to website</);
   assert.doesNotMatch(page, /<th>Highlight<\/th>/);
   assert.match(studio, /Highlight this/);
-  assert.match(fs.readFileSync('assets/studio.css', 'utf8'), /\.studio-pair:focus-within \.studio-mark \{ display: block; \}/);
+  const css = fs.readFileSync('assets/studio.css', 'utf8');
+  assert.match(css, /\.studio-pair:focus-within \.studio-mark \{ display: block; \}/);
+  assert.match(css, /\.studio-scroll \{ overflow-x: auto/);
+  assert.match(css, /min-width: 80\.3rem/);
   assert.match(studio, /data\.highlight = row && row\.highlight/);
   assert.match(page, /Example<br>例句/);
   assert.match(page, /Advanced<br>進階例句/);
