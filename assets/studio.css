@@ -1,0 +1,11 @@
+body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: Nunito, "Noto Sans TC", sans-serif; }
+.studio-page h1 { font-family: Fredoka, Nunito, sans-serif; margin: 0.2rem 0; }
+.studio-wrap { padding: 1rem; }
+.studio-filters, .studio-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: end; margin: 0.8rem 0; }
+.studio-filters label { display: grid; gap: 0.2rem; font-size: 0.85rem; }
+.studio-scroll { overflow: auto; border: 1px solid #d5e0ea; border-radius: 12px; background: #fff; }
+.studio-table { border-collapse: collapse; min-width: 980px; width: 100%; }
+.studio-table th, .studio-table td { border-bottom: 1px solid #e6eef5; padding: 0.4rem; vertical-align: top; text-align: left; }
+.studio-table input { width: 11rem; max-width: 40vw; }
+.studio-table details label { display: grid; margin-top: 0.35rem; }
+.studio-table button { margin-right: 0.35rem; }

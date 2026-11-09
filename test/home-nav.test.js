@@ -26,7 +26,9 @@ test('homepage topbar is the account link, with book, level, and unit navigation
   assert.doesNotMatch(html, /砌緊/);
   assert.match(html, /id="place-header"/);
   assert.match(html, /<header class="topbar">[\s\S]*id="book-button"/);
+  assert.match(html, /<header class="topbar">[\s\S]*id="series-button"/);
   assert.match(html, /<header class="topbar">[\s\S]*id="level-button"/);
+  assert.match(html, /<header class="topbar">[\s\S]*id="term-button"/);
   assert.match(html, /id="unit-tabs" role="tablist"/);
   assert.match(html, /id="home-overview"/);
   assert.match(html, /id="hero-title"/);
@@ -35,7 +37,8 @@ test('homepage topbar is the account link, with book, level, and unit navigation
   assert.doesNotMatch(html, /id="grade-covers"/);
   assert.doesNotMatch(html, />Account</);
   assert.doesNotMatch(html, /<select/);
-  assert.match(html, /assets\/place\.js\?v=2/);
+  assert.match(html, /assets\/place\.js\?v=3/);
+  assert.match(html, /assets\/place-ui\.js\?v=3/);
   assert.equal(html.includes('site.css?v=40'), true);
 });
 

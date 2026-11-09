@@ -17,6 +17,17 @@ window.RevisionPlace = (function () {
     { id: 'p5', label: 'P5', image: 'dictation3/thumb_01.png' },
     { id: 'p6', label: 'P6', image: 'covers/unit4.jpg' }
   ];
+  var seriesByBook = {
+    oxford: [{ id: 'oxford', label: 'Oxford' }],
+    longman: [
+      { id: 'mypearson-express', label: 'MyPearson Express' },
+      { id: 'elect', label: 'Elect' }
+    ]
+  };
+  var terms = [
+    { id: 'first', label: '上學期' },
+    { id: 'second', label: '下學期' }
+  ];
 
   var cardArt = {
     unit1: {
@@ -64,8 +75,22 @@ window.RevisionPlace = (function () {
     dictation3: 'covers/dictation3.jpg'
   };
 
-  function unitsFor(book, level) {
-    var titles = book === 'oxford' && level === 'p6'
+  function seriesFor(book) {
+    return seriesByBook[book] || seriesByBook.oxford;
+  }
+
+  function chosenSeries(book, series) {
+    var list = seriesFor(book);
+    return list.some(function (item) { return item.id === series; }) ? series : list[0].id;
+  }
+
+  function chosenTerm(term) {
+    return term === 'second' ? 'second' : 'first';
+  }
+
+  function unitsFor(book, level, series, term) {
+    var live = book === 'oxford' && chosenSeries(book, series) === 'oxford' && level === 'p6' && chosenTerm(term) === 'first';
+    var titles = live
       ? [
           ['unit1', 'Unit 1', 'For a good cause'],
           ['unit2', 'Unit 2', 'Lend a helping hand'],
@@ -90,7 +115,13 @@ window.RevisionPlace = (function () {
   }
 
   function headerText(place) {
-    return labelOf(books, place.book) + ' · ' + labelOf(levels, place.level);
+    var seriesList = seriesFor(place.book);
+    var series = chosenSeries(place.book, place.series);
+    var parts = [labelOf(books, place.book)];
+    if (seriesList.length > 1) parts.push(labelOf(seriesList, series));
+    parts.push(labelOf(levels, place.level));
+    parts.push(labelOf(terms, chosenTerm(place.term)));
+    return parts.join(' · ');
   }
 
   function known(list, id) {
@@ -100,9 +131,11 @@ window.RevisionPlace = (function () {
   function normalize(input) {
     if (!input || typeof input !== 'object') return null;
     if (!known(books, input.book) || !known(levels, input.level)) return null;
-    var units = unitsFor(input.book, input.level);
+    var series = chosenSeries(input.book, input.series);
+    var term = chosenTerm(input.term);
+    var units = unitsFor(input.book, input.level, series, term);
     var unit = input.unit === HOME || known(units, input.unit) ? input.unit : HOME;
-    return { book: input.book, level: input.level, unit: unit };
+    return { book: input.book, series: series, level: input.level, term: term, unit: unit };
   }
 
   function read(storage) {
@@ -127,7 +160,9 @@ window.RevisionPlace = (function () {
     var next = patch || {};
     return normalize({
       book: next.book || (base ? base.book : ''),
+      series: Object.prototype.hasOwnProperty.call(next, 'series') ? next.series : (base ? base.series : ''),
       level: next.level || (base ? base.level : ''),
+      term: Object.prototype.hasOwnProperty.call(next, 'term') ? next.term : (base ? base.term : ''),
       unit: Object.prototype.hasOwnProperty.call(next, 'unit') ? next.unit : (base ? base.unit : HOME)
     });
   }
@@ -147,7 +182,10 @@ window.RevisionPlace = (function () {
       ['game', 'Game'],
       ['practice', 'Practice']
     ];
-    var live = place.book === 'oxford' && place.level === 'p6';
+    var live = place.book === 'oxford'
+      && chosenSeries(place.book, place.series) === 'oxford'
+      && place.level === 'p6'
+      && chosenTerm(place.term) === 'first';
     if (!live) {
       return names.map(function (pair) { return door(pair[0], pair[1], '', art[pair[0]]); });
     }
@@ -169,6 +207,8 @@ window.RevisionPlace = (function () {
     SOON: SOON,
     books: books,
     levels: levels,
+    terms: terms,
+    seriesFor: seriesFor,
     unitsFor: unitsFor,
     headerText: headerText,
     normalize: normalize,

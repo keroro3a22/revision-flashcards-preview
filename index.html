@@ -42,9 +42,19 @@
           <div class="place-menu" id="book-menu" role="listbox" aria-labelledby="book-label" hidden></div>
         </div>
         <div class="place-drop">
+          <span class="place-drop-label" id="series-label">Series</span>
+          <button type="button" id="series-button" aria-haspopup="listbox" aria-expanded="false" aria-controls="series-menu">Series</button>
+          <div class="place-menu" id="series-menu" role="listbox" aria-labelledby="series-label" hidden></div>
+        </div>
+        <div class="place-drop">
           <span class="place-drop-label" id="level-label">Levels</span>
           <button type="button" id="level-button" aria-haspopup="listbox" aria-expanded="false" aria-controls="level-menu">Levels</button>
           <div class="place-menu" id="level-menu" role="listbox" aria-labelledby="level-label" hidden></div>
+        </div>
+        <div class="place-drop">
+          <span class="place-drop-label" id="term-label">Term</span>
+          <button type="button" id="term-button" aria-haspopup="listbox" aria-expanded="false" aria-controls="term-menu">Term</button>
+          <div class="place-menu" id="term-menu" role="listbox" aria-labelledby="term-label" hidden></div>
         </div>
       </nav>
       <div class="topbar-account">
@@ -340,8 +350,8 @@
   })();
   </script>
 
-  <script src="assets/place.js?v=2"></script>
-  <script src="assets/place-ui.js?v=2"></script>
+  <script src="assets/place.js?v=3"></script>
+  <script src="assets/place-ui.js?v=3"></script>
   <script src="practice/data/unit1.js"></script>
   <script src="practice/data/unit2.js"></script>
   <script src="practice/data/unit3.js"></script>

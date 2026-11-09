@@ -18,7 +18,7 @@
 
   function closeMenus() {
     openMenu = '';
-    ['book', 'level'].forEach(function (name) {
+    ['book', 'series', 'level', 'term'].forEach(function (name) {
       var button = document.getElementById(name + '-button');
       var menu = document.getElementById(name + '-menu');
       if (button) button.setAttribute('aria-expanded', 'false');
@@ -55,7 +55,7 @@
       heading.textContent = '';
       return;
     }
-    var selected = P.unitsFor(place.book, place.level).filter(function (unit) {
+    var selected = P.unitsFor(place.book, place.level, place.series, place.term).filter(function (unit) {
       return unit.id === place.unit;
     })[0];
     heading.textContent = selected ? unitText(selected) : '';
@@ -87,24 +87,38 @@
 
   function renderShell(place) {
     document.documentElement.setAttribute('data-view', place.unit === P.HOME ? 'home' : 'unit');
-    document.documentElement.setAttribute('data-level-live', place.book === 'oxford' && place.level === 'p6' ? 'yes' : 'no');
+    document.documentElement.setAttribute('data-level-live', place.book === 'oxford' && place.series === 'oxford' && place.level === 'p6' && place.term === 'first' ? 'yes' : 'no');
     document.getElementById('place-header').textContent = P.headerText(place);
     var bookLabel = P.books.filter(function (item) { return item.id === place.book; })[0].label;
+    var seriesLabel = P.seriesFor(place.book).filter(function (item) { return item.id === place.series; })[0].label;
     var levelLabel = P.levels.filter(function (item) { return item.id === place.level; })[0].label;
+    var termLabel = P.terms.filter(function (item) { return item.id === place.term; })[0].label;
     var bookButton = document.getElementById('book-button');
+    var seriesButton = document.getElementById('series-button');
     var levelButton = document.getElementById('level-button');
+    var termButton = document.getElementById('term-button');
     bookButton.textContent = bookLabel;
+    if (seriesButton) seriesButton.textContent = seriesLabel;
     levelButton.textContent = levelLabel;
+    if (termButton) termButton.textContent = termLabel;
     bookButton.setAttribute('aria-label', 'Books, ' + bookLabel);
+    if (seriesButton) seriesButton.setAttribute('aria-label', 'Series, ' + seriesLabel);
     levelButton.setAttribute('aria-label', 'Levels, ' + levelLabel);
+    if (termButton) termButton.setAttribute('aria-label', 'Term, ' + termLabel);
     fillMenu('book', P.books, place.book, function (id) {
       save(P.withChange(place, { book: id }));
+    });
+    fillMenu('series', P.seriesFor(place.book), place.series, function (id) {
+      save(P.withChange(place, { series: id }));
     });
     fillMenu('level', P.levels, place.level, function (id) {
       save(P.withChange(place, { level: id }));
     });
+    fillMenu('term', P.terms, place.term, function (id) {
+      save(P.withChange(place, { term: id }));
+    });
 
-    var views = [{ id: P.HOME, label: 'Get started' }].concat(P.unitsFor(place.book, place.level));
+    var views = [{ id: P.HOME, label: 'Get started' }].concat(P.unitsFor(place.book, place.level, place.series, place.term));
     var tabs = document.getElementById('unit-tabs');
     tabs.replaceChildren();
     views.forEach(function (unit, index) {
@@ -186,13 +200,13 @@
     var bookButton = document.getElementById('book-button');
     var levelButton = document.getElementById('level-button');
     if (!bookButton || !levelButton) return;
-    bookButton.addEventListener('click', function (event) {
-      event.stopPropagation();
-      toggleMenu('book');
-    });
-    levelButton.addEventListener('click', function (event) {
-      event.stopPropagation();
-      toggleMenu('level');
+    ['book', 'series', 'level', 'term'].forEach(function (name) {
+      var button = document.getElementById(name + '-button');
+      if (!button) return;
+      button.addEventListener('click', function (event) {
+        event.stopPropagation();
+        toggleMenu(name);
+      });
     });
     document.addEventListener('click', closeMenus);
     document.addEventListener('keydown', function (event) {

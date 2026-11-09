@@ -12,7 +12,10 @@ test('books are Longman and Oxford, levels are P1 to P6', () => {
   assert.equal(P.levels.map((level) => level.id).join(','), 'p1,p2,p3,p4,p5,p6');
   assert.equal(P.books.every((book) => book.image), true);
   assert.equal(P.levels.every((level) => level.image), true);
-  assert.equal(P.headerText({ book: 'oxford', level: 'p6' }), 'Oxford · P6');
+  assert.equal(P.seriesFor('longman').map((item) => item.label).join(','), 'MyPearson Express,Elect');
+  assert.equal(P.terms.map((item) => item.id).join(','), 'first,second');
+  assert.equal(P.headerText({ book: 'oxford', level: 'p6' }), 'Oxford · P6 · 上學期');
+  assert.equal(P.headerText({ book: 'longman', series: 'elect', level: 'p6', term: 'second' }), 'Longman · Elect · P6 · 下學期');
   assert.equal(P.HOME, 'home');
 });
 
@@ -22,6 +25,7 @@ test('Oxford P6 keeps the live units and other books use four empty units', () =
   assert.equal(live, 'unit1,unit2,unit3,unit4,dictation3');
   assert.equal(P.unitsFor('oxford', 'p6')[0].title, 'For a good cause');
   assert.equal(P.unitsFor('longman', 'p3').map((unit) => unit.id).join(','), 'unit1,unit2,unit3,unit4');
+  assert.equal(P.entriesFor({ book: 'oxford', series: 'oxford', level: 'p6', term: 'second', unit: 'unit1' })[0].ready, false);
 });
 
 test('Oxford P6 unit doors open the pages that already exist', () => {
@@ -72,7 +76,7 @@ test('the last place is remembered on this device and a missing unit falls back'
   const P = place();
   assert.equal(P.read(storage), null);
   const saved = P.write(storage, { book: 'oxford', level: 'p6', unit: 'dictation3' });
-  assert.equal(JSON.stringify(saved), JSON.stringify({ book: 'oxford', level: 'p6', unit: 'dictation3' }));
+  assert.equal(JSON.stringify(saved), JSON.stringify({ book: 'oxford', series: 'oxford', level: 'p6', term: 'first', unit: 'dictation3' }));
   assert.equal(JSON.stringify(P.read(storage)), JSON.stringify(saved));
 
   const started = P.write(storage, { book: 'oxford', level: 'p6', unit: 'home' });
@@ -82,7 +86,7 @@ test('the last place is remembered on this device and a missing unit falls back'
   assert.equal(JSON.stringify(P.write(storage, moved)), JSON.stringify(moved));
 
   const kept = P.withChange({ book: 'oxford', level: 'p6', unit: 'unit4' }, { book: 'longman' });
-  assert.equal(JSON.stringify(kept), JSON.stringify({ book: 'longman', level: 'p6', unit: 'unit4' }));
+  assert.equal(JSON.stringify(kept), JSON.stringify({ book: 'longman', series: 'mypearson-express', level: 'p6', term: 'first', unit: 'unit4' }));
   assert.equal(P.normalize({ book: 'nope', level: 'p6', unit: 'unit1' }), null);
   assert.equal(P.read(memoryStorage()), null);
 });
