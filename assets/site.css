@@ -1559,7 +1559,7 @@ a.account-entry:hover { background: var(--coral); color: var(--navy); }
 }
 .place-group-items {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
   gap: 0.75rem;
   align-items: stretch;
 }

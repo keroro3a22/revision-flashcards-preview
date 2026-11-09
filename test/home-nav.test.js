@@ -39,7 +39,7 @@ test('homepage topbar is the account link, with book, level, and unit navigation
   assert.doesNotMatch(html, /<select/);
   assert.match(html, /assets\/place\.js\?v=4/);
   assert.match(html, /assets\/place-ui\.js\?v=4/);
-  assert.equal(html.includes('site.css?v=42'), true);
+  assert.equal(html.includes('site.css?v=43'), true);
   assert.doesNotMatch(html, /Open Dictation/);
 });
 
