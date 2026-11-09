@@ -23,7 +23,7 @@
     { id: 'unit4', label: 'Unit 4' },
     { id: 'dictation3', label: 'Dictation' }
   ];
-  var TEXT = ['en', 'zh', 'pos', 'syllables', 'highlight'];
+  var TEXT = ['en', 'zh', 'pos', 'syllables'];
   var PAIRS = [['ex_en', 'ex_zh'], ['adv_en', 'adv_zh']];
 
   var client = null;
@@ -70,6 +70,53 @@
   function cellText(value) {
     return String(value || '').replace(/\u00a0/g, ' ');
   }
+  function escapeHtml(text) {
+    return String(text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function highlightHtml(text, phrase) {
+    var value = String(text || '');
+    var mark = String(phrase || '').trim();
+    if (!mark) return escapeHtml(value);
+    var at = value.toLowerCase().indexOf(mark.toLowerCase());
+    if (at < 0) return escapeHtml(value);
+    return escapeHtml(value.slice(0, at))
+      + '<span class="studio-hl">' + escapeHtml(value.slice(at, at + mark.length)) + '</span>'
+      + escapeHtml(value.slice(at + mark.length));
+  }
+  function paintField(field, phrase) {
+    field.innerHTML = highlightHtml(field.textContent, phrase);
+  }
+  function rowById(rowId) {
+    return rows.filter(function (item) { return String(item.id) === String(rowId); })[0];
+  }
+  function markSelection(editor, rowId) {
+    var row = rowById(rowId);
+    if (!row) return;
+    var sel = window.getSelection();
+    var chosen = '';
+    if (sel && sel.rangeCount && !sel.isCollapsed) {
+      var range = sel.getRangeAt(0);
+      if (editor.contains(range.commonAncestorContainer)) chosen = sel.toString().trim();
+    }
+    var plain = editor.textContent || '';
+    var at = chosen ? plain.toLowerCase().indexOf(chosen.toLowerCase()) : -1;
+    if (!chosen || at < 0) {
+      say('Select the English words in this example, then press Highlight this.');
+      return;
+    }
+    chosen = plain.slice(at, at + chosen.length);
+    row.highlight = chosen;
+    var tr = editor.closest('tr');
+    var english = tr.querySelectorAll('[data-field="ex_en"], [data-field="adv_en"]');
+    var missing = 0;
+    english.forEach(function (field) {
+      paintField(field, chosen);
+      if ((field.textContent || '').toLowerCase().indexOf(chosen.toLowerCase()) < 0) missing += 1;
+    });
+    say(missing
+      ? 'Highlight saved. The other example does not contain these words.'
+      : 'Highlight saved. Both examples show it. Publish to update the unit page.');
+  }
   function edit(name, value) {
     var field = document.createElement('div');
     field.className = 'studio-edit';
@@ -88,8 +135,24 @@
   function pairCell(topName, bottomName, row) {
     var cell = document.createElement('td');
     cell.className = 'studio-pair';
-    cell.appendChild(edit(topName, row[topName]));
-    cell.appendChild(edit(bottomName, row[bottomName]));
+    var top = edit(topName, row[topName]);
+    var bottom = edit(bottomName, row[bottomName]);
+    cell.appendChild(top);
+    if (topName === 'ex_en' || topName === 'adv_en') {
+      paintField(top, row.highlight);
+      top.addEventListener('blur', function () {
+        var current = rowById(row.id);
+        paintField(top, current && current.highlight);
+      });
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'studio-mark';
+      button.textContent = 'Highlight this';
+      button.addEventListener('mousedown', function (event) { event.preventDefault(); });
+      button.addEventListener('click', function () { markSelection(top, row.id); });
+      cell.appendChild(button);
+    }
+    cell.appendChild(bottom);
     return cell;
   }
   function photoSrc(path) {
@@ -209,6 +272,7 @@
     var row = rows.filter(function (item) { return String(item.id) === tr.dataset.id; })[0];
     data.audio = row && row.audio ? row.audio : '';
     data.video = row && row.video ? row.video : '';
+    data.highlight = row && row.highlight ? row.highlight : '';
     return data;
   }
   function store(tr, status) {

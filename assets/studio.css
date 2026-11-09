@@ -10,7 +10,13 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
 .studio-table col.col-num { width: 2.4rem; }
 .studio-table col.col-photo { width: 5.4rem; }
 .studio-table col.col-text { width: 7rem; }
-.studio-table col.col-pair { width: 14rem; }
+.studio-table col.col-pair { width: 17.5rem; }
+.studio-hl {
+  background: rgba(252, 192, 60, 0.95);
+  color: #243c6c;
+  border-radius: 6px;
+  padding: 0 0.15em;
+}
 .studio-table col.col-state { width: 4.4rem; }
 .studio-table col.col-actions { width: 5.1rem; }
 .studio-pair .studio-edit + .studio-edit {
@@ -59,6 +65,7 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
   background: #eef3f8;
 }
 .studio-thumb[hidden] { display: none; }
+.studio-mark,
 .studio-upload,
 .studio-table .is-actions button {
   display: block;

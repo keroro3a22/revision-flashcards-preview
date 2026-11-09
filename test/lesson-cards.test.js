@@ -37,7 +37,6 @@ test('the studio edits the same place and publishes a snapshot', () => {
   assert.match(studio, /下學期/);
   assert.match(studio, /status: status/);
   assert.match(studio, /patch\.published = data/);
-  assert.match(studio, /'highlight'/);
   assert.doesNotMatch(studio, /data\.highlight = data\.en/);
   assert.match(studio, /contentEditable = 'true'/);
   assert.match(studio, /\['ex_en', 'ex_zh'\]/);
@@ -49,7 +48,9 @@ test('the studio edits the same place and publishes a snapshot', () => {
   assert.match(studio, /Back to website|revision-studio-from/);
   const page = fs.readFileSync('studio.html', 'utf8');
   assert.match(page, />Back to website</);
-  assert.match(page, />Highlight</);
+  assert.doesNotMatch(page, /<th>Highlight<\/th>/);
+  assert.match(studio, /Highlight this/);
+  assert.match(studio, /data\.highlight = row && row\.highlight/);
   assert.match(page, /Example<br>例句/);
   assert.match(page, /Advanced<br>進階例句/);
   assert.doesNotMatch(page, />Video</);
@@ -64,4 +65,16 @@ test('the studio edits the same place and publishes a snapshot', () => {
   assert.match(fs.readFileSync('assets/account.js', 'utf8'), /id = 'edit-lessons'/);
   assert.match(fs.readFileSync('assets/account.js', 'utf8'), /revision-studio-from/);
   assert.match(fs.readFileSync('supabase/migrations/20261109140000_cynthia_editor.sql', 'utf8'), /cynthiasumyi/);
+});
+
+test('a chosen phrase is marked in the example and left alone when the words differ', () => {
+  const start = studio.indexOf('function escapeHtml');
+  const end = studio.indexOf('function paintField');
+  const highlightHtml = new Function(studio.slice(start, end) + '\nreturn highlightHtml;')();
+  assert.equal(
+    highlightHtml('The girl does voluntary work at the elderly home.', 'does voluntary work'),
+    'The girl <span class="studio-hl">does voluntary work</span> at the elderly home.'
+  );
+  assert.equal(highlightHtml('the disaster injured people nearby.', 'injure people'), 'the disaster injured people nearby.');
+  assert.equal(highlightHtml('<b>', ''), '&lt;b&gt;');
 });
