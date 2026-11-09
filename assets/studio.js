@@ -159,11 +159,11 @@
     rows.forEach(function (row) {
       var tr = document.createElement('tr');
       tr.dataset.id = String(row.id);
-      tr.appendChild(photoCell(row));
       var number = document.createElement('td');
       number.className = 'is-num';
       number.textContent = String(row.n);
       tr.appendChild(number);
+      tr.appendChild(photoCell(row));
       TEXT.forEach(function (name) {
         tr.appendChild(box(name, row[name], !!WIDE[name]));
       });

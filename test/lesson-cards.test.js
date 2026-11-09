@@ -53,9 +53,9 @@ test('the studio edits the same place and publishes a snapshot', () => {
   assert.doesNotMatch(studio, /pathCell\('audio'/);
   assert.match(studio, /data\.audio = row && row\.audio/);
   const head = page.slice(page.indexOf('<thead>'), page.indexOf('</thead>'));
-  assert.ok(head.indexOf('>Photo<') < head.indexOf('>#<'));
+  assert.ok(head.indexOf('>#<') < head.indexOf('>Photo<'));
   const render = studio.slice(studio.indexOf('function render'), studio.indexOf('function readRow'));
-  assert.ok(render.indexOf('photoCell(row)') < render.indexOf("number.className = 'is-num'"));
+  assert.ok(render.indexOf("number.className = 'is-num'") < render.indexOf('photoCell(row)'));
   assert.doesNotMatch(studio, /pathCell\('video'/);
   assert.match(fs.readFileSync('assets/account.js', 'utf8'), /id = 'edit-lessons'/);
   assert.match(fs.readFileSync('assets/account.js', 'utf8'), /revision-studio-from/);
