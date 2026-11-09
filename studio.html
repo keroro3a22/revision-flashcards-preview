@@ -7,15 +7,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/studio.css?v=1" />
+  <link rel="stylesheet" href="assets/studio.css?v=4" />
   <script src="assets/supabase-public.js?v=1"></script>
   <script src="assets/vendor/supabase.js?v=1"></script>
 </head>
 <body class="studio-page">
   <main class="studio-wrap">
-    <p><a href="profile.html">Back to profile</a></p>
+    <p><a id="studio-back" class="studio-back" href="index.html">Back to website</a></p>
     <h1>Edit lessons</h1>
-    <p>Save draft keeps the change private. Publish is what the unit page shows after a refresh.</p>
+    <p>Click a cell and type. The cell grows to show the whole sentence. Save draft stays private. Publish is what the unit page shows after a refresh.</p>
+    <p>To change a photo, press Change photo and choose a file, or type an existing file name such as thumb_01.jpg. Then Publish.</p>
     <div class="studio-filters">
       <label>Book <select id="filter-book"></select></label>
       <label>Series <select id="filter-series"></select></label>
@@ -29,14 +30,14 @@
       <table class="studio-table">
         <thead>
           <tr>
-            <th>#</th><th>English</th><th>中文</th><th>Part of speech</th><th>Syllables</th><th>Highlight</th>
-            <th>Example</th><th>例句</th><th>Advanced</th><th>進階例句</th><th>Media</th><th>State</th><th></th>
+            <th>#</th><th>English</th><th>中文</th><th>Part of speech</th><th>Syllables</th>
+            <th>Example</th><th>例句</th><th>Advanced</th><th>進階例句</th><th>Photo</th><th>Audio</th><th>Video</th><th>State</th><th></th>
           </tr>
         </thead>
         <tbody id="studio-rows"></tbody>
       </table>
     </div>
   </main>
-  <script src="assets/studio.js?v=1"></script>
+  <script src="assets/studio.js?v=2"></script>
 </body>
 </html>

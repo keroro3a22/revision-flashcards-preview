@@ -23,8 +23,8 @@
     { id: 'unit4', label: 'Unit 4' },
     { id: 'dictation3', label: 'Dictation' }
   ];
-  var TEXT = ['en', 'zh', 'pos', 'syllables', 'highlight', 'ex_en', 'ex_zh', 'adv_en', 'adv_zh'];
-  var MEDIA = ['img', 'audio', 'video'];
+  var TEXT = ['en', 'zh', 'pos', 'syllables', 'ex_en', 'ex_zh', 'adv_en', 'adv_zh'];
+  var WIDE = { en: true, zh: true, ex_en: true, ex_zh: true, adv_en: true, adv_zh: true };
 
   var client = null;
   var rows = [];
@@ -62,18 +62,111 @@
     fillSelect($('filter-series'), items, current);
   }
 
-  function fieldsOf(row) {
-    var data = {};
-    TEXT.concat(MEDIA).forEach(function (name) { data[name] = row[name] || ''; });
-    return data;
+  function plainPaste(event) {
+    event.preventDefault();
+    var text = (event.clipboardData || window.clipboardData).getData('text/plain');
+    document.execCommand('insertText', false, text);
   }
-  function input(name, value) {
-    var field = document.createElement('input');
+  function cellText(value) {
+    return String(value || '').replace(/\u00a0/g, ' ');
+  }
+  function box(name, value, wide) {
+    var cell = document.createElement('td');
+    cell.className = wide ? 'is-wide' : 'is-mid';
+    var field = document.createElement('div');
+    field.className = 'studio-edit';
+    field.contentEditable = 'true';
+    field.spellcheck = true;
     field.dataset.field = name;
-    field.value = value || '';
-    field.setAttribute('aria-label', name);
-    return field;
+    field.textContent = cellText(value);
+    field.addEventListener('paste', plainPaste);
+    cell.appendChild(field);
+    return cell;
   }
+  function photoSrc(path) {
+    var value = cellText(path).trim();
+    if (!value) return '';
+    if (/^https?:\/\//i.test(value)) return value;
+    return place().unit + '/' + value.replace(/^\.\//, '');
+  }
+  function paintPhoto(cell) {
+    var img = cell.querySelector('img');
+    var path = cell.querySelector('[data-field="img"]').textContent;
+    var src = photoSrc(path);
+    img.hidden = !src;
+    if (src) img.src = src;
+  }
+  function uploadPhoto(file, rowId, cell) {
+    var ext = ((file.name || '').split('.').pop() || '').toLowerCase();
+    if (ext === 'jpeg') ext = 'jpg';
+    if (!/^(jpg|png|gif|webp)$/.test(ext)) {
+      say('Use a jpg, png, gif, or webp photo.');
+      return;
+    }
+    var path = 'cards/' + rowId + '/' + Date.now() + '.' + ext;
+    say('Uploading photo…');
+    client.storage.from('lesson-media').upload(path, file, {
+      contentType: file.type || 'image/' + (ext === 'jpg' ? 'jpeg' : ext),
+      upsert: false
+    }).then(function (result) {
+      if (result.error) { say(result.error.message); return; }
+      var pub = client.storage.from('lesson-media').getPublicUrl(path);
+      var url = pub && pub.data && pub.data.publicUrl;
+      if (!url) { say('The photo uploaded, but the address was missing.'); return; }
+      cell.querySelector('[data-field="img"]').textContent = url;
+      paintPhoto(cell);
+      say('Photo is in this row. Publish to show it on the site.');
+    });
+  }
+  function photoCell(row) {
+    var cell = document.createElement('td');
+    cell.className = 'studio-photo-cell';
+    var img = document.createElement('img');
+    img.alt = '';
+    img.className = 'studio-thumb';
+    var path = document.createElement('div');
+    path.className = 'studio-edit';
+    path.contentEditable = 'true';
+    path.spellcheck = false;
+    path.dataset.field = 'img';
+    path.textContent = cellText(row.img);
+    path.addEventListener('paste', plainPaste);
+    path.addEventListener('input', function () { paintPhoto(cell); });
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'studio-upload';
+    button.textContent = 'Change photo';
+    var picker = document.createElement('input');
+    picker.type = 'file';
+    picker.accept = 'image/jpeg,image/png,image/gif,image/webp';
+    picker.hidden = true;
+    button.addEventListener('click', function () { picker.click(); });
+    picker.addEventListener('change', function () {
+      var file = picker.files && picker.files[0];
+      picker.value = '';
+      if (file) uploadPhoto(file, row.id, cell);
+    });
+    cell.appendChild(img);
+    cell.appendChild(path);
+    cell.appendChild(button);
+    cell.appendChild(picker);
+    paintPhoto(cell);
+    return cell;
+  }
+  function pathCell(name, value) {
+    var cell = document.createElement('td');
+    cell.className = 'is-path';
+    var path = document.createElement('div');
+    path.className = 'studio-edit';
+    path.contentEditable = 'true';
+    path.spellcheck = false;
+    path.dataset.field = name;
+    path.textContent = cellText(value);
+    path.addEventListener('paste', plainPaste);
+    cell.appendChild(path);
+    return cell;
+  }
+
   function render() {
     var body = $('studio-rows');
     body.replaceChildren();
@@ -81,30 +174,21 @@
       var tr = document.createElement('tr');
       tr.dataset.id = String(row.id);
       var number = document.createElement('td');
+      number.className = 'is-num';
       number.textContent = String(row.n);
       tr.appendChild(number);
       TEXT.forEach(function (name) {
-        var cell = document.createElement('td');
-        cell.appendChild(input(name, row[name]));
-        tr.appendChild(cell);
+        tr.appendChild(box(name, row[name], !!WIDE[name]));
       });
-      var media = document.createElement('td');
-      var details = document.createElement('details');
-      var summary = document.createElement('summary');
-      summary.textContent = 'Image, audio, video paths';
-      details.appendChild(summary);
-      MEDIA.forEach(function (name) {
-        var label = document.createElement('label');
-        label.textContent = name;
-        label.appendChild(input(name, row[name]));
-        details.appendChild(label);
-      });
-      media.appendChild(details);
-      tr.appendChild(media);
+      tr.appendChild(photoCell(row));
+      tr.appendChild(pathCell('audio', row.audio));
+      tr.appendChild(pathCell('video', row.video));
       var state = document.createElement('td');
+      state.className = 'is-state';
       state.textContent = row.status === 'published' ? 'Published' : 'Draft';
       tr.appendChild(state);
       var actions = document.createElement('td');
+      actions.className = 'is-actions';
       var save = document.createElement('button');
       save.type = 'button';
       save.textContent = 'Save draft';
@@ -123,7 +207,10 @@
 
   function readRow(tr) {
     var data = {};
-    tr.querySelectorAll('[data-field]').forEach(function (field) { data[field.dataset.field] = field.value; });
+    tr.querySelectorAll('[data-field]').forEach(function (field) {
+      data[field.dataset.field] = cellText(field.textContent).trim();
+    });
+    data.highlight = data.en || '';
     return data;
   }
   function store(tr, status) {
@@ -138,7 +225,7 @@
         Object.assign(row, data);
         row.status = status;
       }
-      tr.querySelector('td:nth-last-child(2)').textContent = status === 'published' ? 'Published' : 'Draft';
+      tr.querySelector('.is-state').textContent = status === 'published' ? 'Published' : 'Draft';
       say(status === 'published' ? 'Published. Refresh the unit page to see it.' : 'Draft saved. The site is unchanged.');
     });
   }
@@ -147,7 +234,7 @@
     var here = place();
     say('Loading…');
     client.from('lesson_cards')
-      .select('id,n,status,en,zh,pos,syllables,highlight,ex_en,ex_zh,adv_en,adv_zh,img,audio,video')
+      .select('id,n,status,en,zh,pos,syllables,ex_en,ex_zh,adv_en,adv_zh,img,audio,video')
       .eq('book', here.book).eq('series', here.series).eq('term', here.term)
       .eq('level', here.level).eq('unit_id', here.unit)
       .order('n', { ascending: true })
@@ -159,7 +246,22 @@
       });
   }
 
+  function safeReturn(value) {
+    var from = String(value || '');
+    if (!from || from.indexOf('studio') !== -1) return 'index.html';
+    if (from.indexOf('..') !== -1 || from.indexOf('//') !== -1 || from.indexOf('\\') !== -1) return 'index.html';
+    if (!/^[a-z0-9./_?#&=%-]+$/i.test(from)) return 'index.html';
+    return from;
+  }
+  function wireBack() {
+    var from = '';
+    try { from = sessionStorage.getItem('revision-studio-from') || ''; } catch (e) {}
+    var link = $('studio-back');
+    if (link) link.setAttribute('href', safeReturn(from));
+  }
+
   function boot() {
+    wireBack();
     var cfg = window.SUPABASE_PUBLIC || {};
     if (!window.supabase || !cfg.url || !cfg.key) { say('The database script did not load.'); return; }
     client = window.supabase.createClient(cfg.url, cfg.key, {

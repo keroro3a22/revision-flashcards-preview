@@ -116,6 +116,19 @@
     return (root || '') + file;
   }
 
+  function currentPlace() {
+    try {
+      var root = siteRoot();
+      var rootPath = new URL(root || window.location.href).pathname;
+      var path = window.location.pathname || '';
+      var rel = path.indexOf(rootPath) === 0 ? path.slice(rootPath.length) : '';
+      rel = rel.replace(/^\//, '') || 'index.html';
+      return rel + (window.location.search || '') + (window.location.hash || '');
+    } catch (e) {
+      return 'index.html';
+    }
+  }
+
   function accountHref() {
     var root = siteRoot();
     var account = (root || '') + 'account.html';
@@ -240,6 +253,9 @@
         link.id = 'edit-lessons';
         link.className = 'edit-lessons';
         link.textContent = 'Edit lessons';
+        link.addEventListener('pointerdown', function () {
+          try { sessionStorage.setItem('revision-studio-from', currentPlace()); } catch (e) {}
+        });
       }
       link.href = pageHref('studio.html');
       slot.insertBefore(link, slot.firstChild);
