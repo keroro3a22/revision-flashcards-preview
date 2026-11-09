@@ -60,7 +60,7 @@ create table private.content_editors (
 
 insert into private.content_editors (user_id)
 select id from public.profiles
-where username in ('keroro3a22', 'keroroa22')
+where username in ('keroro3a22', 'keroroa22', 'cynthiasumyi')
 on conflict (user_id) do nothing;
 
 create or replace function public.is_content_editor()

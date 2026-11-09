@@ -39,5 +39,7 @@ test('the studio edits the same place and publishes a snapshot', () => {
   assert.match(studio, /patch\.published = data/);
   assert.match(studio, /SUPABASE_PUBLIC/);
   assert.match(studio, /is_content_editor/);
-  assert.match(fs.readFileSync('profile.html', 'utf8'), /studio\.html/);
+  assert.match(fs.readFileSync('assets/account.js', 'utf8'), /id = 'edit-lessons'/);
+  assert.match(fs.readFileSync('assets/account.js', 'utf8'), /insertBefore\(link, slot\.firstChild\)/);
+  assert.match(fs.readFileSync('supabase/migrations/20261109140000_cynthia_editor.sql', 'utf8'), /cynthiasumyi/);
 });

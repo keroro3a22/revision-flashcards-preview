@@ -1,7 +1,19 @@
 /* Student nickname + avatar. Borderless, same pastel chips as the rest of the site. */
 
 .profile-slot { display: none; }
-.profile-slot.is-ready { display: block; }
+.profile-slot.is-ready { display: inline-flex; align-items: center; gap: 0.45rem; }
+.edit-lessons {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--navy, #243c6c);
+  font-family: var(--font-display, "Fredoka", sans-serif);
+  font-weight: 650;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.prac-header .edit-lessons { color: var(--white, #fff); }
 
 .profile-chip {
   display: inline-flex;

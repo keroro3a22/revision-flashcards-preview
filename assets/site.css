@@ -1646,7 +1646,7 @@ a.account-entry:hover { background: var(--coral); color: var(--navy); }
 }
 html:not([data-signed-in="yes"]) #profile-slot { display: none !important; }
 html[data-signed-in="yes"] #account-link { display: none !important; }
-html[data-signed-in="yes"] #profile-slot { display: block !important; }
+html[data-signed-in="yes"] #profile-slot { display: inline-flex !important; align-items: center; gap: 0.45rem; }
 @media (max-width: 820px) {
   .topbar-inner { flex-wrap: wrap; align-items: center; }
   .brand { order: 0; }

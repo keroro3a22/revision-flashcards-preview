@@ -201,6 +201,7 @@
       link.setAttribute('href', accountHref());
     }
     if (window.Profile && window.Profile.labelChip) window.Profile.labelChip(displayName);
+    paintLessons();
     var form = document.getElementById('account-form');
     var panel = document.getElementById('account-settings');
     var pending = document.getElementById('account-pending');
@@ -215,6 +216,34 @@
       if (panel) panel.hidden = true;
       if (form) form.hidden = false;
     }
+  }
+
+  function paintLessons() {
+    var current = document.getElementById('edit-lessons');
+    if (!userId || !client) {
+      if (current) current.remove();
+      return;
+    }
+    var askedFor = userId;
+    client.rpc('is_content_editor').then(function (check) {
+      if (askedFor !== userId) return;
+      var link = document.getElementById('edit-lessons');
+      var allowed = check && !check.error && check.data === true;
+      if (!allowed) {
+        if (link) link.remove();
+        return;
+      }
+      var slot = document.getElementById('profile-slot');
+      if (!slot) return;
+      if (!link) {
+        link = document.createElement('a');
+        link.id = 'edit-lessons';
+        link.className = 'edit-lessons';
+        link.textContent = 'Edit lessons';
+      }
+      link.href = pageHref('studio.html');
+      slot.insertBefore(link, slot.firstChild);
+    });
   }
 
   function mountLink() {
