@@ -48,6 +48,8 @@ test('the studio edits the same place and publishes a snapshot', () => {
   const page = fs.readFileSync('studio.html', 'utf8');
   assert.match(page, />Back to website</);
   assert.match(page, />Highlight</);
+  assert.doesNotMatch(page, />Video</);
+  assert.doesNotMatch(studio, /pathCell\('video'/);
   assert.match(fs.readFileSync('assets/account.js', 'utf8'), /id = 'edit-lessons'/);
   assert.match(fs.readFileSync('assets/account.js', 'utf8'), /revision-studio-from/);
   assert.match(fs.readFileSync('supabase/migrations/20261109140000_cynthia_editor.sql', 'utf8'), /cynthiasumyi/);

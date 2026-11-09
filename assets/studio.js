@@ -182,7 +182,6 @@
       });
       tr.appendChild(photoCell(row));
       tr.appendChild(pathCell('audio', row.audio));
-      tr.appendChild(pathCell('video', row.video));
       var state = document.createElement('td');
       state.className = 'is-state';
       state.textContent = row.status === 'published' ? 'Published' : 'Draft';
@@ -233,7 +232,7 @@
     var here = place();
     say('Loading…');
     client.from('lesson_cards')
-      .select('id,n,status,en,zh,pos,syllables,highlight,ex_en,ex_zh,adv_en,adv_zh,img,audio,video')
+      .select('id,n,status,en,zh,pos,syllables,highlight,ex_en,ex_zh,adv_en,adv_zh,img,audio')
       .eq('book', here.book).eq('series', here.series).eq('term', here.term)
       .eq('level', here.level).eq('unit_id', here.unit)
       .order('n', { ascending: true })
