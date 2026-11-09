@@ -23,7 +23,7 @@
     { id: 'unit4', label: 'Unit 4' },
     { id: 'dictation3', label: 'Dictation' }
   ];
-  var TEXT = ['en', 'zh', 'pos', 'syllables', 'ex_en', 'ex_zh', 'adv_en', 'adv_zh'];
+  var TEXT = ['en', 'zh', 'pos', 'syllables', 'highlight', 'ex_en', 'ex_zh', 'adv_en', 'adv_zh'];
   var WIDE = { en: true, zh: true, ex_en: true, ex_zh: true, adv_en: true, adv_zh: true };
 
   var client = null;
@@ -210,7 +210,6 @@
     tr.querySelectorAll('[data-field]').forEach(function (field) {
       data[field.dataset.field] = cellText(field.textContent).trim();
     });
-    data.highlight = data.en || '';
     return data;
   }
   function store(tr, status) {
@@ -234,7 +233,7 @@
     var here = place();
     say('Loading…');
     client.from('lesson_cards')
-      .select('id,n,status,en,zh,pos,syllables,ex_en,ex_zh,adv_en,adv_zh,img,audio,video')
+      .select('id,n,status,en,zh,pos,syllables,highlight,ex_en,ex_zh,adv_en,adv_zh,img,audio,video')
       .eq('book', here.book).eq('series', here.series).eq('term', here.term)
       .eq('level', here.level).eq('unit_id', here.unit)
       .order('n', { ascending: true })
