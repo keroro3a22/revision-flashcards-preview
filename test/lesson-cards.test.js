@@ -49,6 +49,9 @@ test('the studio edits the same place and publishes a snapshot', () => {
   assert.match(page, />Back to website</);
   assert.match(page, />Highlight</);
   assert.doesNotMatch(page, />Video</);
+  assert.doesNotMatch(page, />Audio</);
+  assert.doesNotMatch(studio, /pathCell\('audio'/);
+  assert.match(studio, /data\.audio = row && row\.audio/);
   const head = page.slice(page.indexOf('<thead>'), page.indexOf('</thead>'));
   assert.ok(head.indexOf('>Photo<') < head.indexOf('>#<'));
   const render = studio.slice(studio.indexOf('function render'), studio.indexOf('function readRow'));

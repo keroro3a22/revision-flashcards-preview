@@ -153,20 +153,6 @@
     paintPhoto(cell);
     return cell;
   }
-  function pathCell(name, value) {
-    var cell = document.createElement('td');
-    cell.className = 'is-path';
-    var path = document.createElement('div');
-    path.className = 'studio-edit';
-    path.contentEditable = 'true';
-    path.spellcheck = false;
-    path.dataset.field = name;
-    path.textContent = cellText(value);
-    path.addEventListener('paste', plainPaste);
-    cell.appendChild(path);
-    return cell;
-  }
-
   function render() {
     var body = $('studio-rows');
     body.replaceChildren();
@@ -181,7 +167,6 @@
       TEXT.forEach(function (name) {
         tr.appendChild(box(name, row[name], !!WIDE[name]));
       });
-      tr.appendChild(pathCell('audio', row.audio));
       var state = document.createElement('td');
       state.className = 'is-state';
       state.textContent = row.status === 'published' ? 'Published' : 'Draft';
@@ -209,6 +194,9 @@
     tr.querySelectorAll('[data-field]').forEach(function (field) {
       data[field.dataset.field] = cellText(field.textContent).trim();
     });
+    var row = rows.filter(function (item) { return String(item.id) === tr.dataset.id; })[0];
+    data.audio = row && row.audio ? row.audio : '';
+    data.video = row && row.video ? row.video : '';
     return data;
   }
   function store(tr, status) {
@@ -232,7 +220,7 @@
     var here = place();
     say('Loading…');
     client.from('lesson_cards')
-      .select('id,n,status,en,zh,pos,syllables,highlight,ex_en,ex_zh,adv_en,adv_zh,img,audio')
+      .select('id,n,status,en,zh,pos,syllables,highlight,ex_en,ex_zh,adv_en,adv_zh,img,audio,video')
       .eq('book', here.book).eq('series', here.series).eq('term', here.term)
       .eq('level', here.level).eq('unit_id', here.unit)
       .order('n', { ascending: true })
