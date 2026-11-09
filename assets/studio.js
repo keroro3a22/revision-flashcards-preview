@@ -173,6 +173,7 @@
     rows.forEach(function (row) {
       var tr = document.createElement('tr');
       tr.dataset.id = String(row.id);
+      tr.appendChild(photoCell(row));
       var number = document.createElement('td');
       number.className = 'is-num';
       number.textContent = String(row.n);
@@ -180,7 +181,6 @@
       TEXT.forEach(function (name) {
         tr.appendChild(box(name, row[name], !!WIDE[name]));
       });
-      tr.appendChild(photoCell(row));
       tr.appendChild(pathCell('audio', row.audio));
       var state = document.createElement('td');
       state.className = 'is-state';
