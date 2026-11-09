@@ -23,8 +23,8 @@
     { id: 'unit4', label: 'Unit 4' },
     { id: 'dictation3', label: 'Dictation' }
   ];
-  var TEXT = ['en', 'zh', 'pos', 'syllables', 'highlight', 'ex_en', 'ex_zh', 'adv_en', 'adv_zh'];
-  var WIDE = { en: true, zh: true, ex_en: true, ex_zh: true, adv_en: true, adv_zh: true };
+  var TEXT = ['en', 'zh', 'pos', 'syllables', 'highlight'];
+  var PAIRS = [['ex_en', 'ex_zh'], ['adv_en', 'adv_zh']];
 
   var client = null;
   var rows = [];
@@ -70,9 +70,7 @@
   function cellText(value) {
     return String(value || '').replace(/\u00a0/g, ' ');
   }
-  function box(name, value, wide) {
-    var cell = document.createElement('td');
-    cell.className = wide ? 'is-wide' : 'is-mid';
+  function edit(name, value) {
     var field = document.createElement('div');
     field.className = 'studio-edit';
     field.contentEditable = 'true';
@@ -80,7 +78,18 @@
     field.dataset.field = name;
     field.textContent = cellText(value);
     field.addEventListener('paste', plainPaste);
-    cell.appendChild(field);
+    return field;
+  }
+  function box(name, value) {
+    var cell = document.createElement('td');
+    cell.appendChild(edit(name, value));
+    return cell;
+  }
+  function pairCell(topName, bottomName, row) {
+    var cell = document.createElement('td');
+    cell.className = 'studio-pair';
+    cell.appendChild(edit(topName, row[topName]));
+    cell.appendChild(edit(bottomName, row[bottomName]));
     return cell;
   }
   function photoSrc(path) {
@@ -165,7 +174,10 @@
       tr.appendChild(number);
       tr.appendChild(photoCell(row));
       TEXT.forEach(function (name) {
-        tr.appendChild(box(name, row[name], !!WIDE[name]));
+        tr.appendChild(box(name, row[name]));
+      });
+      PAIRS.forEach(function (pair) {
+        tr.appendChild(pairCell(pair[0], pair[1], row));
       });
       var state = document.createElement('td');
       state.className = 'is-state';

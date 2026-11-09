@@ -40,6 +40,8 @@ test('the studio edits the same place and publishes a snapshot', () => {
   assert.match(studio, /'highlight'/);
   assert.doesNotMatch(studio, /data\.highlight = data\.en/);
   assert.match(studio, /contentEditable = 'true'/);
+  assert.match(studio, /\['ex_en', 'ex_zh'\]/);
+  assert.match(studio, /\['adv_en', 'adv_zh'\]/);
   assert.match(studio, /Change photo/);
   assert.match(studio, /lesson-media/);
   assert.match(studio, /SUPABASE_PUBLIC/);
@@ -48,6 +50,8 @@ test('the studio edits the same place and publishes a snapshot', () => {
   const page = fs.readFileSync('studio.html', 'utf8');
   assert.match(page, />Back to website</);
   assert.match(page, />Highlight</);
+  assert.match(page, /Example<br>例句/);
+  assert.match(page, /Advanced<br>進階例句/);
   assert.doesNotMatch(page, />Video</);
   assert.doesNotMatch(page, />Audio</);
   assert.doesNotMatch(studio, /pathCell\('audio'/);

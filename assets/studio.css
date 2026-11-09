@@ -9,8 +9,15 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
 .studio-table { border-collapse: collapse; width: 100%; table-layout: fixed; }
 .studio-table col.col-num { width: 2.4rem; }
 .studio-table col.col-photo { width: 5.4rem; }
+.studio-table col.col-text { width: 7rem; }
+.studio-table col.col-pair { width: 14rem; }
 .studio-table col.col-state { width: 4.4rem; }
 .studio-table col.col-actions { width: 5.1rem; }
+.studio-pair .studio-edit + .studio-edit {
+  margin-top: 0.28rem;
+  padding-top: 0.28rem;
+  border-top: 1px solid #8ea4ba;
+}
 .studio-table th,
 .studio-table td {
   border: 1px solid #8ea4ba;
