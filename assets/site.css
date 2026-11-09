@@ -1547,11 +1547,22 @@ a.account-entry:hover { background: var(--coral); color: var(--navy); }
 }
 .place-entries {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: 1fr;
+  gap: 1.35rem;
   margin-top: 0.85rem;
 }
-.place-entries { align-items: stretch; }
+.place-group-title {
+  margin: 0 0 0.55rem;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+.place-group-items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+  gap: 0.75rem;
+  align-items: stretch;
+}
 .place-entry {
   display: flex;
   height: 100%;
@@ -1633,11 +1644,11 @@ a.account-entry:hover { background: var(--coral); color: var(--navy); }
   letter-spacing: -0.03em;
 }
 .place-entry p { font-weight: 700; }
-.place-entry.tone-words { background: color-mix(in srgb, var(--sunny) 78%, white); }
-.place-entry.tone-grammar { background: color-mix(in srgb, var(--sky) 72%, white); }
-.place-entry.tone-revision { background: color-mix(in srgb, var(--coral) 58%, white); }
+.place-entry.tone-revision-vocab,
+.place-entry.tone-practice-vocab { background: color-mix(in srgb, var(--sunny) 78%, white); }
+.place-entry.tone-revision-grammar,
+.place-entry.tone-practice-grammar { background: color-mix(in srgb, var(--sky) 72%, white); }
 .place-entry.tone-game { background: color-mix(in srgb, var(--green) 38%, white); }
-.place-entry.tone-practice { background: color-mix(in srgb, var(--pink) 62%, white); }
 .topbar-account {
   margin-left: auto;
   display: flex;

@@ -5,11 +5,11 @@
 
   var openMenu = '';
   var blurbs = {
-    words: 'Open the word cards.',
-    grammar: 'Open the grammar games.',
-    revision: 'Open the revision cards.',
-    game: 'Open School Mystery.',
-    practice: 'Open the quizzes.'
+    'revision-vocab': 'Open the word cards.',
+    'revision-grammar': 'Open the grammar cards.',
+    'practice-vocab': 'Open the quizzes.',
+    'practice-grammar': 'Open the grammar games.',
+    game: 'Open School Mystery.'
   };
 
   function show(mode) {
@@ -55,33 +55,51 @@
       heading.textContent = '';
       return;
     }
-    var selected = P.unitsFor(place.book, place.level, place.series, place.term).filter(function (unit) {
-      return unit.id === place.unit;
-    })[0];
-    heading.textContent = selected ? unitText(selected) : '';
-    P.entriesFor(place).forEach(function (item) {
-      var el = document.createElement(item.ready ? 'a' : 'div');
-      el.className = 'place-entry tone-' + item.id + (item.ready ? '' : ' is-soon');
-      if (item.ready) el.href = item.href;
-      var copy = document.createElement('div');
-      copy.className = 'place-entry-copy';
-      if (item.ready && item.image) {
-        var frame = document.createElement('div');
-        frame.className = 'place-entry-media';
-        var img = document.createElement('img');
-        img.src = item.image;
-        img.alt = '';
-        frame.appendChild(img);
-        el.appendChild(frame);
+    if (place.unit === P.GAME) {
+      heading.textContent = 'Game';
+    } else {
+      var selected = P.unitsFor(place.book, place.level, place.series, place.term).filter(function (unit) {
+        return unit.id === place.unit;
+      })[0];
+      heading.textContent = selected ? unitText(selected) : '';
+    }
+    P.entriesFor(place).forEach(function (group) {
+      var section = document.createElement('section');
+      section.className = 'place-group';
+      if (group.id !== 'game') {
+        var title = document.createElement('h3');
+        title.className = 'place-group-title';
+        title.textContent = group.label;
+        section.appendChild(title);
       }
-      var title = document.createElement('h3');
-      title.textContent = item.label;
-      var note = document.createElement('p');
-      note.textContent = item.ready ? blurbs[item.id] : (item.note || 'Coming soon');
-      copy.appendChild(title);
-      copy.appendChild(note);
-      el.appendChild(copy);
-      box.appendChild(el);
+      var grid = document.createElement('div');
+      grid.className = 'place-group-items';
+      group.items.forEach(function (item) {
+        var el = document.createElement(item.ready ? 'a' : 'div');
+        el.className = 'place-entry tone-' + item.id + (item.ready ? '' : ' is-soon');
+        if (item.ready) el.href = item.href;
+        var copy = document.createElement('div');
+        copy.className = 'place-entry-copy';
+        if (item.ready && item.image) {
+          var frame = document.createElement('div');
+          frame.className = 'place-entry-media';
+          var img = document.createElement('img');
+          img.src = item.image;
+          img.alt = '';
+          frame.appendChild(img);
+          el.appendChild(frame);
+        }
+        var name = document.createElement('h3');
+        name.textContent = item.label;
+        var note = document.createElement('p');
+        note.textContent = item.ready ? blurbs[item.id] : (item.note || 'Coming soon');
+        copy.appendChild(name);
+        copy.appendChild(note);
+        el.appendChild(copy);
+        grid.appendChild(el);
+      });
+      section.appendChild(grid);
+      box.appendChild(section);
     });
   }
 
@@ -118,7 +136,9 @@
       save(P.withChange(place, { term: id }));
     });
 
-    var views = [{ id: P.HOME, label: 'Get started' }].concat(P.unitsFor(place.book, place.level, place.series, place.term));
+    var views = [{ id: P.HOME, label: 'Get started' }]
+      .concat(P.unitsFor(place.book, place.level, place.series, place.term))
+      .concat([{ id: P.GAME, label: 'Game' }]);
     var tabs = document.getElementById('unit-tabs');
     tabs.replaceChildren();
     views.forEach(function (unit, index) {

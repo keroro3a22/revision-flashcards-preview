@@ -19,35 +19,40 @@ test('books are Longman and Oxford, levels are P1 to P6', () => {
   assert.equal(P.HOME, 'home');
 });
 
-test('Oxford P6 keeps the live units and other books use four empty units', () => {
+function flat(groups) {
+  return groups.flatMap((group) => group.items);
+}
+
+test('Oxford P6 keeps four units and there is no dictation tab', () => {
   const P = place();
   const live = P.unitsFor('oxford', 'p6').map((unit) => unit.id).join(',');
-  assert.equal(live, 'unit1,unit2,unit3,unit4,dictation3');
+  assert.equal(live, 'unit1,unit2,unit3,unit4');
   assert.equal(P.unitsFor('oxford', 'p6')[0].title, 'For a good cause');
   assert.equal(P.unitsFor('longman', 'p3').map((unit) => unit.id).join(','), 'unit1,unit2,unit3,unit4');
-  assert.equal(P.entriesFor({ book: 'oxford', series: 'oxford', level: 'p6', term: 'second', unit: 'unit1' })[0].ready, false);
+  assert.equal(P.normalize({ book: 'oxford', level: 'p6', unit: 'dictation3' }).unit, 'home');
+  assert.equal(flat(P.entriesFor({ book: 'oxford', series: 'oxford', level: 'p6', term: 'second', unit: 'unit1' }))[0].ready, false);
 });
 
-test('Oxford P6 unit doors open the pages that already exist', () => {
+test('a unit opens revision cards and practice, split into vocab and grammar', () => {
   const P = place();
-  const doors = P.entriesFor({ book: 'oxford', level: 'p6', unit: 'unit1' });
-  const href = Object.fromEntries(doors.map((door) => [door.id, door.href]));
-  assert.deepEqual(href, {
-    words: 'unit1/index.html',
-    grammar: 'practice/grammar/unit1-hub.html',
-    revision: 'unit1/index.html',
-    game: 'game/index.html',
-    practice: 'practice/index.html?unit=unit1'
+  const groups = P.entriesFor({ book: 'oxford', level: 'p6', unit: 'unit1' });
+  assert.equal(groups.map((group) => group.label).join(','), 'Revision card,Practice');
+  const revision = Object.fromEntries(groups[0].items.map((door) => [door.label, door.href]));
+  const practice = Object.fromEntries(groups[1].items.map((door) => [door.label, door.href]));
+  assert.deepEqual(revision, { Vocab: 'unit1/index.html', Grammar: '' });
+  assert.deepEqual(practice, {
+    Vocab: 'practice/index.html?unit=unit1',
+    Grammar: 'practice/grammar/unit1-hub.html'
   });
-  assert.equal(doors.every((door) => door.ready), true);
+  assert.equal(groups[0].items[1].note, 'Coming soon');
   const other = P.entriesFor({ book: 'oxford', level: 'p6', unit: 'unit2' });
-  assert.notEqual(doors.map((door) => door.image).join('|'), other.map((door) => door.image).join('|'));
+  assert.notEqual(flat(groups).map((door) => door.image).join('|'), flat(other).map((door) => door.image).join('|'));
 });
 
-test('a book without pages keeps the doors and pictures, with no status line yet', () => {
+test('a book without pages keeps both groups, with no status line yet', () => {
   const P = place();
-  const doors = P.entriesFor({ book: 'longman', level: 'p1', unit: 'unit2' });
-  assert.equal(doors.map((door) => door.id).join(','), 'words,grammar,revision,game,practice');
+  const doors = flat(P.entriesFor({ book: 'longman', level: 'p1', unit: 'unit2' }));
+  assert.equal(doors.map((door) => door.label).join(','), 'Vocab,Grammar,Vocab,Grammar');
   doors.forEach((door) => {
     assert.equal(door.ready, false);
     assert.equal(door.href, '');
@@ -57,32 +62,30 @@ test('a book without pages keeps the doors and pictures, with no status line yet
   assert.equal(JSON.stringify(doors).includes('砌緊'), false);
 });
 
-test('dictation keeps its cards and practice, and grammar stays unfinished', () => {
+test('the same grade shares one game across books and terms', () => {
   const P = place();
-  const doors = P.entriesFor({ book: 'oxford', level: 'p6', unit: 'dictation3' });
-  const href = Object.fromEntries(doors.map((door) => [door.id, door.href]));
-  assert.equal(href.words, 'dictation3/index.html');
-  assert.equal(href.revision, 'dictation3/index.html');
-  assert.equal(href.grammar, '');
-  assert.equal(href.practice, 'practice/index.html?unit=dictation3');
-  assert.equal(doors.find((door) => door.id === 'grammar').note, 'Coming soon');
-  assert.equal(doors.find((door) => door.id === 'grammar').image, '');
-  assert.equal(doors.find((door) => door.id === 'revision').label, 'Revision card');
-  assert.notEqual(doors.find((door) => door.id === 'words').image, doors.find((door) => door.id === 'grammar').image);
+  const oxford = flat(P.entriesFor({ book: 'oxford', level: 'p6', term: 'first', unit: 'game' }))[0];
+  const elect = flat(P.entriesFor({ book: 'longman', series: 'elect', level: 'p6', term: 'second', unit: 'game' }))[0];
+  assert.equal(oxford.href, 'game/index.html');
+  assert.equal(elect.href, oxford.href);
+  assert.equal(flat(P.entriesFor({ book: 'oxford', level: 'p1', unit: 'game' }))[0].ready, false);
+  const stayed = P.withChange({ book: 'oxford', level: 'p6', term: 'first', unit: 'game' }, { book: 'longman', term: 'second' });
+  assert.equal(stayed.unit, 'game');
+  assert.equal(stayed.series, 'mypearson-express');
 });
 
 test('the last place is remembered on this device and a missing unit falls back', () => {
   const storage = memoryStorage();
   const P = place();
   assert.equal(P.read(storage), null);
-  const saved = P.write(storage, { book: 'oxford', level: 'p6', unit: 'dictation3' });
-  assert.equal(JSON.stringify(saved), JSON.stringify({ book: 'oxford', series: 'oxford', level: 'p6', term: 'first', unit: 'dictation3' }));
+  const saved = P.write(storage, { book: 'oxford', level: 'p6', unit: 'unit4' });
+  assert.equal(JSON.stringify(saved), JSON.stringify({ book: 'oxford', series: 'oxford', level: 'p6', term: 'first', unit: 'unit4' }));
   assert.equal(JSON.stringify(P.read(storage)), JSON.stringify(saved));
 
   const started = P.write(storage, { book: 'oxford', level: 'p6', unit: 'home' });
   assert.equal(started.unit, 'home');
   const moved = P.withChange(saved, { book: 'longman', level: 'p5' });
-  assert.equal(moved.unit, 'home');
+  assert.equal(moved.unit, 'unit4');
   assert.equal(JSON.stringify(P.write(storage, moved)), JSON.stringify(moved));
 
   const kept = P.withChange({ book: 'oxford', level: 'p6', unit: 'unit4' }, { book: 'longman' });

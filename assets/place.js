@@ -3,6 +3,7 @@
 window.RevisionPlace = (function () {
   var STORAGE_KEY = 'revision-place-v1';
   var HOME = 'home';
+  var GAME = 'game';
   var SOON = 'Coming soon';
 
   var books = [
@@ -95,8 +96,7 @@ window.RevisionPlace = (function () {
           ['unit1', 'Unit 1', 'For a good cause'],
           ['unit2', 'Unit 2', 'Lend a helping hand'],
           ['unit3', 'Unit 3', 'Junior Super Chef'],
-          ['unit4', 'Unit 4', 'Film magic'],
-          ['dictation3', 'Dictation', 'Films and similes']
+          ['unit4', 'Unit 4', 'Film magic']
         ]
       : [
           ['unit1', 'Unit 1', ''],
@@ -134,7 +134,7 @@ window.RevisionPlace = (function () {
     var series = chosenSeries(input.book, input.series);
     var term = chosenTerm(input.term);
     var units = unitsFor(input.book, input.level, series, term);
-    var unit = input.unit === HOME || known(units, input.unit) ? input.unit : HOME;
+    var unit = input.unit === HOME || input.unit === GAME || known(units, input.unit) ? input.unit : HOME;
     return { book: input.book, series: series, level: input.level, term: term, unit: unit };
   }
 
@@ -167,43 +167,55 @@ window.RevisionPlace = (function () {
     });
   }
 
-  function door(id, label, href, image) {
-    if (href) return { id: id, label: label, href: href, ready: true, note: '', image: image || '' };
+  function door(id, label, href, image, ready) {
+    if (ready && href) return { id: id, label: label, href: href, ready: true, note: '', image: image || '' };
     return { id: id, label: label, href: '', ready: false, note: SOON, image: '' };
+  }
+
+  function lessonLive(place) {
+    return place.book === 'oxford'
+      && chosenSeries(place.book, place.series) === 'oxford'
+      && place.level === 'p6'
+      && chosenTerm(place.term) === 'first';
   }
 
   function entriesFor(place) {
     if (!place || place.unit === HOME) return [];
-    var art = cardArt[place.unit] || cardArt.unit1;
-    var names = [
-      ['words', 'Words'],
-      ['grammar', 'Grammar'],
-      ['revision', 'Revision card'],
-      ['game', 'Game'],
-      ['practice', 'Practice']
-    ];
-    var live = place.book === 'oxford'
-      && chosenSeries(place.book, place.series) === 'oxford'
-      && place.level === 'p6'
-      && chosenTerm(place.term) === 'first';
-    if (!live) {
-      return names.map(function (pair) { return door(pair[0], pair[1], '', art[pair[0]]); });
+    if (place.unit === GAME) {
+      var sameGame = place.level === 'p6';
+      return [{
+        id: 'game',
+        label: 'Game',
+        items: [door('game', 'School Mystery', sameGame ? 'game/index.html' : '', 'game/illust/intro/detective.png', sameGame)]
+      }];
     }
+    var art = cardArt[place.unit] || cardArt.unit1;
+    var live = lessonLive(place);
     var unit = place.unit;
-    var card = unit === 'dictation3' ? 'dictation3/index.html' : unit + '/index.html';
-    var grammar = unit === 'dictation3' ? '' : 'practice/grammar/' + unit + '-hub.html';
     return [
-      door('words', 'Words', card, art.words),
-      door('grammar', 'Grammar', grammar, art.grammar),
-      door('revision', 'Revision card', card, art.revision),
-      door('game', 'Game', 'game/index.html', art.game),
-      door('practice', 'Practice', 'practice/index.html?unit=' + encodeURIComponent(unit), art.practice)
+      {
+        id: 'revision',
+        label: 'Revision card',
+        items: [
+          door('revision-vocab', 'Vocab', unit + '/index.html', art.revision, live),
+          door('revision-grammar', 'Grammar', '', art.grammar, false)
+        ]
+      },
+      {
+        id: 'practice',
+        label: 'Practice',
+        items: [
+          door('practice-vocab', 'Vocab', 'practice/index.html?unit=' + encodeURIComponent(unit), art.practice, live),
+          door('practice-grammar', 'Grammar', 'practice/grammar/' + unit + '-hub.html', art.grammar, live)
+        ]
+      }
     ];
   }
 
   return {
     STORAGE_KEY: STORAGE_KEY,
     HOME: HOME,
+    GAME: GAME,
     SOON: SOON,
     books: books,
     levels: levels,
