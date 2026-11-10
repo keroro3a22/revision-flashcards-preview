@@ -267,11 +267,70 @@
     paintPhoto(cell);
     return cell;
   }
-  function heading(labels) {
+  function revisionColumns(here) {
+    var grammar = here.kind === 'grammar';
+    var columns = [
+      { col: 'col-num', label: '#' },
+      { col: 'col-photo', label: 'Photo' },
+      { col: 'col-text', label: 'English' },
+      { col: 'col-text', label: '中文' },
+      { col: 'col-text', label: 'Part of speech' },
+      { col: grammar ? 'col-pattern' : 'col-text', label: grammar ? 'Pattern' : 'Syllables' }
+    ];
+    if (grammar) columns.push({ col: 'col-note', label: 'Note' });
+    columns.push(
+      { col: 'col-pair', label: 'Example<br>例句' },
+      { col: 'col-pair', label: 'Advanced<br>進階例句' },
+      { col: 'col-state', label: 'State' },
+      { col: 'col-actions', label: '' }
+    );
+    return { shape: grammar ? 'grammar' : 'revision', columns: columns };
+  }
+  function practiceColumns(here) {
+    var mode = here.mode;
+    if (mode === 'letters' || mode === 'match') {
+      return {
+        shape: 'spell',
+        fields: ['prompt', 'answer'],
+        columns: [
+          { col: 'col-num', label: '#' },
+          { col: 'col-pair', label: mode === 'match' ? 'English' : 'Phrase' },
+          { col: 'col-pair', label: mode === 'match' ? '中文' : 'Answer' },
+          { col: 'col-state', label: 'State' },
+          { col: 'col-actions', label: '' }
+        ]
+      };
+    }
+    var grammar = here.kind === 'grammar';
+    var hard = mode === 'fill' && here.difficulty === 'hard';
+    var fields = ['prompt', 'answer', 'explain'];
+    var columns = [
+      { col: 'col-num', label: '#' },
+      { col: grammar ? 'col-passage' : 'col-prompt', label: 'Prompt' },
+      { col: grammar ? 'col-short' : 'col-answer', label: 'Answer' },
+      { col: 'col-explain', label: 'Explain' }
+    ];
+    if (!hard) {
+      fields.push('options');
+      columns.push({ col: 'col-options', label: 'Options' });
+    }
+    columns.push({ col: 'col-state', label: 'State' }, { col: 'col-actions', label: '' });
+    return { shape: hard ? 'fill-hard' : (grammar ? 'passage' : 'fill'), fields: fields, columns: columns };
+  }
+  function setColumns(shape, columns) {
+    var table = $('studio-table');
+    table.dataset.shape = shape;
+    var group = table.querySelector('colgroup');
+    group.replaceChildren();
+    columns.forEach(function (column) {
+      var col = document.createElement('col');
+      col.className = column.col;
+      group.appendChild(col);
+    });
     var row = document.createElement('tr');
-    labels.forEach(function (label) {
+    columns.forEach(function (column) {
       var cell = document.createElement('th');
-      cell.innerHTML = label;
+      cell.innerHTML = column.label;
       row.appendChild(cell);
     });
     $('studio-head').replaceChildren(row);
@@ -290,8 +349,8 @@
       : drafts + ' drafts are waiting for a person to check.';
   }
   function renderPractice() {
-    heading(['#', 'Prompt', 'Answer', 'Explain', 'Options', 'State', '']);
-    $('studio-table').dataset.shape = 'practice';
+    var spec = practiceColumns(place());
+    setColumns(spec.shape, spec.columns);
     var body = $('studio-rows');
     body.replaceChildren();
     shownRows().forEach(function (row) {
@@ -302,7 +361,7 @@
       number.className = 'is-num';
       number.textContent = String(row.n);
       tr.appendChild(number);
-      ['prompt', 'answer', 'explain', 'options'].forEach(function (name) {
+      spec.fields.forEach(function (name) {
         tr.appendChild(box(name, row[name]));
       });
       var state = document.createElement('td');
@@ -332,12 +391,8 @@
       return;
     }
     var here = place();
-    var labels = ['#', 'Photo', 'English', '中文', 'Part of speech'];
-    labels.push(here.kind === 'grammar' ? 'Pattern' : 'Syllables');
-    if (here.kind === 'grammar') labels.push('Note');
-    labels.push('Example<br>例句', 'Advanced<br>進階例句', 'State', '');
-    heading(labels);
-    $('studio-table').dataset.shape = 'revision';
+    var spec = revisionColumns(here);
+    setColumns(spec.shape, spec.columns);
     var body = $('studio-rows');
     body.replaceChildren();
     var fields = ['en', 'zh', 'pos', here.kind === 'grammar' ? 'pattern' : 'syllables'];
@@ -398,7 +453,12 @@
     data.audio = row && row.audio ? row.audio : '';
     data.video = row && row.video ? row.video : '';
     data.highlight = row && row.highlight ? row.highlight : '';
-    if (tableName === 'practice_items') data.level_name = (row && row.level_name) || window.StudioDraft.difficulty(place());
+    if (tableName === 'practice_items') {
+      ['prompt', 'answer', 'explain', 'options'].forEach(function (name) {
+        if (!Object.prototype.hasOwnProperty.call(data, name)) data[name] = row && row[name] ? row[name] : '';
+      });
+      data.level_name = (row && row.level_name) || window.StudioDraft.difficulty(place());
+    }
     return data;
   }
   function requestStore(tr, status) {

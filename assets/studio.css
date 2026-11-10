@@ -25,10 +25,23 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
 .studio-table tr.is-draft td { background: #fff6e4; }
 .studio-scroll { overflow-x: auto; background: #fff; }
 .studio-table { border-collapse: collapse; width: 100%; min-width: 80.3rem; table-layout: fixed; }
+.studio-table[data-shape="grammar"] { min-width: 95.3rem; }
+.studio-table[data-shape="fill"] { min-width: 79.9rem; }
+.studio-table[data-shape="fill-hard"] { min-width: 63.9rem; }
+.studio-table[data-shape="spell"] { min-width: 46.9rem; }
+.studio-table[data-shape="passage"] { min-width: 83.9rem; }
 .studio-table col.col-num { width: 2.4rem; }
 .studio-table col.col-photo { width: 5.4rem; }
 .studio-table col.col-text { width: 7rem; }
+.studio-table col.col-pattern { width: 11rem; }
+.studio-table col.col-note { width: 11rem; }
 .studio-table col.col-pair { width: 17.5rem; }
+.studio-table col.col-prompt { width: 22rem; }
+.studio-table col.col-answer { width: 12rem; }
+.studio-table col.col-explain { width: 18rem; }
+.studio-table col.col-options { width: 16rem; }
+.studio-table col.col-passage { width: 28rem; }
+.studio-table col.col-short { width: 10rem; }
 .studio-hl {
   background: rgba(252, 192, 60, 0.95);
   color: #243c6c;
