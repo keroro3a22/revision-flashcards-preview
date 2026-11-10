@@ -1,4 +1,4 @@
-/* Table for the revision cards. Save keeps a draft. Publish is what the site reads. */
+/* People and agents add a draft here first. A person checks it. Publish is what students read. */
 (function () {
   var BOOKS = [
     { id: 'oxford', label: 'Oxford' },
@@ -60,7 +60,9 @@
       unit: $('filter-unit').value,
       section: $('filter-section').value,
       kind: $('filter-kind').value,
-      mode: $('filter-mode').value
+      mode: $('filter-mode').value,
+      difficulty: $('filter-difficulty').value,
+      review: $('filter-review').value
     };
   }
   function syncMode() {
@@ -69,7 +71,10 @@
     var current = $('filter-mode').value;
     if (!modes.some(function (item) { return item.id === current; })) current = modes[0].id;
     fillSelect($('filter-mode'), modes, current);
-    $('filter-mode-label').hidden = $('filter-section').value !== 'practice';
+    var practice = $('filter-section').value === 'practice';
+    $('filter-mode-label').hidden = !practice;
+    $('filter-difficulty-label').hidden = !(practice && $('filter-mode').value === 'fill');
+    $('filter-unit-label').hidden = practice && $('filter-mode').value === 'boss';
   }
   function fillSelect(select, items, selected) {
     select.replaceChildren();
@@ -261,18 +266,33 @@
     });
     $('studio-head').replaceChildren(row);
   }
+  function shownRows() {
+    var review = place().review;
+    if (review === 'draft') return rows.filter(function (row) { return row.status !== 'published'; });
+    if (review === 'published') return rows.filter(function (row) { return row.status === 'published'; });
+    return rows.slice();
+  }
+  function reviewLine() {
+    var drafts = rows.filter(function (row) { return row.status !== 'published'; }).length;
+    if (!drafts) return '';
+    return drafts === 1
+      ? '1 draft is waiting for a person to check.'
+      : drafts + ' drafts are waiting for a person to check.';
+  }
   function renderPractice() {
-    heading(['#', 'Prompt', 'Answer', 'Explain', 'Options', 'Level', 'State', '']);
+    heading(['#', 'Prompt', 'Answer', 'Explain', 'Options', 'State', '']);
+    $('studio-table').dataset.shape = 'practice';
     var body = $('studio-rows');
     body.replaceChildren();
-    rows.forEach(function (row) {
+    shownRows().forEach(function (row) {
       var tr = document.createElement('tr');
       tr.dataset.id = String(row.id);
+      if (row.status !== 'published') tr.classList.add('is-draft');
       var number = document.createElement('td');
       number.className = 'is-num';
       number.textContent = String(row.n);
       tr.appendChild(number);
-      ['prompt', 'answer', 'explain', 'options', 'level_name'].forEach(function (name) {
+      ['prompt', 'answer', 'explain', 'options'].forEach(function (name) {
         tr.appendChild(box(name, row[name]));
       });
       var state = document.createElement('td');
@@ -288,13 +308,13 @@
       var publish = document.createElement('button');
       publish.type = 'button';
       publish.textContent = 'Publish';
-      publish.addEventListener('click', function () { store(tr, 'published'); });
+      publish.addEventListener('click', function () { requestStore(tr, 'published'); });
       actions.appendChild(save);
       actions.appendChild(publish);
       tr.appendChild(actions);
       body.appendChild(tr);
     });
-    $('studio-empty').hidden = rows.length > 0;
+    paintEmpty();
   }
   function render() {
     if (tableName === 'practice_items') {
@@ -304,19 +324,24 @@
     var here = place();
     var labels = ['#', 'Photo', 'English', '中文', 'Part of speech'];
     labels.push(here.kind === 'grammar' ? 'Pattern' : 'Syllables');
+    if (here.kind === 'grammar') labels.push('Note');
     labels.push('Example<br>例句', 'Advanced<br>進階例句', 'State', '');
     heading(labels);
+    $('studio-table').dataset.shape = 'revision';
     var body = $('studio-rows');
     body.replaceChildren();
-    rows.forEach(function (row) {
+    var fields = ['en', 'zh', 'pos', here.kind === 'grammar' ? 'pattern' : 'syllables'];
+    if (here.kind === 'grammar') fields.push('note_zh');
+    shownRows().forEach(function (row) {
       var tr = document.createElement('tr');
       tr.dataset.id = String(row.id);
+      if (row.status !== 'published') tr.classList.add('is-draft');
       var number = document.createElement('td');
       number.className = 'is-num';
       number.textContent = String(row.n);
       tr.appendChild(number);
       tr.appendChild(photoCell(row));
-      ['en', 'zh', 'pos', place().kind === 'grammar' ? 'pattern' : 'syllables'].forEach(function (name) {
+      fields.forEach(function (name) {
         tr.appendChild(box(name, row[name]));
       });
       PAIRS.forEach(function (pair) {
@@ -335,13 +360,23 @@
       var publish = document.createElement('button');
       publish.type = 'button';
       publish.textContent = 'Publish';
-      publish.addEventListener('click', function () { store(tr, 'published'); });
+      publish.addEventListener('click', function () { requestStore(tr, 'published'); });
       actions.appendChild(save);
       actions.appendChild(publish);
       tr.appendChild(actions);
       body.appendChild(tr);
     });
-    $('studio-empty').hidden = rows.length > 0;
+    paintEmpty();
+  }
+  function paintEmpty() {
+    var visible = shownRows().length;
+    var empty = $('studio-empty');
+    empty.hidden = visible > 0;
+    if (visible) return;
+    var review = place().review;
+    empty.textContent = review === 'draft'
+      ? 'No drafts waiting in this list.'
+      : (review === 'published' ? 'Nothing in this list is published yet.' : 'No rows in this list yet. New draft starts one.');
   }
 
   function readRow(tr) {
@@ -353,39 +388,42 @@
     data.audio = row && row.audio ? row.audio : '';
     data.video = row && row.video ? row.video : '';
     data.highlight = row && row.highlight ? row.highlight : '';
+    if (tableName === 'practice_items') data.level_name = (row && row.level_name) || window.StudioDraft.difficulty(place());
     return data;
   }
+  function requestStore(tr, status) {
+    var firstPublish = status === 'published' && !rows.some(function (item) {
+      return item.status === 'published' && String(item.id) !== tr.dataset.id;
+    });
+    if (firstPublish && !window.confirm('Publishing replaces what students see for this list. Other drafts stay off the site. Publish this row?')) return;
+    store(tr, status);
+  }
   function store(tr, status) {
+    if (!window.StudioDraft) { say('The draft script did not load.'); return; }
     var data = readRow(tr);
     var row = rows.filter(function (item) { return String(item.id) === tr.dataset.id; })[0];
-    var patch = Object.assign({ status: status }, data);
-    if (tableName === 'practice_items') {
-      var extra = (row && row.extra) || {};
-      var published = Object.assign({}, extra, data, {
-        sentence: data.prompt, word: data.prompt, en: data.prompt, zh: data.answer
-      });
-      patch = {
-        prompt: data.prompt, answer: data.answer, explain: data.explain,
-        options: data.options, level_name: data.level_name || 'easy', status: status
-      };
-      if (status === 'published') patch.published = published;
-    } else if (status === 'published') {
-      patch.published = data;
-    }
+    var wasPublished = row && row.status === 'published';
+    var patch = tableName === 'practice_items'
+      ? window.StudioDraft.practicePatch(data, row && row.extra, status)
+      : window.StudioDraft.revisionPatch(data, status);
     say('Saving…');
     client.from(tableName).update(patch).eq('id', Number(tr.dataset.id)).select('id,status').then(function (result) {
       if (result.error) { say(result.error.message); return; }
-      var row = rows.filter(function (item) { return String(item.id) === tr.dataset.id; })[0];
-      if (row) {
-        Object.assign(row, data);
-        row.status = status;
+      var saved = rows.filter(function (item) { return String(item.id) === tr.dataset.id; })[0];
+      if (saved) {
+        Object.assign(saved, data);
+        saved.status = status;
+        if (status === 'published') saved.published = patch.published;
       }
+      tr.classList.toggle('is-draft', status !== 'published');
       tr.querySelector('.is-state').textContent = status === 'published' ? 'Published' : 'Draft';
-      say(status === 'published' ? 'Published. Refresh the unit page to see it.' : 'Draft saved. The site is unchanged.');
+      if (status === 'published') say('Published. Students see it after a refresh.');
+      else if (wasPublished) say('Saved as a draft. Students no longer see this row until you publish it.');
+      else say('Draft saved. Students do not see it yet.');
     });
   }
 
-  function load() {
+  function load(doneMessage) {
     var here = place();
     var practice = here.section === 'practice';
     tableName = practice ? 'practice_items' : 'lesson_cards';
@@ -394,16 +432,40 @@
       ? 'id,n,status,prompt,answer,explain,options,level_name,extra'
       : 'id,n,status,en,zh,pos,syllables,pattern,note_zh,highlight,ex_en,ex_zh,adv_en,adv_zh,img,audio,video')
       .eq('book', here.book).eq('series', here.series).eq('term', here.term)
-      .eq('level', here.level).eq('unit_id', here.unit).eq('track', here.kind);
-    if (practice) query = query.eq('mode', here.mode).order('level_name', { ascending: true });
+      .eq('level', here.level).eq('track', here.kind);
+    if (practice) query = query.eq('unit_id', window.StudioDraft.unitId(here)).eq('mode', here.mode).eq('level_name', window.StudioDraft.difficulty(here));
+    else query = query.eq('unit_id', here.unit);
     query.order('n', { ascending: true })
       .then(function (result) {
         if (result.error) { say(result.error.message); return; }
         rows = result.data || [];
         render();
-        var empty = practice ? 'No questions in this practice mode yet.' : 'No cards for this book, series, term, and unit yet.';
-        say(rows.length ? '' : empty);
+        say(doneMessage || reviewLine());
       });
+  }
+  function createDraft() {
+    if (!window.StudioDraft) { say('The draft script did not load.'); return; }
+    var here = place();
+    var practice = here.section === 'practice';
+    var table = practice ? 'practice_items' : 'lesson_cards';
+    say('Adding a draft…');
+    var numbers = client.from(table).select('n')
+      .eq('book', here.book).eq('series', here.series).eq('term', here.term).eq('level', here.level);
+    if (practice) {
+      numbers = numbers.eq('unit_id', window.StudioDraft.unitId(here)).eq('track', here.kind).eq('mode', here.mode).eq('level_name', window.StudioDraft.difficulty(here));
+    } else {
+      numbers = numbers.eq('unit_id', here.unit);
+    }
+    numbers.then(function (result) {
+      if (result.error) { say(result.error.message); return; }
+      var n = window.StudioDraft.nextNumber(here, (result.data || []).map(function (item) { return item.n; }));
+      if ($('filter-review').value === 'published') $('filter-review').value = 'all';
+      var row = practice ? window.StudioDraft.practiceInsert(here, n) : window.StudioDraft.revisionInsert(here, n);
+      client.from(table).insert(row).select('id').then(function (inserted) {
+        if (inserted.error) { say(inserted.error.message); return; }
+        load('Draft ' + n + ' added. Students do not see it until you publish.');
+      });
+    });
   }
 
   function safeReturn(value) {
@@ -420,8 +482,40 @@
     if (link) link.setAttribute('href', safeReturn(from));
   }
 
-  function boot() {
+  function bindEditor() {
+    fillSelect($('filter-book'), BOOKS, 'oxford');
+    syncSeries();
+    fillSelect($('filter-term'), TERMS, 'first');
+    LEVELS.forEach(function (id) {
+      var option = document.createElement('option');
+      option.value = id;
+      option.textContent = id.toUpperCase();
+      if (id === 'p6') option.selected = true;
+      $('filter-level').appendChild(option);
+    });
+    fillSelect($('filter-unit'), UNITS, 'unit1');
+    syncMode();
+    ['filter-book', 'filter-series', 'filter-term', 'filter-level', 'filter-unit', 'filter-section', 'filter-kind', 'filter-mode', 'filter-difficulty'].forEach(function (id) {
+      $(id).addEventListener('change', function () {
+        if (id === 'filter-book') syncSeries();
+        if (id === 'filter-section' || id === 'filter-kind' || id === 'filter-mode') syncMode();
+        load();
+      });
+    });
+    $('filter-review').addEventListener('change', function () {
+      render();
+      say(reviewLine());
+    });
+    $('studio-new').addEventListener('click', createDraft);
+    load();
+  }
+  function boot(deps) {
     wireBack();
+    if (deps && deps.client) {
+      client = deps.client;
+      bindEditor();
+      return;
+    }
     var cfg = window.SUPABASE_PUBLIC || {};
     if (!window.supabase || !cfg.url || !cfg.key) { say('The database script did not load.'); return; }
     client = window.supabase.createClient(cfg.url, cfg.key, {
@@ -437,28 +531,10 @@
           say('This account cannot edit lessons.');
           return;
         }
-        fillSelect($('filter-book'), BOOKS, 'oxford');
-        syncSeries();
-        fillSelect($('filter-term'), TERMS, 'first');
-        LEVELS.forEach(function (id) {
-          var option = document.createElement('option');
-          option.value = id;
-          option.textContent = id.toUpperCase();
-          if (id === 'p6') option.selected = true;
-          $('filter-level').appendChild(option);
-        });
-        fillSelect($('filter-unit'), UNITS, 'unit1');
-        syncMode();
-        ['filter-book', 'filter-series', 'filter-term', 'filter-level', 'filter-unit', 'filter-section', 'filter-kind', 'filter-mode'].forEach(function (id) {
-          $(id).addEventListener('change', function () {
-            if (id === 'filter-book') syncSeries();
-            if (id === 'filter-section' || id === 'filter-kind') syncMode();
-            load();
-          });
-        });
-        load();
+        bindEditor();
       });
     });
   }
-  boot();
+  window.RevisionStudio = { boot: boot };
+  if (!window.STUDIO_TEST) boot();
 })();

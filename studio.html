@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/studio.css?v=9" />
+  <link rel="stylesheet" href="assets/studio.css?v=11" />
   <script src="assets/supabase-public.js?v=1"></script>
   <script src="assets/vendor/supabase.js?v=1"></script>
 </head>
@@ -15,14 +15,14 @@
   <main class="studio-wrap">
     <p><a id="studio-back" class="studio-back" href="index.html">Back to website</a></p>
     <h1>Edit lessons</h1>
-    <p>Click a cell and type. The cell grows to show the whole sentence. Save draft stays private. Publish is what the unit page shows after a refresh. Select English words in an example and press Highlight this to mark them.</p>
+    <p>New draft adds the next card or question. A person checks the yellow rows and types in the cells. Publish is the only step students see, after a refresh. Select English words in an example and press Highlight this to mark them.</p>
     <p>To change a photo, press Change photo and choose a file, or type an existing file name such as thumb_01.jpg. Then Publish.</p>
     <div class="studio-filters">
       <label>Book <select id="filter-book"></select></label>
       <label>Series <select id="filter-series"></select></label>
       <label>Level <select id="filter-level"></select></label>
       <label>Term <select id="filter-term"></select></label>
-      <label>Unit <select id="filter-unit"></select></label>
+      <label id="filter-unit-label">Unit <select id="filter-unit"></select></label>
       <label>Section <select id="filter-section">
         <option value="revision">Revision card</option>
         <option value="practice">Practice</option>
@@ -32,11 +32,21 @@
         <option value="grammar">Grammar</option>
       </select></label>
       <label id="filter-mode-label">Mode <select id="filter-mode"></select></label>
+      <label id="filter-difficulty-label" hidden>Difficulty <select id="filter-difficulty">
+        <option value="easy">Easy</option>
+        <option value="hard">Hard</option>
+      </select></label>
+      <label>Show <select id="filter-review">
+        <option value="all">All rows</option>
+        <option value="draft">Drafts to check</option>
+        <option value="published">Published</option>
+      </select></label>
+      <button type="button" id="studio-new" class="studio-new">New draft</button>
     </div>
     <p id="studio-note" class="studio-note" role="status" hidden></p>
     <p id="studio-empty" hidden>No cards in this lesson yet.</p>
     <div class="studio-scroll">
-      <table class="studio-table">
+      <table class="studio-table" id="studio-table">
         <colgroup>
           <col class="col-num" />
           <col class="col-photo" />
@@ -59,6 +69,7 @@
       </table>
     </div>
   </main>
-  <script src="assets/studio.js?v=10"></script>
+  <script src="assets/studio-draft.js?v=1"></script>
+  <script src="assets/studio.js?v=11"></script>
 </body>
 </html>
