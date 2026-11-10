@@ -136,7 +136,7 @@ test('vocab, grammar, and practice keep the top bar and a single back link', () 
     const html = fs.readFileSync(path.join(root, file), 'utf8');
     assert.match(html, /place-ui\.js\?v=6/, file);
     assert.match(html, /chrome\.css\?v=1/, file);
-    assert.match(html, />Back to packs</, file);
+    assert.match(html, />← Back to packs</, file);
     assert.doesNotMatch(html, /header-pills/, file);
   });
 });

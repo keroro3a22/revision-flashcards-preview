@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&family=Noto+Sans+TC:wght@500;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="practice.css?v=10"/>
+<link rel="stylesheet" href="practice.css?v=11"/>
 <link rel="stylesheet" href="../assets/profile.css?v=4"/>
 <link rel="stylesheet" href="../assets/chrome.css?v=1" />
 <link rel="stylesheet" href="../assets/account.css?v=1" />
@@ -20,18 +20,11 @@
 </head>
 <body>
 <header class="prac-header">
-  <a class="back" href="../index.html">Back to packs</a>
+  <a class="back" href="../index.html">← Back to packs</a>
   <h1>Practice hub</h1>
   <p class="sub" id="unit-sub">Pick a unit and a game</p>
 </header>
 <main class="wrap">
-  <p class="section-label">Unit</p>
-  <div class="unit-pills" id="unit-pills" role="list"></div>
-
-  <div class="panel" id="unit-lock" hidden>
-    <p id="unit-lock-msg"></p>
-  </div>
-
   <p class="section-label" id="quiz-label">Quiz</p>
   <div class="game-grid" id="game-grid"></div>
 </main>
@@ -53,30 +46,8 @@
   const R = window.PracticeRegistry;
   const unitId = C.unitParam();
   const pack = R.getUnit(unitId);
-  const units = R.practiceChoices();
 
-  document.getElementById('unit-sub').textContent = (pack && pack.title) || 'Pick a unit and a game';
-
-  const pills = document.getElementById('unit-pills');
-  units.forEach(u => {
-    const open = !window.Badges || window.Badges.unitUnlocked(u.id);
-    const a = document.createElement('a');
-    a.href = 'index.html?unit=' + encodeURIComponent(u.id);
-    a.className = 'pill tone-' + u.tone + (u.id === unitId ? ' is-active' : '') + (open ? '' : ' is-locked');
-    a.setAttribute('role', 'listitem');
-    if (!open) a.setAttribute('aria-disabled', 'true');
-    a.innerHTML = C.escapeHtml(u.label) + (open ? '' : ' <span class="badge">locked</span>');
-    pills.appendChild(a);
-  });
-
-  const unitOpen = !window.Badges || window.Badges.unitUnlocked(unitId);
-  if (!unitOpen) {
-    document.getElementById('quiz-label').hidden = true;
-    document.getElementById('game-grid').hidden = true;
-    document.getElementById('unit-lock').hidden = false;
-    document.getElementById('unit-lock-msg').textContent = window.Badges.lockReason(unitId);
-    return;
-  }
+  document.getElementById('unit-sub').textContent = (pack && pack.title) || 'Pick a game';
 
   const ready = !!(pack && ((pack.fillIn && pack.fillIn.length) || (pack.matching && pack.matching.length)));
   const games = [

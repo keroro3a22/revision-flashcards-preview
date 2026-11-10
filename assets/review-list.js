@@ -4,9 +4,8 @@
  * A locked unit links to the flashcard instead.
  */
 window.ReviewList = (function () {
-  function practiceOpen(unitId) {
-    if (!window.Badges || typeof window.Badges.unitUnlocked !== 'function') return true;
-    return !!window.Badges.unitUnlocked(unitId);
+  function practiceOpen() {
+    return true;
   }
 
   function groups(registry, mastery, options) {

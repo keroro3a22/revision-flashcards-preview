@@ -220,11 +220,11 @@ test('join pages use one blank stem and lowercase choices', () => {
 
 test('grammar banners only go back to packs', () => {
   const html = read('grammar-hub.html');
-  assert.match(html, /class="back" href="\.\.\/\.\.\/index\.html">Back to packs</);
+  assert.match(html, /class="back" href="\.\.\/\.\.\/index\.html">← Back to packs</);
   assert.doesNotMatch(html, /header-pills/);
   ['unit1', 'unit2', 'unit3', 'unit4'].forEach(unit => {
     const hub = read(unit + '-hub.html');
-    assert.match(hub, /class="back" href="\.\.\/\.\.\/index\.html">Back to packs</, unit);
+    assert.match(hub, /class="back" href="\.\.\/\.\.\/index\.html">← Back to packs</, unit);
     assert.doesNotMatch(hub, /header-home/, unit);
     assert.doesNotMatch(hub, /header-practice/, unit);
   });

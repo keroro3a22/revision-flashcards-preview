@@ -42,8 +42,7 @@ test('needs review lists only words in the review state, grouped by unit', () =>
   assert.equal(unit1.words[0].zh, '領養寵物');
   assert.match(unit1.words[0].href, /practice\/letters\.html\?unit=unit1&focus=unit1%3Aadopt/);
   assert.equal(groups.some(g => g.words.some(w => w.key === 'unit1:donate')), false);
-  const quakeIndex = R.getUnit('unit2').words.findIndex(w => w.key === 'unit2:earthquake');
-  assert.equal(unit2.words[0].href, 'unit2/index.html#c' + (quakeIndex + 1));
+  assert.match(unit2.words[0].href, /practice\/letters\.html\?unit=unit2&focus=unit2%3Aearthquake/);
   assert.equal(unit2.words[0].zh.length > 0, true);
 });
 

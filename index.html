@@ -428,9 +428,8 @@
         var pack = R.getUnit(u.id);
         var total = (pack && pack.words) ? pack.words.length : 0;
         var pct = window.Badges ? window.Badges.practiceProgress(u.id) : 0;
-        var practiceLocked = window.Badges && !window.Badges.unitUnlocked(u.id);
-        var locked = !u.ready || !total || practiceLocked;
-        var pctLabel = (!total) ? 'Soon' : (practiceLocked ? 'Locked' : (pct + '%'));
+        var locked = !u.ready || !total;
+        var pctLabel = (!total) ? 'Soon' : (pct + '%');
         var row = document.createElement('div');
         row.className = 'review-row tone-' + (tones[u.tone] || 'sky') + (locked ? ' is-locked' : '');
         var link = document.createElement('a');

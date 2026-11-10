@@ -74,6 +74,8 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 0.95rem;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
   opacity: 0.9;
   margin-bottom: 0;
 }
