@@ -116,10 +116,11 @@
   gap: 0.45rem;
   width: min(100% - 2rem, 1080px);
   margin: 0 auto;
-  padding: 0.35rem 0.75rem 1.75rem;
+  padding: 0.35rem 0 0.15rem;
   overflow-x: auto;
-  scrollbar-width: thin;
+  scrollbar-width: none;
 }
+.site-chrome .unit-tabs::-webkit-scrollbar { display: none; }
 .site-chrome .unit-tab {
   flex: 0 0 auto;
   padding: 0.4rem 0.95rem;
