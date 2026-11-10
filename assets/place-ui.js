@@ -103,10 +103,140 @@
     });
   }
 
+  function scriptRoot() {
+    var scripts = document.getElementsByTagName('script');
+    for (var i = scripts.length - 1; i >= 0; i--) {
+      var src = scripts[i].src || '';
+      var cut = src.indexOf('assets/place-ui.js');
+      if (cut !== -1) return src.slice(0, cut);
+    }
+    return '';
+  }
+
+  function pageKind() {
+    var path = location.pathname || '';
+    if (/\/unit\d+\/grammar\.html$/.test(path)) return 'revision-grammar';
+    if (/\/unit\d+\/index\.html$/.test(path)) return 'revision-vocab';
+    if (/\/practice\/grammar\/(?:unit\d+-|boss\.html$)/.test(path)) return 'practice-grammar';
+    if (/\/practice\/(?:index|fill|letters|match|timed)\.html$/.test(path)) return 'practice-vocab';
+    return '';
+  }
+
+  function unitFromLocation() {
+    var bodyUnit = document.body && document.body.getAttribute('data-unit');
+    if (bodyUnit) return bodyUnit;
+    var queryUnit = '';
+    try { queryUnit = new URLSearchParams(location.search).get('unit') || ''; } catch (e) {}
+    if (/^unit\d+$/.test(queryUnit)) return queryUnit;
+    var named = (location.pathname || '').match(/\/(unit\d+)(?:\/|-)/);
+    if (named) return named[1];
+    var stored = P.read(window.localStorage);
+    if (stored && /^unit\d+$/.test(stored.unit)) return stored.unit;
+    return 'unit1';
+  }
+
+  function samePlace(place) {
+    return place.book === 'oxford' && place.series === 'oxford' && place.level === 'p6' && place.term === 'first';
+  }
+
+  function lessonHref(place, kind) {
+    var root = scriptRoot();
+    if (!samePlace(place) || place.unit === P.HOME || place.unit === P.GAME) return root + 'index.html';
+    if (kind === 'revision-vocab') return root + place.unit + '/index.html';
+    if (kind === 'revision-grammar') return root + place.unit + '/grammar.html';
+    if (kind === 'practice-vocab') return root + 'practice/index.html?unit=' + encodeURIComponent(place.unit);
+    if (kind === 'practice-grammar' && /^unit[1-4]$/.test(place.unit)) return root + 'practice/grammar/' + place.unit + '-hub.html';
+    return root + 'index.html';
+  }
+
+  function follow(place, kind) {
+    var next = P.write(window.localStorage, place);
+    if (!next) return;
+    var href = lessonHref(next, kind);
+    var here = location.pathname + location.search;
+    var dest = document.createElement('a');
+    dest.href = href;
+    if (dest.pathname + dest.search === here) {
+      renderShell(next);
+      return;
+    }
+    location.href = href;
+  }
+
+  function ensureChrome() {
+    if (document.querySelector('.site-chrome')) return;
+    var header = document.createElement('header');
+    header.className = 'topbar site-chrome';
+    var inner = document.createElement('div');
+    inner.className = 'topbar-inner';
+    var brand = document.createElement('a');
+    brand.className = 'brand';
+    brand.href = scriptRoot() + 'index.html';
+    brand.textContent = 'English Revision';
+    inner.appendChild(brand);
+    var nav = document.createElement('nav');
+    nav.className = 'place-nav';
+    nav.setAttribute('aria-label', 'Books and levels');
+    ['book', 'series', 'level', 'term'].forEach(function (name) {
+      var labels = { book: 'Books', series: 'Series', level: 'Levels', term: 'Term' };
+      var drop = document.createElement('div');
+      drop.className = 'place-drop';
+      var label = document.createElement('span');
+      label.className = 'place-drop-label';
+      label.id = name + '-label';
+      label.textContent = labels[name];
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.id = name + '-button';
+      button.textContent = labels[name];
+      button.setAttribute('aria-haspopup', 'listbox');
+      button.setAttribute('aria-expanded', 'false');
+      button.setAttribute('aria-controls', name + '-menu');
+      var menu = document.createElement('div');
+      menu.className = 'place-menu';
+      menu.id = name + '-menu';
+      menu.setAttribute('role', 'listbox');
+      menu.setAttribute('aria-labelledby', name + '-label');
+      menu.hidden = true;
+      drop.appendChild(label);
+      drop.appendChild(button);
+      drop.appendChild(menu);
+      nav.appendChild(drop);
+    });
+    inner.appendChild(nav);
+    var account = document.createElement('div');
+    account.className = 'topbar-account';
+    var accountNav = document.createElement('nav');
+    accountNav.className = 'nav-plain';
+    accountNav.setAttribute('aria-label', 'Account');
+    var sign = document.createElement('a');
+    sign.className = 'nav-jump';
+    sign.id = 'account-link';
+    sign.href = scriptRoot() + 'account.html';
+    sign.textContent = 'Sign in / Sign up';
+    accountNav.appendChild(sign);
+    var slot = document.getElementById('profile-slot');
+    if (!slot) {
+      slot = document.createElement('div');
+      slot.id = 'profile-slot';
+      slot.className = 'profile-slot';
+    }
+    account.appendChild(accountNav);
+    account.appendChild(slot);
+    inner.appendChild(account);
+    header.appendChild(inner);
+    var tabs = document.createElement('div');
+    tabs.className = 'unit-tabs';
+    tabs.id = 'unit-tabs';
+    tabs.setAttribute('role', 'tablist');
+    tabs.setAttribute('aria-label', 'Units');
+    header.appendChild(tabs);
+    document.body.insertBefore(header, document.body.firstChild);
+  }
+
   function renderShell(place) {
     document.documentElement.setAttribute('data-view', place.unit === P.HOME ? 'home' : 'unit');
     document.documentElement.setAttribute('data-level-live', place.book === 'oxford' && place.series === 'oxford' && place.level === 'p6' && place.term === 'first' ? 'yes' : 'no');
-    document.getElementById('place-header').textContent = P.headerText(place);
     var bookLabel = P.books.filter(function (item) { return item.id === place.book; })[0].label;
     var seriesLabel = P.seriesFor(place.book).filter(function (item) { return item.id === place.series; })[0].label;
     var levelLabel = P.levels.filter(function (item) { return item.id === place.level; })[0].label;
@@ -123,48 +253,58 @@
     if (seriesButton) seriesButton.setAttribute('aria-label', 'Series, ' + seriesLabel);
     levelButton.setAttribute('aria-label', 'Levels, ' + levelLabel);
     if (termButton) termButton.setAttribute('aria-label', 'Term, ' + termLabel);
+    var kind = pageKind();
+    function choosePlace(next) {
+      if (kind) follow(next, kind);
+      else save(next);
+    }
     fillMenu('book', P.books, place.book, function (id) {
-      save(P.withChange(place, { book: id }));
+      choosePlace(P.withChange(place, { book: id }));
     });
     fillMenu('series', P.seriesFor(place.book), place.series, function (id) {
-      save(P.withChange(place, { series: id }));
+      choosePlace(P.withChange(place, { series: id }));
     });
     fillMenu('level', P.levels, place.level, function (id) {
-      save(P.withChange(place, { level: id }));
+      choosePlace(P.withChange(place, { level: id }));
     });
     fillMenu('term', P.terms, place.term, function (id) {
-      save(P.withChange(place, { term: id }));
+      choosePlace(P.withChange(place, { term: id }));
     });
 
     var views = [{ id: P.HOME, label: 'Get started' }]
       .concat(P.unitsFor(place.book, place.level, place.series, place.term))
       .concat([{ id: P.GAME, label: 'Game' }]);
     var tabs = document.getElementById('unit-tabs');
-    tabs.replaceChildren();
-    views.forEach(function (unit, index) {
-      var tab = document.createElement('button');
-      tab.type = 'button';
-      tab.className = 'unit-tab';
-      tab.setAttribute('role', 'tab');
-      tab.setAttribute('aria-selected', unit.id === place.unit ? 'true' : 'false');
-      tab.tabIndex = unit.id === place.unit ? 0 : -1;
-      tab.textContent = unit.label;
-      tab.addEventListener('click', function () {
-        save(P.withChange(place, { unit: unit.id }));
+    function choose(unitId) {
+      var next = P.withChange(place, { unit: unitId });
+      if (kind) follow(next, kind);
+      else save(next);
+    }
+    if (tabs) {
+      tabs.replaceChildren();
+      views.forEach(function (unit, index) {
+        var tab = document.createElement('button');
+        tab.type = 'button';
+        tab.className = 'unit-tab';
+        tab.setAttribute('role', 'tab');
+        tab.setAttribute('aria-selected', unit.id === place.unit ? 'true' : 'false');
+        tab.tabIndex = unit.id === place.unit ? 0 : -1;
+        tab.textContent = unit.label;
+        tab.addEventListener('click', function () { choose(unit.id); });
+        tab.addEventListener('keydown', function (event) {
+          var next = index;
+          if (event.key === 'ArrowRight') next = Math.min(views.length - 1, index + 1);
+          else if (event.key === 'ArrowLeft') next = Math.max(0, index - 1);
+          else return;
+          event.preventDefault();
+          choose(views[next].id);
+          var buttons = tabs.querySelectorAll('.unit-tab');
+          if (buttons[next]) buttons[next].focus();
+        });
+        tabs.appendChild(tab);
       });
-      tab.addEventListener('keydown', function (event) {
-        var next = index;
-        if (event.key === 'ArrowRight') next = Math.min(views.length - 1, index + 1);
-        else if (event.key === 'ArrowLeft') next = Math.max(0, index - 1);
-        else return;
-        event.preventDefault();
-        save(P.withChange(place, { unit: views[next].id }));
-        var buttons = tabs.querySelectorAll('.unit-tab');
-        if (buttons[next]) buttons[next].focus();
-      });
-      tabs.appendChild(tab);
-    });
-    renderEntries(place);
+    }
+    if (document.getElementById('place-entries')) renderEntries(place);
     closeMenus();
   }
 
@@ -217,6 +357,8 @@
   }
 
   function boot() {
+    var kind = pageKind();
+    if (kind) ensureChrome();
     var bookButton = document.getElementById('book-button');
     var levelButton = document.getElementById('level-button');
     if (!bookButton || !levelButton) return;
@@ -232,14 +374,27 @@
     document.addEventListener('keydown', function (event) {
       if (event.key === 'Escape') closeMenus();
     });
-    var brand = document.querySelector('.brand');
+    var brand = document.querySelector('.site-chrome .brand') || document.querySelector('.brand');
     if (brand) {
       brand.addEventListener('click', function (event) {
         var place = P.read(window.localStorage);
         if (!place) return;
         event.preventDefault();
-        save(P.withChange(place, { unit: P.HOME }));
+        var next = P.withChange(place, { unit: P.HOME });
+        if (kind) follow(next, kind);
+        else save(next);
       });
+    }
+    if (kind) {
+      var lesson = P.write(window.localStorage, {
+        book: 'oxford',
+        series: 'oxford',
+        level: 'p6',
+        term: 'first',
+        unit: unitFromLocation()
+      });
+      if (lesson) renderShell(lesson);
+      return;
     }
     var place = P.read(window.localStorage);
     if (!place) {

@@ -24,7 +24,8 @@ test('homepage topbar is the account link, with book, level, and unit navigation
   assert.match(html, /id="place-guide"/);
   assert.doesNotMatch(html, /選好之後，這部裝置會記住。/);
   assert.doesNotMatch(html, /砌緊/);
-  assert.match(html, /id="place-header"/);
+  assert.doesNotMatch(html, /id="place-header"/);
+  assert.doesNotMatch(html, /Oxford · P6/);
   assert.match(html, /<header class="topbar">[\s\S]*id="book-button"/);
   assert.match(html, /<header class="topbar">[\s\S]*id="series-button"/);
   assert.match(html, /<header class="topbar">[\s\S]*id="level-button"/);
@@ -37,8 +38,8 @@ test('homepage topbar is the account link, with book, level, and unit navigation
   assert.doesNotMatch(html, /id="grade-covers"/);
   assert.doesNotMatch(html, />Account</);
   assert.doesNotMatch(html, /<select/);
-  assert.match(html, /assets\/place\.js\?v=4/);
-  assert.match(html, /assets\/place-ui\.js\?v=4/);
+  assert.match(html, /assets\/place\.js\?v=5/);
+  assert.match(html, /assets\/place-ui\.js\?v=5/);
   assert.equal(html.includes('site.css?v=44'), true);
   assert.doesNotMatch(html, /Open Dictation/);
 });
@@ -119,6 +120,23 @@ print('ok')
 `;
   const out = execFileSync('python3', ['-c', script], { encoding: 'utf8' });
   assert.match(out, /ok/);
+});
+
+test('vocab, grammar, and practice pages load the shared site bars', () => {
+  [
+    'unit1/index.html',
+    'unit1/grammar.html',
+    'unit5/index.html',
+    'practice/index.html',
+    'practice/fill.html',
+    'practice/grammar/unit1-hub.html',
+    'practice/grammar/unit2-story.html'
+  ].forEach((file) => {
+    const html = fs.readFileSync(path.join(root, file), 'utf8');
+    assert.match(html, /chrome\.css\?v=1/, file);
+    assert.match(html, /place-ui\.js\?v=5/, file);
+    assert.match(html, /profile\.js/, file);
+  });
 });
 
 test('badges page has no illustration caption and links Sign in / Sign up', () => {

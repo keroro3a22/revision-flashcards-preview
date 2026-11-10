@@ -137,12 +137,13 @@ window.Profile = (function () {
   }
 
   function resolve(path) {
+    var name = String(path || '').replace(/^(\.\.\/)+/, '');
     try {
-      if (typeof location !== 'undefined' && location.pathname && location.pathname.indexOf('/practice/') !== -1) {
-        return '../' + path;
-      }
+      var pathName = (typeof location !== 'undefined' && location.pathname) || '';
+      if (pathName.indexOf('/practice/grammar/') !== -1) return '../../' + name;
+      if (pathName.indexOf('/practice/') !== -1 || /\/unit\d+\//.test(pathName)) return '../' + name;
     } catch (e) { /* tests */ }
-    return path;
+    return name;
   }
 
   function mount(slot) {
