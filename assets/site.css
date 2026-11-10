@@ -1393,7 +1393,10 @@ html[data-level-live="no"] .level-live { display: none; }
   margin: 0 auto;
   padding: 1.35rem 0 0.5rem;
 }
-.place-shell { padding-bottom: 4.5rem; }
+.place-shell {
+  padding-top: 0.4rem;
+  padding-bottom: 4.5rem;
+}
 .topbar .place-nav { margin-top: 0; align-items: center; }
 .topbar .place-drop-label {
   position: absolute;
@@ -1551,7 +1554,7 @@ html[data-view="home"] .place-shell { display: none; }
   box-shadow: none;
 }
 .unit-heading {
-  margin-top: 0.85rem;
+  margin-top: 0.2rem;
   font-size: clamp(1.45rem, 1.1rem + 1.4vw, 2rem);
 }
 .place-entries {
