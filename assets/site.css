@@ -1532,7 +1532,7 @@ a.account-entry:hover { background: var(--coral); color: var(--navy); }
   gap: 0.45rem;
   width: min(100% - calc(2rem * 1.0625), 1080px);
   margin: 0 auto;
-  padding: calc(0.35rem * 1.0625) 0 calc(0.7rem * 1.0625);
+  padding: calc(0.35rem * 1.0625) 0.75rem calc(1.75rem * 1.0625);
   overflow-x: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--navy) var(--cream);
