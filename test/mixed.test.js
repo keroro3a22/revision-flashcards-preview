@@ -9,7 +9,8 @@ const PACKS = [
   'practice/data/unit2.js',
   'practice/data/unit3.js',
   'practice/data/unit4.js',
-  'practice/data/dictation3.js',
+  'practice/data/unit5.js',
+  'practice/data/unit6.js',
   'practice/data/mixed.js',
   'practice/data/registry.js'
 ];
@@ -18,22 +19,22 @@ test('mixed topic reuses unit phrases and writes new fill sentences', () => {
   const { window } = loadScripts(PACKS);
   const R = window.PracticeRegistry;
   const ids = R.listUnits().map(u => u.id);
-  assert.equal(ids.join(','), 'unit1,unit2,unit3,unit4,dictation3');
+  assert.equal(ids.join(','), 'unit1,unit2,unit3,unit4,unit5,unit6');
   const choices = R.practiceChoices();
   assert.equal(choices[choices.length - 1].label, 'Mixed topic');
 
   const mixed = R.getUnit('mixed');
   assert.equal(mixed.id, 'mixed');
   assert.equal(mixed.title, 'Mixed topic');
-  assert.equal(mixed.fillIn.length, 10);
-  assert.equal(mixed.fillInHard.length, 10);
-  assert.equal(mixed.missingLetters.length, 10);
-  assert.equal(mixed.matching.length, 10);
-  assert.equal(mixed.words.length, 10);
+  assert.equal(mixed.fillIn.length, 9);
+  assert.equal(mixed.fillInHard.length, 9);
+  assert.equal(mixed.missingLetters.length, 9);
+  assert.equal(mixed.matching.length, 9);
+  assert.equal(mixed.words.length, 9);
 
   const keys = mixed.words.map(w => w.key);
   keys.forEach(key => assert.equal(/^mixed:/.test(key), false, key));
-  const unitPacks = ['PRACTICE_UNIT1', 'PRACTICE_UNIT2', 'PRACTICE_UNIT3', 'PRACTICE_UNIT4', 'PRACTICE_DICTATION3'];
+  const unitPacks = ['PRACTICE_UNIT1', 'PRACTICE_UNIT2', 'PRACTICE_UNIT3', 'PRACTICE_UNIT4'];
   const knownWords = new Map();
   const knownSentences = new Set();
   unitPacks.forEach(name => {
@@ -57,8 +58,8 @@ test('mixed topic reuses unit phrases and writes new fill sentences', () => {
 
   const easyAnswers = mixed.fillIn.map(item => item.answer);
   const hardAnswers = mixed.fillInHard.map(item => item.answer);
-  assert.equal(new Set(easyAnswers).size, 10);
-  assert.equal(new Set(hardAnswers).size, 10);
+  assert.equal(new Set(easyAnswers).size, 9);
+  assert.equal(new Set(hardAnswers).size, 9);
   easyAnswers.forEach(answer => {
     assert.equal(mixed.words.some(word => word.en === answer), true, answer);
     assert.equal(mixed.fillInHard.some(item => item.answer === answer), true, answer);

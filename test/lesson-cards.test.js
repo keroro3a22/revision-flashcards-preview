@@ -17,7 +17,7 @@ test('lesson cards are one row per book, series, term, level, unit, and number',
 });
 
 test('the public page asks for the published series and term', () => {
-  ['unit1', 'unit2', 'unit3', 'unit4', 'dictation3'].forEach((unit) => {
+  ['unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6'].forEach((unit) => {
     const html = fs.readFileSync(unit + '/index.html', 'utf8');
     assert.match(html, new RegExp('data-book="oxford" data-series="oxford" data-level="p6" data-term="first" data-unit="' + unit + '"'));
     assert.match(html, /let CARDS/);

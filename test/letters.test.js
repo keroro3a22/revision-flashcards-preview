@@ -30,7 +30,8 @@ test('articles and little conjunctions stay filled in on every pack', () => {
     'practice/data/unit2.js',
     'practice/data/unit3.js',
     'practice/data/unit4.js',
-    'practice/data/dictation3.js',
+    'practice/data/unit5.js',
+    'practice/data/unit6.js',
     'practice/data/mixed.js',
     'practice/common.js'
   ]);
@@ -40,7 +41,6 @@ test('articles and little conjunctions stay filled in on every pack', () => {
     window.PRACTICE_UNIT2,
     window.PRACTICE_UNIT3,
     window.PRACTICE_UNIT4,
-    window.PRACTICE_DICTATION3,
     window.PRACTICE_MIXED
   ];
   function tokens(mask, phrase) {
@@ -83,8 +83,7 @@ test('missing letters use each unit phrase, not a single keyword', () => {
     window.PRACTICE_UNIT1,
     window.PRACTICE_UNIT2,
     window.PRACTICE_UNIT3,
-    window.PRACTICE_UNIT4,
-    window.PRACTICE_DICTATION3
+    window.PRACTICE_UNIT4
   ];
   packs.forEach(pack => {
     assert.equal(pack.missingLetters.length, pack.words.length);
@@ -117,7 +116,8 @@ test('letter groups keep each English word intact and wrap at spaces, slashes, a
     'practice/data/unit2.js',
     'practice/data/unit3.js',
     'practice/data/unit4.js',
-    'practice/data/dictation3.js',
+    'practice/data/unit5.js',
+    'practice/data/unit6.js',
     'practice/common.js'
   ]);
   const C = window.PracticeCommon;
@@ -125,8 +125,7 @@ test('letter groups keep each English word intact and wrap at spaces, slashes, a
     window.PRACTICE_UNIT1,
     window.PRACTICE_UNIT2,
     window.PRACTICE_UNIT3,
-    window.PRACTICE_UNIT4,
-    window.PRACTICE_DICTATION3
+    window.PRACTICE_UNIT4
   ];
   const raffleSlots = C.patternToSlots('buy/sell raffle tickets', 'buy/sell raffle tickets');
   const raffleGroups = C.groupLetterSlots(raffleSlots);

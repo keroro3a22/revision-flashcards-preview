@@ -12,7 +12,8 @@ function setup() {
     'practice/data/unit2.js',
     'practice/data/unit3.js',
     'practice/data/unit4.js',
-    'practice/data/dictation3.js',
+    'practice/data/unit5.js',
+    'practice/data/unit6.js',
     'practice/data/registry.js',
     'practice/mastery.js',
     'practice/badges.js',
@@ -61,8 +62,8 @@ test('every badge states exactly how to unlock it', () => {
   assert.equal(byId['timed-brave'], 'Finish Timed Challenge once for Unit 1, Unit 2, Unit 3, and Unit 4.');
   assert.equal(byId['hard-challenger'], 'Finish Sentence Fill Hard and Missing Letters Hard for Unit 1, Unit 2, Unit 3, and Unit 4, with at least 90% correct in each session.');
   assert.equal(byId['review-clear'], undefined);
-  ['unit1', 'unit2', 'unit3', 'unit4', 'dictation3'].forEach(id => {
-    const label = id === 'dictation3' ? 'Dictation 3' : ('Unit ' + id.slice(-1));
+  ['unit1', 'unit2', 'unit3', 'unit4'].forEach(id => {
+    const label = 'Unit ' + id.slice(-1);
     assert.equal(
       byId['unit-done:' + id],
       'Finish Sentence Fill, Missing Letters, and Memory Match for ' + label + '.'

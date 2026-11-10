@@ -15,7 +15,7 @@ window.RevisionPlace = (function () {
     { id: 'p2', label: 'P2', image: 'unit2/thumb_01.png' },
     { id: 'p3', label: 'P3', image: 'unit3/thumb_01.jpg' },
     { id: 'p4', label: 'P4', image: 'unit4/thumb_02.png' },
-    { id: 'p5', label: 'P5', image: 'dictation3/thumb_01.png' },
+    { id: 'p5', label: 'P5', image: 'covers/unit4.jpg' },
     { id: 'p6', label: 'P6', image: 'covers/unit4.jpg' }
   ];
   var seriesByBook = {
@@ -59,12 +59,19 @@ window.RevisionPlace = (function () {
       game: 'game/illust/intro/map.png',
       practice: 'unit4/thumb_10.jpg'
     },
-    dictation3: {
-      words: 'dictation3/thumb_01.png',
-      grammar: 'dictation3/thumb_05.png',
-      revision: 'covers/dictation3.jpg',
-      game: 'dictation3/card_01_action_film.png',
-      practice: 'dictation3/thumb_12.png'
+    unit5: {
+      words: 'unit5/thumb_01.png',
+      grammar: 'unit5/thumb_17.png',
+      revision: 'covers/unit5.jpg',
+      game: 'game/illust/intro/detective.png',
+      practice: 'unit5/thumb_09.png'
+    },
+    unit6: {
+      words: 'unit6/thumb_01.png',
+      grammar: 'unit6/thumb_20.png',
+      revision: 'covers/unit6.jpg',
+      game: 'game/illust/intro/map.png',
+      practice: 'unit6/thumb_10.png'
     }
   };
 
@@ -73,7 +80,8 @@ window.RevisionPlace = (function () {
     unit2: 'covers/unit2.jpg',
     unit3: 'covers/unit3.jpg',
     unit4: 'covers/unit4.jpg',
-    dictation3: 'covers/dictation3.jpg'
+    unit5: 'covers/unit5.jpg',
+    unit6: 'covers/unit6.jpg'
   };
 
   function seriesFor(book) {
@@ -96,7 +104,9 @@ window.RevisionPlace = (function () {
           ['unit1', 'Unit 1', 'For a good cause'],
           ['unit2', 'Unit 2', 'Lend a helping hand'],
           ['unit3', 'Unit 3', 'Junior Super Chef'],
-          ['unit4', 'Unit 4', 'Film magic']
+          ['unit4', 'Unit 4', 'Film magic'],
+          ['unit5', 'Unit 5', 'The Land of Kangaroos'],
+          ['unit6', 'Unit 6', 'International Week']
         ]
       : [
           ['unit1', 'Unit 1', ''],
@@ -192,13 +202,14 @@ window.RevisionPlace = (function () {
     var art = cardArt[place.unit] || cardArt.unit1;
     var live = lessonLive(place);
     var unit = place.unit;
+    var grammarPractice = live && /^unit[1-4]$/.test(unit);
     return [
       {
         id: 'revision',
         label: 'Revision card',
         items: [
           door('revision-vocab', 'Vocab', unit + '/index.html', art.revision, live),
-          door('revision-grammar', 'Grammar', '', art.grammar, false)
+          door('revision-grammar', 'Grammar', unit + '/grammar.html', art.grammar, live)
         ]
       },
       {
@@ -206,7 +217,7 @@ window.RevisionPlace = (function () {
         label: 'Practice',
         items: [
           door('practice-vocab', 'Vocab', 'practice/index.html?unit=' + encodeURIComponent(unit), art.practice, live),
-          door('practice-grammar', 'Grammar', 'practice/grammar/' + unit + '-hub.html', art.grammar, live)
+          door('practice-grammar', 'Grammar', 'practice/grammar/' + unit + '-hub.html', art.grammar, grammarPractice)
         ]
       }
     ];

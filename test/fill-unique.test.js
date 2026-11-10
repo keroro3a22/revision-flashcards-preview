@@ -88,8 +88,7 @@ test('every fill item accepts one phrase and one clue', () => {
     window.PRACTICE_UNIT1,
     window.PRACTICE_UNIT2,
     window.PRACTICE_UNIT3,
-    window.PRACTICE_UNIT4,
-    window.PRACTICE_DICTATION3
+    window.PRACTICE_UNIT4
   ];
   const problems = [];
   packs.forEach(pack => {

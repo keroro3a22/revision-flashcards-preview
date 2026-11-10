@@ -675,7 +675,7 @@
       if (lead) {
         lead.textContent = signingUp
           ? 'Choose a username and a password. No email, and nothing to confirm.'
-          : 'Units and dictation work with no account. Sign in to save progress and badges.';
+          : 'Units work with no account. Sign in to save progress and badges.';
       }
       if (zh) {
         zh.textContent = signingUp

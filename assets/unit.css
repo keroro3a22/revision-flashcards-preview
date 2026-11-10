@@ -53,6 +53,16 @@ body.theme-unit4 {
   --accent-ink: #243c6c;
   --shell-color: #fcc03c;
 }
+body.theme-unit5 {
+  --accent: #fc903c;
+  --accent-ink: #243c6c;
+  --shell-color: #fc903c;
+}
+body.theme-unit6 {
+  --accent: #f0909c;
+  --accent-ink: #243c6c;
+  --shell-color: #f0909c;
+}
 body.theme-dictation3 {
   --accent: #f0909c;
   --accent-ink: #243c6c;
@@ -321,6 +331,21 @@ button { font: inherit; cursor: pointer; }
   .lb-btn { flex: 1 1 auto; min-width: 7rem; }
 }
 
+.headword {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.25rem, 1.05rem + 0.8vw, 1.55rem);
+  line-height: 1.2;
+  margin: 0;
+}
+.teach {
+  margin: 0.85rem 0.85rem 0;
+  padding: 0.85rem 0.95rem;
+  border-radius: var(--radius-sm);
+  background: rgba(36, 60, 108, 0.05);
+}
+.teach-tip { background: rgba(252, 192, 60, 0.22); }
+.pattern, .tip-en { margin: 0; font-weight: 600; line-height: 1.45; }
 .card .ex { margin-left: 0.85rem; margin-right: 0.85rem; }
 .card .ex:last-child { margin-bottom: 0.85rem; }
 .illust { position: relative; z-index: 1; }

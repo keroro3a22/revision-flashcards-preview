@@ -10,7 +10,8 @@ function setup() {
     'practice/data/unit2.js',
     'practice/data/unit3.js',
     'practice/data/unit4.js',
-    'practice/data/dictation3.js',
+    'practice/data/unit5.js',
+    'practice/data/unit6.js',
     'practice/data/registry.js',
     'assets/home-today.js'
   ]);
@@ -18,7 +19,7 @@ function setup() {
 
 function cardsFrom(file) {
   const html = fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
-  const match = html.match(/const CARDS = (\[[\s\S]*?\]);/);
+  const match = html.match(/(?:const|let) CARDS = (\[[\s\S]*?\]);/);
   assert.ok(match, file + ' has CARDS');
   return JSON.parse(match[1]);
 }
@@ -27,7 +28,7 @@ test('word of the day stays on the same word for one calendar day', () => {
   const { window } = setup();
   const H = window.HomeToday;
   const words = H.syllabus(window.PracticeRegistry);
-  assert.equal(words.length, 61);
+  assert.equal(words.length, 102);
   const day = new Date(2026, 9, 24);
   const first = H.wordOfDay(words, day);
   const second = H.wordOfDay(words, day);
@@ -35,7 +36,7 @@ test('word of the day stays on the same word for one calendar day', () => {
   assert.equal(first.href, second.href);
   assert.equal(H.dateKey(day), '2026-10-24');
   assert.ok(first.zh);
-  assert.match(first.audio, /^(unit[1-4]|dictation3)\/audio\/audio_\d+\.mp3$/);
+  assert.match(first.audio, /^unit[1-6]\/audio\/audio_\d+\.mp3/);
   assert.equal(first.audio.startsWith('../'), false);
 });
 
@@ -58,8 +59,7 @@ test('each pack card number matches the syllabus order', () => {
     unit1: 'unit1/index.html',
     unit2: 'unit2/index.html',
     unit3: 'unit3/index.html',
-    unit4: 'unit4/index.html',
-    dictation3: 'dictation3/index.html'
+    unit4: 'unit4/index.html'
   };
   Object.keys(files).forEach((id) => {
     const cards = cardsFrom(files[id]);

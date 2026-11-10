@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="../assets/unit.css?v=3"/>
+<link rel="stylesheet" href="../assets/unit.css?v=4"/>
 <link rel="stylesheet" href="../assets/account.css?v=1" />
 <script src="../assets/supabase-public.js?v=1"></script>
 <script src="../assets/progress-sync.js?v=2"></script>
@@ -114,12 +114,27 @@ CARDS.forEach(card => {
 
   const main = document.createElement('div');
   main.className = 'main';
+  var gloss = card.pos ? card.zh + '（' + card.pos + '）' : card.zh;
+  var syl = (card.syllables && String(card.syllables).indexOf('-') >= 0)
+    ? '<p class="syllables">' + card.syllables + '</p>' : '';
   main.innerHTML =
     '<span class="num">' + card.n + '</span>' +
-    '<p class="syllables">' + card.syllables + '</p>' +
-    '<p class="zh">' + card.zh + '（' + card.pos + '）</p>';
+    '<p class="headword">' + card.en + '</p>' + syl +
+    '<p class="zh">' + gloss + '</p>';
   top.appendChild(main);
   article.appendChild(top);
+  if (card.pattern) {
+    var pattern = document.createElement('div');
+    pattern.className = 'teach';
+    pattern.innerHTML = '<span class="ex-label">Pattern</span><p class="pattern">' + card.pattern + '</p>';
+    article.appendChild(pattern);
+  }
+  if (card.note_zh) {
+    var tip = document.createElement('div');
+    tip.className = 'teach teach-tip';
+    tip.innerHTML = '<span class="ex-label">Note</span><p class="tip-en">' + card.note_zh + '</p>';
+    article.appendChild(tip);
+  }
 
   const ex1 = document.createElement('div');
   ex1.className = 'ex';

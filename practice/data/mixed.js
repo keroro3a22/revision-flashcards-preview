@@ -1,5 +1,5 @@
 /**
- * Mixed topic — same vocabulary as Unit 1–4 and Dictation 3.
+ * Mixed topic — same vocabulary as Unit 1–4.
  * Sentence Fill stems are new. Missing Letters, Match, and Timed
  * reuse those phrases, glosses, and word keys.
  */
@@ -15,8 +15,7 @@ window.PRACTICE_MIXED = {
     { key: 'unit3:boil', form: 'verb', en: 'boil', zh: '煮沸', img: '../unit3/thumb_10.png', audio: '../unit3/audio/audio_10.mp3' },
     { key: 'unit4:comedy', form: 'noun', en: 'a comedy', zh: '喜劇', img: '../unit4/thumb_02.png', audio: '../unit4/audio/audio_02.mp3' },
     { key: 'unit4:fantasy', form: 'noun', en: 'a fantasy film', zh: '奇幻片', img: '../unit4/thumb_03.png', audio: '../unit4/audio/audio_03.mp3' },
-    { key: 'unit4:lonely', form: 'adjective', en: 'lonely', zh: '寂寞的', img: '../unit4/thumb_09.png', audio: '../unit4/audio/audio_09.mp3' },
-    { key: 'dictation3:busy', form: 'idiom', en: 'as busy as a bee', zh: '像蜜蜂一樣忙碌', img: '../dictation3/thumb_12.png', audio: '../dictation3/audio/audio_12.mp3' }
+    { key: 'unit4:lonely', form: 'adjective', en: 'lonely', zh: '寂寞的', img: '../unit4/thumb_09.png', audio: '../unit4/audio/audio_09.mp3' }
   ],
 
   fillIn: [
@@ -109,16 +108,6 @@ window.PRACTICE_MIXED = {
       answer: 'lonely',
       accept: ['lonely'],
       explain: 'Eating alone at the end of the bench makes him feel lonely (寂寞的).'
-    },
-    {
-      id: 'mx-f10',
-      wordKey: 'dictation3:busy',
-      sentence: 'The nurse rushes between three wards with a full clipboard, so she is ______.',
-      blank: '______',
-      options: ['as busy as a bee', 'lonely', 'a comedy', 'donate money'],
-      answer: 'as busy as a bee',
-      accept: ['as busy as a bee'],
-      explain: 'Rushing between wards all morning means she is as busy as a bee (像蜜蜂一樣忙碌).'
     }
   ],
 
@@ -203,15 +192,6 @@ window.PRACTICE_MIXED = {
       answer: 'lonely',
       accept: ['lonely'],
       explain: 'Who eats alone after just joining the class feels lonely (寂寞的).'
-    },
-    {
-      id: 'mx-h10',
-      wordKey: 'dictation3:busy',
-      sentence: 'The nurse who rushes between three wards with a full clipboard is ______ all morning.',
-      blank: '______',
-      answer: 'as busy as a bee',
-      accept: ['as busy as a bee'],
-      explain: 'Who rushes between wards all morning is as busy as a bee (像蜜蜂一樣忙碌).'
     }
   ],
 
@@ -224,8 +204,7 @@ window.PRACTICE_MIXED = {
     { id: 'mx-m6', wordKey: 'unit3:boil', word: 'boil' },
     { id: 'mx-m7', wordKey: 'unit4:comedy', word: 'a comedy' },
     { id: 'mx-m8', wordKey: 'unit4:fantasy', word: 'a fantasy film' },
-    { id: 'mx-m9', wordKey: 'unit4:lonely', word: 'lonely' },
-    { id: 'mx-m10', wordKey: 'dictation3:busy', word: 'as busy as a bee' }
+    { id: 'mx-m9', wordKey: 'unit4:lonely', word: 'lonely' }
   ],
 
   matching: [
@@ -237,7 +216,6 @@ window.PRACTICE_MIXED = {
     { id: 'mx-k6', wordKey: 'unit3:boil', en: 'boil', zh: '煮沸', form: 'verb', img: '../unit3/thumb_10.png' },
     { id: 'mx-k7', wordKey: 'unit4:comedy', en: 'a comedy', zh: '喜劇', form: 'noun', img: '../unit4/thumb_02.png' },
     { id: 'mx-k8', wordKey: 'unit4:fantasy', en: 'a fantasy film', zh: '奇幻片', form: 'noun', img: '../unit4/thumb_03.png' },
-    { id: 'mx-k9', wordKey: 'unit4:lonely', en: 'lonely', zh: '寂寞的', form: 'adjective', img: '../unit4/thumb_09.png' },
-    { id: 'mx-k10', wordKey: 'dictation3:busy', en: 'as busy as a bee', zh: '像蜜蜂一樣忙碌', form: 'idiom', img: '../dictation3/thumb_12.png' }
+    { id: 'mx-k9', wordKey: 'unit4:lonely', en: 'lonely', zh: '寂寞的', form: 'adjective', img: '../unit4/thumb_09.png' }
   ]
 };

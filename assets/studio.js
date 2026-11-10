@@ -21,7 +21,8 @@
     { id: 'unit2', label: 'Unit 2' },
     { id: 'unit3', label: 'Unit 3' },
     { id: 'unit4', label: 'Unit 4' },
-    { id: 'dictation3', label: 'Dictation' }
+    { id: 'unit5', label: 'Unit 5' },
+    { id: 'unit6', label: 'Unit 6' }
   ];
   var TEXT = ['en', 'zh', 'pos', 'syllables'];
   var PAIRS = [['ex_en', 'ex_zh'], ['adv_en', 'adv_zh']];

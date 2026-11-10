@@ -26,7 +26,7 @@ function flat(groups) {
 test('Oxford P6 keeps four units and there is no dictation tab', () => {
   const P = place();
   const live = P.unitsFor('oxford', 'p6').map((unit) => unit.id).join(',');
-  assert.equal(live, 'unit1,unit2,unit3,unit4');
+  assert.equal(live, 'unit1,unit2,unit3,unit4,unit5,unit6');
   assert.equal(P.unitsFor('oxford', 'p6')[0].title, 'For a good cause');
   assert.equal(P.unitsFor('longman', 'p3').map((unit) => unit.id).join(','), 'unit1,unit2,unit3,unit4');
   assert.equal(P.normalize({ book: 'oxford', level: 'p6', unit: 'dictation3' }).unit, 'home');
@@ -39,12 +39,14 @@ test('a unit opens revision cards and practice, split into vocab and grammar', (
   assert.equal(groups.map((group) => group.label).join(','), 'Revision card,Practice');
   const revision = Object.fromEntries(groups[0].items.map((door) => [door.label, door.href]));
   const practice = Object.fromEntries(groups[1].items.map((door) => [door.label, door.href]));
-  assert.deepEqual(revision, { Vocab: 'unit1/index.html', Grammar: '' });
+  assert.deepEqual(revision, { Vocab: 'unit1/index.html', Grammar: 'unit1/grammar.html' });
   assert.deepEqual(practice, {
     Vocab: 'practice/index.html?unit=unit1',
     Grammar: 'practice/grammar/unit1-hub.html'
   });
-  assert.equal(groups[0].items[1].note, 'Coming soon');
+  assert.equal(groups[0].items[1].href, 'unit1/grammar.html');
+  const later = P.entriesFor({ book: 'oxford', level: 'p6', unit: 'unit5' });
+  assert.equal(later[1].items[1].ready, false);
   const other = P.entriesFor({ book: 'oxford', level: 'p6', unit: 'unit2' });
   assert.notEqual(flat(groups).map((door) => door.image).join('|'), flat(other).map((door) => door.image).join('|'));
 });

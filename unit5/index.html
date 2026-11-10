@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="format-detection" content="telephone=no"/>
+<title>Unit 5 The Land of Kangaroos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../assets/unit.css?v=4"/>
+<link rel="stylesheet" href="../assets/account.css?v=1" />
+<script src="../assets/supabase-public.js?v=1"></script>
+<script src="../assets/progress-sync.js?v=2"></script>
+<script src="../assets/account.js?v=11"></script>
+</head>
+<body data-book="oxford" data-series="oxford" data-level="p6" data-term="first" data-unit="unit5" class="theme-unit5">
+<header class="unit-header">
+  <a class="back" href="../index.html">Back to packs</a>
+  <h1>Unit 5 The Land of Kangaroos</h1>
+  <p class="sub">16 words · Primary 6 examples + Form 1 advanced examples</p>
+</header>
+<p class="hint">Tap Play for audio. Tap the illustration to enlarge.</p>
+<div class="list" id="list"></div>
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarge illustration">
+  <img id="lb-img" alt="" />
+  <div class="lb-bar">
+    <button type="button" class="lb-btn lb-play" id="lb-play">Play audio</button>
+    <button type="button" class="lb-btn lb-close" id="lb-close">Close</button>
+  </div>
+</div>
+<script src="../assets/last-place.js"></script>
+<script>
+let CARDS = [{"n": 1, "en": "go snowboarding", "syllables": "go snow-board-ing", "zh": "去單板滑雪", "pos": "片語動詞 phr. v.", "ex_en": "We go snowboarding on the snowy slopes.", "ex_zh": "我們在積雪的山坡上單板滑雪。", "adv_en": "If the mountain has deep powder after a storm, we go snowboarding with our friends until sunset.", "adv_zh": "如果暴風雪過後山上有厚厚的粉雪，我們會和朋友去單板滑雪，直到日落。", "highlight": "go snowboarding", "audio": "audio/audio_01.mp3", "img": "thumb_01.png", "cutout": true, "art_source": "irasutoya:https://www.irasutoya.com/2018/01/blog-post_332.html"}, {"n": 2, "en": "go on a guided tour", "syllables": "go on a guided tour", "zh": "參加導賞團", "pos": "片語動詞 phr. v.", "ex_en": "We go on a guided tour of the old city.", "ex_zh": "我們參加舊城區的導賞團。", "adv_en": "Because we want to learn the city's history, we go on a guided tour.", "adv_zh": "因為我們想認識這座城市的歷史，我們參加導賞團。", "highlight": "go on a guided tour", "audio": "audio/audio_02.mp3", "img": "thumb_02.png", "cutout": true, "art_source": "irasutoya:https://www.irasutoya.com/2013/11/blog-post_7.html"}, {"n": 3, "en": "go sightseeing", "syllables": "go sight-see-ing", "zh": "去觀光", "pos": "片語動詞 phr. v.", "ex_en": "They go sightseeing and take many photos.", "ex_zh": "他們去觀光，拍了很多照片。", "adv_en": "After they check into the hotel, they go sightseeing and take photos of every square.", "adv_zh": "他們辦好酒店入住後，便去觀光，並為每個廣場拍照。", "highlight": "go sightseeing", "audio": "audio/audio_03.mp3", "img": "thumb_03.png", "cutout": true, "art_source": "irasutoya:https://www.irasutoya.com/2014/07/blog-post_4069.html"}, {"n": 4, "en": "visit a zoo", "syllables": "vis-it a zoo", "zh": "參觀動物園", "pos": "片語動詞 phr. v.", "ex_en": "The class will visit a zoo on Friday.", "ex_zh": "班級星期五會去參觀動物園。", "adv_en": "Because they love animals, the children visit a zoo and watch the pandas.", "adv_zh": "因為他們喜愛動物，孩子們參觀動物園並看熊貓。", "highlight": "visit a zoo", "audio": "audio/audio_04.mp3", "img": "thumb_04.png", "cutout": true, "art_source": "irasutoya:https://www.irasutoya.com/2013/12/blog-post_17.html"}, {"n": 5, "en": "ride on a banana boat", "syllables": "ride on a ba-na-na boat", "zh": "坐香蕉船", "pos": "片語動詞 phr. v.", "ex_en": "We ride on a banana boat in the sea.", "ex_zh": "我們在海上坐香蕉船。", "adv_en": "When the gentle waves roll in, the children ride on a banana boat as it floats across the sea.", "adv_zh": "當海浪輕拂時，孩子們搭乘香蕉船隨波起伏。", "highlight": "ride on a banana boat", "audio": "audio/audio_05.mp3", "img": "thumb_05.png", "cutout": true, "art_source": "irasutoya:https://www.irasutoya.com/2015/09/blog-post_24.html"}, {"n": 6, "en": "visit a palace", "syllables": "vis-it a pal-ace", "zh": "參觀宮殿", "pos": "片語動詞 phr. v.", "ex_en": "They visit a palace with gold chairs.", "ex_zh": "他們參觀一座有金色椅子的宮殿。", "adv_en": "While the guide explains the gold chairs, the pupils quietly visit a palace and take notes.", "adv_zh": "當導遊講解金椅子時，同學們靜靜地參觀宮殿並做筆記。", "highlight": "visit a palace", "audio": "audio/audio_06.mp3", "img": "thumb_06.jpg", "cutout": false, "art_source": "irasutoya:https://www.irasutoya.com/2013/04/blog-post_4581.html"}, {"n": 7, "en": "go skiing", "syllables": "go ski-ing", "zh": "去滑雪", "pos": "片語動詞 phr. v.", "ex_en": "Dad and I go skiing in winter.", "ex_zh": "冬天爸爸和我去滑雪。", "adv_en": "Although the hill is steep, they go skiing with two long poles.", "adv_zh": "雖然山坡很陡，他們拿着兩支長雪杖去滑雪。", "highlight": "go skiing", "audio": "audio/audio_07.mp3", "img": "thumb_07.png", "cutout": true, "art_source": "irasutoya:https://www.irasutoya.com/2014/03/blog-post_9365.html"}, {"n": 8, "en": "visit a theme park", "syllables": "vis-it a theme park", "zh": "參觀主題樂園", "pos": "片語動詞 phr. v.", "ex_en": "We visit a theme park and try the big rides.", "ex_zh": "我們參觀主題樂園並試坐大型機動遊戲。", "adv_en": "Because the rides look exciting, we visit a theme park on Sunday.", "adv_zh": "因為機動遊戲看起來很刺激，我們星期天參觀主題樂園。", "highlight": "visit a theme park", "audio": "audio/audio_08.mp3", "img": "thumb_08.png", "cutout": true, "art_source": "irasutoya:https://www.irasutoya.com/2012/03/blog-post_1205.html"}, {"n": 9, "en": "feed a kangaroo", "syllables": "feed a kan-ga-roo", "zh": "餵袋鼠", "pos": "片語動詞 phr. v.", "ex_en": "The girl can feed a kangaroo some leaves.", "ex_zh": "女孩可以用樹葉餵袋鼠。", "adv_en": "Before she holds out the leaves, she is careful to feed a kangaroo only when the keeper says it is safe.", "adv_zh": "在伸出樹葉之前，她只在管理員說安全時才小心餵袋鼠。", "highlight": "feed a kangaroo", "audio": "audio/audio_09.mp3", "img": "thumb_09.png", "cutout": true, "art_source": "irasutoya:https://www.irasutoya.com/2013/07/blog-post_2801.html"}, {"n": 10, "en": "go into a rainforest", "syllables": "go into a rain-for-est", "zh": "進入雨林", "pos": "片語動詞 phr. v.", "ex_en": "They go into a rainforest full of tall trees.", "ex_zh": "他們進入長滿高樹的雨林。", "adv_en": "Although the path is wet, the hikers go into a rainforest and listen to the birds.", "adv_zh": "雖然小路濕滑，徒步的人仍進入雨林並聆聽鳥聲。", "highlight": "go into a rainforest", "audio": "audio/audio_10.mp3", "img": "thumb_10.jpg", "cutout": false, "art_source": "irasutoya:https://www.irasutoya.com/2015/06/blog-post_744.html"}, {"n": 11, "en": "go on a cruise", "syllables": "go on a cruise", "zh": "坐郵輪／遊輪旅行", "pos": "片語動詞 phr. v.", "ex_en": "The family will go on a cruise next month.", "ex_zh": "這家人下個月會坐郵輪旅行。", "adv_en": "Since they have never slept on a ship before, they go on a cruise for three days along the coast.", "adv_zh": "因為他們從未在船上過夜，他們沿岸坐郵輪旅行三天。", "highlight": "go on a cruise", "audio": "audio/audio_11.mp3", "img": "thumb_11.jpg", "cutout": false, "art_source": "generated"}, {"n": 12, "en": "go scuba-diving", "syllables": "go scu-ba-div-ing", "zh": "去水肺潛水", "pos": "片語動詞 phr. v.", "ex_en": "Sam wants to go scuba-diving with an air tank.", "ex_zh": "Sam想戴着氣瓶去水肺潛水。", "adv_en": "After Sam learns to use an air tank, he will go scuba-diving near the reef.", "adv_zh": "Sam學會使用氣瓶後，會在珊瑚礁附近去水肺潛水。", "highlight": "go scuba-diving", "audio": "audio/audio_12.mp3", "img": "thumb_12.jpg", "cutout": false, "art_source": "irasutoya:https://www.irasutoya.com/2013/05/blog-post_9.html"}, {"n": 13, "en": "go snorkelling", "syllables": "go snor-kel-ling", "zh": "去浮潛", "pos": "片語動詞 phr. v.", "ex_en": "Amy will go snorkelling near the rocks.", "ex_zh": "Amy會在岩石附近去浮潛。", "adv_en": "Once Amy puts on her mask, she will go snorkelling near the rocks with a short breathing tube.", "adv_zh": "Amy一戴上面罩，便會用短呼吸管在岩石附近浮潛。", "highlight": "go snorkelling", "audio": "audio/audio_13.mp3", "img": "thumb_13.png", "cutout": true, "art_source": "irasutoya:https://www.irasutoya.com/2014/02/blog-post_5765.html"}, {"n": 14, "en": "go surfing", "syllables": "go surf-ing", "zh": "去衝浪", "pos": "片語動詞 phr. v.", "ex_en": "Ben likes to go surfing on tall waves.", "ex_zh": "Ben喜歡在高浪上去衝浪。", "adv_en": "Although the waves look frightening at first, Ben will go surfing and try to stay standing on the board.", "adv_zh": "雖然浪起初看起來很可怕，Ben仍會去衝浪，並嘗試站穩在板上。", "highlight": "go surfing", "audio": "audio/audio_14.mp3", "img": "thumb_14.png", "cutout": true, "art_source": "irasutoya:https://www.irasutoya.com/2013/06/blog-post_2596.html"}, {"n": 15, "en": "visit a safari park", "syllables": "vis-it a sa-fa-ri park", "zh": "參觀野生動物園", "pos": "片語動詞 phr. v.", "ex_en": "We visit a safari park in an open car.", "ex_zh": "我們坐敞篷車參觀野生動物園。", "adv_en": "Because we want to see lions up close, we visit a safari park and stay in the car.", "adv_zh": "因為我們想近距離看獅子，我們參觀野生動物園並留在車內。", "highlight": "visit a safari park", "audio": "audio/audio_15.mp3", "img": "thumb_15.png", "cutout": true, "art_source": "irasutoya:https://www.irasutoya.com/2017/02/blog-post_650.html"}, {"n": 16, "en": "visit an aquarium", "syllables": "vis-it an a-quar-i-um", "zh": "參觀水族館", "pos": "片語動詞 phr. v.", "ex_en": "They visit an aquarium and watch the sharks.", "ex_zh": "他們參觀水族館並看鯊魚。", "adv_en": "As the sharks swim past the thick glass, the children visit an aquarium and press their noses to the window.", "adv_zh": "隨着鯊魚游過厚玻璃，孩子們參觀水族館，並把鼻子貼在窗上。", "highlight": "visit an aquarium", "audio": "audio/audio_16.mp3", "img": "thumb_16.png", "cutout": true, "art_source": "irasutoya:https://www.irasutoya.com/2014/11/blog-post_751.html"}];
+const list = document.getElementById('list');
+const FILLS = ['fill-a','fill-b','fill-c','fill-d','fill-e','fill-f'];
+const lightbox = document.getElementById('lightbox');
+const lbImg = document.getElementById('lb-img');
+const lbPlay = document.getElementById('lb-play');
+const lbClose = document.getElementById('lb-close');
+const SPEAKER_SVG = "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" fill=\"currentColor\"><path d=\"M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06a9 9 0 0 0 0-17.54z\"/></svg>";
+let currentAudio = null;
+let activeCard = null;
+
+function openLightbox(card, article) {
+  if (window.LastPlace) LastPlace.save(card);
+  activeCard = { card, article };
+  lbImg.src = card.img;
+  lbImg.alt = card.en;
+  lightbox.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  lightbox.classList.remove('open');
+  document.body.style.overflow = '';
+  activeCard = null;
+}
+if (lbClose) lbClose.addEventListener('click', closeLightbox);
+if (lightbox) lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+if (lbPlay) lbPlay.addEventListener('click', () => { if (activeCard) playCard(activeCard.card, activeCard.article); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+function hl(text, target) {
+  if (!target) return text;
+  const i = text.toLowerCase().indexOf(target.toLowerCase());
+  if (i < 0) return text;
+  return text.slice(0,i) + '<span class="hl">' + text.slice(i,i+target.length) + '</span>' + text.slice(i+target.length);
+}
+
+function playCard(card, article) {
+  if (window.LastPlace) LastPlace.save(card);
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  document.querySelectorAll('.card.playing').forEach(el => el.classList.remove('playing'));
+  article.classList.add('playing');
+  const a = new Audio(card.audio);
+  currentAudio = a;
+  a.play().catch(()=>{});
+  a.onended = () => article.classList.remove('playing');
+}
+
+function renderLesson() {
+list.innerHTML = '';
+CARDS.forEach(card => {
+  const article = document.createElement('article');
+  article.className = 'card ' + FILLS[(card.n - 1) % FILLS.length];
+  article.id = 'c' + card.n;
+
+  const speaker = document.createElement('button');
+  speaker.type = 'button';
+  speaker.className = 'speaker';
+  speaker.setAttribute('aria-label', 'Play: ' + card.en);
+  speaker.innerHTML = SPEAKER_SVG;
+  speaker.addEventListener('click', e => { e.stopPropagation(); playCard(card, article); });
+  article.appendChild(speaker);
+
+  const top = document.createElement('div');
+  top.className = 'top';
+
+  if (card.img) {
+    const wrap = document.createElement('div');
+    wrap.className = 'illust';
+    const img = document.createElement('img');
+    img.src = card.img; img.alt = card.en; img.loading = 'lazy'; img.decoding = 'async';
+    wrap.appendChild(img);
+    wrap.setAttribute('role', 'button');
+    wrap.setAttribute('tabindex', '0');
+    wrap.setAttribute('aria-label', 'Enlarge: ' + card.en);
+    wrap.addEventListener('click', e => { e.stopPropagation(); openLightbox(card, article); });
+    wrap.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); openLightbox(card, article); }
+    });
+    top.appendChild(wrap);
+  }
+
+  const main = document.createElement('div');
+  main.className = 'main';
+  var gloss = card.pos ? card.zh + '（' + card.pos + '）' : card.zh;
+  var syl = (card.syllables && String(card.syllables).indexOf('-') >= 0)
+    ? '<p class="syllables">' + card.syllables + '</p>' : '';
+  main.innerHTML =
+    '<span class="num">' + card.n + '</span>' +
+    '<p class="headword">' + card.en + '</p>' + syl +
+    '<p class="zh">' + gloss + '</p>';
+  top.appendChild(main);
+  article.appendChild(top);
+  if (card.pattern) {
+    var pattern = document.createElement('div');
+    pattern.className = 'teach';
+    pattern.innerHTML = '<span class="ex-label">Pattern</span><p class="pattern">' + card.pattern + '</p>';
+    article.appendChild(pattern);
+  }
+  if (card.note_zh) {
+    var tip = document.createElement('div');
+    tip.className = 'teach teach-tip';
+    tip.innerHTML = '<span class="ex-label">Note</span><p class="tip-en">' + card.note_zh + '</p>';
+    article.appendChild(tip);
+  }
+
+  const ex1 = document.createElement('div');
+  ex1.className = 'ex';
+  ex1.innerHTML = '<span class="ex-label">Example</span><p class="ex-en">' + hl(card.ex_en, card.highlight) + '</p><p class="ex-zh">' + card.ex_zh + '</p>';
+  const ex2 = document.createElement('div');
+  ex2.className = 'ex';
+  ex2.innerHTML = '<span class="ex-label">Advanced example</span><p class="ex-en">' + hl(card.adv_en, card.highlight) + '</p><p class="ex-zh">' + card.adv_zh + '</p>';
+  article.appendChild(ex1);
+  article.appendChild(ex2);
+
+  article.addEventListener('click', e => {
+    if (e.target === speaker || speaker.contains(e.target)) return;
+    playCard(card, article);
+  });
+
+  list.appendChild(article);
+});
+}
+renderLesson();
+window.applyLessonCards = function (cards) {
+  if (!cards || !cards.length) return;
+  CARDS = cards;
+  renderLesson();
+};
+if (window.LastPlace && location.hash) {
+  var hashN = Number(String(location.hash).replace('#c', ''));
+  var hashed = CARDS.filter(function (c) { return c.n === hashN; })[0];
+  if (hashed) LastPlace.save(hashed);
+  LastPlace.focusHash();
+}
+</script>
+<script src="../assets/lesson-live.js?v=1"></script>
+</body>
+</html>

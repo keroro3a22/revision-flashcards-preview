@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="format-detection" content="telephone=no"/>
+<title>Unit 2 Lend a helping hand · Grammar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../assets/unit.css?v=4"/>
+<link rel="stylesheet" href="../assets/account.css?v=1" />
+<script src="../assets/supabase-public.js?v=1"></script>
+<script src="../assets/progress-sync.js?v=2"></script>
+<script src="../assets/account.js?v=11"></script>
+</head>
+<body data-book="oxford" data-series="oxford" data-level="p6" data-term="first" data-unit="unit2" class="theme-unit2">
+<header class="unit-header">
+  <a class="back" href="../index.html">Back to packs</a>
+  <h1>Unit 2 Lend a helping hand · Grammar</h1>
+  <p class="sub">2 grammar points · Primary 6 examples + Form 1 advanced examples</p>
+</header>
+<p class="hint">Tap Play for audio. Tap the illustration to enlarge.</p>
+<div class="list" id="list"></div>
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarge illustration">
+  <img id="lb-img" alt="" />
+  <div class="lb-bar">
+    <button type="button" class="lb-btn lb-play" id="lb-play">Play audio</button>
+    <button type="button" class="lb-btn lb-close" id="lb-close">Close</button>
+  </div>
+</div>
+<script src="../assets/last-place.js"></script>
+<script>
+let CARDS = [{"n": 11, "en": "If …, … will …", "syllables": "", "zh": "如果……，就會……（可能發生）", "pos": "", "pattern": "If-clause (simple present) + main clause (future)", "ex_en": "If a typhoon comes, we will stay at home.", "ex_zh": "如果颱風來，我們會留在家裡。", "adv_en": "If the flood blocks the roads, the workers will help the injured people first.", "adv_zh": "如果水災堵塞道路，工作人員會先幫助受傷的人。", "highlight": "If …, … will …", "audio": "audio/audio_11.mp3", "img": "thumb_11.png", "cutout": true, "art_source": "generated"}, {"n": 12, "en": "so that", "syllables": "", "zh": "以便／為了……", "pos": "", "note_zh": "so 表示「所以／因此」；so that 表示「以便／為了」（目的）", "pattern": "… so that + clause", "ex_en": "We pack dry food so that we can help after the flood.", "ex_zh": "我們準備乾糧，以便水災後能夠幫忙。", "adv_en": "The firemen clear the landslip so that cars can use the road again.", "adv_zh": "消防員清理山泥傾瀉，以便汽車能再上路。", "highlight": "so that", "audio": "audio/audio_12.mp3", "img": "thumb_12.png", "cutout": true, "art_source": "irasutoya:https://www.irasutoya.com/2020/10/blog-post_460.html"}];
+const list = document.getElementById('list');
+const FILLS = ['fill-a','fill-b','fill-c','fill-d','fill-e','fill-f'];
+const lightbox = document.getElementById('lightbox');
+const lbImg = document.getElementById('lb-img');
+const lbPlay = document.getElementById('lb-play');
+const lbClose = document.getElementById('lb-close');
+const SPEAKER_SVG = "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" fill=\"currentColor\"><path d=\"M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06a9 9 0 0 0 0-17.54z\"/></svg>";
+let currentAudio = null;
+let activeCard = null;
+
+function openLightbox(card, article) {
+  if (window.LastPlace) LastPlace.save(card);
+  activeCard = { card, article };
+  lbImg.src = card.img;
+  lbImg.alt = card.en;
+  lightbox.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  lightbox.classList.remove('open');
+  document.body.style.overflow = '';
+  activeCard = null;
+}
+if (lbClose) lbClose.addEventListener('click', closeLightbox);
+if (lightbox) lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+if (lbPlay) lbPlay.addEventListener('click', () => { if (activeCard) playCard(activeCard.card, activeCard.article); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+function hl(text, target) {
+  if (!target) return text;
+  const i = text.toLowerCase().indexOf(target.toLowerCase());
+  if (i < 0) return text;
+  return text.slice(0,i) + '<span class="hl">' + text.slice(i,i+target.length) + '</span>' + text.slice(i+target.length);
+}
+
+function playCard(card, article) {
+  if (window.LastPlace) LastPlace.save(card);
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  document.querySelectorAll('.card.playing').forEach(el => el.classList.remove('playing'));
+  article.classList.add('playing');
+  const a = new Audio(card.audio);
+  currentAudio = a;
+  a.play().catch(()=>{});
+  a.onended = () => article.classList.remove('playing');
+}
+
+function renderLesson() {
+list.innerHTML = '';
+CARDS.forEach(card => {
+  const article = document.createElement('article');
+  article.className = 'card ' + FILLS[(card.n - 1) % FILLS.length];
+  article.id = 'c' + card.n;
+
+  const speaker = document.createElement('button');
+  speaker.type = 'button';
+  speaker.className = 'speaker';
+  speaker.setAttribute('aria-label', 'Play: ' + card.en);
+  speaker.innerHTML = SPEAKER_SVG;
+  speaker.addEventListener('click', e => { e.stopPropagation(); playCard(card, article); });
+  article.appendChild(speaker);
+
+  const top = document.createElement('div');
+  top.className = 'top';
+
+  if (card.img) {
+    const wrap = document.createElement('div');
+    wrap.className = 'illust';
+    const img = document.createElement('img');
+    img.src = card.img; img.alt = card.en; img.loading = 'lazy'; img.decoding = 'async';
+    wrap.appendChild(img);
+    wrap.setAttribute('role', 'button');
+    wrap.setAttribute('tabindex', '0');
+    wrap.setAttribute('aria-label', 'Enlarge: ' + card.en);
+    wrap.addEventListener('click', e => { e.stopPropagation(); openLightbox(card, article); });
+    wrap.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); openLightbox(card, article); }
+    });
+    top.appendChild(wrap);
+  }
+
+  const main = document.createElement('div');
+  main.className = 'main';
+  var gloss = card.pos ? card.zh + '（' + card.pos + '）' : card.zh;
+  var syl = (card.syllables && String(card.syllables).indexOf('-') >= 0)
+    ? '<p class="syllables">' + card.syllables + '</p>' : '';
+  main.innerHTML =
+    '<span class="num">' + card.n + '</span>' +
+    '<p class="headword">' + card.en + '</p>' + syl +
+    '<p class="zh">' + gloss + '</p>';
+  top.appendChild(main);
+  article.appendChild(top);
+  if (card.pattern) {
+    var pattern = document.createElement('div');
+    pattern.className = 'teach';
+    pattern.innerHTML = '<span class="ex-label">Pattern</span><p class="pattern">' + card.pattern + '</p>';
+    article.appendChild(pattern);
+  }
+  if (card.note_zh) {
+    var tip = document.createElement('div');
+    tip.className = 'teach teach-tip';
+    tip.innerHTML = '<span class="ex-label">Note</span><p class="tip-en">' + card.note_zh + '</p>';
+    article.appendChild(tip);
+  }
+
+  const ex1 = document.createElement('div');
+  ex1.className = 'ex';
+  ex1.innerHTML = '<span class="ex-label">Example</span><p class="ex-en">' + hl(card.ex_en, card.highlight) + '</p><p class="ex-zh">' + card.ex_zh + '</p>';
+  const ex2 = document.createElement('div');
+  ex2.className = 'ex';
+  ex2.innerHTML = '<span class="ex-label">Advanced example</span><p class="ex-en">' + hl(card.adv_en, card.highlight) + '</p><p class="ex-zh">' + card.adv_zh + '</p>';
+  article.appendChild(ex1);
+  article.appendChild(ex2);
+
+  article.addEventListener('click', e => {
+    if (e.target === speaker || speaker.contains(e.target)) return;
+    playCard(card, article);
+  });
+
+  list.appendChild(article);
+});
+}
+renderLesson();
+window.applyLessonCards = function (cards) {
+  if (!cards || !cards.length) return;
+  CARDS = cards;
+  renderLesson();
+};
+if (window.LastPlace && location.hash) {
+  var hashN = Number(String(location.hash).replace('#c', ''));
+  var hashed = CARDS.filter(function (c) { return c.n === hashN; })[0];
+  if (hashed) LastPlace.save(hashed);
+  LastPlace.focusHash();
+}
+</script>
+</body>
+</html>

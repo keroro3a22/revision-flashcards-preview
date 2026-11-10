@@ -50,7 +50,8 @@ function loadPacks() {
     'practice/data/unit2.js',
     'practice/data/unit3.js',
     'practice/data/unit4.js',
-    'practice/data/dictation3.js'
+    'practice/data/unit5.js',
+    'practice/data/unit6.js'
   ]);
 }
 
