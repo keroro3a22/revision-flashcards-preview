@@ -5,6 +5,24 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
 .studio-back { color: #16324f; font-weight: 700; }
 .studio-filters { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: end; margin: 0.8rem 0; }
 .studio-filters label { display: grid; gap: 0.2rem; font-size: 0.85rem; }
+.studio-filters label[hidden] { display: none; }
+.studio-new {
+  font: inherit;
+  font-weight: 700;
+  color: #16324f;
+  background: #fff;
+  border: 1px solid #8ea4ba;
+  border-radius: 0.4rem;
+  padding: 0.4rem 0.75rem;
+}
+.studio-new:focus-visible,
+.studio-filters select:focus-visible,
+.studio-table button:focus-visible,
+.studio-edit:focus-visible {
+  outline: 2px solid #2f6fad;
+  outline-offset: 2px;
+}
+.studio-table tr.is-draft td { background: #fff6e4; }
 .studio-scroll { overflow-x: auto; background: #fff; }
 .studio-table { border-collapse: collapse; width: 100%; min-width: 80.3rem; table-layout: fixed; }
 .studio-table col.col-num { width: 2.4rem; }

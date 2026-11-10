@@ -43,8 +43,13 @@ test('the studio edits the same place and publishes a snapshot', () => {
   assert.match(studio, /elect/);
   assert.match(studio, /上學期/);
   assert.match(studio, /下學期/);
-  assert.match(studio, /status: status/);
-  assert.match(studio, /patch\.published = data/);
+  assert.match(studio, /New draft|studio-new/);
+  assert.match(studio, /Drafts to check|filter-review/);
+  assert.match(studio, /Students do not see it yet/);
+  const draft = fs.readFileSync('assets/studio-draft.js', 'utf8');
+  assert.match(draft, /status: 'draft'/);
+  assert.match(draft, /published: null/);
+  assert.match(draft, /patch\.published = Object\.assign\(\{\}, data\)/);
   assert.doesNotMatch(studio, /data\.highlight = data\.en/);
   assert.match(studio, /contentEditable = 'true'/);
   assert.match(studio, /\['ex_en', 'ex_zh'\]/);
@@ -62,6 +67,7 @@ test('the studio edits the same place and publishes a snapshot', () => {
   assert.match(css, /\.studio-pair:focus-within \.studio-mark \{ display: block; \}/);
   assert.match(css, /\.studio-scroll \{ overflow-x: auto/);
   assert.match(css, /min-width: 80\.3rem/);
+  assert.match(css, /label\[hidden\] \{ display: none; \}/);
   assert.match(studio, /data\.highlight = row && row\.highlight/);
   assert.match(page, /Example<br>例句/);
   assert.match(page, /Advanced<br>進階例句/);
@@ -72,6 +78,11 @@ test('the studio edits the same place and publishes a snapshot', () => {
   const head = page.slice(page.indexOf('<thead'), page.indexOf('</thead>'));
   assert.match(page, /id="filter-section"/);
   assert.match(page, /id="filter-mode"/);
+  assert.match(page, /id="studio-new"/);
+  assert.match(page, /id="filter-review"/);
+  assert.match(page, /Drafts to check/);
+  assert.match(fs.readFileSync('practice/practice-live.js', 'utf8'), /RevisionPlace\.read/);
+  assert.match(fs.readFileSync('supabase/migrations/20261110143000_practice_boss_mixed.sql', 'utf8'), /'mixed'/);
   assert.match(studio, /Sentence fill-in/);
   assert.match(studio, /Story/);
   assert.ok(head.indexOf('>#<') < head.indexOf('>Photo<'));

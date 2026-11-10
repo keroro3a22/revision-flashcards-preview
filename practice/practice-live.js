@@ -43,18 +43,30 @@ window.PracticeLive = (function () {
     else if (mode === 'timed') pack.timed = items;
   }
 
+  function currentPlace(unit) {
+    var saved = window.RevisionPlace && window.RevisionPlace.read(window.localStorage);
+    return {
+      book: saved && saved.book || 'oxford',
+      series: saved && saved.series || 'oxford',
+      term: saved && saved.term || 'first',
+      level: saved && saved.level || 'p6',
+      unit: unit
+    };
+  }
+
   function ready(mode) {
     var cfg = window.SUPABASE_PUBLIC || {};
     var unit = 'unit1';
     try { unit = new URLSearchParams(location.search).get('unit') || 'unit1'; } catch (e) {}
+    var here = currentPlace(unit);
     if (!cfg.url || !cfg.key || !window.supabase || !window.supabase.createClient) return Promise.resolve();
     var client = window.supabase.createClient(cfg.url, cfg.key, {
       auth: { persistSession: false, autoRefreshToken: false }
     });
     return client.from('practice_items_live')
       .select('n,level_name,published')
-      .eq('book', 'oxford').eq('series', 'oxford').eq('term', 'first').eq('level', 'p6')
-      .eq('unit_id', unit).eq('track', 'vocab').eq('mode', mode)
+      .eq('book', here.book).eq('series', here.series).eq('term', here.term).eq('level', here.level)
+      .eq('unit_id', here.unit).eq('track', 'vocab').eq('mode', mode)
       .order('n', { ascending: true })
       .then(function (result) {
         if (!result.error && result.data && result.data.length) apply(unit, mode, result.data);
