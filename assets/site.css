@@ -1393,6 +1393,10 @@ html[data-level-live="no"] .level-live { display: none; }
   margin: 0 auto;
   padding: 1.35rem 0 0.5rem;
 }
+.place-shell {
+  padding-top: 0.4rem;
+  padding-bottom: 4.5rem;
+}
 .topbar .place-nav { margin-top: 0; align-items: center; }
 .topbar .place-drop-label {
   position: absolute;
@@ -1532,11 +1536,11 @@ a.account-entry:hover { background: var(--coral); color: var(--navy); }
   gap: 0.45rem;
   width: min(100% - calc(2rem * 1.0625), 1080px);
   margin: 0 auto;
-  padding: calc(0.35rem * 1.0625) 0.75rem calc(1.75rem * 1.0625);
+  padding: calc(0.35rem * 1.0625) 0 calc(0.15rem * 1.0625);
   overflow-x: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--navy) var(--cream);
+  scrollbar-width: none;
 }
+.topbar > .unit-tabs::-webkit-scrollbar { display: none; }
 html[data-view="home"] .place-shell { display: none; }
 .unit-tab {
   flex: 0 0 auto;
@@ -1550,7 +1554,7 @@ html[data-view="home"] .place-shell { display: none; }
   box-shadow: none;
 }
 .unit-heading {
-  margin-top: 0.85rem;
+  margin-top: 0.2rem;
   font-size: clamp(1.45rem, 1.1rem + 1.4vw, 2rem);
 }
 .place-entries {
@@ -1558,6 +1562,21 @@ html[data-view="home"] .place-shell { display: none; }
   grid-template-columns: 1fr;
   gap: 1.35rem;
   margin-top: 0.85rem;
+}
+@media (min-width: 960px) {
+  .place-entries:has(> .place-group + .place-group) {
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+    column-gap: 1.25rem;
+  }
+  .place-entries:has(> .place-group + .place-group) > .place-group {
+    display: flex;
+    flex-direction: column;
+  }
+  .place-entries:has(> .place-group + .place-group) > .place-group > .place-group-items {
+    flex: 1;
+    grid-auto-rows: 1fr;
+  }
 }
 .place-group-title {
   margin: 0 0 0.55rem;
@@ -1653,7 +1672,10 @@ html[data-view="home"] .place-shell { display: none; }
   font-weight: 700;
   letter-spacing: -0.03em;
 }
-.place-entry p { font-weight: 700; }
+.place-entry p {
+  font-weight: 700;
+  min-height: 2lh;
+}
 .place-entry.tone-revision-vocab,
 .place-entry.tone-practice-vocab { background: color-mix(in srgb, var(--sunny) 78%, white); }
 .place-entry.tone-revision-grammar,
