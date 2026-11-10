@@ -39,7 +39,7 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { scrollbar-gutter: stable; }
+html:has(.site-chrome) { scrollbar-gutter: stable; }
 html, body {
   margin: 0; padding: 0;
   background: var(--bg); color: var(--ink);
