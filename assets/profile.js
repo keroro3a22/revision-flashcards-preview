@@ -147,7 +147,7 @@ window.Profile = (function () {
   }
 
   function mount(slot) {
-    if (!slot || typeof document === 'undefined') return;
+    if (!slot || typeof document === 'undefined' || slot.querySelector('.profile-chip')) return;
     var sheet = buildSheet();
     document.body.appendChild(sheet.root);
     var chip = buildChip();
