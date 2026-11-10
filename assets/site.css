@@ -67,7 +67,7 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; scroll-behavior: auto; overflow-x: clip; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: auto; overflow-x: clip; scrollbar-gutter: stable; }
 body { overflow-x: clip; }
 body {
   margin: 0;
@@ -1521,15 +1521,23 @@ a.account-entry:hover { background: var(--coral); color: var(--navy); }
   border-radius: 12px;
   text-align: left;
 }
-.unit-tabs {
+.topbar:has(> .unit-tabs) .topbar-inner {
+  width: min(100% - calc(2rem * 1.0625), 1080px);
+  max-width: none;
+  gap: calc(0.75rem * 1.0625) calc(1rem * 1.0625);
+  padding: calc(0.75rem * 1.0625) 0 calc(0.35rem * 1.0625);
+}
+.topbar > .unit-tabs {
   display: flex;
   gap: 0.45rem;
-  margin-top: 1.15rem;
+  width: min(100% - calc(2rem * 1.0625), 1080px);
+  margin: 0 auto;
+  padding: calc(0.35rem * 1.0625) 0 calc(0.7rem * 1.0625);
   overflow-x: auto;
-  padding-bottom: 0.35rem;
   scrollbar-width: thin;
   scrollbar-color: var(--navy) var(--cream);
 }
+html[data-view="home"] .place-shell { display: none; }
 .unit-tab {
   flex: 0 0 auto;
   padding: 0.4rem 0.95rem;
@@ -1665,6 +1673,7 @@ html[data-signed-in="yes"] #profile-slot { display: inline-flex !important; alig
   .brand { order: 0; }
   .topbar-account { order: 1; margin-left: auto; flex: 0 0 auto; }
   .place-nav { order: 2; flex: 1 0 100%; margin: 0.35rem 0 0; }
+  .topbar:has(> .unit-tabs) .place-nav { margin-top: 0; }
 }
 .place-entry:hover { transform: translateY(-2px); }
 @media (prefers-reduced-motion: reduce) {
