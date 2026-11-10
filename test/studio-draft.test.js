@@ -32,6 +32,9 @@ test('a draft stays off the site until publish copies a snapshot', () => {
   assert.equal(live.status, 'published');
   assert.equal(live.published.en, 'so many');
   assert.equal(Object.prototype.hasOwnProperty.call(live.published, 'status'), false);
+  const again = draft.revisionPatch({ en: 'so many', zh: '這麼多' }, 'published', { cutout: true, chips: [{ ok: true, text: 'of' }] });
+  assert.equal(again.published.cutout, true);
+  assert.equal(again.published.chips[0].text, 'of');
 });
 
 test('practice publish keeps the draft fields and does not publish early', () => {
@@ -46,4 +49,11 @@ test('practice publish keeps the draft fields and does not publish early', () =>
   assert.equal(published.published.sentence, 'adopt a pet');
   assert.equal(published.published.zh, '領養寵物');
   assert.equal(published.published.wordKey, 'unit1:adopt');
+  const scene = draft.practicePatch(
+    { prompt: 'There are ____ ideas.', answer: 'so many', explain: 'Countable.', options: 'so many | so much', level_name: 'easy' },
+    { item: { parts: ['There are ', '____', ' flags.'], answer: 'so many', options: ['so many', 'so much'], explain: 'Old.' } },
+    'published'
+  );
+  assert.deepEqual(scene.published.item.parts, ['There are ', '____', ' ideas.']);
+  assert.equal(scene.published.item.explain, 'Countable.');
 });

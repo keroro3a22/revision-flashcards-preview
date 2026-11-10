@@ -63,6 +63,7 @@
 </main>
 <script src="../../practice/badges.js"></script>
 <script src="grammar-progress.js"></script>
+<script src="grammar-live.js?v=1"></script>
 <script>
 (function () {
   /* Authors: ?set=1|2|3|4|5 (1-based) forces that authored set; never show set chips on screen.
@@ -954,7 +955,7 @@ const set3Data = {
   ]
 };
 
-  const SETS = [set1Data, set2Data, set3Data, set4Data, set5Data];
+  function boot(SETS) {
   const SET_KEY = "u2-story-set-i";
 
   function resolveSet() {
@@ -1117,6 +1118,14 @@ const set3Data = {
   });
 
   render();
+  }
+  var bakedSets = [set1Data, set2Data, set3Data, set4Data, set5Data];
+  function startPublished(sets) { boot(sets && sets.length ? sets : bakedSets); }
+  if (window.GrammarLive) {
+    GrammarLive.load({ unit: 'unit2', mode: 'story' }).then(startPublished, function () { startPublished(null); });
+  } else {
+    startPublished(null);
+  }
 })();
 </script>
 </body>

@@ -1,6 +1,7 @@
 /* Use published practice questions when the studio has published this mode. */
 window.PracticeLive = (function () {
   function packName(unit) {
+    if (unit === 'mixed') return 'PRACTICE_MIXED';
     return 'PRACTICE_UNIT' + String(unit || '').replace(/^unit/, '');
   }
 

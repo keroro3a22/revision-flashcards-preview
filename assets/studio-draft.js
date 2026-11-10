@@ -95,10 +95,59 @@
     };
   }
 
-  function revisionPatch(data, status) {
+  function revisionPatch(data, status, previous) {
     var patch = Object.assign({ status: status }, data);
-    if (status === 'published') patch.published = Object.assign({}, data);
+    if (status === 'published') {
+      var keep = previous && previous.published ? previous.published : (previous || {});
+      patch.published = Object.assign({}, data);
+      if (keep.cutout) patch.published.cutout = true;
+      if (keep.chips) patch.published.chips = keep.chips;
+    }
     return patch;
+  }
+
+  function splitList(value) {
+    return String(value || '').split(/\s*\|\s*/).filter(function (part) { return part !== ''; });
+  }
+
+  function syncItem(item, patch) {
+    var next = Object.assign({}, item || {});
+    next.explain = patch.explain;
+    if (Array.isArray(next.parts)) {
+      var pieces = String(patch.prompt || '').split('____');
+      var parts = [];
+      pieces.forEach(function (piece, index) {
+        parts.push(piece);
+        if (index < pieces.length - 1) parts.push('____');
+      });
+      next.parts = parts;
+    }
+    if (Array.isArray(next.preview)) {
+      var previewBits = String(patch.prompt || '').split('____');
+      var preview = [];
+      previewBits.forEach(function (piece, index) {
+        preview.push(piece);
+        if (index < previewBits.length - 1) preview.push('REL');
+      });
+      next.preview = preview;
+    }
+    if (Array.isArray(next.answer)) next.answer = splitList(patch.answer);
+    else next.answer = patch.answer;
+    if (next.q) next.q = patch.prompt || '';
+    if (Array.isArray(next.options) || patch.options) next.options = splitList(patch.options);
+    if (Array.isArray(next.optionPairs)) {
+      if (next.options.every(function (opt) { return opt.indexOf('·') !== -1; })) {
+        next.optionPairs = next.options.map(function (opt) { return opt.split(/\s*·\s*/); });
+      }
+    }
+    if (Array.isArray(next.preview)) {
+      var filled = Array.isArray(next.answer) ? next.answer.join(' ') : next.answer;
+      next.full = next.preview.map(function (part) { return part === 'REL' ? filled : part; }).join('');
+    } else if (next.full && String(patch.prompt || '').indexOf('____') >= 0) {
+      var token = Array.isArray(next.answer) ? next.answer[0] : next.answer;
+      next.full = String(patch.prompt).replace('____', token);
+    }
+    return next;
   }
 
   function practicePatch(data, extra, status) {
@@ -111,12 +160,21 @@
       status: status
     };
     if (status === 'published') {
-      patch.published = Object.assign({}, extra || {}, data, {
-        sentence: data.prompt || '',
-        word: data.prompt || '',
-        en: data.prompt || '',
-        zh: data.answer || ''
+      var published = Object.assign({}, extra || {}, {
+        prompt: patch.prompt,
+        answer: patch.answer,
+        explain: patch.explain,
+        options: patch.options,
+        sentence: patch.prompt,
+        zh: patch.answer
       });
+      if (published.item) published.item = syncItem(extra.item, patch);
+      else if (published.kind === 'letters') published.word = patch.prompt;
+      else if (published.kind === 'match') {
+        published.en = patch.prompt;
+        published.zh = patch.answer;
+      } else if (published.accept) published.accept = [patch.answer];
+      patch.published = published;
     }
     return patch;
   }

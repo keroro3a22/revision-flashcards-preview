@@ -75,6 +75,16 @@
     $('filter-mode-label').hidden = !practice;
     $('filter-difficulty-label').hidden = !(practice && $('filter-mode').value === 'fill');
     $('filter-unit-label').hidden = practice && $('filter-mode').value === 'boss';
+    syncUnits();
+  }
+  function syncUnits() {
+    var practice = $('filter-section').value === 'practice';
+    var vocab = $('filter-kind').value !== 'grammar';
+    var units = UNITS.slice();
+    if (practice && vocab) units = units.concat([{ id: 'mixed', label: 'Mixed topic' }]);
+    var current = $('filter-unit').value;
+    if (!units.some(function (item) { return item.id === current; })) current = 'unit1';
+    fillSelect($('filter-unit'), units, current || 'unit1');
   }
   function fillSelect(select, items, selected) {
     select.replaceChildren();
@@ -405,7 +415,7 @@
     var wasPublished = row && row.status === 'published';
     var patch = tableName === 'practice_items'
       ? window.StudioDraft.practicePatch(data, row && row.extra, status)
-      : window.StudioDraft.revisionPatch(data, status);
+      : window.StudioDraft.revisionPatch(data, status, row && row.published);
     say('Saving…');
     client.from(tableName).update(patch).eq('id', Number(tr.dataset.id)).select('id,status').then(function (result) {
       if (result.error) { say(result.error.message); return; }
@@ -430,7 +440,7 @@
     say('Loading…');
     var query = client.from(tableName).select(practice
       ? 'id,n,status,prompt,answer,explain,options,level_name,extra'
-      : 'id,n,status,en,zh,pos,syllables,pattern,note_zh,highlight,ex_en,ex_zh,adv_en,adv_zh,img,audio,video')
+      : 'id,n,status,en,zh,pos,syllables,pattern,note_zh,highlight,ex_en,ex_zh,adv_en,adv_zh,img,audio,video,published')
       .eq('book', here.book).eq('series', here.series).eq('term', here.term)
       .eq('level', here.level).eq('track', here.kind);
     if (practice) query = query.eq('unit_id', window.StudioDraft.unitId(here)).eq('mode', here.mode).eq('level_name', window.StudioDraft.difficulty(here));

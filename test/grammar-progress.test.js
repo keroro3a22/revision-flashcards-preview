@@ -31,7 +31,7 @@ test('chat mysteries need more than one clue and do not name the answer', () => 
   ['unit1', 'unit2', 'unit3', 'unit4'].forEach(unit => {
     const html = read(unit + '-chat.html');
     const code = html.match(/<script>\s*\(function \(\) \{([\s\S]*)\}\)\(\);\s*<\/script>/)[1];
-    const cut = code.split(/const SETS/)[0] + '\nthis.__sets = {set1Data,set2Data,set3Data,set4Data,set5Data};';
+    const cut = code.split(/function boot\(SETS\)|const SETS/)[0] + '\nthis.__sets = {set1Data,set2Data,set3Data,set4Data,set5Data};';
     const context = vm.createContext({});
     vm.runInContext(cut, context);
     Object.values(context.__sets).forEach(data => {
@@ -87,7 +87,7 @@ test('chat mysteries need more than one clue and do not name the answer', () => 
   ['unit1', 'unit2', 'unit3', 'unit4'].forEach(unit => {
     const html = read(unit + '-chat.html');
     const code = html.match(/<script>\s*\(function \(\) \{([\s\S]*)\}\)\(\);\s*<\/script>/)[1];
-    const cut = code.split(/const SETS/)[0] + '\nthis.__sets = {set1Data,set2Data,set3Data,set4Data,set5Data};';
+    const cut = code.split(/function boot\(SETS\)|const SETS/)[0] + '\nthis.__sets = {set1Data,set2Data,set3Data,set4Data,set5Data};';
     const context = vm.createContext({});
     vm.runInContext(cut, context);
     Object.values(context.__sets).forEach(data => questions.push(data.endQ.q));
@@ -101,7 +101,7 @@ test('chat blanks spread answers and do not repeat one choice cluster', () => {
   ['unit1', 'unit2', 'unit3', 'unit4'].forEach(unit => {
     const html = read(unit + '-chat.html');
     const code = html.match(/<script>\s*\(function \(\) \{([\s\S]*)\}\)\(\);\s*<\/script>/)[1];
-    const cut = code.split(/const SETS/)[0] + '\nthis.__sets = {set1Data,set2Data,set3Data,set4Data,set5Data};';
+    const cut = code.split(/function boot\(SETS\)|const SETS/)[0] + '\nthis.__sets = {set1Data,set2Data,set3Data,set4Data,set5Data};';
     const context = vm.createContext({});
     vm.runInContext(cut, context);
     Object.entries(context.__sets).forEach(([name, data]) => {
@@ -180,7 +180,7 @@ test('join pages use one blank stem and lowercase choices', () => {
     assert.match(html, /class="btn-row join-actions"/);
     assert.match(html, /renderStem\(/);
     const code = html.match(/<script>\s*\(function \(\) \{([\s\S]*)\}\)\(\);\s*<\/script>/)[1];
-    const cut = code.split('const SETS')[0] + '\nthis.__sets = {set1Data,set2Data,set3Data,set4Data,set5Data};';
+    const cut = code.split(/function boot\(SETS\)|const SETS/)[0] + '\nthis.__sets = {set1Data,set2Data,set3Data,set4Data,set5Data};';
     const context = vm.createContext({});
     vm.runInContext(cut, context);
     const optContext = vm.createContext({});

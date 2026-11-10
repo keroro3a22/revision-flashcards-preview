@@ -31,11 +31,12 @@ test('the public page asks for the published series and term', () => {
     assert.match(html, /let CARDS/);
     assert.match(html, /function renderLesson/);
     assert.match(html, /window\.applyLessonCards/);
-    assert.match(html, /lesson-live\.js\?v=1/);
+    assert.match(html, /lesson-live\.js\?v=2/);
   });
   assert.match(live, /SUPABASE_PUBLIC/);
   assert.match(live, /\.eq\('series', series\)/);
   assert.match(live, /\.eq\('term', term\)/);
+  assert.match(live, /cutout/);
 });
 
 test('the studio edits the same place and publishes a snapshot', () => {
@@ -85,6 +86,8 @@ test('the studio edits the same place and publishes a snapshot', () => {
   assert.match(fs.readFileSync('supabase/migrations/20261110143000_practice_boss_mixed.sql', 'utf8'), /'mixed'/);
   assert.match(studio, /Sentence fill-in/);
   assert.match(studio, /Story/);
+  assert.match(studio, /Mixed topic/);
+  assert.match(studio, /published/);
   assert.ok(head.indexOf('>#<') < head.indexOf('>Photo<'));
   const render = studio.slice(studio.indexOf('function render'), studio.indexOf('function readRow'));
   assert.ok(render.indexOf("number.className = 'is-num'") < render.indexOf('photoCell(row)'));
