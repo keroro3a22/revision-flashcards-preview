@@ -59,8 +59,8 @@ test('pack and card art keeps its frame', () => {
   assert.match(css, /\.daily-img \{[^}]*background:\s*color-mix\(in srgb, var\(--sky\) 42%, #fff\)/);
   const unitCss = fs.readFileSync(path.join(root, 'assets/unit.css'), 'utf8');
   const unitIllust = unitCss.slice(unitCss.indexOf('.illust {'), unitCss.indexOf('.main .num'));
-  assert.match(unitIllust, /object-fit:\s*contain/);
-  assert.doesNotMatch(unitIllust, /object-fit:\s*cover/);
+  assert.match(unitIllust, /\.illust img \{[^}]*object-fit:\s*cover/);
+  assert.match(unitIllust, /\.illust\.cutout img \{[^}]*object-fit:\s*contain/);
   assert.match(unitIllust, /background:\s*color-mix\(in srgb, var\(--sky\) 42%, #fff\)/);
   assert.match(css, /\.pack-card \{[^}]*flex:\s*0 0 min\(26rem, 70%\)/);
   assert.match(css, /aspect-ratio:\s*1/);
