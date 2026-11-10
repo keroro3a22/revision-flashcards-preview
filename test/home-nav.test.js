@@ -123,7 +123,7 @@ print('ok')
   assert.match(out, /ok/);
 });
 
-test('vocab, grammar, and practice pages load the shared site bars', () => {
+test('vocab, grammar, and practice banners only go back to packs', () => {
   [
     'unit1/index.html',
     'unit1/grammar.html',
@@ -134,9 +134,11 @@ test('vocab, grammar, and practice pages load the shared site bars', () => {
     'practice/grammar/unit2-story.html'
   ].forEach((file) => {
     const html = fs.readFileSync(path.join(root, file), 'utf8');
-    assert.match(html, /chrome\.css\?v=1/, file);
-    assert.match(html, /place-ui\.js\?v=6/, file);
-    assert.match(html, /profile\.js/, file);
+    assert.match(html, />Back to packs</, file);
+    assert.doesNotMatch(html, /place-ui\.js/, file);
+    assert.doesNotMatch(html, /chrome\.css/, file);
+    assert.doesNotMatch(html, /header-pills/, file);
+    assert.doesNotMatch(html, /id="unit-tabs"/, file);
   });
 });
 
