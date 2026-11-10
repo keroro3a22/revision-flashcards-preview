@@ -6,6 +6,7 @@
   var term = body.getAttribute('data-term');
   var level = body.getAttribute('data-level');
   var unit = body.getAttribute('data-unit');
+  var track = body.getAttribute('data-track') || 'vocab';
   var cfg = window.SUPABASE_PUBLIC || {};
   if (!book || !series || !term || !level || !unit || !cfg.url || !cfg.key) return;
 
@@ -19,8 +20,8 @@
     var client = window.supabase.createClient(cfg.url, cfg.key, {
       auth: { persistSession: false, autoRefreshToken: false }
     });
-    client.from('lesson_cards_live').select('n,en,syllables,zh,pos,ex_en,ex_zh,adv_en,adv_zh,highlight,audio,img,video')
-      .eq('book', book).eq('series', series).eq('term', term).eq('level', level).eq('unit_id', unit)
+    client.from('lesson_cards_live').select('n,en,syllables,zh,pos,ex_en,ex_zh,adv_en,adv_zh,highlight,audio,img,video,pattern,note_zh')
+      .eq('book', book).eq('series', series).eq('term', term).eq('level', level).eq('unit_id', unit).eq('track', track)
       .order('n', { ascending: true })
       .then(function (result) { if (!result.error) show(result.data); });
   }

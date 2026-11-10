@@ -84,9 +84,11 @@
 <script src="badges.js"></script>
 <script src="timed-logic.js"></script>
 <script src="common.js"></script>
+<script src="practice-live.js?v=1"></script>
 <script>
 (function () {
   const C = window.PracticeCommon;
+  function begin() {
   const M = window.Mastery;
   const B = window.Badges;
   const T = window.TimedLogic;
@@ -95,7 +97,7 @@
   document.getElementById('to-hub2').href = C.hubLink(unitId);
   document.getElementById('sub').textContent = (pack && pack.title) || '';
 
-  const fill = (pack && pack.fillIn) || [];
+  const fill = (pack && pack.timed && pack.timed.length) ? pack.timed : ((pack && pack.fillIn) || []);
   const words = (pack && pack.words) || [];
   if (!fill.length && !words.length) {
     document.getElementById('lobby').hidden = true;
@@ -255,6 +257,9 @@
     document.getElementById('done').hidden = true;
     document.getElementById('lobby').hidden = false;
   });
+  }
+  if (window.PracticeLive) window.PracticeLive.ready('timed').then(begin);
+  else begin();
 })();
 </script>
 </body>

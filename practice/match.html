@@ -66,9 +66,11 @@
 <script src="badges.js"></script>
 <script src="match-logic.js?v=2"></script>
 <script src="common.js"></script>
+<script src="practice-live.js?v=1"></script>
 <script>
 (function () {
   const C = window.PracticeCommon;
+  function start() {
   const M = window.Mastery;
   const B = window.Badges;
   const ML = window.MatchLogic;
@@ -218,6 +220,9 @@
     document.getElementById('best-msg').textContent = isBest ? 'New best round!' : '';
     if (B) B.writeResult(document.getElementById('badge-note'), B.recordSession(unitId, 'match', null, { correct: pairs.length, total: pairs.length }));
   }
+  }
+  if (window.PracticeLive) window.PracticeLive.ready('match').then(start);
+  else start();
 })();
 </script>
 </body>

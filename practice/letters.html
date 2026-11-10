@@ -73,9 +73,11 @@
 <script src="mastery.js"></script>
 <script src="badges.js"></script>
 <script src="common.js?v=2"></script>
+<script src="practice-live.js?v=1"></script>
 <script>
 (function () {
   const C = window.PracticeCommon;
+  function begin() {
   const M = window.Mastery;
   const B = window.Badges;
   const { id: unitId, pack } = C.loadUnit();
@@ -255,6 +257,9 @@
 
   syncHardLock();
   render();
+  }
+  if (window.PracticeLive) window.PracticeLive.ready('letters').then(begin);
+  else begin();
 })();
 </script>
 </body>

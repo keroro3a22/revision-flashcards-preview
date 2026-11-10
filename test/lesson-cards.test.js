@@ -16,10 +16,18 @@ test('lesson cards are one row per book, series, term, level, unit, and number',
   assert.equal((sql.match(/\('oxford', 'oxford', 'first', 'p6', 'unit1',/g) || []).length, 10);
 });
 
+test('practice questions are stored by mode', () => {
+  const practice = fs.readFileSync('supabase/migrations/20261110120000_lesson_tracks_and_practice.sql', 'utf8');
+  assert.match(practice, /practice_items/);
+  assert.match(practice, /'fill', 'letters', 'match', 'timed', 'story', 'chat', 'join', 'boss'/);
+  assert.match(practice, /track in \('vocab', 'grammar'\)/);
+});
+
 test('the public page asks for the published series and term', () => {
   ['unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6'].forEach((unit) => {
     const html = fs.readFileSync(unit + '/index.html', 'utf8');
-    assert.match(html, new RegExp('data-book="oxford" data-series="oxford" data-level="p6" data-term="first" data-unit="' + unit + '"'));
+    assert.match(html, /data-book="oxford" data-series="oxford" data-level="p6" data-term="first"/);
+    assert.match(html, new RegExp('data-track="vocab" data-unit="' + unit + '"'));
     assert.match(html, /let CARDS/);
     assert.match(html, /function renderLesson/);
     assert.match(html, /window\.applyLessonCards/);
@@ -61,7 +69,11 @@ test('the studio edits the same place and publishes a snapshot', () => {
   assert.doesNotMatch(page, />Audio</);
   assert.doesNotMatch(studio, /pathCell\('audio'/);
   assert.match(studio, /data\.audio = row && row\.audio/);
-  const head = page.slice(page.indexOf('<thead>'), page.indexOf('</thead>'));
+  const head = page.slice(page.indexOf('<thead'), page.indexOf('</thead>'));
+  assert.match(page, /id="filter-section"/);
+  assert.match(page, /id="filter-mode"/);
+  assert.match(studio, /Sentence fill-in/);
+  assert.match(studio, /Story/);
   assert.ok(head.indexOf('>#<') < head.indexOf('>Photo<'));
   const render = studio.slice(studio.indexOf('function render'), studio.indexOf('function readRow'));
   assert.ok(render.indexOf("number.className = 'is-num'") < render.indexOf('photoCell(row)'));

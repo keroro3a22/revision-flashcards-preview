@@ -76,9 +76,11 @@
 <script src="mastery.js"></script>
 <script src="badges.js"></script>
 <script src="common.js"></script>
+<script src="practice-live.js?v=1"></script>
 <script>
 (function () {
   const C = window.PracticeCommon;
+  function start() {
   const M = window.Mastery;
   const B = window.Badges;
   const { id: unitId, pack } = C.loadUnit();
@@ -396,6 +398,9 @@
   } else {
     render();
   }
+  }
+  if (window.PracticeLive) window.PracticeLive.ready('fill').then(start);
+  else start();
 })();
 </script>
 </body>
