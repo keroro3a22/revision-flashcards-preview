@@ -277,8 +277,12 @@
     var tabs = document.getElementById('unit-tabs');
     function choose(unitId) {
       var next = P.withChange(place, { unit: unitId });
-      if (kind) follow(next, kind);
-      else save(next);
+      if (kind) {
+        if (!P.write(window.localStorage, next)) return;
+        location.href = scriptRoot() + 'index.html';
+        return;
+      }
+      save(next);
     }
     if (tabs) {
       tabs.replaceChildren();
