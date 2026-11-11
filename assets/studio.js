@@ -188,25 +188,32 @@
     if (field.tagName === 'INPUT' || field.tagName === 'TEXTAREA') return cellText(field.value).trim();
     return cellText(field.textContent).trim();
   }
-  function optionEditor(value) {
+  function tagEditor(value, options) {
+    options = options || {};
+    var parse = options.parse || function (text) { return window.StudioDraft.optionList(text); };
+    var join = options.join || function (list) { return window.StudioDraft.joinOptions(list); };
     var wrap = document.createElement('div');
     wrap.className = 'studio-tags';
     var hidden = document.createElement('input');
     hidden.type = 'hidden';
-    hidden.dataset.field = 'options';
+    if (options.field) hidden.dataset.field = options.field;
     var input = document.createElement('input');
     input.type = 'text';
     input.className = 'studio-tag-input';
-    input.setAttribute('aria-label', 'Add option');
+    input.setAttribute('aria-label', options.label || 'Add option');
     input.autocomplete = 'off';
     input.spellcheck = true;
+    var silent = false;
     function current() {
       return Array.prototype.map.call(wrap.querySelectorAll('[data-option]'), function (chip) {
         return chip.getAttribute('data-option');
       });
     }
     function sync() {
-      hidden.value = window.StudioDraft.joinOptions(current());
+      var text = join(current());
+      var changed = hidden.value !== text;
+      hidden.value = text;
+      if (!silent && changed && options.onChange) options.onChange(text);
     }
     function addOne(part) {
       if (!part || current().indexOf(part) >= 0) return;
@@ -230,15 +237,20 @@
       wrap.insertBefore(chip, input);
     }
     function commit() {
-      var parts = window.StudioDraft.optionList(input.value);
+      parse(input.value).forEach(addOne);
       input.value = '';
-      parts.forEach(addOne);
       sync();
+    }
+    function setValue(next) {
+      silent = true;
+      wrap.querySelectorAll('[data-option]').forEach(function (chip) { chip.remove(); });
+      parse(next).forEach(addOne);
+      sync();
+      silent = false;
     }
     wrap.appendChild(input);
     wrap.appendChild(hidden);
-    window.StudioDraft.optionList(value).forEach(addOne);
-    sync();
+    setValue(value);
     input.addEventListener('keydown', function (event) {
       if (event.key === 'Enter') {
         event.preventDefault();
@@ -254,13 +266,18 @@
     });
     input.addEventListener('paste', function (event) {
       var text = (event.clipboardData || window.clipboardData).getData('text/plain');
-      if (text.indexOf('|') === -1) return;
+      if (!options.splitPaste && text.indexOf('|') === -1) return;
       event.preventDefault();
-      window.StudioDraft.optionList(text).forEach(addOne);
+      parse(text).forEach(addOne);
       sync();
     });
     input.addEventListener('blur', commit);
+    wrap._setValue = setValue;
+    wrap._getValue = function () { return hidden.value; };
     return wrap;
+  }
+  function optionEditor(value) {
+    return tagEditor(value, { field: 'options' });
   }
   function box(name, value) {
     var cell = document.createElement('td');
@@ -588,10 +605,14 @@
   }
   var ignoreLoaded = false;
   var ignoreDirty = false;
+  function ignoreTags() {
+    var host = $('letter-ignore-words');
+    return host ? host.querySelector('.studio-tags') : null;
+  }
   function currentIgnore() {
-    var input = $('letter-ignore-words');
-    if (!input || !window.LetterRules) return null;
-    return window.LetterRules.parseIgnore(input.value);
+    var tags = ignoreTags();
+    if (!tags || !tags._getValue || !window.LetterRules) return null;
+    return window.LetterRules.parseIgnore(tags._getValue());
   }
   function paintMask(field, phrase, which, again) {
     var rules = window.LetterRules;
@@ -671,12 +692,12 @@
     bar.hidden = !show;
     if (!show || ignoreLoaded || ignoreDirty || !client || !window.LetterRules) return;
     ignoreLoaded = true;
-    var input = $('letter-ignore-words');
-    input.value = window.LetterRules.ignoreText();
+    var tags = ignoreTags();
+    if (tags && tags._setValue) tags._setValue(window.LetterRules.ignoreText());
     client.from('content_settings_live').select('value').eq('key', 'letter_ignore_words').maybeSingle().then(function (result) {
-      if (ignoreDirty || !input) return;
+      if (ignoreDirty || !tags) return;
       if (!result.error && result.data && result.data.value) {
-        input.value = result.data.value;
+        if (tags._setValue) tags._setValue(result.data.value);
         window.LetterRules.setIgnoreWords(result.data.value);
         repaintLetterMasks();
       }
@@ -685,8 +706,8 @@
   function saveIgnoreWords() {
     if (!client || !window.LetterRules) { say('The draft script did not load.'); return; }
     var text = window.LetterRules.ignoreText(currentIgnore());
-    var input = $('letter-ignore-words');
-    input.value = text;
+    var tags = ignoreTags();
+    if (tags && tags._setValue) tags._setValue(text);
     window.LetterRules.setIgnoreWords(text);
     repaintLetterMasks();
     say('Saving ignore words…');
@@ -1119,13 +1140,19 @@
       say(reviewLine());
     });
     $('studio-new').addEventListener('click', createDraft);
-    var ignoreInput = $('letter-ignore-words');
-    if (ignoreInput) {
-      ignoreInput.addEventListener('input', function () {
-        ignoreDirty = true;
-        if (window.LetterRules) window.LetterRules.setIgnoreWords(ignoreInput.value);
-        repaintLetterMasks();
-      });
+    var ignoreHost = $('letter-ignore-words');
+    if (ignoreHost && window.LetterRules && !ignoreHost.querySelector('.studio-tags')) {
+      ignoreHost.appendChild(tagEditor(window.LetterRules.ignoreText(), {
+        label: 'Add ignore word',
+        splitPaste: true,
+        parse: function (text) { return window.LetterRules.parseIgnore(text); },
+        join: function (list) { return window.LetterRules.ignoreText(list); },
+        onChange: function (text) {
+          ignoreDirty = true;
+          window.LetterRules.setIgnoreWords(text);
+          repaintLetterMasks();
+        }
+      }));
     }
     var ignoreSave = $('letter-ignore-save');
     if (ignoreSave) ignoreSave.addEventListener('click', saveIgnoreWords);
