@@ -1,23 +1,5 @@
-/* Hidden path copy for the public site.
-   Open any page with ?copy=1 once on this browser to show the buttons.
-   Open ?copy=0 to hide them again. Students do not see them. */
+/* Path copy on the public site. Only a signed-in content editor sees the buttons. */
 (function () {
-  var KEY = 'revision-copy-path';
-
-  function enabled() {
-    try {
-      var flag = new URLSearchParams(location.search).get('copy');
-      if (flag === '1') localStorage.setItem(KEY, '1');
-      if (flag === '0') localStorage.removeItem(KEY);
-      return localStorage.getItem(KEY) === '1';
-    } catch (e) {
-      return false;
-    }
-  }
-
-  if (!enabled()) return;
-  document.documentElement.classList.add('copy-path-on');
-
   var style = document.createElement('style');
   style.textContent = [
     '.copy-path { font: inherit; font-size: 0.75rem; font-weight: 700; color: #16324f; background: #fff; border: 1px solid #8ea4ba; border-radius: 999px; padding: 0.15rem 0.55rem; cursor: pointer; }',
@@ -25,7 +7,6 @@
     '.copy-path-row { margin-top: 0.35rem; }',
     '.toolbar .copy-path-row, .prac-header .copy-path-page { margin-left: 0.4rem; }'
   ].join('\n');
-  document.head.appendChild(style);
 
   function copyText(text, button) {
     function mark() {
@@ -176,20 +157,86 @@
     }));
   }
 
+  var shown = false;
+  var listObserver = null;
+
   function refresh() {
+    if (!shown) return;
     mountPage();
     mountCards();
     mountQuestion();
   }
 
   function start() {
-    refresh();
-    var list = document.getElementById('list');
-    if (list && window.MutationObserver) {
-      new MutationObserver(function () { mountCards(); }).observe(list, { childList: true });
+    shown = true;
+    if (!style.parentNode) document.head.appendChild(style);
+    document.documentElement.classList.add('copy-path-on');
+    function go() {
+      refresh();
+      var list = document.getElementById('list');
+      if (list && window.MutationObserver && !listObserver) {
+        listObserver = new MutationObserver(function () { refresh(); });
+        listObserver.observe(list, { childList: true });
+      }
     }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go);
+    else go();
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
-  else start();
+  function hide() {
+    shown = false;
+    document.documentElement.classList.remove('copy-path-on');
+    document.querySelectorAll('.copy-path').forEach(function (button) { button.remove(); });
+  }
+
+  function vendorSrc() {
+    var scripts = document.getElementsByTagName('script');
+    var i;
+    for (i = 0; i < scripts.length; i += 1) {
+      var src = scripts[i].src || '';
+      if (src.indexOf('copy-path.js') !== -1) return src.replace(/copy-path\.js(?:\?.*)?$/, 'vendor/supabase.js?v=1');
+    }
+    return 'assets/vendor/supabase.js?v=1';
+  }
+
+  function whenSdk() {
+    if (window.supabase && window.supabase.createClient) return Promise.resolve();
+    return new Promise(function (resolve) {
+      var tag = document.createElement('script');
+      tag.src = vendorSrc();
+      tag.onload = function () { resolve(); };
+      tag.onerror = function () { resolve(); };
+      document.head.appendChild(tag);
+    });
+  }
+
+  function applySession(client, session) {
+    if (!session) {
+      hide();
+      return;
+    }
+    client.rpc('is_content_editor').then(function (check) {
+      if (check && !check.error && check.data === true) start();
+      else hide();
+    }, hide);
+  }
+
+  whenSdk().then(function () {
+    var cfg = window.SUPABASE_PUBLIC || {};
+    if (!cfg.url || !cfg.key || !window.supabase || !window.supabase.createClient) return;
+    var client = window.supabase.createClient(cfg.url, cfg.key, {
+      auth: {
+        storageKey: 'p6-sb-auth',
+        persistSession: true,
+        autoRefreshToken: false,
+        detectSessionInUrl: false
+      }
+    });
+    client.auth.getSession().then(function (result) {
+      applySession(client, result.data && result.data.session);
+    }, hide);
+    client.auth.onAuthStateChange(function (_event, session) {
+      applySession(client, session);
+    });
+  });
 })();
