@@ -55,6 +55,7 @@ test('lesson search looks through every table and quotes the words', () => {
   const html = fs.readFileSync('studio.html', 'utf8');
   assert.match(html, /id="studio-search"/);
   assert.match(js, /searchSuggestions/);
+  assert.match(js, /studio-suggest-path/);
   assert.match(js, /lesson_cards/);
   assert.match(js, /practice_items/);
   assert.match(js, /site_pages/);

@@ -1838,7 +1838,9 @@
           button.setAttribute('role', 'option');
           if (index === active) button.className = 'is-active';
           var snippet = hit.snippet;
-          button.innerHTML = escapeSuggest(snippet.before) + '<mark>' + escapeSuggest(snippet.match) + '</mark>' + escapeSuggest(snippet.after);
+          var path = window.StudioDraft.studioPath(hit.place, hit.row);
+          button.innerHTML = '<span class="studio-suggest-text">' + escapeSuggest(snippet.before) + '<mark>' + escapeSuggest(snippet.match) + '</mark>' + escapeSuggest(snippet.after) + '</span>'
+            + '<span class="studio-suggest-path">' + escapeSuggest(path) + '</span>';
           button.addEventListener('mousedown', function (event) {
             event.preventDefault();
             choose(index);

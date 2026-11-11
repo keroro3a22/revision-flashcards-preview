@@ -23,7 +23,7 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
   z-index: 30;
   top: calc(100% + 0.25rem);
   left: 0;
-  width: min(28rem, 84vw);
+  width: min(34rem, 84vw);
   max-height: 18rem;
   overflow: auto;
   padding: 0.25rem;
@@ -34,7 +34,8 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
 }
 .studio-suggest[hidden] { display: none; }
 .studio-suggest button {
-  display: block;
+  display: grid;
+  gap: 0.12rem;
   width: 100%;
   margin: 0;
   padding: 0.45rem 0.55rem;
@@ -49,6 +50,11 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
 }
 .studio-suggest button.is-active,
 .studio-suggest button:hover { background: #e7f1fb; }
+.studio-suggest-path {
+  color: #5d7190;
+  font-size: 0.72rem;
+  line-height: 1.25;
+}
 .studio-suggest mark {
   background: #fcc03c;
   color: #243c6c;
