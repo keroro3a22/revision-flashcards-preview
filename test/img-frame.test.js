@@ -58,6 +58,10 @@ test('the preview uses a fixed crop window instead of a zoom slider', () => {
   assert.match(css, /-webkit-user-drag:\s*none/);
   assert.match(js, /type="color"/);
   assert.match(js, /EyeDropper/);
+  assert.match(js, /studio-dropper/);
+  assert.doesNotMatch(js, /Pick from photo/);
   assert.match(js, /studio-thumb-preview/);
+  assert.match(js, /path\.hidden = true/);
+  assert.match(css, /studio-thumb-preview img[\s\S]*var\(--crop-left/);
   assert.match(css, /studio-thumb-btn[\s\S]*background:\s*#1d3358/);
 });

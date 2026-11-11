@@ -165,7 +165,7 @@
       '.img-crop{position:relative;display:block;width:100%;max-width:100%;overflow:hidden;aspect-ratio:var(--img-crop-ratio,1);}',
       '.lightbox .img-crop{width:min(70vh,920px);background:#fffaf3;border-radius:16px;}',
       '.mcard-photo{height:48%;flex:1 1 auto;border-radius:12px;}',
-      '.illust img.is-cropped,.img-crop img.is-cropped,.story-panel-art img.is-cropped,.illust.chat-hero img.is-cropped,.mcard-photo img.is-cropped{',
+      '.illust img.is-cropped,.img-crop img.is-cropped,.story-panel-art img.is-cropped,.illust.chat-hero img.is-cropped,.mcard-photo img.is-cropped,.studio-thumb-preview img.is-cropped{',
       'position:absolute !important;inset:auto !important;left:var(--crop-left) !important;top:var(--crop-top) !important;',
       'width:var(--crop-width) !important;height:var(--crop-height) !important;max-width:none !important;max-height:none !important;',
       'object-fit:fill !important;object-position:center !important;transform:none !important;} '
