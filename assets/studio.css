@@ -23,7 +23,7 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
   outline-offset: 2px;
 }
 .studio-table tr.is-draft td { background: #fff6e4; }
-.studio-scroll { overflow-x: auto; background: #fff; }
+.studio-scroll { overflow: visible; background: #fff; }
 .studio-table { border-collapse: collapse; width: 100%; min-width: 80.3rem; table-layout: fixed; }
 .studio-table[data-shape="grammar"] { min-width: 95.3rem; }
 .studio-table[data-shape="fill"] { min-width: 79.9rem; }

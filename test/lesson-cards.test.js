@@ -66,7 +66,8 @@ test('the studio edits the same place and publishes a snapshot', () => {
   assert.match(studio, /Highlight this/);
   const css = fs.readFileSync('assets/studio.css', 'utf8');
   assert.match(css, /\.studio-pair:focus-within \.studio-mark \{ display: block; \}/);
-  assert.match(css, /\.studio-scroll \{ overflow-x: auto/);
+  assert.match(css, /\.studio-scroll \{ overflow: visible/);
+  assert.doesNotMatch(css, /\.studio-scroll \{[^}]*overflow-x:\s*auto/);
   assert.match(css, /min-width: 80\.3rem/);
   assert.match(css, /label\[hidden\] \{ display: none; \}/);
   assert.match(studio, /data\.highlight = row && row\.highlight/);
