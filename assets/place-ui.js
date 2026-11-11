@@ -47,7 +47,7 @@
     });
   }
 
-  function renderEntries(place) {
+  function renderEntries(place, resolved) {
     var box = document.getElementById('place-entries');
     var heading = document.getElementById('unit-heading');
     box.replaceChildren();
@@ -61,9 +61,11 @@
       var selected = P.unitsFor(place.book, place.level, place.series, place.term).filter(function (unit) {
         return unit.id === place.unit;
       })[0];
-      heading.textContent = selected ? unitText(selected) : '';
+      var title = resolved && resolved.title ? resolved.title : (selected && selected.title);
+      heading.textContent = selected ? (title ? selected.label + ' · ' + title : selected.label) : '';
     }
-    P.entriesFor(place).forEach(function (group) {
+    var groups = resolved && resolved.groups ? resolved.groups : P.entriesFor(place);
+    groups.forEach(function (group) {
       var section = document.createElement('section');
       section.className = 'place-group';
       if (group.id !== 'game') {
@@ -92,7 +94,7 @@
         var name = document.createElement('h3');
         name.textContent = item.label;
         var note = document.createElement('p');
-        note.textContent = item.ready ? blurbs[item.id] : (item.note || 'Coming soon');
+        note.textContent = item.ready ? (item.note || blurbs[item.id] || '') : (item.note || 'Coming soon');
         copy.appendChild(name);
         copy.appendChild(note);
         el.appendChild(copy);
@@ -310,7 +312,14 @@
     }
     if (document.getElementById('place-entries')) renderEntries(place);
     closeMenus();
+    if (window.SitePages && window.SitePages.mount) window.SitePages.mount(place);
   }
+
+  window.RevisionPlacePaint = function (place, resolved) {
+    if (!document.getElementById('place-entries')) return;
+    if (!place || place.unit === P.HOME || place.unit === P.GAME) return;
+    renderEntries(place, resolved);
+  };
 
   function save(place) {
     var next = P.write(window.localStorage, place);
@@ -390,11 +399,17 @@
       });
     }
     if (kind) {
+      var savedPlace = P.read(window.localStorage) || {};
+      var queryTerm = '';
+      try { queryTerm = new URLSearchParams(location.search).get('term') || ''; } catch (e) {}
+      var keptTerm = queryTerm === 'first' || queryTerm === 'second'
+        ? queryTerm
+        : (savedPlace.book === 'oxford' && savedPlace.series === 'oxford' && savedPlace.level === 'p6' && savedPlace.term) || 'first';
       var lesson = P.write(window.localStorage, {
         book: 'oxford',
         series: 'oxford',
         level: 'p6',
-        term: 'first',
+        term: keptTerm,
         unit: unitFromLocation()
       });
       if (lesson) renderShell(lesson);

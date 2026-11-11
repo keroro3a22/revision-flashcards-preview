@@ -454,10 +454,11 @@
     var raw = input || {};
     var book = oneOf(STUDIO_BOOKS, raw.book, 'oxford');
     var series = oneOf(STUDIO_SERIES[book], raw.series, STUDIO_SERIES[book][0]);
-    var section = raw.section === 'practice' ? 'practice' : 'revision';
+    var section = raw.section === 'practice' ? 'practice' : (raw.section === 'pages' ? 'pages' : 'revision');
     var kind = raw.kind === 'grammar' ? 'grammar' : 'vocab';
     var unit = raw.unit;
-    if (!(section === 'practice' && kind === 'vocab' && unit === 'mixed')) {
+    if (section === 'pages' && unit === 'home') unit = 'home';
+    else if (!(section === 'practice' && kind === 'vocab' && unit === 'mixed')) {
       unit = oneOf(STUDIO_UNITS, unit, 'unit1');
     }
     var set = oneOf(['1', '2', '3', '4', '5'], String(raw.set || ''), '1');
@@ -495,7 +496,7 @@
   var PATH_BOOK = { oxford: 'Oxford', longman: 'Longman' };
   var PATH_SERIES = { oxford: 'Living Oxford English', 'mypearson-express': 'Primary Longman Express', elect: 'Primary Longman Elect' };
   var PATH_TERM = { first: 'Book A', second: 'Book B' };
-  var PATH_SECTION = { revision: 'Revision card', practice: 'Practice' };
+  var PATH_SECTION = { revision: 'Revision card', practice: 'Practice', pages: 'Pages' };
   var PATH_KIND = { vocab: 'Vocab', grammar: 'Grammar' };
   var PATH_MODE = {
     fill: 'Sentence fill-in',
@@ -517,10 +518,10 @@
       PATH_BOOK[here.book] || here.book,
       String(here.level || '').toUpperCase(),
       PATH_TERM[here.term] || here.term,
-      here.unit === 'mixed' ? 'Mixed topic' : ('Unit ' + String(here.unit || '').replace(/^unit/, '')),
-      PATH_SECTION[here.section] || here.section,
-      PATH_KIND[here.kind] || here.kind
+      here.unit === 'home' ? 'Get started' : (here.unit === 'mixed' ? 'Mixed topic' : ('Unit ' + String(here.unit || '').replace(/^unit/, ''))),
+      PATH_SECTION[here.section] || here.section
     ];
+    if (here.section !== 'pages') title.push(PATH_KIND[here.kind] || here.kind);
     if (here.book === 'longman') title.splice(1, 0, PATH_SERIES[here.series] || here.series);
     if (practice) {
       bits.push(here.mode);

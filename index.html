@@ -354,12 +354,19 @@
       track.addEventListener("pointerup", endDrag);
       track.addEventListener("pointercancel", endDrag);
       paint();
+      window.refreshPackCarousel = function () {
+        cards = Array.prototype.slice.call(track.querySelectorAll(".pack-card"));
+        active = 0;
+        paint();
+        if (cards.length) track.scrollTo({ left: 0, behavior: "auto" });
+      };
     }
   })();
   </script>
 
   <script src="assets/place.js?v=7"></script>
-  <script src="assets/place-ui.js?v=10"></script>
+  <script src="assets/site-pages.js?v=1"></script>
+  <script src="assets/place-ui.js?v=11"></script>
   <script src="practice/data/unit1.js"></script>
   <script src="practice/data/unit2.js"></script>
   <script src="practice/data/unit3.js"></script>

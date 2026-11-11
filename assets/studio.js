@@ -73,17 +73,21 @@
     if (!modes.some(function (item) { return item.id === current; })) current = modes[0].id;
     fillSelect($('filter-mode'), modes, current);
     var practice = $('filter-section').value === 'practice';
-    $('filter-mode-label').hidden = !practice;
+    var pages = $('filter-section').value === 'pages';
+    $('filter-kind').parentElement.hidden = pages;
+    $('filter-mode-label').hidden = pages || !practice;
     $('filter-difficulty-label').hidden = true;
-    $('filter-set-label').hidden = !(practice && kind === 'grammar');
-    $('filter-unit-label').hidden = practice && $('filter-mode').value === 'boss';
+    $('filter-set-label').hidden = pages || !(practice && kind === 'grammar');
+    $('filter-unit-label').hidden = !pages && practice && $('filter-mode').value === 'boss';
+    if ($('studio-new')) $('studio-new').hidden = pages;
     syncUnits(preferredUnit);
   }
   function syncUnits(preferred) {
     var practice = $('filter-section').value === 'practice';
     var vocab = $('filter-kind').value !== 'grammar';
     var units = UNITS.slice();
-    if (practice && vocab) units = units.concat([{ id: 'mixed', label: 'Mixed topic' }]);
+    if ($('filter-section').value === 'pages') units = [{ id: 'home', label: 'Get started' }].concat(UNITS);
+    else if (practice && vocab) units = units.concat([{ id: 'mixed', label: 'Mixed topic' }]);
     var current = preferred || $('filter-unit').value;
     if (!units.some(function (item) { return item.id === current; })) current = 'unit1';
     fillSelect($('filter-unit'), units, current || 'unit1');
@@ -1458,6 +1462,11 @@
   }
   function load(doneMessage) {
     var here = place();
+    if (here.section === 'pages') {
+      if (window.RevisionStudioPages) window.RevisionStudioPages.load(client, here, { say: say });
+      else say('The page editor did not load.');
+      return;
+    }
     var practice = here.section === 'practice';
     tableName = practice ? 'practice_items' : 'lesson_cards';
     say('Loading…');

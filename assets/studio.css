@@ -224,6 +224,16 @@ body.studio-col-dragging * {
   object-fit: contain;
 }
 .studio-thumb-preview img[hidden] { display: none; }
+.studio-page-photo {
+  display: block;
+  width: 4.5rem;
+  height: 4.5rem;
+  object-fit: contain;
+  background: #1d3358;
+  margin-bottom: 0.35rem;
+}
+.studio-page-photo[hidden] { display: none; }
+.studio-photo-cell button { margin: 0.25rem 0.25rem 0 0; }
 .studio-frame {
   position: fixed;
   inset: 0;

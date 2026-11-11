@@ -8,6 +8,12 @@
   var unit = body.getAttribute('data-unit');
   var track = body.getAttribute('data-track') || 'vocab';
   var cfg = window.SUPABASE_PUBLIC || {};
+  var queryTerm = '';
+  try { queryTerm = new URLSearchParams(location.search).get('term') || ''; } catch (e) {}
+  var savedPlace = window.RevisionPlace && window.RevisionPlace.read(window.localStorage);
+  if (queryTerm === 'first' || queryTerm === 'second') term = queryTerm;
+  else if (savedPlace && savedPlace.book === book && savedPlace.series === series && savedPlace.level === level && savedPlace.unit === unit && (savedPlace.term === 'first' || savedPlace.term === 'second')) term = savedPlace.term;
+  if (term === 'first' || term === 'second') body.setAttribute('data-term', term);
   if (!book || !series || !term || !level || !unit || !cfg.url || !cfg.key) return;
 
   function show(cards) {
@@ -24,6 +30,19 @@
       .eq('book', book).eq('series', series).eq('term', term).eq('level', level).eq('unit_id', unit).eq('track', track)
       .order('n', { ascending: true })
       .then(function (result) { if (!result.error) show(result.data); });
+    client.from('site_pages_live').select('label')
+      .eq('book', book).eq('series', series).eq('term', term).eq('level', level)
+      .eq('unit_id', unit).eq('slot', 'title')
+      .maybeSingle()
+      .then(function (result) {
+        var label = result.data && String(result.data.label || '').trim();
+        var heading = document.querySelector('.unit-header h1');
+        if (!heading) return;
+        if (!label && term === 'first') return;
+        var text = label ? 'Unit ' + String(unit).replace(/^unit/, '') + ' ' + label : 'Unit ' + String(unit).replace(/^unit/, '');
+        heading.textContent = track === 'grammar' ? text + ' · Grammar' : text;
+        document.title = heading.textContent;
+      });
   }
 
   if (window.supabase && window.supabase.createClient) load();

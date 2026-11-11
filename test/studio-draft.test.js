@@ -166,6 +166,23 @@ test('a stored studio table drops choices that no longer fit', () => {
   assert.equal(place.review, 'all');
 });
 
+test('the pages table can stay on Get started', () => {
+  const store = memory();
+  const saved = draft.writeStudioPlace(store, {
+    book: 'oxford',
+    series: 'oxford',
+    term: 'second',
+    level: 'p6',
+    unit: 'home',
+    section: 'pages'
+  });
+  assert.equal(saved.section, 'pages');
+  assert.equal(saved.unit, 'home');
+  assert.equal(draft.readStudioPlace(store).unit, 'home');
+  assert.equal(draft.studioPath(saved).includes('Get started'), true);
+  assert.equal(draft.studioPath(saved).includes('Pages'), true);
+});
+
 test('mixed topic is kept only for vocab practice', () => {
   const store = memory();
   draft.writeStudioPlace(store, {

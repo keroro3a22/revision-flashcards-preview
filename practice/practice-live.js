@@ -47,10 +47,16 @@ window.PracticeLive = (function () {
 
   function currentPlace(unit) {
     var saved = window.RevisionPlace && window.RevisionPlace.read(window.localStorage);
+    var query = '';
+    try { query = new URLSearchParams(location.search).get('term') || ''; } catch (e) {}
+    var term = query === 'first' || query === 'second' ? query : (saved && saved.term) || 'first';
+    if ((query === 'first' || query === 'second') && saved && window.RevisionPlace) {
+      window.RevisionPlace.write(window.localStorage, Object.assign({}, saved, { term: term, unit: unit }));
+    }
     return {
       book: saved && saved.book || 'oxford',
       series: saved && saved.series || 'oxford',
-      term: saved && saved.term || 'first',
+      term: term,
       level: saved && saved.level || 'p6',
       unit: unit
     };
