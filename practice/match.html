@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&family=Noto+Sans+TC:wght@500;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="practice.css?v=12"/>
+<link rel="stylesheet" href="practice.css?v=13"/>
 <link rel="stylesheet" href="../assets/chrome.css?v=4" />
 <link rel="stylesheet" href="../assets/profile.css?v=4" />
 <link rel="stylesheet" href="../assets/account.css?v=1" />
@@ -65,7 +65,7 @@
 <script src="mastery.js"></script>
 <script src="badges.js"></script>
 <script src="match-logic.js?v=2"></script>
-<script src="../assets/img-frame.js?v=5"></script>
+<script src="../assets/img-frame.js?v=6"></script>
 <script src="common.js"></script>
 <script src="practice-live.js?v=3"></script>
 <script>
@@ -160,10 +160,13 @@
       frontClass = 'mcard-face mcard-front face-zh';
       frontBody =
         '<span class="face-badge">Picture</span>' +
-        '<img src="' + C.escapeHtml(c.img) + '" alt="" style="' + (window.ImgFrame ? ImgFrame.style(c.frame) : '') + '"/>' +
+        '<span class="mcard-photo"><img src="' + C.escapeHtml(c.img) + '" alt=""></span>' +
         '<span class="zh">' + C.escapeHtml(c.zh) + '</span>';
     }
     btn.innerHTML = '<div class="mcard-inner"><div class="mcard-face mcard-back">?</div><div class="' + frontClass + '">' + frontBody + '</div></div>';
+    if (c.side !== 'en' && c.frame && window.ImgFrame) {
+      ImgFrame.apply(btn.querySelector('.mcard-photo img'), c.frame, 180 / 140);
+    }
     btn.addEventListener('click', () => onFlip(btn, c));
     board.appendChild(btn);
   });

@@ -1,9 +1,13 @@
-/* Pan and zoom for a photo inside the same frame the live page uses. */
+/* Crop window for a photo. The whole picture stays intact.
+   The frame ratio decides which part is shown. */
 (function (root, factory) {
   var api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.ImgFrame = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  var MIN_Z = 1;
+  var MAX_Z = 3;
+
   function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
   }
@@ -23,62 +27,197 @@
     return {
       x: Math.round(clamp(x, 0, 100) * 10) / 10,
       y: Math.round(clamp(y, 0, 100) * 10) / 10,
-      z: Math.round(clamp(z, 0.5, 3) * 1000) / 1000
+      z: Math.round(clamp(z, MIN_Z, MAX_Z) * 1000) / 1000
     };
   }
 
-  function pan(frame, dx, dy, box) {
-    var next = normalize(frame);
-    var width = box && box.width > 0 ? box.width : 1;
-    var height = box && box.height > 0 ? box.height : 1;
-    var reach = Math.abs(next.z - 1);
-    var zoom = reach === 0 ? 1 : reach;
-    next.x -= (dx / width) * 100 / zoom;
-    next.y -= (dy / height) * 100 / zoom;
-    return normalize(next);
+  function maxCrop(imageWidth, imageHeight, ratio) {
+    var width = imageWidth > 0 ? imageWidth : 1;
+    var height = imageHeight > 0 ? imageHeight : 1;
+    var aspect = ratio > 0 ? ratio : 1;
+    if (width / height > aspect) return { width: height * aspect, height: height };
+    return { width: width, height: width / aspect };
   }
 
-  function zoom(frame, step) {
+  function rect(frame, imageWidth, imageHeight, ratio) {
     var next = normalize(frame);
-    next.z += step;
-    return normalize(next);
+    var imageW = imageWidth > 0 ? imageWidth : 1;
+    var imageH = imageHeight > 0 ? imageHeight : 1;
+    var max = maxCrop(imageW, imageH, ratio);
+    var width = max.width / next.z;
+    var height = max.height / next.z;
+    var left = clamp(next.x / 100 * imageW - width / 2, 0, Math.max(0, imageW - width));
+    var top = clamp(next.y / 100 * imageH - height / 2, 0, Math.max(0, imageH - height));
+    return { left: left, top: top, width: width, height: height };
   }
 
-  function zoomShift(frame) {
-    if (frame.z === 1) return { x: 0, y: 0 };
-    var reach = Math.abs(frame.z - 1) * 50;
+  function frameFromRect(box, imageWidth, imageHeight, ratio) {
+    var imageW = imageWidth > 0 ? imageWidth : 1;
+    var imageH = imageHeight > 0 ? imageHeight : 1;
+    var max = maxCrop(imageW, imageH, ratio);
+    return normalize({
+      x: (box.left + box.width / 2) / imageW * 100,
+      y: (box.top + box.height / 2) / imageH * 100,
+      z: max.width / box.width
+    });
+  }
+
+  function viewRect(frame, imageWidth, imageHeight, viewWidth, viewHeight, ratio) {
+    var box = rect(frame, imageWidth, imageHeight, ratio);
+    var imageW = imageWidth > 0 ? imageWidth : 1;
+    var imageH = imageHeight > 0 ? imageHeight : 1;
     return {
-      x: Math.round((50 - frame.x) / 50 * reach * 100) / 100,
-      y: Math.round((50 - frame.y) / 50 * reach * 100) / 100
+      left: box.left / imageW * viewWidth,
+      top: box.top / imageH * viewHeight,
+      width: box.width / imageW * viewWidth,
+      height: box.height / imageH * viewHeight
     };
   }
 
-  function transformCss(frame) {
-    var shift = zoomShift(frame);
-    var move = shift.x || shift.y ? 'translate(' + shift.x + '%,' + shift.y + '%) ' : '';
-    return move + 'scale(' + frame.z + ')';
+  function move(frame, dx, dy, imageWidth, imageHeight, viewWidth, viewHeight, ratio) {
+    var box = rect(frame, imageWidth, imageHeight, ratio);
+    var imageW = imageWidth > 0 ? imageWidth : 1;
+    var imageH = imageHeight > 0 ? imageHeight : 1;
+    var left = clamp(box.left + dx * imageW / viewWidth, 0, imageW - box.width);
+    var top = clamp(box.top + dy * imageH / viewHeight, 0, imageH - box.height);
+    return frameFromRect({ left: left, top: top, width: box.width, height: box.height }, imageW, imageH, ratio);
   }
 
-  function style(frame) {
-    var next = normalize(frame);
-    var css = 'object-position:' + next.x + '% ' + next.y + '%;';
-    if (next.z !== 1) css += 'transform:' + transformCss(next) + ';transform-origin:center center;';
-    return css;
+  function resize(frame, corner, dx, dy, imageWidth, imageHeight, viewWidth, viewHeight, ratio) {
+    var box = rect(frame, imageWidth, imageHeight, ratio);
+    var imageW = imageWidth > 0 ? imageWidth : 1;
+    var imageH = imageHeight > 0 ? imageHeight : 1;
+    var aspect = ratio > 0 ? ratio : 1;
+    var ix = dx * imageW / viewWidth;
+    var iy = dy * imageH / viewHeight;
+    var left = box.left;
+    var top = box.top;
+    var right = left + box.width;
+    var bottom = top + box.height;
+    var ax = corner === 'se' || corner === 'ne' ? left : right;
+    var ay = corner === 'se' || corner === 'sw' ? top : bottom;
+    var px = (corner === 'se' || corner === 'ne' ? right : left) + ix;
+    var py = (corner === 'se' || corner === 'sw' ? bottom : top) + iy;
+    var rawW = Math.abs(px - ax);
+    var rawH = Math.abs(py - ay);
+    var width = rawW;
+    var height = width / aspect;
+    if (rawH > height) {
+      height = rawH;
+      width = height * aspect;
+    }
+    var max = maxCrop(imageW, imageH, aspect);
+    var minW = max.width / MAX_Z;
+    if (width < minW) {
+      width = minW;
+      height = width / aspect;
+    }
+    if (width > max.width) {
+      width = max.width;
+      height = max.height;
+    }
+    var nextLeft = corner === 'se' || corner === 'ne' ? ax : ax - width;
+    var nextTop = corner === 'se' || corner === 'sw' ? ay : ay - height;
+    if (nextLeft < 0) nextLeft = 0;
+    if (nextTop < 0) nextTop = 0;
+    if (nextLeft + width > imageW) nextLeft = imageW - width;
+    if (nextTop + height > imageH) nextTop = imageH - height;
+    return frameFromRect({ left: nextLeft, top: nextTop, width: width, height: height }, imageW, imageH, aspect);
   }
 
-  function apply(img, frame) {
+  function placement(frame, imageWidth, imageHeight, ratio) {
+    var box = rect(frame, imageWidth, imageHeight, ratio);
+    return {
+      left: -box.left / box.width * 100,
+      top: -box.top / box.height * 100,
+      width: imageWidth / box.width * 100,
+      height: imageHeight / box.height * 100
+    };
+  }
+
+  function ensureCss() {
+    if (typeof document === 'undefined' || document.getElementById('img-frame-css')) return;
+    var style = document.createElement('style');
+    style.id = 'img-frame-css';
+    style.textContent = [
+      '.img-crop{position:relative;display:block;width:100%;max-width:100%;overflow:hidden;aspect-ratio:var(--img-crop-ratio,1);}',
+      '.lightbox .img-crop{width:min(70vh,920px);background:#fffaf3;border-radius:16px;}',
+      '.mcard-photo{height:48%;flex:1 1 auto;border-radius:12px;}',
+      '.illust img.is-cropped,.img-crop img.is-cropped,.story-panel-art img.is-cropped,.illust.chat-hero img.is-cropped,.mcard-photo img.is-cropped{',
+      'position:absolute !important;inset:auto !important;left:var(--crop-left) !important;top:var(--crop-top) !important;',
+      'width:var(--crop-width) !important;height:var(--crop-height) !important;max-width:none !important;max-height:none !important;',
+      'object-fit:fill !important;object-position:center !important;transform:none !important;} '
+    ].join('');
+    document.head.appendChild(style);
+  }
+
+  function hostFor(img, ratio) {
+    var parent = img.parentElement;
+    var aspect = ratio > 0 ? ratio : 1;
+    if (!parent) return { box: null, ratio: aspect };
+    if (parent.classList.contains('img-crop') || parent.classList.contains('mcard-photo')) {
+      return { box: parent, ratio: aspect };
+    }
+    if (parent.classList.contains('illust') && parent.closest && parent.closest('.card')) {
+      return { box: parent, ratio: 1 };
+    }
+    if (parent.classList.contains('lightbox')) {
+      var box = document.createElement('div');
+      box.className = 'img-crop';
+      box.style.setProperty('--img-crop-ratio', '1');
+      parent.insertBefore(box, img);
+      box.appendChild(img);
+      return { box: box, ratio: 1 };
+    }
+    parent.style.setProperty('position', 'relative', 'important');
+    parent.style.setProperty('overflow', 'hidden', 'important');
+    parent.style.setProperty('width', 'min(100%, 640px)', 'important');
+    parent.style.setProperty('aspect-ratio', String(aspect), 'important');
+    return { box: parent, ratio: aspect };
+  }
+
+  function paint(img, frame, ratio) {
+    var host = hostFor(img, ratio);
+    var useRatio = host.ratio;
+    if (host.box && host.box.classList.contains('cutout')) {
+      var plain = normalize(frame);
+      if (plain.x === 50 && plain.y === 50 && plain.z === 1) return;
+    }
+    function place() {
+      var iw = img.naturalWidth;
+      var ih = img.naturalHeight;
+      if (!iw || !ih) return;
+      var spot = placement(frame, iw, ih, useRatio);
+      img.classList.add('is-cropped');
+      img.style.setProperty('--crop-left', spot.left + '%');
+      img.style.setProperty('--crop-top', spot.top + '%');
+      img.style.setProperty('--crop-width', spot.width + '%');
+      img.style.setProperty('--crop-height', spot.height + '%');
+    }
+    if (img.naturalWidth) place();
+    else img.addEventListener('load', place, { once: true });
+  }
+
+  function apply(img, frame, ratio) {
     if (!img) return;
-    var next = normalize(frame);
-    img.style.objectPosition = next.x + '% ' + next.y + '%';
-    img.style.transformOrigin = 'center center';
-    img.style.transform = next.z === 1 ? '' : transformCss(next);
+    var parent = img.parentElement;
+    if (!(ratio > 0)) {
+      if (parent && (parent.classList.contains('lightbox') || (parent.classList.contains('illust') && parent.closest && parent.closest('.card')))) ratio = 1;
+      else if (parent && parent.classList.contains('mcard-photo')) ratio = 180 / 140;
+      else ratio = 320 / 220;
+    }
+    ensureCss();
+    paint(img, frame, ratio);
   }
 
   return {
     normalize: normalize,
-    pan: pan,
-    zoom: zoom,
-    style: style,
+    rect: rect,
+    frameFromRect: frameFromRect,
+    viewRect: viewRect,
+    move: move,
+    resize: resize,
+    placement: placement,
     apply: apply
   };
 });

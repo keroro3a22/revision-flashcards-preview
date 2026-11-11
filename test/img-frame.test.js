@@ -3,58 +3,49 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const frame = require('../assets/img-frame.js');
 
-test('the photo preview zooms with a slider', () => {
-  const js = fs.readFileSync('assets/studio.js', 'utf8');
-  assert.match(js, /type="range"[^>]*step="0.005"/);
-  assert.doesNotMatch(js, /Zoom in|Zoom out/);
-});
-
-test('zoom can move by half a percent', () => {
-  assert.equal(frame.normalize({ z: 1.005 }).z, 1.005);
-  assert.equal(frame.zoom({ z: 1 }, 0.005).z, 1.005);
-});
-
-test('a missing frame stays centered at the original size', () => {
+test('a missing frame is the largest centered crop', () => {
   assert.deepEqual(frame.normalize(null), { x: 50, y: 50, z: 1 });
-  assert.equal(frame.style(null), 'object-position:50% 50%;');
+  assert.equal(frame.normalize({ z: 0.5 }).z, 1);
+  assert.equal(frame.normalize({ z: 4 }).z, 3);
 });
 
-test('dragging the preview pans the picture inside the frame', () => {
-  const next = frame.pan({ x: 50, y: 50, z: 1 }, 25, -10, { width: 100, height: 100 });
-  assert.equal(next.x, 25);
-  assert.equal(next.y, 60);
-  assert.equal(next.z, 1);
+test('the crop keeps the frame ratio and stays inside the photo', () => {
+  const box = frame.rect({ x: 50, y: 50, z: 1 }, 200, 100, 1);
+  assert.equal(box.width, 100);
+  assert.equal(box.height, 100);
+  assert.equal(box.left, 50);
+  assert.equal(box.top, 0);
+  const tight = frame.rect({ x: 50, y: 50, z: 2 }, 200, 100, 1);
+  assert.equal(tight.width, 50);
+  assert.equal(tight.height, 50);
+  assert.equal(tight.left, 75);
+  assert.equal(tight.top, 25);
 });
 
-test('zoom stays centered so a drag adjusts the crop instead of pulling the picture out', () => {
-  const shrunk = frame.style({ x: 20, y: 80, z: 0.5 });
-  assert.match(shrunk, /object-position:20% 80%/);
-  assert.match(shrunk, /transform:translate\(15%,-15%\) scale\(0\.5\)/);
-  assert.match(shrunk, /transform-origin:center center/);
-  assert.doesNotMatch(shrunk, /transform-origin:20%/);
-  const enlarged = frame.style({ x: 20, y: 80, z: 2 });
-  assert.match(enlarged, /transform:translate\(30%,-30%\) scale\(2\)/);
-  assert.match(enlarged, /transform-origin:center center/);
-  const dragged = frame.pan({ x: 50, y: 50, z: 0.5 }, 10, 0, { width: 100, height: 100 });
-  assert.equal(dragged.x, 30);
-  assert.equal(frame.pan({ x: 50, y: 50, z: 0.5 }, 40, 0, { width: 100, height: 100 }).x, 0);
+test('dragging the frame moves it across the photo and stops at the edge', () => {
+  const moved = frame.move({ x: 50, y: 50, z: 1 }, 20, 0, 200, 100, 200, 100, 1);
+  assert.equal(moved.x, 60);
+  assert.equal(moved.z, 1);
+  const stuck = frame.move({ x: 50, y: 50, z: 1 }, 500, 0, 200, 100, 200, 100, 1);
+  assert.equal(stuck.x, 75);
 });
 
-test('the preview image cannot be dragged out as a browser copy', () => {
+test('a corner resizes the frame without changing its ratio', () => {
+  const next = frame.resize({ x: 50, y: 50, z: 1 }, 'se', -20, -20, 200, 100, 200, 100, 1);
+  assert.equal(next.z, 1.25);
+  const box = frame.rect(next, 200, 100, 1);
+  assert.equal(Math.round(box.width / box.height * 100) / 100, 1);
+  const grown = frame.resize(next, 'se', 400, 400, 200, 100, 200, 100, 1);
+  assert.equal(grown.z, 1);
+});
+
+test('the preview uses a fixed crop window instead of a zoom slider', () => {
   const js = fs.readFileSync('assets/studio.js', 'utf8');
   const css = fs.readFileSync('assets/studio.css', 'utf8');
-  assert.match(js, /<img alt="" draggable="false">/);
-  assert.match(js, /dragstart/);
-  assert.match(js, /preventDefault\(\)/);
+  assert.match(js, /data-corner="nw"/);
+  assert.match(js, /data-corner="se"/);
+  assert.match(js, /draggable="false"/);
+  assert.doesNotMatch(js, /type="range"/);
+  assert.match(css, /studio-crop-window/);
   assert.match(css, /-webkit-user-drag:\s*none/);
-});
-
-test('zoom stays between half size and three times, and starts at full size', () => {
-  assert.equal(frame.normalize(null).z, 1);
-  assert.equal(frame.zoom({ z: 1 }, 1).z, 2);
-  assert.equal(frame.zoom({ z: 3 }, 1).z, 3);
-  assert.equal(frame.zoom({ z: 1 }, -1).z, 0.5);
-  assert.equal(frame.normalize({ z: 0.1 }).z, 0.5);
-  const js = require('node:fs').readFileSync('assets/studio.js', 'utf8');
-  assert.match(js, /min="0.5" max="3" step="0.005"/);
 });

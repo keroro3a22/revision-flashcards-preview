@@ -418,6 +418,11 @@
     });
   }
   var frameDialog = null;
+  function shapeRatio(shape) {
+    if (shape === 'match') return 180 / 140;
+    if (shape === 'grammar' || shape === 'chat') return 320 / 220;
+    return 1;
+  }
   function ensureFrameDialog() {
     if (frameDialog) return frameDialog;
     var root = document.createElement('div');
@@ -425,23 +430,42 @@
     root.hidden = true;
     root.innerHTML = '<div class="studio-frame-card" role="dialog" aria-modal="true" aria-labelledby="studio-frame-title">'
       + '<p id="studio-frame-title" class="studio-frame-title">Live preview</p>'
-      + '<p class="studio-frame-note">Drag the picture to reframe it. Drag the bar to move closer or farther.</p>'
-      + '<div class="studio-frame-stage"><img alt="" draggable="false"></div>'
-      + '<div class="studio-frame-bar"><label class="studio-zoom">Zoom <input type="range" min="0.5" max="3" step="0.005" value="1" data-zoom aria-label="Zoom"></label><span data-zoom-label>100%</span><button type="button" data-reset>Reset</button><button type="button" data-done>Done</button></div>'
+      + '<p class="studio-frame-note">Drag inside the frame to move it. Drag a corner to resize it.</p>'
+      + '<div class="studio-crop" data-crop>'
+      + '<img alt="" draggable="false">'
+      + '<div class="studio-crop-shade" data-shade="top"></div>'
+      + '<div class="studio-crop-shade" data-shade="left"></div>'
+      + '<div class="studio-crop-shade" data-shade="right"></div>'
+      + '<div class="studio-crop-shade" data-shade="bottom"></div>'
+      + '<div class="studio-crop-window" data-window>'
+      + '<button type="button" class="studio-crop-corner" data-corner="nw" aria-label="Resize from the top left"></button>'
+      + '<button type="button" class="studio-crop-corner" data-corner="ne" aria-label="Resize from the top right"></button>'
+      + '<button type="button" class="studio-crop-corner" data-corner="sw" aria-label="Resize from the bottom left"></button>'
+      + '<button type="button" class="studio-crop-corner" data-corner="se" aria-label="Resize from the bottom right"></button>'
+      + '</div></div>'
+      + '<div class="studio-frame-bar"><button type="button" data-reset>Reset</button><button type="button" data-done>Done</button></div>'
       + '</div>';
     document.body.appendChild(root);
     frameDialog = {
       root: root,
-      stage: root.querySelector('.studio-frame-stage'),
+      crop: root.querySelector('[data-crop]'),
       img: root.querySelector('img'),
-      slider: root.querySelector('[data-zoom]'),
-      label: root.querySelector('[data-zoom-label]')
+      window: root.querySelector('[data-window]'),
+      shades: {
+        top: root.querySelector('[data-shade="top"]'),
+        left: root.querySelector('[data-shade="left"]'),
+        right: root.querySelector('[data-shade="right"]'),
+        bottom: root.querySelector('[data-shade="bottom"]')
+      }
     };
     frameDialog.img.draggable = false;
     frameDialog.img.addEventListener('dragstart', function (event) { event.preventDefault(); });
-    frameDialog.stage.addEventListener('dragstart', function (event) { event.preventDefault(); });
+    frameDialog.crop.addEventListener('dragstart', function (event) { event.preventDefault(); });
     root.addEventListener('click', function (event) {
       if (event.target === root) root.hidden = true;
+    });
+    window.addEventListener('resize', function () {
+      if (!root.hidden && frameDialog.place) frameDialog.place();
     });
     return frameDialog;
   }
@@ -451,48 +475,65 @@
       return;
     }
     var dialog = ensureFrameDialog();
+    var ratio = shapeRatio(spec.shape);
     var frame = window.ImgFrame.normalize(spec.frame);
-    var stage = dialog.stage;
-    stage.className = 'studio-frame-stage is-' + spec.shape + (spec.cutout ? ' is-cutout' : '');
-    dialog.img.style.objectFit = spec.fit || 'cover';
-    dialog.img.src = spec.src;
-    function paint() {
-      window.ImgFrame.apply(dialog.img, frame);
-      dialog.slider.value = String(frame.z);
-      dialog.label.textContent = (Math.round(frame.z * 1000) / 10) + '%';
-    }
-    paint();
     var drag = null;
-    stage.onpointerdown = function (event) {
+    function place() {
+      var viewW = dialog.img.offsetWidth;
+      var viewH = dialog.img.offsetHeight;
+      var imageW = dialog.img.naturalWidth;
+      var imageH = dialog.img.naturalHeight;
+      if (!viewW || !viewH || !imageW || !imageH) return;
+      var box = window.ImgFrame.viewRect(frame, imageW, imageH, viewW, viewH, ratio);
+      var win = dialog.window;
+      win.style.left = box.left + 'px';
+      win.style.top = box.top + 'px';
+      win.style.width = box.width + 'px';
+      win.style.height = box.height + 'px';
+      dialog.shades.top.style.cssText = 'left:0;top:0;width:100%;height:' + box.top + 'px;';
+      dialog.shades.bottom.style.cssText = 'left:0;top:' + (box.top + box.height) + 'px;width:100%;height:' + Math.max(0, viewH - box.top - box.height) + 'px;';
+      dialog.shades.left.style.cssText = 'left:0;top:' + box.top + 'px;width:' + box.left + 'px;height:' + box.height + 'px;';
+      dialog.shades.right.style.cssText = 'left:' + (box.left + box.width) + 'px;top:' + box.top + 'px;width:' + Math.max(0, viewW - box.left - box.width) + 'px;height:' + box.height + 'px;';
+    }
+    dialog.place = place;
+    dialog.img.onload = place;
+    dialog.img.src = spec.src;
+    dialog.root.hidden = false;
+    if (dialog.img.complete && dialog.img.naturalWidth) place();
+    dialog.crop.onpointerdown = function (event) {
+      var corner = event.target.getAttribute && event.target.getAttribute('data-corner');
+      if (event.target !== dialog.window && !corner) return;
       event.preventDefault();
-      drag = { x: event.clientX, y: event.clientY, frame: frame, pointer: event.pointerId };
-      stage.setPointerCapture(event.pointerId);
+      drag = { x: event.clientX, y: event.clientY, frame: frame, pointer: event.pointerId, corner: corner || '' };
+      dialog.crop.setPointerCapture(event.pointerId);
     };
-    stage.onpointermove = function (event) {
+    dialog.crop.onpointermove = function (event) {
       if (!drag || drag.pointer !== event.pointerId) return;
-      var box = stage.getBoundingClientRect();
-      frame = window.ImgFrame.pan(drag.frame, event.clientX - drag.x, event.clientY - drag.y, box);
-      paint();
+      var viewW = dialog.img.offsetWidth;
+      var viewH = dialog.img.offsetHeight;
+      var imageW = dialog.img.naturalWidth;
+      var imageH = dialog.img.naturalHeight;
+      var dx = event.clientX - drag.x;
+      var dy = event.clientY - drag.y;
+      frame = drag.corner
+        ? window.ImgFrame.resize(drag.frame, drag.corner, dx, dy, imageW, imageH, viewW, viewH, ratio)
+        : window.ImgFrame.move(drag.frame, dx, dy, imageW, imageH, viewW, viewH, ratio);
+      place();
     };
     function endDrag(event) {
       if (!drag || (event && drag.pointer !== event.pointerId)) return;
       drag = null;
     }
-    stage.onpointerup = endDrag;
-    stage.onpointercancel = endDrag;
-    dialog.slider.oninput = function () {
-      frame = window.ImgFrame.normalize({ x: frame.x, y: frame.y, z: Number(dialog.slider.value) });
-      paint();
-    };
+    dialog.crop.onpointerup = endDrag;
+    dialog.crop.onpointercancel = endDrag;
     dialog.root.querySelector('[data-reset]').onclick = function () {
       frame = window.ImgFrame.normalize(null);
-      paint();
+      place();
     };
     dialog.root.querySelector('[data-done]').onclick = function () {
       dialog.root.hidden = true;
       spec.onDone(window.ImgFrame.normalize(frame));
     };
-    dialog.root.hidden = false;
   }
   function thumbButton(src, onClick) {
     var button = document.createElement('button');
@@ -1543,6 +1584,6 @@
       });
     });
   }
-  window.RevisionStudio = { boot: boot };
+  window.RevisionStudio = { boot: boot, openPhotoFrame: openPhotoFrame };
   if (!window.STUDIO_TEST) boot();
 })();

@@ -858,13 +858,17 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
   background: var(--navy);
   color: var(--sky);
 }
-.mcard-front.face-zh img {
+.mcard-front.face-zh .mcard-photo {
   width: 100%;
   height: 48%;
-  object-fit: contain;
   border-radius: 12px;
   background: color-mix(in srgb, var(--sky) 42%, #fff);
   flex: 1 1 auto;
+}
+.mcard-front.face-zh .mcard-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 .mcard-front.face-zh .zh {
   font-family: "Noto Sans TC", "PingFang TC", var(--font-text);
