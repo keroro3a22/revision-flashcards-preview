@@ -87,3 +87,95 @@ test('practice publish keeps the draft fields and does not publish early', () =>
   assert.deepEqual(scene.published.item.parts, ['There are ', '____', ' ideas.']);
   assert.equal(scene.published.item.explain, 'Countable.');
 });
+
+function memory() {
+  const map = new Map();
+  return {
+    getItem(key) { return map.has(key) ? map.get(key) : null; },
+    setItem(key, value) { map.set(key, String(value)); }
+  };
+}
+
+test('a blank studio opens on the Oxford P6 revision table', () => {
+  const place = draft.readStudioPlace(memory());
+  assert.deepEqual(place, {
+    book: 'oxford',
+    series: 'oxford',
+    term: 'first',
+    level: 'p6',
+    unit: 'unit1',
+    section: 'revision',
+    kind: 'vocab',
+    mode: 'fill',
+    difficulty: 'easy',
+    set: '1',
+    review: 'all'
+  });
+});
+
+test('the studio returns to the last table on this device', () => {
+  const store = memory();
+  const saved = draft.writeStudioPlace(store, {
+    book: 'longman',
+    series: 'elect',
+    term: 'second',
+    level: 'p5',
+    unit: 'unit4',
+    section: 'practice',
+    kind: 'grammar',
+    mode: 'chat',
+    difficulty: 'hard',
+    set: '3',
+    review: 'draft'
+  });
+  assert.equal(saved.mode, 'chat');
+  assert.deepEqual(draft.readStudioPlace(store), saved);
+  assert.equal(store.getItem(draft.STUDIO_PLACE_KEY).includes('elect'), true);
+});
+
+test('a stored studio table drops choices that no longer fit', () => {
+  const store = memory();
+  store.setItem(draft.STUDIO_PLACE_KEY, '{');
+  assert.equal(draft.readStudioPlace(store).unit, 'unit1');
+  draft.writeStudioPlace(store, {
+    book: 'oxford',
+    series: 'elect',
+    term: 'second',
+    level: 'p6',
+    unit: 'mixed',
+    section: 'revision',
+    kind: 'grammar',
+    mode: 'letters',
+    set: '9',
+    review: 'later'
+  });
+  const place = draft.readStudioPlace(store);
+  assert.equal(place.book, 'oxford');
+  assert.equal(place.series, 'oxford');
+  assert.equal(place.term, 'second');
+  assert.equal(place.unit, 'unit1');
+  assert.equal(place.section, 'revision');
+  assert.equal(place.kind, 'grammar');
+  assert.equal(place.mode, 'story');
+  assert.equal(place.set, '1');
+  assert.equal(place.review, 'all');
+});
+
+test('mixed topic is kept only for vocab practice', () => {
+  const store = memory();
+  draft.writeStudioPlace(store, {
+    book: 'oxford',
+    series: 'oxford',
+    term: 'first',
+    level: 'p6',
+    unit: 'mixed',
+    section: 'practice',
+    kind: 'vocab',
+    mode: 'letters',
+    review: 'published'
+  });
+  const place = draft.readStudioPlace(store);
+  assert.equal(place.unit, 'mixed');
+  assert.equal(place.mode, 'letters');
+  assert.equal(place.review, 'published');
+});
