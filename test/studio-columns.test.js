@@ -25,15 +25,15 @@ test('grammar adds pattern and note without taking the example width', () => {
   ]);
 });
 
-test('missing letters and memory match omit unused explain and options', () => {
+test('missing letters and memory match use the two cards students see', () => {
   const letters = columns.practiceColumns(Object.assign({}, place, { mode: 'letters' }));
-  assert.deepEqual(letters.fields, ['prompt', 'answer']);
-  assert.equal(letters.columns[1].label, 'Phrase');
-  assert.equal(letters.columns.some((column) => column.label === 'Explain'), false);
+  assert.equal(letters.kind, 'letters');
+  assert.equal(letters.columns[1].label, 'Easy');
+  assert.match(letters.columns[2].label, /chosen at random from these letters/);
   const match = columns.practiceColumns(Object.assign({}, place, { mode: 'match' }));
-  assert.deepEqual(match.fields, ['prompt', 'answer']);
+  assert.equal(match.kind, 'match');
   assert.equal(match.columns[1].label, 'English');
-  assert.equal(match.columns[2].label, '中文');
+  assert.equal(match.columns[2].label, 'Picture');
 });
 
 test('sentence fill shows easy and hard together', () => {

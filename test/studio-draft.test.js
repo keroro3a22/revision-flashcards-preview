@@ -11,6 +11,14 @@ test('vocab and grammar each continue their own card numbers', () => {
   assert.equal(draft.nextNumber(Object.assign({}, oxford, { unit: 'unit3', kind: 'grammar' }), [1, 2]), 4);
 });
 
+test('easy missing letters are stable and hard can hide any content letter', () => {
+  const masks = draft.letterMasks('adopt a pet');
+  assert.deepEqual(Object.keys(masks.easy).map(Number), [1, 4, 10]);
+  assert.equal(masks.hard[6], undefined);
+  assert.equal(masks.hard[0], true);
+  assert.equal(masks.hard[8], true);
+});
+
 test('a fill sentence keeps the missing words separate from the rest', () => {
   const parts = draft.fillParts('They want to ______ today.', 'adopt a pet');
   assert.deepEqual(parts, { before: 'They want to ', missing: 'adopt a pet', after: ' today.' });

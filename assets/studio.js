@@ -203,6 +203,8 @@
     var value = cellText(path).trim();
     if (!value) return '';
     if (/^https?:\/\//i.test(value)) return value;
+    value = value.replace(/^(\.\.\/)+/, '');
+    if (value.indexOf('/') >= 0) return value;
     return place().unit + '/' + value.replace(/^\.\//, '');
   }
   function paintPhoto(cell) {
@@ -290,14 +292,27 @@
   }
   function practiceColumns(here) {
     var mode = here.mode;
-    if (mode === 'letters' || mode === 'match') {
+    if (mode === 'letters') {
       return {
         shape: 'spell',
-        fields: ['prompt', 'answer'],
+        kind: 'letters',
         columns: [
           { col: 'col-num', label: '#' },
-          { col: 'col-pair', label: mode === 'match' ? 'English' : 'Phrase' },
-          { col: 'col-pair', label: mode === 'match' ? '中文' : 'Answer' },
+          { col: 'col-pair', label: 'Easy' },
+          { col: 'col-pair', label: 'Hard (chosen at random from these letters)' },
+          { col: 'col-state', label: 'State' },
+          { col: 'col-actions', label: '' }
+        ]
+      };
+    }
+    if (mode === 'match') {
+      return {
+        shape: 'spell',
+        kind: 'match',
+        columns: [
+          { col: 'col-num', label: '#' },
+          { col: 'col-pair', label: 'English' },
+          { col: 'col-pair', label: 'Picture' },
           { col: 'col-state', label: 'State' },
           { col: 'col-actions', label: '' }
         ]
@@ -479,6 +494,63 @@
     cell.appendChild(input);
     return cell;
   }
+  function paintMasked(field, phrase, which) {
+    var hide = window.StudioDraft.letterMasks(phrase)[which] || {};
+    var word = String(phrase || '');
+    field.innerHTML = '';
+    for (var i = 0; i < word.length; i += 1) {
+      var ch = word.charAt(i);
+      if (!hide[i]) {
+        field.appendChild(document.createTextNode(ch));
+        continue;
+      }
+      var mark = document.createElement('span');
+      mark.className = 'studio-hl';
+      mark.textContent = ch;
+      field.appendChild(mark);
+    }
+  }
+  function syncMasked(field) {
+    var text = cellText(field.textContent);
+    var row = field.closest('tr');
+    row.querySelectorAll('[data-mask]').forEach(function (other) {
+      paintMasked(other, text, other.dataset.mask);
+    });
+  }
+  function lettersCell(phrase, which) {
+    var cell = document.createElement('td');
+    var field = document.createElement('div');
+    field.className = 'studio-edit';
+    field.contentEditable = 'true';
+    field.spellcheck = true;
+    field.dataset.mask = which;
+    if (which === 'easy') field.dataset.field = 'prompt';
+    paintMasked(field, phrase, which);
+    field.addEventListener('paste', plainPaste);
+    field.addEventListener('blur', function () { syncMasked(field); });
+    cell.appendChild(field);
+    return cell;
+  }
+  function matchPictureCell(row) {
+    var cell = document.createElement('td');
+    cell.className = 'studio-pair';
+    var img = document.createElement('img');
+    img.className = 'studio-thumb';
+    img.alt = '';
+    var path = edit('img', row.extra && row.extra.img);
+    path.addEventListener('input', function () {
+      var src = photoSrc(path.textContent);
+      img.hidden = !src;
+      if (src) img.src = src;
+    });
+    var src = photoSrc(row.extra && row.extra.img);
+    img.hidden = !src;
+    if (src) img.src = src;
+    cell.appendChild(img);
+    cell.appendChild(path);
+    cell.appendChild(edit('answer', row.answer));
+    return cell;
+  }
   function renderFillPair(row) {
     var tr = document.createElement('tr');
     tr.dataset.pair = 'fill';
@@ -505,6 +577,27 @@
     shownRows().forEach(function (row) {
       if (spec.kind === 'pair') {
         body.appendChild(renderFillPair(row));
+        return;
+      }
+      if (spec.kind === 'letters' || spec.kind === 'match') {
+        var shaped = document.createElement('tr');
+        shaped.dataset.id = String(row.id);
+        if (row.status !== 'published') shaped.classList.add('is-draft');
+        var shapedNumber = document.createElement('td');
+        shapedNumber.className = 'is-num';
+        shapedNumber.textContent = String(row.n);
+        shaped.appendChild(shapedNumber);
+        if (spec.kind === 'letters') {
+          var phrase = row.prompt || row.answer || '';
+          shaped.appendChild(lettersCell(phrase, 'easy'));
+          shaped.appendChild(lettersCell(phrase, 'hard'));
+        } else {
+          shaped.appendChild(box('prompt', row.prompt));
+          shaped.appendChild(matchPictureCell(row));
+        }
+        shaped.appendChild(stateCell(row));
+        shaped.appendChild(actionCell(shaped));
+        body.appendChild(shaped);
         return;
       }
       var tr = document.createElement('tr');
@@ -633,6 +726,13 @@
       extra = Object.assign({}, extra || {});
       extra.item = Object.assign({}, extra.item || {}, { hard: data.hard === true });
       extra.set = Number(place().set) || extra.set || 1;
+    }
+    if (tableName === 'practice_items' && place().mode === 'letters' && data.prompt) data.answer = data.prompt;
+    if (tableName === 'practice_items' && place().mode === 'match') {
+      extra = Object.assign({}, extra || {});
+      if (data.img != null) extra.img = data.img;
+      extra.en = data.prompt || extra.en || '';
+      extra.zh = data.answer || extra.zh || '';
     }
     var patch = tableName === 'practice_items'
       ? window.StudioDraft.practicePatch(data, extra, status)
