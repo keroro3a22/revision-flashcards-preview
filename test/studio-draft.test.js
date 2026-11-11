@@ -184,3 +184,11 @@ test('mixed topic is kept only for vocab practice', () => {
   assert.equal(place.mode, 'letters');
   assert.equal(place.review, 'published');
 });
+
+test('option tags split on bars and keep a dotted pair together', () => {
+  assert.deepEqual(draft.optionList('so many | so much | although'), ['so many', 'so much', 'although']);
+  assert.deepEqual(draft.optionList('  as · as | so · that  '), ['as · as', 'so · that']);
+  assert.deepEqual(draft.optionList(''), []);
+  assert.equal(draft.joinOptions(['so many', ' so much ', '']), 'so many | so much');
+  assert.equal(draft.joinOptions(draft.optionList('will · so that | would · although')), 'will · so that | would · although');
+});

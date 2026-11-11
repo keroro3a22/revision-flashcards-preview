@@ -147,6 +147,14 @@
     return String(value || '').split(/\s*\|\s*/).filter(function (part) { return part !== ''; });
   }
 
+  function optionList(value) {
+    return splitList(value).map(function (part) { return part.trim(); }).filter(function (part) { return part !== ''; });
+  }
+
+  function joinOptions(list) {
+    return (list || []).map(function (part) { return String(part || '').trim(); }).filter(function (part) { return part !== ''; }).join(' | ');
+  }
+
   function syncItem(item, patch) {
     var next = Object.assign({}, item || {});
     next.explain = patch.explain;
@@ -300,6 +308,8 @@
     STUDIO_PLACE_KEY: STUDIO_PLACE_KEY,
     readStudioPlace: readStudioPlace,
     writeStudioPlace: writeStudioPlace,
+    optionList: optionList,
+    joinOptions: joinOptions,
     fillParts: fillParts,
     fillStored: fillStored
   };
