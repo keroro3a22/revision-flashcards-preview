@@ -197,6 +197,9 @@
         }
         tr.classList.toggle('is-draft', status !== 'published');
         tr.querySelector('.is-state').textContent = status === 'published' ? 'Published' : 'Draft';
+        var existing = td.querySelector('.studio-retract');
+        if (status === 'published' && !existing) td.appendChild(retractButton());
+        if (status !== 'published' && existing) existing.remove();
         say(status === 'published' ? 'Published. Students see it after a refresh.' : 'Draft saved. Students do not see it yet.');
       });
     }
@@ -205,8 +208,29 @@
       if (!window.confirm('Publish this line? Students see it after a refresh.')) return;
       store('published');
     });
+    function retractButton() {
+      var retract = document.createElement('button');
+      retract.type = 'button';
+      retract.className = 'studio-retract';
+      retract.textContent = 'Retract';
+      retract.addEventListener('click', function () {
+        if (!row.id) return;
+        if (!window.confirm('Take this row off the live site? It stays in this table as a draft.')) return;
+        say('Taking it off the site…');
+        client.from('site_pages').update({ status: 'draft' }).eq('id', row.id).select('id,status').then(function (result) {
+          if (result.error) { say(result.error.message); return; }
+          row.status = 'draft';
+          tr.classList.add('is-draft');
+          tr.querySelector('.is-state').textContent = 'Draft';
+          retract.remove();
+          say('Taken off the site. Students see the default after a refresh.');
+        });
+      });
+      return retract;
+    }
     td.appendChild(save);
     td.appendChild(publish);
+    if (row && row.status === 'published') td.appendChild(retractButton());
     return td;
   }
 

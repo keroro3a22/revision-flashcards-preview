@@ -921,7 +921,13 @@
         map[key].status = row.status;
       }
     });
-    return Object.keys(map).map(function (key) { return map[key]; }).sort(function (a, b) {
+    return Object.keys(map).map(function (key) {
+      var pair = map[key];
+      var easyLive = pair.easy && pair.easy.status === 'published';
+      var hardLive = pair.hard && pair.hard.status === 'published';
+      if (easyLive || hardLive) pair.status = 'published';
+      return pair;
+    }).sort(function (a, b) {
       return Number(a.n) - Number(b.n);
     });
   }
@@ -1296,13 +1302,14 @@
     publish.type = 'button';
     publish.textContent = 'Publish';
     publish.addEventListener('click', function () { requestStore(tr, 'published'); });
+    stack.appendChild(save);
+    stack.appendChild(publish);
+    if (liveTargets(tr).length) stack.appendChild(retractButton(tr));
     var remove = document.createElement('button');
     remove.type = 'button';
     remove.className = 'studio-remove';
     remove.textContent = 'Remove';
     remove.addEventListener('click', function () { removeRow(tr); });
-    stack.appendChild(save);
-    stack.appendChild(publish);
     stack.appendChild(remove);
     actions.appendChild(stack);
     return actions;
@@ -1379,6 +1386,66 @@
     }
     return data;
   }
+  function liveTargets(tr) {
+    if (tr.dataset.pair === 'fill') {
+      var number = Number(tr.querySelector('.is-num').textContent);
+      var pair = rows.filter(function (item) { return Number(item.n) === number; })[0] || {};
+      return ['easy', 'hard'].map(function (side) {
+        return pair[side] && pair[side].status === 'published' ? pair[side] : null;
+      }).filter(Boolean);
+    }
+    var row = rows.filter(function (item) { return String(item.id) === tr.dataset.id; })[0];
+    return row && row.status === 'published' ? [row] : [];
+  }
+  function paintLiveState(tr, live) {
+    tr.classList.toggle('is-draft', !live);
+    var state = tr.querySelector('.is-state');
+    if (state) state.textContent = live ? 'Published' : 'Draft';
+    var stack = tr.querySelector('.studio-actions');
+    if (!stack) return;
+    var button = stack.querySelector('.studio-retract');
+    if (live && !button) {
+      var remove = stack.querySelector('.studio-remove');
+      stack.insertBefore(retractButton(tr), remove);
+    }
+    if (!live && button) button.remove();
+  }
+  function retractButton(tr) {
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'studio-retract';
+    button.textContent = 'Retract';
+    button.addEventListener('click', function () { retractRow(tr); });
+    return button;
+  }
+  function retractRow(tr) {
+    var targets = liveTargets(tr);
+    if (!targets.length) return;
+    if (!window.confirm('Take this row off the live site? It stays in this table as a draft.')) return;
+    say('Taking it off the site…');
+    var pending = targets.length;
+    var failed = '';
+    targets.forEach(function (row) {
+      client.from(tableName).update({ status: 'draft' }).eq('id', row.id).select('id,status').then(function (result) {
+        if (result.error) failed = result.error.message;
+        else row.status = 'draft';
+        pending -= 1;
+        if (pending > 0) return;
+        if (failed) { say(failed); return; }
+        if (tr.dataset.pair === 'fill') {
+          var number = Number(tr.querySelector('.is-num').textContent);
+          var pair = rows.filter(function (item) { return Number(item.n) === number; })[0];
+          if (pair) {
+            var easyLive = pair.easy && pair.easy.status === 'published';
+            var hardLive = pair.hard && pair.hard.status === 'published';
+            pair.status = easyLive || hardLive ? 'published' : 'draft';
+          }
+        }
+        render();
+        say('Taken off the site. Students no longer see it after a refresh.');
+      });
+    });
+  }
   function requestStore(tr, status) {
     var firstPublish = status === 'published' && !rows.some(function (item) {
       return item.status === 'published' && String(item.id) !== tr.dataset.id;
@@ -1417,8 +1484,7 @@
         saved.status = status;
         if (status === 'published') saved.published = patch.published;
       }
-      tr.classList.toggle('is-draft', status !== 'published');
-      tr.querySelector('.is-state').textContent = status === 'published' ? 'Published' : 'Draft';
+      paintLiveState(tr, status === 'published');
       if (status === 'published') say('Published. Students see it after a refresh.');
       else if (wasPublished) say('Saved as a draft. Students no longer see this row until you publish it.');
       else say('Draft saved. Students do not see it yet.');

@@ -42,6 +42,9 @@ test('every studio row copies one path for that row', () => {
   const cell = js.slice(start, js.indexOf('function render', start));
   assert.doesNotMatch(cell, /Copy easy|Copy hard/);
   assert.equal((cell.match(/Copy path/g) || []).length, 1);
+  assert.match(cell, /liveTargets\(tr\)\.length/);
+  assert.match(js, /button\.textContent = 'Retract'/);
+  assert.match(js, /update\(\{ status: 'draft' \}\)/);
 });
 
 test('sentence fill shows easy and hard together', () => {
