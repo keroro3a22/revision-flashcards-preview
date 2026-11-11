@@ -427,7 +427,7 @@
       + '<p id="studio-frame-title" class="studio-frame-title">Live preview</p>'
       + '<p class="studio-frame-note">Drag the picture to reframe it. Drag the bar to move closer or farther.</p>'
       + '<div class="studio-frame-stage"><img alt=""></div>'
-      + '<div class="studio-frame-bar"><label class="studio-zoom">Zoom <input type="range" min="1" max="3" step="0.05" value="1" data-zoom aria-label="Zoom"></label><span data-zoom-label>100%</span><button type="button" data-reset>Reset</button><button type="button" data-done>Done</button></div>'
+      + '<div class="studio-frame-bar"><label class="studio-zoom">Zoom <input type="range" min="1" max="3" step="0.005" value="1" data-zoom aria-label="Zoom"></label><span data-zoom-label>100%</span><button type="button" data-reset>Reset</button><button type="button" data-done>Done</button></div>'
       + '</div>';
     document.body.appendChild(root);
     frameDialog = {
@@ -456,7 +456,7 @@
     function paint() {
       window.ImgFrame.apply(dialog.img, frame);
       dialog.slider.value = String(frame.z);
-      dialog.label.textContent = Math.round(frame.z * 100) + '%';
+      dialog.label.textContent = (Math.round(frame.z * 1000) / 10) + '%';
     }
     paint();
     var drag = null;

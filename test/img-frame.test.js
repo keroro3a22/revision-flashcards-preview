@@ -5,8 +5,13 @@ const frame = require('../assets/img-frame.js');
 
 test('the photo preview zooms with a slider', () => {
   const js = fs.readFileSync('assets/studio.js', 'utf8');
-  assert.match(js, /type="range"/);
+  assert.match(js, /type="range"[^>]*step="0.005"/);
   assert.doesNotMatch(js, /Zoom in|Zoom out/);
+});
+
+test('zoom can move by half a percent', () => {
+  assert.equal(frame.normalize({ z: 1.005 }).z, 1.005);
+  assert.equal(frame.zoom({ z: 1 }, 0.005).z, 1.005);
 });
 
 test('a missing frame stays centered at the original size', () => {

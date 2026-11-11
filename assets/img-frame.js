@@ -23,7 +23,7 @@
     return {
       x: Math.round(clamp(x, 0, 100) * 10) / 10,
       y: Math.round(clamp(y, 0, 100) * 10) / 10,
-      z: Math.round(clamp(z, 1, 3) * 100) / 100
+      z: Math.round(clamp(z, 1, 3) * 1000) / 1000
     };
   }
 
