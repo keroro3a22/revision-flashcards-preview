@@ -58,7 +58,9 @@ test('lesson search looks through every table and quotes the words', () => {
   assert.match(js, /lesson_cards/);
   assert.match(js, /practice_items/);
   assert.match(js, /site_pages/);
-  assert.doesNotMatch(js.slice(js.indexOf('function searchLibrary'), js.indexOf('function mountSearch')), /\.eq\('book'/);
+  const library = js.slice(js.indexOf('function searchLibrary'), js.indexOf('function mountSearch'));
+  assert.doesNotMatch(library, /\.eq\('book'/);
+  assert.doesNotMatch(library, /'options'/);
 });
 
 test('a path jump highlight fades back to the row color', () => {

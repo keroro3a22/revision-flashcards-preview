@@ -690,8 +690,7 @@
   function practiceSearchTexts(row) {
     return [
       [row.prompt, row.answer].filter(Boolean).join(' '),
-      row.explain,
-      row.options
+      row.explain
     ];
   }
 

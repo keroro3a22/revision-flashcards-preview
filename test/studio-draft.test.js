@@ -350,6 +350,9 @@ test('search suggestions quote nearby words and put a starting match first', () 
   assert.match(hits[1].snippet.before, /donate money for /);
   assert.equal(hits[1].place.unit, 'unit1');
   assert.deepEqual(draft.searchSuggestions({ lessons: [{ en: 'Korea', unit_id: 'unit6', n: 4 }] }, 'K'), []);
+  assert.deepEqual(draft.searchSuggestions({
+    practice: [{ book: 'oxford', series: 'oxford', term: 'first', level: 'p6', unit_id: 'unit1', track: 'vocab', mode: 'fill', n: 1, prompt: 'Pick one.', answer: 'cat', explain: 'A pet.', options: 'Korea | Japan' }]
+  }, 'Korea'), []);
   const pages = draft.searchSuggestions({
     pages: [{ book: 'oxford', series: 'oxford', term: 'first', level: 'p6', unit_id: 'home', slot: 'hear', label: 'Hear it', note: 'Tap Play on a card.' }]
   }, 'Hear');

@@ -1798,8 +1798,8 @@
     return Promise.all([
       client.from('lesson_cards').select('book,series,term,level,unit_id,track,n,en,zh,ex_en,ex_zh,adv_en,adv_zh,pattern,note_zh')
         .or(like(['en', 'zh', 'ex_en', 'ex_zh', 'adv_en', 'adv_zh', 'pattern', 'note_zh'])).limit(50),
-      client.from('practice_items').select('book,series,term,level,unit_id,track,mode,set_no,n,level_name,prompt,answer,explain,options')
-        .or(like(['prompt', 'answer', 'explain', 'options'])).limit(50),
+      client.from('practice_items').select('book,series,term,level,unit_id,track,mode,set_no,n,level_name,prompt,answer,explain')
+        .or(like(['prompt', 'answer', 'explain'])).limit(50),
       client.from('site_pages').select('book,series,term,level,unit_id,slot,label,note')
         .or(like(['label', 'note'])).limit(30)
     ]).then(function (results) {
