@@ -206,6 +206,209 @@
   }
 
   var STUDIO_PLACE_KEY = 'revision-studio-place';
+  var STUDIO_WIDTH_KEY = 'revision-studio-widths';
+  var MIN_COLUMN_PX = 48;
+  var MAX_COLUMN_PX = 4000;
+
+  function readColumnWidths(storage) {
+    try {
+      var raw = storage && storage.getItem(STUDIO_WIDTH_KEY);
+      if (!raw) return {};
+      var data = JSON.parse(raw);
+      if (!data || typeof data !== 'object' || Array.isArray(data)) return {};
+      return data;
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function shapeWidths(storage, shape) {
+    var group = readColumnWidths(storage)[shape];
+    if (!group || typeof group !== 'object' || Array.isArray(group)) return {};
+    var out = {};
+    Object.keys(group).forEach(function (key) {
+      if (!/^[a-z0-9-]+$/.test(key)) return;
+      var px = Math.round(Number(group[key]));
+      if (px >= MIN_COLUMN_PX && px <= MAX_COLUMN_PX) out[key] = px;
+    });
+    return out;
+  }
+
+  function writeColumnWidth(storage, shape, key, px) {
+    var all = readColumnWidths(storage);
+    var next = Math.round(Number(px));
+    if (!isFinite(next)) next = MIN_COLUMN_PX;
+    next = Math.min(MAX_COLUMN_PX, Math.max(MIN_COLUMN_PX, next));
+    if (!all[shape] || typeof all[shape] !== 'object' || Array.isArray(all[shape])) all[shape] = {};
+    all[shape][key] = next;
+    try { storage.setItem(STUDIO_WIDTH_KEY, JSON.stringify(all)); } catch (e) {}
+    return next;
+  }
+
+  function clearColumnWidth(storage, shape, key) {
+    var all = readColumnWidths(storage);
+    if (all[shape] && typeof all[shape] === 'object' && !Array.isArray(all[shape])) delete all[shape][key];
+    try { storage.setItem(STUDIO_WIDTH_KEY, JSON.stringify(all)); } catch (e) {}
+  }
+
+  function dragColumnWidth(start, delta) {
+    var next = Math.round(Number(start) + Number(delta));
+    if (!isFinite(next)) return MIN_COLUMN_PX;
+    return Math.min(MAX_COLUMN_PX, Math.max(MIN_COLUMN_PX, next));
+  }
+
+  function columnResizeLabel(column) {
+    var text = String(column && column.label || '')
+      .replace(/<br\s*\/?>/gi, ' ')
+      .replace(/<[^>]*>/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return 'Resize ' + (text || (column && column.key) || 'column');
+  }
+
+  function columnLayout(columns, saved, measured) {
+    var custom = false;
+    var widths = columns.map(function (column, index) {
+      var chosen = saved && Number(saved[column.key]);
+      if (chosen >= MIN_COLUMN_PX && chosen <= MAX_COLUMN_PX) {
+        custom = true;
+        return Math.round(chosen);
+      }
+      var current = Number(measured && measured[index]);
+      if (isFinite(current) && current > 0) return Math.round(current);
+      return 0;
+    });
+    return { widths: widths, custom: custom };
+  }
+
+  function mountStudioColumns(table, head, columns, shape, storage) {
+    var doc = table.ownerDocument;
+    table.dataset.shape = shape;
+    var group = table.querySelector('colgroup');
+    group.replaceChildren();
+    var cols = columns.map(function (column) {
+      var col = doc.createElement('col');
+      col.className = column.col;
+      col.dataset.key = column.key;
+      group.appendChild(col);
+      return col;
+    });
+    var row = doc.createElement('tr');
+    var cells = columns.map(function (column) {
+      var cell = doc.createElement('th');
+      cell.dataset.key = column.key;
+      cell.innerHTML = column.label;
+      var grip = doc.createElement('button');
+      grip.type = 'button';
+      grip.className = 'studio-col-resize';
+      grip.setAttribute('aria-label', columnResizeLabel(column));
+      cell.appendChild(grip);
+      row.appendChild(cell);
+      return cell;
+    });
+    head.replaceChildren(row);
+
+    function measuredWidths() {
+      return cells.map(function (cell) {
+        var box = cell.getBoundingClientRect();
+        var current = box && Number(box.width);
+        return isFinite(current) && current > 0 ? Math.round(current) : 0;
+      });
+    }
+    function paint(widths, custom) {
+      if (!custom || widths.some(function (px) { return !(px > 0); })) {
+        cols.forEach(function (col) { col.style.width = ''; });
+        table.style.width = '';
+        table.style.minWidth = '';
+        return;
+      }
+      var sum = 0;
+      cols.forEach(function (col, index) {
+        var px = Math.round(widths[index]);
+        col.style.width = px + 'px';
+        sum += px;
+      });
+      table.style.width = sum + 'px';
+      table.style.minWidth = sum + 'px';
+    }
+    function applySaved() {
+      var saved = shapeWidths(storage, shape);
+      cols.forEach(function (col) { col.style.width = ''; });
+      table.style.width = '';
+      table.style.minWidth = '';
+      if (!Object.keys(saved).length) return;
+      var layout = columnLayout(columns, saved, measuredWidths());
+      paint(layout.widths, layout.custom);
+    }
+    function explicitWidths() {
+      return cols.map(function (col, index) {
+        var inline = parseFloat(col.style.width);
+        if (inline > 0) return Math.round(inline);
+        var box = cells[index].getBoundingClientRect();
+        var current = box && Number(box.width);
+        if (isFinite(current) && current > 0) return Math.round(current);
+        return MIN_COLUMN_PX;
+      });
+    }
+    function dragging(on) {
+      var body = doc.body;
+      if (!body || !body.classList) return;
+      if (on) body.classList.add('studio-col-dragging');
+      else body.classList.remove('studio-col-dragging');
+    }
+
+    cells.forEach(function (cell, index) {
+      var grip = cell.querySelector('.studio-col-resize');
+      var key = columns[index].key;
+      grip.addEventListener('dblclick', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        clearColumnWidth(storage, shape, key);
+        applySaved();
+      });
+      grip.addEventListener('keydown', function (event) {
+        var step = event.key === 'ArrowRight' ? 8 : (event.key === 'ArrowLeft' ? -8 : 0);
+        if (!step) return;
+        event.preventDefault();
+        var widths = explicitWidths();
+        widths[index] = dragColumnWidth(widths[index], step);
+        paint(widths, true);
+        writeColumnWidth(storage, shape, key, widths[index]);
+      });
+      grip.addEventListener('pointerdown', function (event) {
+        if (event.button != null && event.button !== 0) return;
+        event.preventDefault();
+        event.stopPropagation();
+        var widths = explicitWidths();
+        var startX = event.clientX;
+        var start = widths[index];
+        var moved = false;
+        dragging(true);
+        grip.classList.add('is-dragging');
+        if (grip.setPointerCapture && event.pointerId != null) {
+          try { grip.setPointerCapture(event.pointerId); } catch (e) {}
+        }
+        function move(e) {
+          if (e.clientX === startX) return;
+          moved = true;
+          widths[index] = dragColumnWidth(start, e.clientX - startX);
+          paint(widths, true);
+        }
+        function up() {
+          grip.classList.remove('is-dragging');
+          dragging(false);
+          grip.removeEventListener('pointermove', move);
+          grip.removeEventListener('pointerup', up);
+          grip.removeEventListener('pointercancel', up);
+          if (moved) writeColumnWidth(storage, shape, key, widths[index]);
+        }
+        grip.addEventListener('pointermove', move);
+        grip.addEventListener('pointerup', up);
+        grip.addEventListener('pointercancel', up);
+      });
+    });
+    applySaved();
+  }
   var STUDIO_BOOKS = ['oxford', 'longman'];
   var STUDIO_SERIES = {
     oxford: ['oxford'],
@@ -365,6 +568,14 @@
     compactNumbers: compactNumbers,
     letterExample: letterExample,
     STUDIO_PLACE_KEY: STUDIO_PLACE_KEY,
+    STUDIO_WIDTH_KEY: STUDIO_WIDTH_KEY,
+    MIN_COLUMN_PX: MIN_COLUMN_PX,
+    MAX_COLUMN_PX: MAX_COLUMN_PX,
+    shapeWidths: shapeWidths,
+    writeColumnWidth: writeColumnWidth,
+    clearColumnWidth: clearColumnWidth,
+    dragColumnWidth: dragColumnWidth,
+    mountStudioColumns: mountStudioColumns,
     readStudioPlace: readStudioPlace,
     writeStudioPlace: writeStudioPlace,
     studioPath: studioPath,
