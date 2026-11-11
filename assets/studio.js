@@ -379,15 +379,16 @@
     root.hidden = true;
     root.innerHTML = '<div class="studio-frame-card" role="dialog" aria-modal="true" aria-labelledby="studio-frame-title">'
       + '<p id="studio-frame-title" class="studio-frame-title">Live preview</p>'
-      + '<p class="studio-frame-note">Drag the picture to reframe it. Zoom changes how close it sits in the same frame as the live page.</p>'
+      + '<p class="studio-frame-note">Drag the picture to reframe it. Drag the bar to move closer or farther.</p>'
       + '<div class="studio-frame-stage"><img alt=""></div>'
-      + '<div class="studio-frame-bar"><button type="button" data-zoom="-0.25">Zoom out</button><span data-zoom-label>100%</span><button type="button" data-zoom="0.25">Zoom in</button><button type="button" data-reset>Reset</button><button type="button" data-done>Done</button></div>'
+      + '<div class="studio-frame-bar"><label class="studio-zoom">Zoom <input type="range" min="1" max="3" step="0.05" value="1" data-zoom aria-label="Zoom"></label><span data-zoom-label>100%</span><button type="button" data-reset>Reset</button><button type="button" data-done>Done</button></div>'
       + '</div>';
     document.body.appendChild(root);
     frameDialog = {
       root: root,
       stage: root.querySelector('.studio-frame-stage'),
       img: root.querySelector('img'),
+      slider: root.querySelector('[data-zoom]'),
       label: root.querySelector('[data-zoom-label]')
     };
     root.addEventListener('click', function (event) {
@@ -408,6 +409,7 @@
     dialog.img.src = spec.src;
     function paint() {
       window.ImgFrame.apply(dialog.img, frame);
+      dialog.slider.value = String(frame.z);
       dialog.label.textContent = Math.round(frame.z * 100) + '%';
     }
     paint();
@@ -428,12 +430,8 @@
     }
     stage.onpointerup = endDrag;
     stage.onpointercancel = endDrag;
-    dialog.root.querySelector('[data-zoom="-0.25"]').onclick = function () {
-      frame = window.ImgFrame.zoom(frame, -0.25);
-      paint();
-    };
-    dialog.root.querySelector('[data-zoom="0.25"]').onclick = function () {
-      frame = window.ImgFrame.zoom(frame, 0.25);
+    dialog.slider.oninput = function () {
+      frame = window.ImgFrame.normalize({ x: frame.x, y: frame.y, z: Number(dialog.slider.value) });
       paint();
     };
     dialog.root.querySelector('[data-reset]').onclick = function () {

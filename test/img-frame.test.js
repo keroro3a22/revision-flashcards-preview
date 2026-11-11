@@ -1,6 +1,13 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
 const frame = require('../assets/img-frame.js');
+
+test('the photo preview zooms with a slider', () => {
+  const js = fs.readFileSync('assets/studio.js', 'utf8');
+  assert.match(js, /type="range"/);
+  assert.doesNotMatch(js, /Zoom in|Zoom out/);
+});
 
 test('a missing frame stays centered at the original size', () => {
   assert.deepEqual(frame.normalize(null), { x: 50, y: 50, z: 1 });
