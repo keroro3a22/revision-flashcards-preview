@@ -172,7 +172,7 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 8.2rem;
+  min-height: 10.4rem;
 }
 .studio-table td.is-actions .studio-remove {
   margin-top: auto;

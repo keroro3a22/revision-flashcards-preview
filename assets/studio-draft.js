@@ -307,6 +307,12 @@
     if (row && row.n) {
       bits.push(String(row.n));
       title.push('#' + row.n);
+    }
+    if (row && (row.level === 'easy' || row.level === 'hard')) {
+      bits.push(row.level);
+      title.push(row.level === 'hard' ? 'Hard' : 'Easy');
+    }
+    if (row && row.n) {
       if (row.label) title.push(row.label);
       lines.push('Studio row ' + row.n);
     } else {

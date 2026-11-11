@@ -416,12 +416,12 @@
 
 (function () {
   var scripts = document.getElementsByTagName('script');
-  var src = 'assets/copy-path.js?v=2';
+  var src = 'assets/copy-path.js?v=3';
   var i;
   for (i = 0; i < scripts.length; i += 1) {
     var current = scripts[i].src || '';
     if (current.indexOf('place-ui.js') !== -1) {
-      src = current.replace(/place-ui\.js(?:\?.*)?$/, 'copy-path.js?v=2');
+      src = current.replace(/place-ui\.js(?:\?.*)?$/, 'copy-path.js?v=3');
       break;
     }
   }

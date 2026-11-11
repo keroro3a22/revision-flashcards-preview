@@ -822,6 +822,21 @@
     }
     return '';
   }
+  function sideLabel(tr, level) {
+    var field = tr.querySelector('[data-side="' + level + '"]');
+    if (field) {
+      var blank = readBlankField(field);
+      if (blank.answer) return blank.answer;
+      if (blank.sentence) return blank.sentence;
+    }
+    var word = tr.querySelector('[data-field="prompt"], [data-field="en"]');
+    if (word && cellText(word.textContent).trim()) return cellText(word.textContent).trim();
+    return rowLabel(tr);
+  }
+  function bothLevels(tr) {
+    return !!(tr.querySelector('[data-side="easy"], [data-mask="easy"]')
+      && tr.querySelector('[data-side="hard"], [data-mask="hard"]'));
+  }
   function copyStudioText(text, button) {
     function mark() {
       var old = button.textContent;
@@ -848,15 +863,33 @@
     actions.className = 'is-actions';
     var stack = document.createElement('div');
     stack.className = 'studio-actions';
-    var copy = document.createElement('button');
-    copy.type = 'button';
-    copy.className = 'studio-copy';
-    copy.textContent = 'Copy path';
-    copy.addEventListener('click', function () {
+    function copyLevel(button, level) {
       var number = tr.querySelector('.is-num').textContent.trim();
-      copyStudioText(window.StudioDraft.studioPath(place(), { n: number, label: rowLabel(tr) }), copy);
-    });
-    stack.appendChild(copy);
+      var row = { n: number, label: level ? sideLabel(tr, level) : rowLabel(tr) };
+      if (level) row.level = level;
+      else {
+        var hardBox = tr.querySelector('[data-field="hard"]');
+        if (hardBox) row.level = hardBox.checked ? 'hard' : 'easy';
+      }
+      copyStudioText(window.StudioDraft.studioPath(place(), row), button);
+    }
+    if (bothLevels(tr)) {
+      ['easy', 'hard'].forEach(function (level) {
+        var copy = document.createElement('button');
+        copy.type = 'button';
+        copy.className = 'studio-copy';
+        copy.textContent = level === 'hard' ? 'Copy hard' : 'Copy easy';
+        copy.addEventListener('click', function () { copyLevel(copy, level); });
+        stack.appendChild(copy);
+      });
+    } else {
+      var copy = document.createElement('button');
+      copy.type = 'button';
+      copy.className = 'studio-copy';
+      copy.textContent = 'Copy path';
+      copy.addEventListener('click', function () { copyLevel(copy, ''); });
+      stack.appendChild(copy);
+    }
     var save = document.createElement('button');
     save.type = 'button';
     save.textContent = 'Save draft';

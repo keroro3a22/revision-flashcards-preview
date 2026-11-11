@@ -89,16 +89,26 @@
     return path + (location.search || '');
   }
 
+  function practiceLevel() {
+    var hard = document.getElementById('diff-hard');
+    var easy = document.getElementById('diff-easy');
+    if (hard && hard.classList.contains('is-on')) return 'hard';
+    if (easy && easy.classList.contains('is-on')) return 'easy';
+    return '';
+  }
+
   function practicePath(question) {
     var unit = 'unit1';
     try { unit = new URLSearchParams(location.search).get('unit') || unit; } catch (e) {}
     var file = siteFile();
     var name = (file.split('/').pop() || '').replace(/\.html.*/, '').replace(/-/g, ' ');
+    var level = practiceLevel();
     var lines = [question ? 'Practice question' : 'Practice page'];
     var title = ['Oxford', 'P6', '上學期', unitLabel(unit), name];
+    if (level) title.push(level === 'hard' ? 'Hard' : 'Easy');
     if (question) title.push(question);
     lines.push(title.join(' · '));
-    lines.push(file);
+    lines.push(file + (level ? '#' + level : ''));
     return lines.join('\n');
   }
 

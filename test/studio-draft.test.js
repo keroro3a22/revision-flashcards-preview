@@ -230,6 +230,25 @@ test('a studio path names the table and one row', () => {
   assert.match(row, /^Studio row 4\n/);
   assert.match(row, /Set 2 · #4 · where/);
   assert.match(row, /practice\/grammar\/story\/set2\/4\nwhere$/);
+
+  const letters = {
+    book: 'oxford',
+    series: 'oxford',
+    term: 'first',
+    level: 'p6',
+    unit: 'unit1',
+    section: 'practice',
+    kind: 'vocab',
+    mode: 'letters',
+    set: '1'
+  };
+  const easy = draft.studioPath(letters, { n: '3', label: 'bad for', level: 'easy' });
+  const hard = draft.studioPath(letters, { n: '3', label: 'bad for', level: 'hard' });
+  assert.match(easy, /#3 · Easy · bad for/);
+  assert.match(hard, /#3 · Hard · bad for/);
+  assert.match(easy, /letters\/3\/easy\nbad for$/);
+  assert.match(hard, /letters\/3\/hard\nbad for$/);
+  assert.notEqual(easy, hard);
 });
 
 test('option tags split on bars and keep a dotted pair together', () => {
