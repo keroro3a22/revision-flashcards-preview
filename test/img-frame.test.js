@@ -6,7 +6,8 @@ const frame = require('../assets/img-frame.js');
 test('a missing frame is the largest centered crop on white', () => {
   assert.deepEqual(frame.normalize(null), { x: 50, y: 50, z: 1, bg: '#ffffff' });
   assert.equal(frame.normalize({ z: 0.5 }).z, 0.5);
-  assert.equal(frame.normalize({ z: 0.1 }).z, 0.5);
+  assert.equal(frame.normalize({ z: 0.1 }).z, 0.1);
+  assert.equal(frame.normalize({ z: 0.02 }).z, 0.05);
   assert.equal(frame.normalize({ z: 4 }).z, 3);
   assert.equal(frame.normalize({ bg: '#ABC' }).bg, '#aabbcc');
 });
@@ -42,9 +43,17 @@ test('a corner resizes the frame without changing its ratio', () => {
   assert.equal(Math.round(box.width / box.height * 100) / 100, 1);
   const grown = frame.resize(next, 'se', 400, 400, 200, 100, 200, 100, 1);
   assert.ok(grown.z < 1);
-  assert.ok(grown.z >= 0.5);
+  assert.ok(grown.z >= 0.05);
   const big = frame.rect(grown, 200, 100, 1);
   assert.equal(Math.round(big.width / big.height * 100) / 100, 1);
+});
+
+test('a tall photo can sit inside a frame larger than the picture', () => {
+  const grown = frame.resize({ x: 50, y: 50, z: 1 }, 'se', 8000, 8000, 366, 847, 366, 847, 1);
+  const box = frame.rect(grown, 366, 847, 1);
+  assert.ok(box.height > 847);
+  assert.ok(box.width > 366);
+  assert.equal(Math.round(box.width / box.height * 100) / 100, 1);
 });
 
 test('the preview uses a fixed crop window instead of a zoom slider', () => {

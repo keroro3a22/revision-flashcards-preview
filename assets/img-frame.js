@@ -5,8 +5,9 @@
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.ImgFrame = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
-  var MIN_Z = 0.5;
+  var MIN_Z = 0.05;
   var MAX_Z = 3;
+  var MAX_BLEED = 2;
 
   function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
@@ -47,6 +48,14 @@
     var aspect = ratio > 0 ? ratio : 1;
     if (width / height > aspect) return { width: height * aspect, height: height };
     return { width: width, height: width / aspect };
+  }
+
+  function containCrop(imageWidth, imageHeight, ratio) {
+    var width = imageWidth > 0 ? imageWidth : 1;
+    var height = imageHeight > 0 ? imageHeight : 1;
+    var aspect = ratio > 0 ? ratio : 1;
+    if (width / height > aspect) return { width: width, height: width / aspect };
+    return { width: height * aspect, height: height };
   }
 
   function rect(frame, imageWidth, imageHeight, ratio) {
@@ -131,8 +140,9 @@
       width = height * aspect;
     }
     var max = maxCrop(imageW, imageH, aspect);
+    var contain = containCrop(imageW, imageH, aspect);
     var minW = max.width / MAX_Z;
-    var maxW = max.width / MIN_Z;
+    var maxW = contain.width * MAX_BLEED;
     if (width < minW) {
       width = minW;
       height = width / aspect;
