@@ -13,7 +13,7 @@ test('revision vocab keeps the photo and example columns', () => {
   const spec = columns.revisionColumns(place);
   assert.equal(spec.shape, 'revision');
   assert.deepEqual(spec.columns.map((column) => column.col), [
-    'col-num', 'col-photo', 'col-text', 'col-text', 'col-text', 'col-text', 'col-pair', 'col-pair', 'col-state', 'col-actions'
+    'col-num', 'col-photo', 'col-audio', 'col-text', 'col-text', 'col-text', 'col-text', 'col-pair', 'col-pair', 'col-state', 'col-actions'
   ]);
 });
 
@@ -21,7 +21,7 @@ test('grammar adds pattern and note without taking the example width', () => {
   const spec = columns.revisionColumns(Object.assign({}, place, { kind: 'grammar' }));
   assert.equal(spec.shape, 'grammar');
   assert.deepEqual(spec.columns.map((column) => column.col), [
-    'col-num', 'col-photo', 'col-text', 'col-text', 'col-text', 'col-pattern', 'col-note', 'col-pair', 'col-pair', 'col-state', 'col-actions'
+    'col-num', 'col-photo', 'col-audio', 'col-text', 'col-text', 'col-text', 'col-pattern', 'col-note', 'col-pair', 'col-pair', 'col-state', 'col-actions'
   ]);
 });
 

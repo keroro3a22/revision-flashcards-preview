@@ -183,10 +183,10 @@ test('a bad width record is ignored and a drag stays inside the limits', () => {
 test('every studio column has its own width key', () => {
   const columns = columnSpecs();
   assert.deepEqual(columns.revisionColumns(place).columns.map(function (column) { return column.key; }), [
-    'num', 'photo', 'en', 'zh', 'pos', 'syllables', 'example', 'advanced', 'state', 'actions'
+    'num', 'photo', 'audio', 'en', 'zh', 'pos', 'syllables', 'example', 'advanced', 'state', 'actions'
   ]);
   assert.deepEqual(columns.revisionColumns(Object.assign({}, place, { kind: 'grammar' })).columns.map(function (column) { return column.key; }), [
-    'num', 'photo', 'en', 'zh', 'pos', 'pattern', 'note', 'example', 'advanced', 'state', 'actions'
+    'num', 'photo', 'audio', 'en', 'zh', 'pos', 'pattern', 'note', 'example', 'advanced', 'state', 'actions'
   ]);
   assert.deepEqual(columns.practiceColumns(Object.assign({}, place, { mode: 'letters' })).columns.map(function (column) { return column.key; }), [
     'num', 'word', 'easy', 'hard', 'state', 'actions'
@@ -198,7 +198,7 @@ test('every studio column has its own width key', () => {
     'num', 'easy', 'hard', 'options', 'state', 'actions'
   ]);
   assert.deepEqual(columns.practiceColumns(Object.assign({}, place, { kind: 'grammar', mode: 'story' })).columns.map(function (column) { return column.key; }), [
-    'num', 'prompt', 'answer', 'explain', 'options', 'hard', 'state', 'actions'
+    'num', 'photo', 'prompt', 'answer', 'explain', 'options', 'hard', 'state', 'actions'
   ]);
   assert.deepEqual(columns.practiceColumns(Object.assign({}, place, { mode: 'timed' })).columns.map(function (column) { return column.key; }), [
     'num', 'prompt', 'answer', 'explain', 'options', 'state', 'actions'

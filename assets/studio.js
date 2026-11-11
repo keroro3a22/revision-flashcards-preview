@@ -327,6 +327,52 @@
     cell.appendChild(bottom);
     return cell;
   }
+  var studioAudio = null;
+  var SPEAKER_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06a9 9 0 0 0 0-17.54z"/></svg>';
+  function audioSrc(path) {
+    var value = cellText(path).trim();
+    if (!value) return '';
+    if (/^https?:\/\//i.test(value)) return value;
+    value = value.replace(/^(\.\.\/)+/, '');
+    var unit = place().unit;
+    if (value.indexOf(unit + '/') === 0) return value;
+    return unit + '/' + value.replace(/^\.\//, '');
+  }
+  function audioCell(row) {
+    var cell = document.createElement('td');
+    cell.className = 'studio-audio-cell';
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'studio-audio';
+    button.innerHTML = SPEAKER_SVG;
+    var src = audioSrc(row && row.audio);
+    button.disabled = !src;
+    button.setAttribute('aria-label', src ? 'Play pronunciation' : 'No pronunciation');
+    button.addEventListener('click', function () {
+      if (!src) return;
+      if (studioAudio && button.classList.contains('is-playing')) {
+        studioAudio.pause();
+        button.classList.remove('is-playing');
+        studioAudio = null;
+        return;
+      }
+      if (studioAudio) studioAudio.pause();
+      document.querySelectorAll('.studio-audio.is-playing').forEach(function (el) { el.classList.remove('is-playing'); });
+      var audio = new Audio(src);
+      studioAudio = audio;
+      button.classList.add('is-playing');
+      audio.addEventListener('ended', function () {
+        button.classList.remove('is-playing');
+        if (studioAudio === audio) studioAudio = null;
+      });
+      audio.play().catch(function () {
+        button.classList.remove('is-playing');
+        say('The pronunciation could not play.');
+      });
+    });
+    cell.appendChild(button);
+    return cell;
+  }
   function photoSrc(path) {
     var value = cellText(path).trim();
     if (!value) return '';
@@ -617,6 +663,7 @@
     var columns = [
       { col: 'col-num', key: 'num', label: '#' },
       { col: 'col-photo', key: 'photo', label: 'Photo' },
+      { col: 'col-audio', key: 'audio', label: 'Audio' },
       { col: 'col-text', key: 'en', label: 'English' },
       { col: 'col-text', key: 'zh', label: '中文' },
       { col: 'col-text', key: 'pos', label: 'Part of speech' },
@@ -1146,6 +1193,7 @@
       number.textContent = String(row.n);
       tr.appendChild(number);
       tr.appendChild(photoCell(row));
+      tr.appendChild(audioCell(row));
       fields.forEach(function (name) {
         tr.appendChild(box(name, row[name]));
       });
