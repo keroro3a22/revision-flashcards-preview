@@ -243,6 +243,11 @@ body.studio-col-dragging * {
   touch-action: none;
   cursor: grab;
 }
+.studio-frame-stage img {
+  -webkit-user-drag: none;
+  user-select: none;
+  pointer-events: none;
+}
 .studio-frame-stage.is-revision { width: 220px; aspect-ratio: 1; }
 .studio-frame-stage.is-revision img { width: 100%; height: 100%; object-fit: cover; }
 .studio-frame-stage.is-cutout { background: #fff; }

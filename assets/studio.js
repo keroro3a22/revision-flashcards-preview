@@ -426,7 +426,7 @@
     root.innerHTML = '<div class="studio-frame-card" role="dialog" aria-modal="true" aria-labelledby="studio-frame-title">'
       + '<p id="studio-frame-title" class="studio-frame-title">Live preview</p>'
       + '<p class="studio-frame-note">Drag the picture to reframe it. Drag the bar to move closer or farther.</p>'
-      + '<div class="studio-frame-stage"><img alt=""></div>'
+      + '<div class="studio-frame-stage"><img alt="" draggable="false"></div>'
       + '<div class="studio-frame-bar"><label class="studio-zoom">Zoom <input type="range" min="0.5" max="3" step="0.005" value="1" data-zoom aria-label="Zoom"></label><span data-zoom-label>100%</span><button type="button" data-reset>Reset</button><button type="button" data-done>Done</button></div>'
       + '</div>';
     document.body.appendChild(root);
@@ -437,6 +437,9 @@
       slider: root.querySelector('[data-zoom]'),
       label: root.querySelector('[data-zoom-label]')
     };
+    frameDialog.img.draggable = false;
+    frameDialog.img.addEventListener('dragstart', function (event) { event.preventDefault(); });
+    frameDialog.stage.addEventListener('dragstart', function (event) { event.preventDefault(); });
     root.addEventListener('click', function (event) {
       if (event.target === root) root.hidden = true;
     });
@@ -461,6 +464,7 @@
     paint();
     var drag = null;
     stage.onpointerdown = function (event) {
+      event.preventDefault();
       drag = { x: event.clientX, y: event.clientY, frame: frame, pointer: event.pointerId };
       stage.setPointerCapture(event.pointerId);
     };

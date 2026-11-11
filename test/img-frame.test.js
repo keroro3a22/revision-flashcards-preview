@@ -33,11 +33,20 @@ test('zoom stays centered so a drag adjusts the crop instead of pulling the pict
   assert.match(shrunk, /transform-origin:center center/);
   assert.doesNotMatch(shrunk, /transform-origin:20%/);
   const enlarged = frame.style({ x: 20, y: 80, z: 2 });
-  assert.match(enlarged, /transform:scale\(2\)/);
-  assert.doesNotMatch(enlarged, /translate/);
-  const dragged = frame.pan({ x: 50, y: 50, z: 0.5 }, 25, 0, { width: 100, height: 100 });
-  assert.equal(dragged.x, 25);
-  assert.equal(dragged.z, 0.5);
+  assert.match(enlarged, /transform:translate\(30%,-30%\) scale\(2\)/);
+  assert.match(enlarged, /transform-origin:center center/);
+  const dragged = frame.pan({ x: 50, y: 50, z: 0.5 }, 10, 0, { width: 100, height: 100 });
+  assert.equal(dragged.x, 30);
+  assert.equal(frame.pan({ x: 50, y: 50, z: 0.5 }, 40, 0, { width: 100, height: 100 }).x, 0);
+});
+
+test('the preview image cannot be dragged out as a browser copy', () => {
+  const js = fs.readFileSync('assets/studio.js', 'utf8');
+  const css = fs.readFileSync('assets/studio.css', 'utf8');
+  assert.match(js, /<img alt="" draggable="false">/);
+  assert.match(js, /dragstart/);
+  assert.match(js, /preventDefault\(\)/);
+  assert.match(css, /-webkit-user-drag:\s*none/);
 });
 
 test('zoom stays between half size and three times, and starts at full size', () => {

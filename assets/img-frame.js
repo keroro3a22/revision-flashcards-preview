@@ -31,7 +31,8 @@
     var next = normalize(frame);
     var width = box && box.width > 0 ? box.width : 1;
     var height = box && box.height > 0 ? box.height : 1;
-    var zoom = next.z < 1 ? 1 : next.z;
+    var reach = Math.abs(next.z - 1);
+    var zoom = reach === 0 ? 1 : reach;
     next.x -= (dx / width) * 100 / zoom;
     next.y -= (dy / height) * 100 / zoom;
     return normalize(next);
@@ -44,8 +45,8 @@
   }
 
   function zoomShift(frame) {
-    if (frame.z >= 1) return { x: 0, y: 0 };
-    var reach = (1 - frame.z) * 50;
+    if (frame.z === 1) return { x: 0, y: 0 };
+    var reach = Math.abs(frame.z - 1) * 50;
     return {
       x: Math.round((50 - frame.x) / 50 * reach * 100) / 100,
       y: Math.round((50 - frame.y) / 50 * reach * 100) / 100
