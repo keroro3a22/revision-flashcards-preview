@@ -144,7 +144,7 @@ CARDS.forEach(card => {
   ex1.innerHTML = '<span class="ex-label">Example</span><p class="ex-en">' + hl(card.ex_en, card.highlight) + '</p><p class="ex-zh">' + card.ex_zh + '</p>';
   const ex2 = document.createElement('div');
   ex2.className = 'ex';
-  ex2.innerHTML = '<span class="ex-label">Advanced example</span><p class="ex-en">' + hl(card.adv_en, card.highlight) + '</p><p class="ex-zh">' + card.adv_zh + '</p>';
+  ex2.innerHTML = '<span class="ex-label">Advanced example</span><p class="ex-en">' + hl(card.adv_en, card.highlight_adv == null ? card.highlight : card.highlight_adv) + '</p><p class="ex-zh">' + card.adv_zh + '</p>';
   article.appendChild(ex1);
   article.appendChild(ex2);
 
@@ -169,6 +169,6 @@ if (window.LastPlace && location.hash) {
   LastPlace.focusHash();
 }
 </script>
-<script src="../assets/lesson-live.js?v=2"></script>
+<script src="../assets/lesson-live.js?v=3"></script>
 </body>
 </html>

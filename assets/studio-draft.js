@@ -132,6 +132,30 @@
     };
   }
 
+  function exampleHighlight(row) {
+    return (row && row.highlight) || '';
+  }
+
+  function advancedHighlight(row) {
+    if (!row) return '';
+    if (row.highlight_adv == null) return row.highlight || '';
+    return row.highlight_adv;
+  }
+
+  function rememberSideHighlight(row, side, chosen) {
+    var next = {
+      highlight: (row && row.highlight) || '',
+      highlight_adv: row ? row.highlight_adv : null
+    };
+    if (side === 'adv') {
+      next.highlight_adv = chosen;
+      return next;
+    }
+    if (next.highlight_adv == null) next.highlight_adv = next.highlight;
+    next.highlight = chosen;
+    return next;
+  }
+
   function revisionPatch(data, status, previous) {
     var patch = Object.assign({ status: status }, data);
     if (status === 'published') {
@@ -563,6 +587,9 @@
     unitId: unitId,
     revisionInsert: revisionInsert,
     practiceInsert: practiceInsert,
+    exampleHighlight: exampleHighlight,
+    advancedHighlight: advancedHighlight,
+    rememberSideHighlight: rememberSideHighlight,
     revisionPatch: revisionPatch,
     practicePatch: practicePatch,
     compactNumbers: compactNumbers,

@@ -251,6 +251,19 @@ test('a studio path names the table and one row', () => {
   assert.notEqual(easy, hard);
 });
 
+test('example and advanced highlights stay on their own sentence', () => {
+  const shared = { highlight: 'does voluntary work', highlight_adv: null };
+  assert.equal(draft.advancedHighlight(shared), 'does voluntary work');
+  const example = draft.rememberSideHighlight(shared, 'example', 'do voluntary work');
+  assert.equal(example.highlight, 'do voluntary work');
+  assert.equal(example.highlight_adv, 'does voluntary work');
+  assert.equal(draft.advancedHighlight(example), 'does voluntary work');
+  const advanced = draft.rememberSideHighlight(example, 'adv', 'did voluntary work');
+  assert.equal(advanced.highlight, 'do voluntary work');
+  assert.equal(advanced.highlight_adv, 'did voluntary work');
+  assert.equal(draft.exampleHighlight(advanced), 'do voluntary work');
+});
+
 test('option tags split on bars and keep a dotted pair together', () => {
   assert.deepEqual(draft.optionList('so many | so much | although'), ['so many', 'so much', 'although']);
   assert.deepEqual(draft.optionList('  as · as | so · that  '), ['as · as', 'so · that']);

@@ -31,12 +31,14 @@ test('the public page asks for the published series and term', () => {
     assert.match(html, /let CARDS/);
     assert.match(html, /function renderLesson/);
     assert.match(html, /window\.applyLessonCards/);
-    assert.match(html, /lesson-live\.js\?v=2/);
+    assert.match(html, /lesson-live\.js\?v=3/);
+    assert.match(html, /highlight_adv == null \? card\.highlight : card\.highlight_adv/);
   });
   assert.match(live, /SUPABASE_PUBLIC/);
   assert.match(live, /\.eq\('series', series\)/);
   assert.match(live, /\.eq\('term', term\)/);
   assert.match(live, /cutout/);
+  assert.match(live, /highlight_adv/);
 });
 
 test('the studio edits the same place and publishes a snapshot', () => {
