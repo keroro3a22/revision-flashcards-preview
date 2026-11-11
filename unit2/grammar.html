@@ -33,6 +33,7 @@
     <button type="button" class="lb-btn lb-close" id="lb-close">Close</button>
   </div>
 </div>
+<script src="../assets/lesson-highlight.js?v=1"></script>
 <script>
 let CARDS = [{"n":1,"en":"If …, … will …","syllables":"","zh":"如果……，就會……（可能發生）","pos":"","pattern":"If-clause (simple present) + main clause (future)","ex_en":"If a typhoon comes, we will stay at home.","ex_zh":"如果颱風來，我們會留在家裡。","adv_en":"If the flood blocks the roads, the workers will help the injured people first.","adv_zh":"如果水災堵塞道路，工作人員會先幫助受傷的人。","highlight":"If …, … will …","audio":"audio/audio_11.mp3","img":"thumb_11.png","cutout":true,"art_source":"generated"},{"n":2,"en":"so that","syllables":"","zh":"以便／為了……","pos":"","note_zh":"so 表示「所以／因此」；so that 表示「以便／為了」（目的）","pattern":"… so that + clause","ex_en":"We pack dry food so that we can help after the flood.","ex_zh":"我們準備乾糧，以便水災後能夠幫忙。","adv_en":"The firemen clear the landslip so that cars can use the road again.","adv_zh":"消防員清理山泥傾瀉，以便汽車能再上路。","highlight":"so that","audio":"audio/audio_12.mp3","img":"thumb_12.png","cutout":true,"art_source":"irasutoya:https://www.irasutoya.com/2020/10/blog-post_460.html"}];
 const list = document.getElementById('list');
@@ -64,10 +65,7 @@ if (lbPlay) lbPlay.addEventListener('click', () => { if (activeCard) playCard(ac
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 
 function hl(text, target) {
-  if (!target) return text;
-  const i = text.toLowerCase().indexOf(target.toLowerCase());
-  if (i < 0) return text;
-  return text.slice(0,i) + '<span class="hl">' + text.slice(i,i+target.length) + '</span>' + text.slice(i+target.length);
+  return LessonHighlight.mark(text, target);
 }
 
 function playCard(card, article) {
@@ -141,10 +139,10 @@ CARDS.forEach(card => {
 
   const ex1 = document.createElement('div');
   ex1.className = 'ex';
-  ex1.innerHTML = '<span class="ex-label">Example</span><p class="ex-en">' + hl(card.ex_en, card.highlight) + '</p><p class="ex-zh">' + card.ex_zh + '</p>';
+  ex1.innerHTML = '<span class="ex-label">Example</span><p class="ex-en">' + hl(card.ex_en, LessonHighlight.phrase(card, 'ex_en')) + '</p><p class="ex-zh">' + card.ex_zh + '</p>';
   const ex2 = document.createElement('div');
   ex2.className = 'ex';
-  ex2.innerHTML = '<span class="ex-label">Advanced example</span><p class="ex-en">' + hl(card.adv_en, card.highlight) + '</p><p class="ex-zh">' + card.adv_zh + '</p>';
+  ex2.innerHTML = '<span class="ex-label">Advanced example</span><p class="ex-en">' + hl(card.adv_en, LessonHighlight.phrase(card, 'adv_en')) + '</p><p class="ex-zh">' + card.adv_zh + '</p>';
   article.appendChild(ex1);
   article.appendChild(ex2);
 
@@ -169,6 +167,6 @@ if (window.LastPlace && location.hash) {
   LastPlace.focusHash();
 }
 </script>
-<script src="../assets/lesson-live.js?v=2"></script>
+<script src="../assets/lesson-live.js?v=3"></script>
 </body>
 </html>

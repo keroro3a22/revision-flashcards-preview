@@ -20,10 +20,18 @@
     var client = window.supabase.createClient(cfg.url, cfg.key, {
       auth: { persistSession: false, autoRefreshToken: false }
     });
-    client.from('lesson_cards_live').select('n,en,syllables,zh,pos,ex_en,ex_zh,adv_en,adv_zh,highlight,audio,img,video,pattern,note_zh,cutout')
-      .eq('book', book).eq('series', series).eq('term', term).eq('level', level).eq('unit_id', unit).eq('track', track)
-      .order('n', { ascending: true })
-      .then(function (result) { if (!result.error) show(result.data); });
+    var columns = 'n,en,syllables,zh,pos,ex_en,ex_zh,adv_en,adv_zh,highlight,highlight_adv,audio,img,video,pattern,note_zh,cutout';
+    var legacy = 'n,en,syllables,zh,pos,ex_en,ex_zh,adv_en,adv_zh,highlight,audio,img,video,pattern,note_zh,cutout';
+    function run(list, fallback) {
+      client.from('lesson_cards_live').select(list)
+        .eq('book', book).eq('series', series).eq('term', term).eq('level', level).eq('unit_id', unit).eq('track', track)
+        .order('n', { ascending: true })
+        .then(function (result) {
+          if (result.error && fallback) { run(fallback, ''); return; }
+          if (!result.error) show(result.data);
+        });
+    }
+    run(columns, legacy);
   }
 
   if (window.supabase && window.supabase.createClient) load();

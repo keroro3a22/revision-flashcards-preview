@@ -33,6 +33,7 @@
     <button type="button" class="lb-btn lb-close" id="lb-close">Close</button>
   </div>
 </div>
+<script src="../assets/lesson-highlight.js?v=1"></script>
 <script>
 let CARDS = [{"n": 1, "en": "a drought", "syllables": "a drought", "zh": "旱災", "pos": "名詞 n.", "ex_en": "The dry land shows there is a drought.", "ex_zh": "乾裂的土地顯示發生了旱災。", "adv_en": "Because there has been no rain for months, the farmers suffer from a drought.", "adv_zh": "因為好幾個月沒有下雨，農夫正受旱災之苦。", "highlight": "a drought", "audio": "audio/audio_01.mp3", "img": "thumb_01.png", "art_source": "irasutoya:https://www.irasutoya.com/2012/10/blog-post_29.html"}, {"n": 2, "en": "an earthquake", "syllables": "an earth-quake", "zh": "地震", "pos": "名詞 n.", "ex_en": "The buildings fell down in an earthquake.", "ex_zh": "地震中樓房倒塌了。", "adv_en": "When an earthquake suddenly starts, people must hide under a strong table.", "adv_zh": "當地震突然發生時，人們必須躲在堅固的桌子下。", "highlight": "an earthquake", "audio": "audio/audio_02.mp3", "img": "thumb_02.jpg", "art_source": "generated"}, {"n": 3, "en": "a flood", "syllables": "a flood", "zh": "水災", "pos": "名詞 n.", "ex_en": "People walk through water during a flood.", "ex_zh": "水災期間人們在水中行走。", "adv_en": "After heavy rain, a flood fills the streets so nobody can drive.", "adv_zh": "大雨過後，水災淹沒街道，所以沒有人能開車。", "highlight": "a flood", "audio": "audio/audio_03.mp3", "img": "thumb_03.png", "art_source": "irasutoya:https://www.irasutoya.com/2014/09/blog-post_109.html"}, {"n": 4, "en": "a landslip", "syllables": "a land-slip", "zh": "山泥傾瀉", "pos": "名詞 n.", "ex_en": "Rocks cover the road after a landslip.", "ex_zh": "山泥傾瀉後，石頭覆蓋了道路。", "adv_en": "Because of a landslip on the mountain, the road is blocked and cars cannot pass.", "adv_zh": "因為山上發生山泥傾瀉，道路被堵塞，汽車無法通過。", "highlight": "a landslip", "audio": "audio/audio_04.mp3", "img": "thumb_04.png", "art_source": "irasutoya:https://www.irasutoya.com/2012/10/blog-post_25.html"}, {"n": 5, "en": "a tsunami", "syllables": "a tsu-na-mi", "zh": "海嘯", "pos": "名詞 n.", "ex_en": "A huge wave comes in a tsunami.", "ex_zh": "海嘯時湧來巨大的海浪。", "adv_en": "When a tsunami approaches the coast, people must move to higher ground quickly.", "adv_zh": "當海嘯逼近海岸時，人們必須迅速移往高處。", "highlight": "a tsunami", "audio": "audio/audio_05.mp3", "img": "thumb_05.jpg", "art_source": "generated"}, {"n": 6, "en": "a typhoon", "syllables": "a ty-phoon", "zh": "颱風", "pos": "名詞 n.", "ex_en": "Strong wind bends the trees in a typhoon.", "ex_zh": "颱風中強風吹彎了樹木。", "adv_en": "Although a typhoon is coming, the family stays indoors and waits safely.", "adv_zh": "雖然颱風快到了，這家人仍留在室內安全地等待。", "highlight": "a typhoon", "audio": "audio/audio_06.mp3", "img": "thumb_06.jpg", "art_source": "generated"}, {"n": 7, "en": "block roads", "syllables": "block roads", "zh": "堵塞道路", "pos": "動詞短語 v.", "ex_en": "The flood water can block roads.", "ex_zh": "洪水可以堵塞道路。", "adv_en": "Fallen trees block roads after the storm, so buses cannot run.", "adv_zh": "暴風雨後倒下的樹木堵塞道路，所以巴士無法行駛。", "highlight": "block roads", "audio": "audio/audio_07.mp3", "img": "thumb_07.png", "art_source": "irasutoya:https://www.irasutoya.com/2020/10/blog-post_798.html"}, {"n": 8, "en": "damage crops", "syllables": "dam-age crops", "zh": "損毀農作物", "pos": "動詞短語 v.", "ex_en": "The dry weather can damage crops.", "ex_zh": "乾旱天氣會損毀農作物。", "adv_en": "If there is no rain for too long, the heat will damage crops in the fields.", "adv_zh": "如果太久沒下雨，高溫就會損毀田裡的農作物。", "highlight": "damage crops", "audio": "audio/audio_08.mp3", "img": "thumb_08.png", "art_source": "irasutoya:https://www.irasutoya.com/2017/04/blog-post_89.html"}, {"n": 9, "en": "destroy buildings", "syllables": "de-stroy build-ings", "zh": "摧毀建築物", "pos": "動詞短語 v.", "ex_en": "The strong quake can destroy buildings.", "ex_zh": "強烈地震能摧毀建築物。", "adv_en": "An earthquake which is very strong may destroy buildings in the city centre.", "adv_zh": "非常強烈的地震可能摧毀市中心的建築物。", "highlight": "destroy buildings", "audio": "audio/audio_09.mp3", "img": "thumb_09.jpg", "art_source": "generated"}, {"n": 10, "en": "injure people", "syllables": "in-jure peo-ple", "zh": "使人受傷", "pos": "動詞短語 v.", "ex_en": "Falling rocks may injure people.", "ex_zh": "掉落的石頭可能使人受傷。", "adv_en": "Rescuers help a girl who was hurt when the disaster injured people nearby.", "adv_zh": "救護人員幫助一個女孩，她是在災難使人受傷時被傷到的。", "highlight": "injure people", "audio": "audio/audio_10.mp3", "img": "thumb_10.png", "art_source": "irasutoya:https://www.irasutoya.com/2014/11/blog-post_304.html"}];
 const list = document.getElementById('list');
@@ -64,10 +65,7 @@ if (lbPlay) lbPlay.addEventListener('click', () => { if (activeCard) playCard(ac
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 
 function hl(text, target) {
-  if (!target) return text;
-  const i = text.toLowerCase().indexOf(target.toLowerCase());
-  if (i < 0) return text;
-  return text.slice(0,i) + '<span class="hl">' + text.slice(i,i+target.length) + '</span>' + text.slice(i+target.length);
+  return LessonHighlight.mark(text, target);
 }
 
 function playCard(card, article) {
@@ -141,10 +139,10 @@ CARDS.forEach(card => {
 
   const ex1 = document.createElement('div');
   ex1.className = 'ex';
-  ex1.innerHTML = '<span class="ex-label">Example</span><p class="ex-en">' + hl(card.ex_en, card.highlight) + '</p><p class="ex-zh">' + card.ex_zh + '</p>';
+  ex1.innerHTML = '<span class="ex-label">Example</span><p class="ex-en">' + hl(card.ex_en, LessonHighlight.phrase(card, 'ex_en')) + '</p><p class="ex-zh">' + card.ex_zh + '</p>';
   const ex2 = document.createElement('div');
   ex2.className = 'ex';
-  ex2.innerHTML = '<span class="ex-label">Advanced example</span><p class="ex-en">' + hl(card.adv_en, card.highlight) + '</p><p class="ex-zh">' + card.adv_zh + '</p>';
+  ex2.innerHTML = '<span class="ex-label">Advanced example</span><p class="ex-en">' + hl(card.adv_en, LessonHighlight.phrase(card, 'adv_en')) + '</p><p class="ex-zh">' + card.adv_zh + '</p>';
   article.appendChild(ex1);
   article.appendChild(ex2);
 
@@ -169,6 +167,6 @@ if (window.LastPlace && location.hash) {
   LastPlace.focusHash();
 }
 </script>
-<script src="../assets/lesson-live.js?v=2"></script>
+<script src="../assets/lesson-live.js?v=3"></script>
 </body>
 </html>

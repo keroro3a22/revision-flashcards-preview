@@ -160,17 +160,16 @@
       return;
     }
     chosen = plain.slice(at, at + chosen.length);
-    row.highlight = chosen;
+    var kept = window.LessonHighlight.storedHighlights(row, editor.dataset.field, chosen);
+    row.highlight = kept.highlight;
+    row.highlight_adv = kept.highlight_adv;
     var tr = editor.closest('tr');
-    var english = tr.querySelectorAll('[data-field="ex_en"], [data-field="adv_en"]');
-    var missing = 0;
-    english.forEach(function (field) {
-      paintField(field, chosen);
-      if ((field.textContent || '').toLowerCase().indexOf(chosen.toLowerCase()) < 0) missing += 1;
+    tr.querySelectorAll('[data-field="ex_en"], [data-field="adv_en"]').forEach(function (field) {
+      paintField(field, window.LessonHighlight.phrase(row, field.dataset.field));
     });
-    say(missing
-      ? 'Highlight saved. The other example does not contain these words.'
-      : 'Highlight saved. Both examples show it. Publish to update the unit page.');
+    say(editor.dataset.field === 'adv_en'
+      ? 'Advanced example highlight saved. Save the draft to keep it.'
+      : 'Example highlight saved. Save the draft to keep it.');
   }
   function edit(name, value) {
     var field = document.createElement('div');
@@ -291,10 +290,10 @@
     var bottom = edit(bottomName, row[bottomName]);
     cell.appendChild(top);
     if (topName === 'ex_en' || topName === 'adv_en') {
-      paintField(top, row.highlight);
+      paintField(top, window.LessonHighlight.phrase(row, topName));
       top.addEventListener('blur', function () {
         var current = rowById(row.id);
-        paintField(top, current && current.highlight);
+        paintField(top, window.LessonHighlight.phrase(current, topName));
       });
       var button = document.createElement('button');
       button.type = 'button';
@@ -920,6 +919,7 @@
     data.audio = row && row.audio ? row.audio : '';
     data.video = row && row.video ? row.video : '';
     data.highlight = row && row.highlight ? row.highlight : '';
+    data.highlight_adv = row && row.highlight_adv ? row.highlight_adv : '';
     if (tableName === 'practice_items') {
       ['prompt', 'answer', 'explain', 'options'].forEach(function (name) {
         if (!Object.prototype.hasOwnProperty.call(data, name)) data[name] = row && row[name] ? row[name] : '';
@@ -1020,7 +1020,7 @@
     say('Loading…');
     var query = client.from(tableName).select(practice
       ? 'id,n,status,prompt,answer,explain,options,level_name,extra'
-      : 'id,n,status,en,zh,pos,syllables,pattern,note_zh,highlight,ex_en,ex_zh,adv_en,adv_zh,img,audio,video,published')
+      : 'id,n,status,en,zh,pos,syllables,pattern,note_zh,highlight,highlight_adv,ex_en,ex_zh,adv_en,adv_zh,img,audio,video,published')
       .eq('book', here.book).eq('series', here.series).eq('term', here.term)
       .eq('level', here.level).eq('track', here.kind);
     if (practice) {

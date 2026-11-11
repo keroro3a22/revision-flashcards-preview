@@ -65,6 +65,7 @@ function cardRow(unit, track, card) {
     adv_en: text(card.adv_en),
     adv_zh: text(card.adv_zh),
     highlight: text(card.highlight),
+    highlight_adv: text(card.highlight_adv),
     audio: text(card.audio),
     img: text(card.img),
     video: text(card.video),
@@ -86,6 +87,7 @@ function cardRow(unit, track, card) {
     adv_en: published.adv_en,
     adv_zh: published.adv_zh,
     highlight: published.highlight,
+    highlight_adv: published.highlight_adv,
     img: published.img,
     audio: published.audio,
     video: published.video,
@@ -330,7 +332,7 @@ function writeSql(dir, library) {
   const cardColumns = [
     'book', 'series', 'term', 'level', 'unit_id', 'track', 'n',
     'en', 'syllables', 'zh', 'pos', 'ex_en', 'ex_zh', 'adv_en', 'adv_zh',
-    'highlight', 'img', 'audio', 'video', 'pattern', 'note_zh', 'published', 'status'
+    'highlight', 'highlight_adv', 'img', 'audio', 'video', 'pattern', 'note_zh', 'published', 'status'
   ];
   const practiceColumns = [
     'book', 'series', 'term', 'level', 'unit_id', 'track', 'mode', 'level_name', 'n',

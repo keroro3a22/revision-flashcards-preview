@@ -31,7 +31,7 @@ test('the public page asks for the published series and term', () => {
     assert.match(html, /let CARDS/);
     assert.match(html, /function renderLesson/);
     assert.match(html, /window\.applyLessonCards/);
-    assert.match(html, /lesson-live\.js\?v=2/);
+    assert.match(html, /lesson-live\.js\?v=3/);
   });
   assert.match(live, /SUPABASE_PUBLIC/);
   assert.match(live, /\.eq\('series', series\)/);
