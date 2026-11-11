@@ -33,6 +33,7 @@
     <button type="button" class="lb-btn lb-close" id="lb-close">Close</button>
   </div>
 </div>
+<script src="../assets/lesson-highlight.js?v=1"></script>
 <script>
 let CARDS = [{"n":1,"en":"If … were …, … would …","syllables":"","zh":"如果……是……（假設／建議）","pos":"","note_zh":"If I were you，不要寫 If I was you","chips":[{"ok":true,"text":"were"},{"ok":false,"text":"was"}],"pattern":"If + past (were), … would …","ex_en":"If I were you, I would take the offer.","ex_zh":"如果我是你，我會接受這個提議／工作機會。","adv_en":"If I were the hero in that action film, I would save the timid boy first.","adv_zh":"如果我是那部動作片裡的英雄，我會先救出那個膽小的男孩。","highlight":"If … were …, … would …","audio":"audio/audio_15.mp3","img":"thumb_15.png","cutout":true,"art_source":"irasutoya:https://www.irasutoya.com/2015/03/blog-post_64.html"},{"n":2,"en":"as … as","syllables":"","zh":"和……一樣……","pos":"","pattern":"as + adjective + as","ex_en":"She is as determined as her brother.","ex_zh":"她和她哥哥一樣堅定。","adv_en":"Although the wicked witch looks gentle, she is as cruel as the harsh winter.","adv_zh":"雖然邪惡的女巫看起來很溫柔，但她像嚴冬一樣無情殘忍。","highlight":"as … as","audio":"audio/audio_16.mp3","img":"thumb_16.png","cutout":true,"art_source":"generated"}];
 const list = document.getElementById('list');
@@ -64,10 +65,7 @@ if (lbPlay) lbPlay.addEventListener('click', () => { if (activeCard) playCard(ac
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 
 function hl(text, target) {
-  if (!target) return text;
-  const i = text.toLowerCase().indexOf(target.toLowerCase());
-  if (i < 0) return text;
-  return text.slice(0,i) + '<span class="hl">' + text.slice(i,i+target.length) + '</span>' + text.slice(i+target.length);
+  return LessonHighlight.mark(text, target);
 }
 
 function playCard(card, article) {
@@ -141,10 +139,10 @@ CARDS.forEach(card => {
 
   const ex1 = document.createElement('div');
   ex1.className = 'ex';
-  ex1.innerHTML = '<span class="ex-label">Example</span><p class="ex-en">' + hl(card.ex_en, card.highlight) + '</p><p class="ex-zh">' + card.ex_zh + '</p>';
+  ex1.innerHTML = '<span class="ex-label">Example</span><p class="ex-en">' + hl(card.ex_en, LessonHighlight.phrase(card, 'ex_en')) + '</p><p class="ex-zh">' + card.ex_zh + '</p>';
   const ex2 = document.createElement('div');
   ex2.className = 'ex';
-  ex2.innerHTML = '<span class="ex-label">Advanced example</span><p class="ex-en">' + hl(card.adv_en, card.highlight) + '</p><p class="ex-zh">' + card.adv_zh + '</p>';
+  ex2.innerHTML = '<span class="ex-label">Advanced example</span><p class="ex-en">' + hl(card.adv_en, LessonHighlight.phrase(card, 'adv_en')) + '</p><p class="ex-zh">' + card.adv_zh + '</p>';
   article.appendChild(ex1);
   article.appendChild(ex2);
 
@@ -169,6 +167,6 @@ if (window.LastPlace && location.hash) {
   LastPlace.focusHash();
 }
 </script>
-<script src="../assets/lesson-live.js?v=2"></script>
+<script src="../assets/lesson-live.js?v=3"></script>
 </body>
 </html>

@@ -69,6 +69,7 @@
       pattern: '',
       note_zh: '',
       highlight: '',
+      highlight_adv: '',
       ex_en: '',
       ex_zh: '',
       adv_en: '',

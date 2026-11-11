@@ -33,6 +33,7 @@
     <button type="button" class="lb-btn lb-close" id="lb-close">Close</button>
   </div>
 </div>
+<script src="../assets/lesson-highlight.js?v=1"></script>
 <script>
 let CARDS = [{"n":1,"en":"so many","syllables":"","zh":"這麼多（可數）","pos":"","pattern":"so many + plural countable noun","ex_en":"Ben sells so many flags at the fair.","ex_zh":"Ben在嘉年華賣出這麼多面旗。","adv_en":"Because the walkathon is popular, Ben sells so many flags before lunch.","adv_zh":"因為步行籌款很受歡迎，Ben在午飯前就賣出這麼多面旗。","highlight":"so many","audio":"audio/audio_11.mp3","img":"thumb_11.png","cutout":true,"art_source":"generated"},{"n":2,"en":"so much","syllables":"","zh":"這麼多（不可數）","pos":"","pattern":"so much + uncountable noun","ex_en":"The class raises so much money for the shelter.","ex_zh":"這個班為收容所籌得這麼多錢。","adv_en":"After they visit the elderly home, the children donate so much money that the teacher smiles.","adv_zh":"探訪安老院之後，孩子們捐出這麼多錢，老師也笑了。","highlight":"so much","audio":"audio/audio_12.mp3","img":"thumb_12.png","cutout":true,"art_source":"irasutoya:https://www.irasutoya.com/2014/01/blog-post_5281.html"},{"n":3,"en":"who","syllables":"","zh":"……的人（關係代名詞）","pos":"","note_zh":"who 只用於人；動物不是人，不要寫 who","chips":[{"ok":true,"text":"which（動物）"},{"ok":false,"text":"who（動物）"}],"pattern":"person / people + who + clause","ex_en":"She is the volunteer who looks after the pets.","ex_zh":"她就是那位照顧寵物的志願者。","adv_en":"Although he is busy after school, Tom is the boy who always helps at the fund-raising fair.","adv_zh":"雖然放學後很忙，Tom仍是那位常常在籌款嘉年華幫忙的男孩。","highlight":"who","audio":"audio/audio_13.mp3","img":"thumb_13.png","cutout":true,"art_source":"irasutoya:https://www.irasutoya.com/2015/09/blog-post_738.html"},{"n":4,"en":"which","syllables":"","zh":"……的事物（關係代名詞）","pos":"","pattern":"thing / things + which + clause","ex_en":"This is the raffle ticket which wins a prize.","ex_zh":"這就是那張會得獎的抽獎券。","adv_en":"While May packs the box, she chooses the book which she will give away.","adv_zh":"May收拾箱子時，選了她要贈送的那本書。","highlight":"which","audio":"audio/audio_14.mp3","img":"thumb_14.png","cutout":true,"art_source":"irasutoya:https://www.irasutoya.com/2013/11/blog-post_6260.html"}];
 const list = document.getElementById('list');
@@ -64,10 +65,7 @@ if (lbPlay) lbPlay.addEventListener('click', () => { if (activeCard) playCard(ac
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 
 function hl(text, target) {
-  if (!target) return text;
-  const i = text.toLowerCase().indexOf(target.toLowerCase());
-  if (i < 0) return text;
-  return text.slice(0,i) + '<span class="hl">' + text.slice(i,i+target.length) + '</span>' + text.slice(i+target.length);
+  return LessonHighlight.mark(text, target);
 }
 
 function playCard(card, article) {
@@ -141,10 +139,10 @@ CARDS.forEach(card => {
 
   const ex1 = document.createElement('div');
   ex1.className = 'ex';
-  ex1.innerHTML = '<span class="ex-label">Example</span><p class="ex-en">' + hl(card.ex_en, card.highlight) + '</p><p class="ex-zh">' + card.ex_zh + '</p>';
+  ex1.innerHTML = '<span class="ex-label">Example</span><p class="ex-en">' + hl(card.ex_en, LessonHighlight.phrase(card, 'ex_en')) + '</p><p class="ex-zh">' + card.ex_zh + '</p>';
   const ex2 = document.createElement('div');
   ex2.className = 'ex';
-  ex2.innerHTML = '<span class="ex-label">Advanced example</span><p class="ex-en">' + hl(card.adv_en, card.highlight) + '</p><p class="ex-zh">' + card.adv_zh + '</p>';
+  ex2.innerHTML = '<span class="ex-label">Advanced example</span><p class="ex-en">' + hl(card.adv_en, LessonHighlight.phrase(card, 'adv_en')) + '</p><p class="ex-zh">' + card.adv_zh + '</p>';
   article.appendChild(ex1);
   article.appendChild(ex2);
 
@@ -169,6 +167,6 @@ if (window.LastPlace && location.hash) {
   LastPlace.focusHash();
 }
 </script>
-<script src="../assets/lesson-live.js?v=2"></script>
+<script src="../assets/lesson-live.js?v=3"></script>
 </body>
 </html>
