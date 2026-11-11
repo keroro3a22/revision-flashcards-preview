@@ -248,9 +248,17 @@ body.studio-col-dragging * {
 .studio-frame-stage.is-cutout { background: #fff; }
 .studio-frame-stage.is-cutout img { object-fit: contain; }
 .studio-frame-stage.is-grammar,
-.studio-frame-stage.is-chat { width: min(100%, 320px); min-height: 180px; }
+.studio-frame-stage.is-chat { width: min(100%, 320px); height: 220px; }
 .studio-frame-stage.is-grammar img,
-.studio-frame-stage.is-chat img { max-width: 100%; max-height: 220px; object-fit: contain; }
+.studio-frame-stage.is-chat img,
+.studio-frame-stage.is-cutout img,
+.studio-frame-stage.is-match img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+}
 .studio-frame-stage.is-match { width: 180px; height: 140px; background: #84c0e4; }
 .studio-frame-stage.is-match img { width: 100%; height: 100%; object-fit: contain; }
 .studio-frame-bar { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin-top: 0.8rem; }

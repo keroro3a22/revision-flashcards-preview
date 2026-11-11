@@ -31,8 +31,9 @@
     var next = normalize(frame);
     var width = box && box.width > 0 ? box.width : 1;
     var height = box && box.height > 0 ? box.height : 1;
-    next.x -= (dx / width) * 100 / next.z;
-    next.y -= (dy / height) * 100 / next.z;
+    var zoom = next.z < 1 ? 1 : next.z;
+    next.x -= (dx / width) * 100 / zoom;
+    next.y -= (dy / height) * 100 / zoom;
     return normalize(next);
   }
 
@@ -42,10 +43,25 @@
     return normalize(next);
   }
 
+  function zoomShift(frame) {
+    if (frame.z >= 1) return { x: 0, y: 0 };
+    var reach = (1 - frame.z) * 50;
+    return {
+      x: Math.round((50 - frame.x) / 50 * reach * 100) / 100,
+      y: Math.round((50 - frame.y) / 50 * reach * 100) / 100
+    };
+  }
+
+  function transformCss(frame) {
+    var shift = zoomShift(frame);
+    var move = shift.x || shift.y ? 'translate(' + shift.x + '%,' + shift.y + '%) ' : '';
+    return move + 'scale(' + frame.z + ')';
+  }
+
   function style(frame) {
     var next = normalize(frame);
     var css = 'object-position:' + next.x + '% ' + next.y + '%;';
-    if (next.z !== 1) css += 'transform:scale(' + next.z + ');transform-origin:' + next.x + '% ' + next.y + '%;';
+    if (next.z !== 1) css += 'transform:' + transformCss(next) + ';transform-origin:center center;';
     return css;
   }
 
@@ -53,8 +69,8 @@
     if (!img) return;
     var next = normalize(frame);
     img.style.objectPosition = next.x + '% ' + next.y + '%';
-    img.style.transform = next.z === 1 ? '' : 'scale(' + next.z + ')';
-    img.style.transformOrigin = next.x + '% ' + next.y + '%';
+    img.style.transformOrigin = 'center center';
+    img.style.transform = next.z === 1 ? '' : transformCss(next);
   }
 
   return {

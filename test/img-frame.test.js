@@ -26,6 +26,20 @@ test('dragging the preview pans the picture inside the frame', () => {
   assert.equal(next.z, 1);
 });
 
+test('zoom stays centered so a drag adjusts the crop instead of pulling the picture out', () => {
+  const shrunk = frame.style({ x: 20, y: 80, z: 0.5 });
+  assert.match(shrunk, /object-position:20% 80%/);
+  assert.match(shrunk, /transform:translate\(15%,-15%\) scale\(0\.5\)/);
+  assert.match(shrunk, /transform-origin:center center/);
+  assert.doesNotMatch(shrunk, /transform-origin:20%/);
+  const enlarged = frame.style({ x: 20, y: 80, z: 2 });
+  assert.match(enlarged, /transform:scale\(2\)/);
+  assert.doesNotMatch(enlarged, /translate/);
+  const dragged = frame.pan({ x: 50, y: 50, z: 0.5 }, 25, 0, { width: 100, height: 100 });
+  assert.equal(dragged.x, 25);
+  assert.equal(dragged.z, 0.5);
+});
+
 test('zoom stays between half size and three times, and starts at full size', () => {
   assert.equal(frame.normalize(null).z, 1);
   assert.equal(frame.zoom({ z: 1 }, 1).z, 2);
