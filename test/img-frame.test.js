@@ -26,8 +26,12 @@ test('dragging the preview pans the picture inside the frame', () => {
   assert.equal(next.z, 1);
 });
 
-test('zoom stays between the original size and three times', () => {
+test('zoom stays between half size and three times, and starts at full size', () => {
+  assert.equal(frame.normalize(null).z, 1);
   assert.equal(frame.zoom({ z: 1 }, 1).z, 2);
   assert.equal(frame.zoom({ z: 3 }, 1).z, 3);
-  assert.equal(frame.zoom({ z: 1 }, -1).z, 1);
+  assert.equal(frame.zoom({ z: 1 }, -1).z, 0.5);
+  assert.equal(frame.normalize({ z: 0.1 }).z, 0.5);
+  const js = require('node:fs').readFileSync('assets/studio.js', 'utf8');
+  assert.match(js, /min="0.5" max="3" step="0.005"/);
 });
