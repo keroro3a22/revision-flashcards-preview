@@ -27,3 +27,17 @@ test('sign in and profile are different pages', () => {
   assert.doesNotMatch(profile, /id="account-toggle"/);
   assert.match(read('assets/profile.js'), /return 'profile\.html'/);
 });
+
+test('lesson editors stay signed in on more than one device', () => {
+  const sql = read('supabase/migrations/20261111200000_editor_multi_device.sql');
+  const signIn = read('account.html');
+  const account = read('assets/account.js');
+  assert.match(sql, /username = 'keroroa22'/);
+  assert.match(sql, /delete from private\.content_editors/);
+  assert.match(sql, /private\.content_editors/);
+  const editorCheck = sql.indexOf('private.content_editors as e');
+  const dropOthers = sql.indexOf('delete from auth.sessions');
+  assert.ok(editorCheck > 0 && dropOthers > editorCheck);
+  assert.match(signIn, /Lesson editors can stay signed in on more than one/);
+  assert.match(account, /Lesson editors can stay signed in on more than one/);
+});

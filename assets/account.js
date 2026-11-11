@@ -1,7 +1,8 @@
 /* Username sign-in for the static site.
    Logged-out practice stays in localStorage.
    After sign-in, badges and progress save to that account.
-   A new sign-in closes the account on the other device. */
+   A new sign-in closes a learner account on the other device.
+   Lesson editors can stay signed in on more than one device. */
 (function () {
   if (window.__p6Account) return;
   window.__p6Account = true;
@@ -685,7 +686,7 @@
       if (note) {
         note.textContent = signingUp
           ? 'One device at a time. A new sign-in closes the other device.'
-          : 'A new sign-in closes the other device.';
+          : 'A new sign-in closes the other device. Lesson editors can stay signed in on more than one.';
       }
       if (formKicker) formKicker.textContent = signingUp ? 'Create a new username' : 'Sign in with your username';
       if (submit) submit.textContent = signingUp ? 'Create account' : 'Sign in';
