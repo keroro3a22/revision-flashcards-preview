@@ -495,6 +495,19 @@
 
   var PATH_SERIES = { oxford: 'Living Oxford English', 'mypearson-express': 'Primary Longman Express', elect: 'Primary Longman Elect' };
 
+  function mediaSrc(path, place) {
+    var value = String(path || '').trim().replace(/\u00a0/g, ' ');
+    if (!value) return '';
+    if (/^https?:\/\//i.test(value)) return value;
+    value = value.replace(/^(\.\.\/)+/, '');
+    var here = place || {};
+    if (here.section === 'practice' && here.kind === 'grammar' && /^(?:\.\/)?illust\//.test(value)) {
+      return 'practice/grammar/' + value.replace(/^\.\//, '');
+    }
+    if (value.indexOf('/') >= 0) return value;
+    return (here.unit ? here.unit + '/' : '') + value.replace(/^\.\//, '');
+  }
+
   function seriesSlug(id) {
     var name = PATH_SERIES[id] || id || '';
     var compact = String(name).replace(/[^A-Za-z0-9]+/g, '');
@@ -650,6 +663,7 @@
     studioPath: studioPath,
     parseStudioPath: parseStudioPath,
     seriesSlug: seriesSlug,
+    mediaSrc: mediaSrc,
     optionList: optionList,
     joinOptions: joinOptions,
     fillParts: fillParts,

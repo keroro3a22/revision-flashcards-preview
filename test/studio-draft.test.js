@@ -201,6 +201,18 @@ test('mixed topic is kept only for vocab practice', () => {
   assert.equal(place.review, 'published');
 });
 
+test('grammar practice pictures load from the grammar folder', () => {
+  assert.equal(draft.mediaSrc('illust/u1_02_volunteer.jpg', {
+    section: 'practice', kind: 'grammar', unit: 'unit1'
+  }), 'practice/grammar/illust/u1_02_volunteer.jpg');
+  assert.equal(draft.mediaSrc('thumb_01.jpg', {
+    section: 'revision', kind: 'vocab', unit: 'unit6'
+  }), 'unit6/thumb_01.jpg');
+  assert.equal(draft.mediaSrc('https://cdn.example/a.png', {
+    section: 'practice', kind: 'grammar', unit: 'unit1'
+  }), 'https://cdn.example/a.png');
+});
+
 test('a studio path names the table and one row', () => {
   const table = draft.studioPath({
     book: 'oxford',

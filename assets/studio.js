@@ -379,6 +379,7 @@
     return cell;
   }
   function photoSrc(path) {
+    if (window.StudioDraft && window.StudioDraft.mediaSrc) return window.StudioDraft.mediaSrc(cellText(path), place());
     var value = cellText(path).trim();
     if (!value) return '';
     if (/^https?:\/\//i.test(value)) return value;
