@@ -44,6 +44,7 @@
   var client = null;
   var rows = [];
   var tableName = 'lesson_cards';
+  var pendingFocus = '';
 
   function $(id) { return document.getElementById(id); }
   function say(text) {
@@ -1227,6 +1228,7 @@
       body.appendChild(tr);
     });
     paintEmpty();
+    focusPendingRow();
   }
   function stateCell(row) {
     var state = document.createElement('td');
@@ -1338,6 +1340,7 @@
       body.appendChild(tr);
     });
     paintEmpty();
+    focusPendingRow();
   }
   function paintEmpty() {
     var visible = shownRows().length;
@@ -1459,6 +1462,38 @@
         done(result.error && result.error.message);
       });
     });
+  }
+  function focusPendingRow() {
+    if (!pendingFocus) return;
+    var want = String(pendingFocus);
+    pendingFocus = '';
+    var found = null;
+    $('studio-rows').querySelectorAll('tr').forEach(function (tr) {
+      var num = tr.querySelector('.is-num');
+      if (num && num.textContent.trim() === want) found = tr;
+    });
+    if (!found) return;
+    found.classList.add('is-path-row');
+    found.scrollIntoView({ block: 'center' });
+  }
+  function goToPath(text) {
+    var parsed = window.StudioDraft && window.StudioDraft.parseStudioPath(text);
+    if (!parsed) { say('That path does not match a table.'); return; }
+    $('filter-book').value = parsed.book;
+    syncSeries(parsed.series);
+    $('filter-term').value = parsed.term;
+    $('filter-level').value = parsed.level;
+    $('filter-section').value = parsed.section;
+    $('filter-kind').value = parsed.kind || 'vocab';
+    syncMode(parsed.mode, parsed.unit);
+    if ($('filter-set') && parsed.set) $('filter-set').value = parsed.set;
+    rememberPlace();
+    pendingFocus = parsed.n || '';
+    load();
+    var shown = window.StudioDraft.studioPath(parsed, parsed.n ? { n: parsed.n, level: parsed.levelRow } : null);
+    var box = $('studio-path-jump');
+    if (box) box.value = shown;
+    say('Opened ' + shown + '.');
   }
   function load(doneMessage) {
     var here = place();
@@ -1644,6 +1679,14 @@
     if (tableCopy) {
       tableCopy.addEventListener('click', function () {
         copyStudioText(window.StudioDraft.studioPath(place()), tableCopy);
+      });
+    }
+    var pathJump = $('studio-path-jump');
+    if (pathJump) {
+      pathJump.addEventListener('keydown', function (event) {
+        if (event.key !== 'Enter') return;
+        event.preventDefault();
+        goToPath(pathJump.value);
       });
     }
     var opening = place();

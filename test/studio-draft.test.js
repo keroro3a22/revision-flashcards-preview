@@ -179,8 +179,7 @@ test('the pages table can stay on Get started', () => {
   assert.equal(saved.section, 'pages');
   assert.equal(saved.unit, 'home');
   assert.equal(draft.readStudioPlace(store).unit, 'home');
-  assert.equal(draft.studioPath(saved).includes('Get started'), true);
-  assert.equal(draft.studioPath(saved).includes('Pages'), true);
+  assert.equal(draft.studioPath(saved), 'oxford/Livingoxfordenglish/second/p6/home/pages');
 });
 
 test('mixed topic is kept only for vocab practice', () => {
@@ -214,8 +213,7 @@ test('a studio path names the table and one row', () => {
     mode: 'letters',
     set: '1'
   });
-  assert.match(table, /^Studio table\n/);
-  assert.match(table, /Oxford · P6 · Book A · Unit 1 · Practice · Vocab · Missing letters/);
+  assert.equal(table, 'oxford/Livingoxfordenglish/first/p6/unit1/practice/vocab/letters');
   const longman = draft.studioPath({
     book: 'longman',
     series: 'mypearson-express',
@@ -225,8 +223,7 @@ test('a studio path names the table and one row', () => {
     section: 'revision',
     kind: 'vocab'
   });
-  assert.match(longman, /Longman · Primary Longman Express · P6 · Book A/);
-  assert.match(table, /oxford\/oxford\/first\/p6\/unit1\/practice\/vocab\/letters$/);
+  assert.equal(longman, 'longman/Primarylongmanexpress/first/p6/unit1/revision/vocab');
 
   const revision = draft.studioPath({
     book: 'oxford',
@@ -239,11 +236,27 @@ test('a studio path names the table and one row', () => {
     mode: 'fill',
     set: '1'
   });
-  assert.equal(revision.includes('fill'), false);
-  assert.match(revision, /Revision card · Grammar/);
-  assert.match(revision, /oxford\/oxford\/first\/p6\/unit3\/revision\/grammar$/);
+  assert.equal(revision, 'oxford/Livingoxfordenglish/first/p6/unit3/revision/grammar');
 
   const row = draft.studioPath({
+    book: 'oxford',
+    series: 'oxford',
+    term: 'first',
+    level: 'p6',
+    unit: 'unit6',
+    section: 'revision',
+    kind: 'vocab'
+  }, { n: '4', label: 'Korea' });
+  assert.equal(row, 'oxford/Livingoxfordenglish/first/p6/unit6/revision/vocab/4');
+  const opened = draft.parseStudioPath(row);
+  assert.equal(opened.series, 'oxford');
+  assert.equal(opened.unit, 'unit6');
+  assert.equal(opened.n, '4');
+  const old = draft.parseStudioPath('Studio row 4\nOxford · P6 · Book A\noxford/oxford/first/p6/unit6/revision/vocab/4\nKorea');
+  assert.equal(old.series, 'oxford');
+  assert.equal(old.n, '4');
+
+  const story = draft.studioPath({
     book: 'oxford',
     series: 'oxford',
     term: 'first',
@@ -254,9 +267,9 @@ test('a studio path names the table and one row', () => {
     mode: 'story',
     set: '2'
   }, { n: '4', label: 'where' });
-  assert.match(row, /^Studio row 4\n/);
-  assert.match(row, /Set 2 · #4 · where/);
-  assert.match(row, /practice\/grammar\/story\/set2\/4\nwhere$/);
+  assert.equal(story, 'oxford/Livingoxfordenglish/first/p6/unit1/practice/grammar/story/set2/4');
+  assert.equal(draft.parseStudioPath(story).set, '2');
+  assert.equal(draft.parseStudioPath(story).mode, 'story');
 
   const letters = {
     book: 'oxford',
@@ -271,11 +284,9 @@ test('a studio path names the table and one row', () => {
   };
   const easy = draft.studioPath(letters, { n: '3', label: 'bad for', level: 'easy' });
   const hard = draft.studioPath(letters, { n: '3', label: 'bad for', level: 'hard' });
-  assert.match(easy, /#3 · Easy · bad for/);
-  assert.match(hard, /#3 · Hard · bad for/);
-  assert.match(easy, /letters\/3\/easy\nbad for$/);
-  assert.match(hard, /letters\/3\/hard\nbad for$/);
-  assert.notEqual(easy, hard);
+  assert.equal(easy, 'oxford/Livingoxfordenglish/first/p6/unit1/practice/vocab/letters/3/easy');
+  assert.equal(hard, 'oxford/Livingoxfordenglish/first/p6/unit1/practice/vocab/letters/3/hard');
+  assert.equal(draft.parseStudioPath('not a path'), null);
 });
 
 test('a blank advanced highlight still uses the example highlight', () => {

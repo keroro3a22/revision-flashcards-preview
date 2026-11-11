@@ -493,63 +493,103 @@
     return next;
   }
 
-  var PATH_BOOK = { oxford: 'Oxford', longman: 'Longman' };
   var PATH_SERIES = { oxford: 'Living Oxford English', 'mypearson-express': 'Primary Longman Express', elect: 'Primary Longman Elect' };
-  var PATH_TERM = { first: 'Book A', second: 'Book B' };
-  var PATH_SECTION = { revision: 'Revision card', practice: 'Practice', pages: 'Pages' };
-  var PATH_KIND = { vocab: 'Vocab', grammar: 'Grammar' };
-  var PATH_MODE = {
-    fill: 'Sentence fill-in',
-    letters: 'Missing letters',
-    match: 'Memory match',
-    timed: 'Timed challenge',
-    story: 'Story',
-    chat: 'Chat',
-    join: 'Join',
-    boss: 'Boss'
+
+  function seriesSlug(id) {
+    var name = PATH_SERIES[id] || id || '';
+    var compact = String(name).replace(/[^A-Za-z0-9]+/g, '');
+    if (!compact) return '';
+    return compact.charAt(0).toUpperCase() + compact.slice(1).toLowerCase();
+  }
+
+  var SERIES_FROM_SLUG = {
+    oxford: 'oxford',
+    livingoxfordenglish: 'oxford',
+    'mypearson-express': 'mypearson-express',
+    primarylongmanexpress: 'mypearson-express',
+    elect: 'elect',
+    primarylongmanelect: 'elect'
+  };
+  var MODES = {
+    fill: 1, letters: 1, match: 1, timed: 1,
+    story: 1, chat: 1, join: 1, boss: 1
   };
 
   function studioPath(place, row) {
     var here = place || {};
-    var practice = here.section === 'practice';
-    var grammar = here.kind === 'grammar';
-    var bits = [here.book, here.series, here.term, here.level, here.unit, here.section, here.kind];
-    var title = [
-      PATH_BOOK[here.book] || here.book,
-      String(here.level || '').toUpperCase(),
-      PATH_TERM[here.term] || here.term,
-      here.unit === 'home' ? 'Get started' : (here.unit === 'mixed' ? 'Mixed topic' : ('Unit ' + String(here.unit || '').replace(/^unit/, ''))),
-      PATH_SECTION[here.section] || here.section
-    ];
-    if (here.section !== 'pages') title.push(PATH_KIND[here.kind] || here.kind);
-    if (here.book === 'longman') title.splice(1, 0, PATH_SERIES[here.series] || here.series);
-    if (practice) {
-      bits.push(here.mode);
-      title.push(PATH_MODE[here.mode] || here.mode);
+    var bits = [here.book, seriesSlug(here.series), here.term, here.level, here.unit, here.section];
+    if (here.section !== 'pages') bits.push(here.kind || 'vocab');
+    if (here.section === 'practice' && here.mode) bits.push(here.mode);
+    if (here.section === 'practice' && here.kind === 'grammar' && String(here.set || '1') !== '1') bits.push('set' + here.set);
+    if (row && row.n) bits.push(String(row.n));
+    if (row && (row.level === 'easy' || row.level === 'hard')) bits.push(row.level);
+    return bits.filter(Boolean).join('/');
+  }
+
+  function parseStudioPath(text) {
+    var raw = String(text || '').trim();
+    if (!raw) return null;
+    var lines = raw.split(/\n/).map(function (line) { return line.trim(); }).filter(Boolean);
+    var line = lines.filter(function (part) { return /^(oxford|longman)\//i.test(part); })[0] || raw;
+    var parts = line.replace(/^\/+|\/+$/g, '').split('/').filter(Boolean);
+    if (parts.length < 6) return null;
+    var book = parts[0].toLowerCase();
+    if (book !== 'oxford' && book !== 'longman') return null;
+    var series = SERIES_FROM_SLUG[parts[1].toLowerCase()];
+    if (!series || (book === 'oxford' && series !== 'oxford') || (book === 'longman' && series === 'oxford')) return null;
+    var termName = parts[2].toLowerCase().replace(/\s+/g, '');
+    var term = termName === 'first' || termName === 'booka' || termName === 'a' ? 'first'
+      : (termName === 'second' || termName === 'bookb' || termName === 'b' ? 'second' : '');
+    if (!term) return null;
+    var levelName = parts[3].toLowerCase();
+    var level = /^p[1-6]$/.test(levelName) ? levelName : (/^[1-6]$/.test(levelName) ? 'p' + levelName : '');
+    if (!level) return null;
+    var unitName = parts[4].toLowerCase();
+    var unit = unitName === 'home' || unitName === 'mixed' ? unitName
+      : (/^unit[1-6]$/.test(unitName) ? unitName : (/^[1-6]$/.test(unitName) ? 'unit' + unitName : ''));
+    if (!unit) return null;
+    var sectionName = parts[5].toLowerCase();
+    var section = sectionName === 'revision' || sectionName === 'practice' || sectionName === 'pages' ? sectionName : '';
+    if (!section) return null;
+    var kind = 'vocab';
+    var mode = section === 'practice' ? (kind === 'grammar' ? 'story' : 'fill') : (kind === 'grammar' ? 'story' : 'fill');
+    var set = '1';
+    var n = '';
+    var levelRow = '';
+    var index = 6;
+    if (section !== 'pages') {
+      if (parts[index] !== 'vocab' && parts[index] !== 'grammar') return null;
+      kind = parts[index];
+      index += 1;
+      mode = kind === 'grammar' ? 'story' : 'fill';
     }
-    if (practice && grammar) {
-      bits.push('set' + here.set);
-      title.push('Set ' + here.set);
+    if (section === 'practice' && MODES[parts[index]]) {
+      mode = parts[index];
+      index += 1;
     }
-    var lines = [];
-    if (row && row.n) {
-      bits.push(String(row.n));
-      title.push('#' + row.n);
+    while (index < parts.length) {
+      var part = parts[index];
+      var setMatch = /^set([1-5])$/i.exec(part);
+      if (setMatch) { set = setMatch[1]; index += 1; continue; }
+      if (part === 'easy' || part === 'hard') { levelRow = part; index += 1; continue; }
+      if (/^\d+$/.test(part)) { n = part; index += 1; continue; }
+      return null;
     }
-    if (row && (row.level === 'easy' || row.level === 'hard')) {
-      bits.push(row.level);
-      title.push(row.level === 'hard' ? 'Hard' : 'Easy');
-    }
-    if (row && row.n) {
-      if (row.label) title.push(row.label);
-      lines.push('Studio row ' + row.n);
-    } else {
-      lines.push('Studio table');
-    }
-    lines.push(title.join(' · '));
-    lines.push(bits.join('/'));
-    if (row && row.label) lines.push(String(row.label));
-    return lines.join('\n');
+    return {
+      book: book,
+      series: series,
+      term: term,
+      level: level,
+      unit: unit,
+      section: section,
+      kind: kind,
+      mode: mode,
+      set: set,
+      difficulty: 'easy',
+      review: 'all',
+      n: n,
+      levelRow: levelRow
+    };
   }
 
   function practicePatch(data, extra, status) {
@@ -608,6 +648,8 @@
     readStudioPlace: readStudioPlace,
     writeStudioPlace: writeStudioPlace,
     studioPath: studioPath,
+    parseStudioPath: parseStudioPath,
+    seriesSlug: seriesSlug,
     optionList: optionList,
     joinOptions: joinOptions,
     fillParts: fillParts,

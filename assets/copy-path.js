@@ -35,8 +35,15 @@
     area.remove();
   }
 
-  function termLabel(term) {
-    return term === 'second' ? 'Book B' : 'Book A';
+  function seriesSlug(series) {
+    var names = {
+      oxford: 'Living Oxford English',
+      'mypearson-express': 'Primary Longman Express',
+      elect: 'Primary Longman Elect'
+    };
+    var compact = String(names[series] || series || '').replace(/[^A-Za-z0-9]+/g, '');
+    if (!compact) return series || 'oxford';
+    return compact.charAt(0).toUpperCase() + compact.slice(1).toLowerCase();
   }
 
   function currentTerm() {
@@ -45,11 +52,6 @@
       if (saved && saved.term) return saved.term;
     } catch (e) {}
     return 'first';
-  }
-
-  function unitLabel(unit) {
-    if (unit === 'mixed') return 'Mixed topic';
-    return 'Unit ' + String(unit || '').replace(/^unit/, '');
   }
 
   function lessonBits() {
@@ -71,22 +73,9 @@
   function lessonPath(row) {
     var here = lessonBits();
     if (!here) return practicePath();
-    var kind = here.track === 'grammar' ? 'Grammar' : 'Vocab';
-    var title = ['Oxford', String(here.level).toUpperCase(), termLabel(here.term), unitLabel(here.unit), 'Revision card', kind];
-    var path = [here.book, here.series, here.term, here.level, here.unit, 'revision', here.track];
-    var lines = [];
-    if (row && row.n) {
-      path.push(String(row.n));
-      title.push('#' + row.n);
-      if (row.label) title.push(row.label);
-      lines.push('Lesson row ' + row.n);
-    } else {
-      lines.push('Lesson table');
-    }
-    lines.push(title.join(' · '));
-    lines.push(path.join('/'));
-    if (row && row.label) lines.push(row.label);
-    return lines.join('\n');
+    var path = [here.book, seriesSlug(here.series), here.term, here.level, here.unit, 'revision', here.track];
+    if (row && row.n) path.push(String(row.n).replace(/[^\d].*$/, '') || String(row.n));
+    return path.join('/');
   }
 
   function siteFile() {
@@ -105,19 +94,43 @@
     return '';
   }
 
+  function practiceMode(file) {
+    var name = (file.split('/').pop() || '').replace(/\.html.*/, '');
+    if (name === 'boss') return { unit: 'mixed', kind: 'grammar', mode: 'boss' };
+    var grammar = name.match(/^unit(\d+)-(story|chat|join)$/);
+    if (grammar) return { unit: 'unit' + grammar[1], kind: 'grammar', mode: grammar[2] };
+    if (name === 'fill' || name === 'letters' || name === 'match' || name === 'timed') {
+      return { unit: '', kind: 'vocab', mode: name };
+    }
+    return null;
+  }
+
   function practicePath(question) {
+    var saved = null;
+    try { saved = window.RevisionPlace && window.RevisionPlace.read(localStorage); } catch (e) {}
+    var file = siteFile();
+    var mode = practiceMode(file);
     var unit = 'unit1';
     try { unit = new URLSearchParams(location.search).get('unit') || unit; } catch (e) {}
-    var file = siteFile();
-    var name = (file.split('/').pop() || '').replace(/\.html.*/, '').replace(/-/g, ' ');
+    if (mode && mode.unit) unit = mode.unit;
+    var setNo = '1';
+    try { setNo = new URLSearchParams(location.search).get('set') || setNo; } catch (e2) {}
+    var path = [
+      saved && saved.book || 'oxford',
+      seriesSlug(saved && saved.series || 'oxford'),
+      currentTerm(),
+      saved && saved.level || 'p6',
+      unit,
+      'practice',
+      mode ? mode.kind : 'vocab'
+    ];
+    if (mode && mode.mode) path.push(mode.mode);
+    if (mode && mode.kind === 'grammar' && /^[1-5]$/.test(String(setNo)) && String(setNo) !== '1') path.push('set' + setNo);
+    var number = String(question || '').match(/\d+/);
+    if (number) path.push(number[0]);
     var level = practiceLevel();
-    var lines = [question ? 'Practice question' : 'Practice page'];
-    var title = ['Oxford', 'P6', termLabel(currentTerm()), unitLabel(unit), name];
-    if (level) title.push(level === 'hard' ? 'Hard' : 'Easy');
-    if (question) title.push(question);
-    lines.push(title.join(' · '));
-    lines.push(file + (level ? '#' + level : ''));
-    return lines.join('\n');
+    if (level) path.push(level);
+    return path.join('/');
   }
 
   function questionText() {

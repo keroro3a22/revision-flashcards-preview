@@ -6,6 +6,15 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
 .studio-filters { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: end; margin: 0.8rem 0; }
 .studio-filters label { display: grid; gap: 0.2rem; font-size: 0.85rem; }
 .studio-filters label[hidden] { display: none; }
+.studio-path-jump input {
+  width: min(34rem, 72vw);
+  font: inherit;
+  color: #16324f;
+  background: #fff;
+  border: 1px solid #8ea4ba;
+  border-radius: 0.4rem;
+  padding: 0.4rem 0.55rem;
+}
 .studio-filter-actions { display: flex; gap: 0.45rem; align-items: center; }
 .studio-filter-actions button,
 .studio-new {
@@ -29,6 +38,7 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
   outline-offset: 2px;
 }
 .studio-table tr.is-draft td { background: #fff6e4; }
+.studio-table tr.is-path-row td { background: #e7f1fb; }
 .studio-scroll { overflow: visible; background: #fff; }
 .studio-table { border-collapse: collapse; width: 100%; min-width: 82.9rem; table-layout: fixed; }
 .studio-table[data-shape="grammar"] { min-width: 97.9rem; }
