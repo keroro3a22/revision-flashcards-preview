@@ -127,7 +127,6 @@ CARDS.forEach(card => {
     const img = document.createElement('img');
     img.src = card.img; img.alt = card.en; img.loading = 'lazy'; img.decoding = 'async';
     wrap.appendChild(img);
-    if (window.ImgFrame) ImgFrame.apply(img, card.img_frame);
     wrap.setAttribute('role', 'button');
     wrap.setAttribute('tabindex', '0');
     wrap.setAttribute('aria-label', 'Enlarge: ' + card.en);
@@ -149,6 +148,8 @@ CARDS.forEach(card => {
     '<p class="zh">' + gloss + '</p>';
   top.appendChild(main);
   article.appendChild(top);
+  var framed = top.querySelector('.illust img');
+  if (framed && window.ImgFrame) ImgFrame.apply(framed, card.img_frame);
   if (card.pattern) {
     var pattern = document.createElement('div');
     pattern.className = 'teach';
@@ -192,7 +193,7 @@ if (window.LastPlace && location.hash) {
   LastPlace.focusHash();
 }
 </script>
-<script src="../assets/img-frame.js?v=10"></script>
+<script src="../assets/img-frame.js?v=11"></script>
 <script src="../assets/lesson-live.js?v=4"></script>
 </body>
 </html>

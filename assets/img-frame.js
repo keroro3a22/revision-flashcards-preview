@@ -231,6 +231,22 @@
     document.head.appendChild(style);
   }
 
+  function revisionCardIllust(parent) {
+    if (!parent || !parent.classList || !parent.classList.contains('illust')) return false;
+    if (parent.classList.contains('chat-hero')) return false;
+    if (parent.closest && parent.closest('.card')) return true;
+    // Unit pages frame the photo before the illustration is inserted.
+    // A grammar picture that is already on the page keeps its own ratio.
+    return parent.isConnected === false;
+  }
+
+  function ratioFor(parent, ratio) {
+    if (ratio > 0) return ratio;
+    if (!parent || parent.classList.contains('lightbox') || parent.classList.contains('studio-thumb-preview') || revisionCardIllust(parent)) return 1;
+    if (parent.classList.contains('mcard-photo')) return 180 / 140;
+    return 320 / 220;
+  }
+
   function hostFor(img, ratio) {
     var parent = img.parentElement;
     var aspect = ratio > 0 ? ratio : 1;
@@ -238,7 +254,7 @@
     if (parent.classList.contains('img-crop') || parent.classList.contains('mcard-photo') || parent.classList.contains('studio-thumb-preview')) {
       return { box: parent, ratio: aspect };
     }
-    if (parent.classList.contains('illust') && parent.closest && parent.closest('.card')) {
+    if (revisionCardIllust(parent)) {
       return { box: parent, ratio: 1 };
     }
     if (parent.classList.contains('lightbox')) {
@@ -283,14 +299,8 @@
 
   function apply(img, frame, ratio) {
     if (!img) return;
-    var parent = img.parentElement;
-    if (!(ratio > 0)) {
-      if (!parent || parent.classList.contains('lightbox') || parent.classList.contains('studio-thumb-preview') || (parent.classList.contains('illust') && parent.closest && parent.closest('.card'))) ratio = 1;
-      else if (parent.classList.contains('mcard-photo')) ratio = 180 / 140;
-      else ratio = 320 / 220;
-    }
     ensureCss();
-    paint(img, frame, ratio);
+    paint(img, frame, ratioFor(img.parentElement, ratio));
   }
 
   return {
@@ -301,6 +311,7 @@
     move: move,
     resize: resize,
     placement: placement,
+    ratioFor: ratioFor,
     apply: apply
   };
 });

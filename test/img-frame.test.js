@@ -63,6 +63,24 @@ test('dragging an edge keeps the frame ratio', () => {
   assert.ok(next.z > 1);
 });
 
+test('a revision card stays square even before it is on the page', () => {
+  function node(classes, extra) {
+    extra = extra || {};
+    return {
+      classList: { contains: function (name) { return classes.indexOf(name) !== -1; } },
+      closest: function (sel) { return extra.card && sel === '.card' ? {} : null; },
+      isConnected: !!extra.connected
+    };
+  }
+  const wide = Math.round(320 / 220 * 1000) / 1000;
+  assert.equal(frame.ratioFor(node(['illust', 'cutout'])), 1);
+  assert.equal(frame.ratioFor(node(['illust'], { card: true, connected: true })), 1);
+  assert.equal(Math.round(frame.ratioFor(node(['illust', 'chat-hero'], { connected: true })) * 1000) / 1000, wide);
+  assert.equal(Math.round(frame.ratioFor(node(['illust'], { connected: true })) * 1000) / 1000, wide);
+  const korea = frame.placement({ x: 51, y: 47.3, z: 0.466, bg: '#ffffff' }, 366, 847, 1);
+  assert.ok(Math.abs(korea.width / korea.height - 366 / 847) < 0.01);
+});
+
 test('a square frame keeps a portrait picture in proportion', () => {
   const spot = frame.placement({ x: 50, y: 50, z: 1 }, 366, 847, 1);
   assert.ok(Math.abs(spot.width / spot.height - 366 / 847) < 0.01);
