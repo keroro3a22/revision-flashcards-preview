@@ -157,6 +157,16 @@
     return next;
   }
 
+  function compactNumbers(rows) {
+    return (rows || []).slice().sort(function (a, b) {
+      return (Number(a.n) || 0) - (Number(b.n) || 0);
+    }).map(function (row, index) {
+      return { id: row.id, from: Number(row.n) || 0, n: index + 1 };
+    }).filter(function (row) {
+      return row.from !== row.n;
+    });
+  }
+
   function practicePatch(data, extra, status) {
     var patch = {
       prompt: data.prompt || '',
@@ -194,6 +204,7 @@
     revisionInsert: revisionInsert,
     practiceInsert: practiceInsert,
     revisionPatch: revisionPatch,
-    practicePatch: practicePatch
+    practicePatch: practicePatch,
+    compactNumbers: compactNumbers
   };
 });

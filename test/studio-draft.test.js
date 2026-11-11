@@ -11,6 +11,18 @@ test('vocab and grammar each continue their own card numbers', () => {
   assert.equal(draft.nextNumber(Object.assign({}, oxford, { unit: 'unit3', kind: 'grammar' }), [1, 2]), 4);
 });
 
+test('removing a row closes the gap without touching earlier numbers first', () => {
+  const plan = draft.compactNumbers([
+    { id: 4, n: 4 },
+    { id: 1, n: 1 },
+    { id: 3, n: 3 }
+  ]);
+  assert.deepEqual(plan, [
+    { id: 3, from: 3, n: 2 },
+    { id: 4, from: 4, n: 3 }
+  ]);
+});
+
 test('a new practice question numbers only that mode', () => {
   const fill = Object.assign({}, oxford, { section: 'practice', kind: 'vocab', mode: 'fill', difficulty: 'hard' });
   assert.equal(draft.nextNumber(fill, [1, 2]), 3);

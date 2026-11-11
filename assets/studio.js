@@ -364,26 +364,41 @@
       spec.fields.forEach(function (name) {
         tr.appendChild(box(name, row[name]));
       });
-      var state = document.createElement('td');
-      state.className = 'is-state';
-      state.textContent = row.status === 'published' ? 'Published' : 'Draft';
-      tr.appendChild(state);
-      var actions = document.createElement('td');
-      actions.className = 'is-actions';
-      var save = document.createElement('button');
-      save.type = 'button';
-      save.textContent = 'Save draft';
-      save.addEventListener('click', function () { store(tr, 'draft'); });
-      var publish = document.createElement('button');
-      publish.type = 'button';
-      publish.textContent = 'Publish';
-      publish.addEventListener('click', function () { requestStore(tr, 'published'); });
-      actions.appendChild(save);
-      actions.appendChild(publish);
-      tr.appendChild(actions);
+      tr.appendChild(stateCell(row));
+      tr.appendChild(actionCell(tr));
       body.appendChild(tr);
     });
     paintEmpty();
+  }
+  function stateCell(row) {
+    var state = document.createElement('td');
+    state.className = 'is-state';
+    state.textContent = row.status === 'published' ? 'Published' : 'Draft';
+    return state;
+  }
+  function actionCell(tr) {
+    var actions = document.createElement('td');
+    actions.className = 'is-actions';
+    var stack = document.createElement('div');
+    stack.className = 'studio-actions';
+    var save = document.createElement('button');
+    save.type = 'button';
+    save.textContent = 'Save draft';
+    save.addEventListener('click', function () { store(tr, 'draft'); });
+    var publish = document.createElement('button');
+    publish.type = 'button';
+    publish.textContent = 'Publish';
+    publish.addEventListener('click', function () { requestStore(tr, 'published'); });
+    var remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'studio-remove';
+    remove.textContent = 'Remove';
+    remove.addEventListener('click', function () { removeRow(tr); });
+    stack.appendChild(save);
+    stack.appendChild(publish);
+    stack.appendChild(remove);
+    actions.appendChild(stack);
+    return actions;
   }
   function render() {
     if (tableName === 'practice_items') {
@@ -412,23 +427,8 @@
       PAIRS.forEach(function (pair) {
         tr.appendChild(pairCell(pair[0], pair[1], row));
       });
-      var state = document.createElement('td');
-      state.className = 'is-state';
-      state.textContent = row.status === 'published' ? 'Published' : 'Draft';
-      tr.appendChild(state);
-      var actions = document.createElement('td');
-      actions.className = 'is-actions';
-      var save = document.createElement('button');
-      save.type = 'button';
-      save.textContent = 'Save draft';
-      save.addEventListener('click', function () { store(tr, 'draft'); });
-      var publish = document.createElement('button');
-      publish.type = 'button';
-      publish.textContent = 'Publish';
-      publish.addEventListener('click', function () { requestStore(tr, 'published'); });
-      actions.appendChild(save);
-      actions.appendChild(publish);
-      tr.appendChild(actions);
+      tr.appendChild(stateCell(row));
+      tr.appendChild(actionCell(tr));
       body.appendChild(tr);
     });
     paintEmpty();
@@ -512,6 +512,44 @@
         render();
         say(doneMessage || reviewLine());
       });
+  }
+  function sameList(table) {
+    var here = place();
+    var practice = here.section === 'practice';
+    var query = client.from(table).select('id,n')
+      .eq('book', here.book).eq('series', here.series).eq('term', here.term).eq('level', here.level);
+    if (practice) {
+      query = query.eq('unit_id', window.StudioDraft.unitId(here)).eq('track', here.kind).eq('mode', here.mode).eq('level_name', window.StudioDraft.difficulty(here));
+    } else {
+      query = query.eq('unit_id', here.unit).eq('track', here.kind === 'grammar' ? 'grammar' : 'vocab');
+    }
+    return query.order('n', { ascending: true });
+  }
+  function writeNumbers(changes, index) {
+    if (!changes.length || index >= changes.length) {
+      load('Removed. Numbers in this list now start at 1.');
+      return;
+    }
+    client.from(tableName).update({ n: changes[index].n }).eq('id', changes[index].id).then(function (result) {
+      if (result.error) { say(result.error.message); return; }
+      writeNumbers(changes, index + 1);
+    });
+  }
+  function removeRow(tr) {
+    var row = rows.filter(function (item) { return String(item.id) === tr.dataset.id; })[0];
+    if (!row) return;
+    var message = row.status === 'published'
+      ? 'Remove ' + row.n + '? Students will not see it after a refresh. The photo and audio stay.'
+      : 'Remove draft ' + row.n + '?';
+    if (!window.confirm(message)) return;
+    say('Removing…');
+    client.from(tableName).delete().eq('id', row.id).then(function (result) {
+      if (result.error) { say(result.error.message); return; }
+      sameList(tableName).then(function (listed) {
+        if (listed.error) { say(listed.error.message); return; }
+        writeNumbers(window.StudioDraft.compactNumbers(listed.data || []), 0);
+      });
+    });
   }
   function createDraft() {
     if (!window.StudioDraft) { say('The draft script did not load.'); return; }

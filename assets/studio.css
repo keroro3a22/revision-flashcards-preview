@@ -109,3 +109,19 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
 .studio-table .is-actions button { display: block; }
 .studio-mark { display: none; }
 .studio-pair:focus-within .studio-mark { display: block; }
+.studio-table td.is-actions { position: relative; padding: 0; }
+.studio-actions {
+  position: absolute;
+  top: 0.28rem;
+  right: 0.32rem;
+  bottom: 0.28rem;
+  left: 0.32rem;
+  display: flex;
+  flex-direction: column;
+}
+.studio-table td.is-actions .studio-remove {
+  margin-top: auto;
+  color: #fff;
+  background: #9f2d2d;
+  border: 1px solid #7d2424;
+}
