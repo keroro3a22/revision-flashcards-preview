@@ -36,6 +36,14 @@ test('missing letters show the word and one easy and hard example', () => {
   assert.equal(match.columns[2].label, 'Picture');
 });
 
+test('every studio row copies one path for that row', () => {
+  const js = fs.readFileSync('assets/studio.js', 'utf8');
+  const start = js.indexOf('function actionCell');
+  const cell = js.slice(start, js.indexOf('function render', start));
+  assert.doesNotMatch(cell, /Copy easy|Copy hard/);
+  assert.equal((cell.match(/Copy path/g) || []).length, 1);
+});
+
 test('sentence fill shows easy and hard together', () => {
   const easy = columns.practiceColumns(place);
   assert.equal(easy.kind, 'pair');
