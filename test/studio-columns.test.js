@@ -50,6 +50,17 @@ test('the pages table resizes like the other tables and picks a unit photo', () 
   assert.match(css, /col-page-line/);
 });
 
+test('lesson search looks through every table and quotes the words', () => {
+  const js = fs.readFileSync('assets/studio.js', 'utf8');
+  const html = fs.readFileSync('studio.html', 'utf8');
+  assert.match(html, /id="studio-search"/);
+  assert.match(js, /searchSuggestions/);
+  assert.match(js, /lesson_cards/);
+  assert.match(js, /practice_items/);
+  assert.match(js, /site_pages/);
+  assert.doesNotMatch(js.slice(js.indexOf('function searchLibrary'), js.indexOf('function mountSearch')), /\.eq\('book'/);
+});
+
 test('a path jump highlight fades back to the row color', () => {
   const js = fs.readFileSync('assets/studio.js', 'utf8');
   const css = fs.readFileSync('assets/studio.css', 'utf8');

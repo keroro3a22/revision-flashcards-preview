@@ -647,6 +647,109 @@
     return patch;
   }
 
+  function foldSearch(text) {
+    return String(text || '').replace(/\s+/g, ' ').trim();
+  }
+
+  function searchSnippet(text, query) {
+    var source = foldSearch(text);
+    var q = foldSearch(query);
+    if (!source || q.length < 2) return null;
+    var at = source.toLowerCase().indexOf(q.toLowerCase());
+    if (at < 0) return null;
+    var start = Math.max(0, at - 28);
+    var end = Math.min(source.length, at + q.length + 42);
+    return {
+      before: (start > 0 ? '…' : '') + source.slice(start, at),
+      match: source.slice(at, at + q.length),
+      after: source.slice(at + q.length, end) + (end < source.length ? '…' : ''),
+      rank: at === 0 ? 0 : 1 + at / 10000
+    };
+  }
+
+  function bestSnippet(texts, query) {
+    var best = null;
+    (texts || []).forEach(function (text) {
+      var found = searchSnippet(text, query);
+      if (!found) return;
+      if (!best || found.rank < best.rank) best = found;
+    });
+    return best;
+  }
+
+  function lessonSearchTexts(row) {
+    return [
+      [row.en, row.zh].filter(Boolean).join(' — '),
+      [row.ex_en, row.ex_zh].filter(Boolean).join(' '),
+      [row.adv_en, row.adv_zh].filter(Boolean).join(' '),
+      row.pattern,
+      row.note_zh
+    ];
+  }
+
+  function practiceSearchTexts(row) {
+    return [
+      [row.prompt, row.answer].filter(Boolean).join(' '),
+      row.explain,
+      row.options
+    ];
+  }
+
+  function pageSearchTexts(row) {
+    return [[row.label, row.note].filter(Boolean).join(' — ')];
+  }
+
+  function searchSuggestions(groups, query) {
+    var q = foldSearch(query);
+    if (q.length < 2) return [];
+    var found = [];
+    function add(texts, place, row) {
+      var snippet = bestSnippet(texts, q);
+      if (!snippet) return;
+      found.push({ snippet: snippet, place: place, row: row, rank: snippet.rank });
+    }
+    ((groups && groups.lessons) || []).forEach(function (row) {
+      add(lessonSearchTexts(row), {
+        book: row.book,
+        series: row.series,
+        term: row.term,
+        level: row.level,
+        unit: row.unit_id,
+        section: 'revision',
+        kind: row.track === 'grammar' ? 'grammar' : 'vocab'
+      }, { n: String(row.n || '') });
+    });
+    ((groups && groups.practice) || []).forEach(function (row) {
+      add(practiceSearchTexts(row), {
+        book: row.book,
+        series: row.series,
+        term: row.term,
+        level: row.level,
+        unit: row.unit_id,
+        section: 'practice',
+        kind: row.track === 'grammar' ? 'grammar' : 'vocab',
+        mode: row.mode,
+        set: String(row.set_no || '1')
+      }, {
+        n: String(row.n || ''),
+        level: row.level_name === 'hard' ? 'hard' : (row.level_name === 'easy' ? 'easy' : '')
+      });
+    });
+    ((groups && groups.pages) || []).forEach(function (row) {
+      add(pageSearchTexts(row), {
+        book: row.book,
+        series: row.series,
+        term: row.term,
+        level: row.level,
+        unit: row.unit_id,
+        section: 'pages',
+        kind: 'vocab'
+      }, { slot: row.slot });
+    });
+    found.sort(function (a, b) { return a.rank - b.rank; });
+    return found.slice(0, 8);
+  }
+
   return {
     STATIC_LAST: STATIC_LAST,
     nextNumber: nextNumber,
@@ -674,6 +777,7 @@
     writeStudioPlace: writeStudioPlace,
     studioPath: studioPath,
     parseStudioPath: parseStudioPath,
+    searchSuggestions: searchSuggestions,
     seriesSlug: seriesSlug,
     mediaSrc: mediaSrc,
     optionList: optionList,

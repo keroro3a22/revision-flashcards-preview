@@ -1568,6 +1568,7 @@
     $('filter-kind').value = parsed.kind || 'vocab';
     syncMode(parsed.mode, parsed.unit);
     if ($('filter-set') && parsed.set) $('filter-set').value = parsed.set;
+    if (parsed.levelRow && $('filter-difficulty')) $('filter-difficulty').value = parsed.levelRow;
     rememberPlace();
     pendingFocus = parsed.slot || parsed.n || '';
     load();
@@ -1776,10 +1777,129 @@
         goToPath(pathJump.value);
       });
     }
+    mountSearch();
     var opening = place();
     var openingSpec = opening.section === 'practice' ? practiceColumns(opening) : revisionColumns(opening);
     setColumns(openingSpec.shape, openingSpec.columns);
     load();
+  }
+  function escapeSuggest(value) {
+    return String(value || '').replace(/[&<>"']/g, function (ch) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+    });
+  }
+  function searchLibrary(query) {
+    var term = String(query || '').replace(/[%_"\\(),]/g, ' ').replace(/\s+/g, ' ').trim();
+    if (term.length < 2 || !client) return Promise.resolve([]);
+    function like(fields) {
+      var needle = '%' + term + '%';
+      return fields.map(function (field) { return field + '.ilike."' + needle + '"'; }).join(',');
+    }
+    return Promise.all([
+      client.from('lesson_cards').select('book,series,term,level,unit_id,track,n,en,zh,ex_en,ex_zh,adv_en,adv_zh,pattern,note_zh')
+        .or(like(['en', 'zh', 'ex_en', 'ex_zh', 'adv_en', 'adv_zh', 'pattern', 'note_zh'])).limit(50),
+      client.from('practice_items').select('book,series,term,level,unit_id,track,mode,set_no,n,level_name,prompt,answer,explain,options')
+        .or(like(['prompt', 'answer', 'explain', 'options'])).limit(50),
+      client.from('site_pages').select('book,series,term,level,unit_id,slot,label,note')
+        .or(like(['label', 'note'])).limit(30)
+    ]).then(function (results) {
+      return window.StudioDraft.searchSuggestions({
+        lessons: results[0].error ? [] : (results[0].data || []),
+        practice: results[1].error ? [] : (results[1].data || []),
+        pages: results[2].error ? [] : (results[2].data || [])
+      }, term);
+    });
+  }
+  function mountSearch() {
+    var input = $('studio-search');
+    var list = $('studio-suggest');
+    if (!input || !list) return;
+    var timer = 0;
+    var seq = 0;
+    var hits = [];
+    var active = 0;
+    function close() {
+      list.hidden = true;
+      list.replaceChildren();
+      input.setAttribute('aria-expanded', 'false');
+      hits = [];
+    }
+    function paint() {
+      list.replaceChildren();
+      if (!hits.length) {
+        var empty = document.createElement('p');
+        empty.className = 'studio-suggest-empty';
+        empty.textContent = 'No matches';
+        list.appendChild(empty);
+      } else {
+        hits.forEach(function (hit, index) {
+          var button = document.createElement('button');
+          button.type = 'button';
+          button.setAttribute('role', 'option');
+          if (index === active) button.className = 'is-active';
+          var snippet = hit.snippet;
+          button.innerHTML = escapeSuggest(snippet.before) + '<mark>' + escapeSuggest(snippet.match) + '</mark>' + escapeSuggest(snippet.after);
+          button.addEventListener('mousedown', function (event) {
+            event.preventDefault();
+            choose(index);
+          });
+          list.appendChild(button);
+        });
+      }
+      list.hidden = false;
+      input.setAttribute('aria-expanded', 'true');
+      var chosen = list.querySelector('.is-active');
+      if (chosen && chosen.scrollIntoView) chosen.scrollIntoView({ block: 'nearest' });
+    }
+    function choose(index) {
+      var hit = hits[index];
+      if (!hit) return;
+      close();
+      goToPath(window.StudioDraft.studioPath(hit.place, hit.row));
+    }
+    function run() {
+      var query = input.value.trim();
+      var ticket = ++seq;
+      if (query.length < 2) { close(); return; }
+      searchLibrary(query).then(function (found) {
+        if (ticket !== seq || input.value.trim() !== query) return;
+        hits = found || [];
+        active = 0;
+        paint();
+      });
+    }
+    input.addEventListener('input', function () {
+      clearTimeout(timer);
+      timer = setTimeout(run, 180);
+    });
+    input.addEventListener('keydown', function (event) {
+      if (list.hidden) return;
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        if (!hits.length) return;
+        active = Math.min(hits.length - 1, active + 1);
+        paint();
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        if (!hits.length) return;
+        active = Math.max(0, active - 1);
+        paint();
+      } else if (event.key === 'Enter') {
+        if (!hits.length) return;
+        event.preventDefault();
+        choose(active);
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        close();
+      }
+    });
+    input.addEventListener('focus', function () {
+      if (input.value.trim().length >= 2) run();
+    });
+    document.addEventListener('click', function (event) {
+      if (event.target === input || list.contains(event.target)) return;
+      close();
+    });
   }
   function boot(deps) {
     wireBack();

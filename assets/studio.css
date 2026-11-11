@@ -6,6 +6,8 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
 .studio-filters { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: end; margin: 0.8rem 0; }
 .studio-filters label { display: grid; gap: 0.2rem; font-size: 0.85rem; }
 .studio-filters label[hidden] { display: none; }
+.studio-search { position: relative; }
+.studio-search input,
 .studio-path-jump input {
   width: min(34rem, 72vw);
   font: inherit;
@@ -15,6 +17,45 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
   border-radius: 0.4rem;
   padding: 0.4rem 0.55rem;
 }
+.studio-search input { width: min(16rem, 50vw); }
+.studio-suggest {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  width: min(28rem, 84vw);
+  max-height: 18rem;
+  overflow: auto;
+  padding: 0.25rem;
+  border: 1px solid #8ea4ba;
+  border-radius: 0.5rem;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(36, 60, 108, 0.16);
+}
+.studio-suggest[hidden] { display: none; }
+.studio-suggest button {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0.45rem 0.55rem;
+  border: 0;
+  border-radius: 0.35rem;
+  background: transparent;
+  color: #16324f;
+  font: inherit;
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+}
+.studio-suggest button.is-active,
+.studio-suggest button:hover { background: #e7f1fb; }
+.studio-suggest mark {
+  background: #fcc03c;
+  color: #243c6c;
+  border-radius: 0.15rem;
+  padding: 0 0.08em;
+}
+.studio-suggest-empty { margin: 0.35rem 0.55rem; color: #5d7190; }
 .studio-filter-actions { display: flex; gap: 0.45rem; align-items: center; }
 .studio-filter-actions button,
 .studio-new {

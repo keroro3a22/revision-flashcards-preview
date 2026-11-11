@@ -327,6 +327,36 @@ test('example and advanced highlights stay on their own sentence', () => {
   assert.equal(draft.exampleHighlight(advanced), 'do voluntary work');
 });
 
+test('search suggestions quote nearby words and put a starting match first', () => {
+  const hits = draft.searchSuggestions({
+    lessons: [
+      { book: 'oxford', series: 'oxford', term: 'first', level: 'p6', unit_id: 'unit6', track: 'vocab', n: 4, en: 'Korea', zh: '韓國', ex_en: 'A student is visiting Korea.' },
+      { book: 'oxford', series: 'oxford', term: 'first', level: 'p6', unit_id: 'unit1', track: 'vocab', n: 2, en: 'donate', zh: '捐贈', ex_en: 'They donate money for Korea.' }
+    ],
+    practice: [
+      { book: 'oxford', series: 'oxford', term: 'second', level: 'p6', unit_id: 'unit1', track: 'vocab', mode: 'fill', set_no: 1, n: 3, level_name: 'easy', prompt: 'Please throw the bottles away.', answer: 'throw' }
+    ],
+    pages: [
+      { book: 'oxford', series: 'oxford', term: 'second', level: 'p6', unit_id: 'unit1', slot: 'title', label: 'For a good cause', note: 'Charity verbs.' }
+    ]
+  }, 'Korea');
+  assert.equal(hits.length, 2);
+  assert.equal(hits[0].snippet.match, 'Korea');
+  assert.equal(hits[0].snippet.before, '');
+  assert.match(hits[0].snippet.after, /韓國/);
+  assert.equal(hits[0].place.unit, 'unit6');
+  assert.equal(hits[0].place.section, 'revision');
+  assert.equal(hits[0].row.n, '4');
+  assert.match(hits[1].snippet.before, /donate money for /);
+  assert.equal(hits[1].place.unit, 'unit1');
+  assert.deepEqual(draft.searchSuggestions({ lessons: [{ en: 'Korea', unit_id: 'unit6', n: 4 }] }, 'K'), []);
+  const pages = draft.searchSuggestions({
+    pages: [{ book: 'oxford', series: 'oxford', term: 'first', level: 'p6', unit_id: 'home', slot: 'hear', label: 'Hear it', note: 'Tap Play on a card.' }]
+  }, 'Hear');
+  assert.equal(pages[0].row.slot, 'hear');
+  assert.match(pages[0].snippet.after, /Tap Play/);
+});
+
 test('option tags split on bars and keep a dotted pair together', () => {
   assert.deepEqual(draft.optionList('so many | so much | although'), ['so many', 'so much', 'although']);
   assert.deepEqual(draft.optionList('  as · as | so · that  '), ['as · as', 'so · that']);
