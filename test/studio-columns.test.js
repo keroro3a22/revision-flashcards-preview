@@ -43,6 +43,8 @@ test('the pages table resizes like the other tables and picks a unit photo', () 
   assert.match(pages, /mountStudioColumns/);
   assert.match(pages, /Choose a photo from this unit/);
   assert.match(pages, /openPhotoFrame/);
+  assert.match(pages, /ratio: ratio/);
+  assert.doesNotMatch(pages, /shape: ratio === 1/);
   assert.doesNotMatch(pages, /type = 'file'/);
   assert.match(css, /data-shape="pages"/);
   assert.match(css, /col-page-line/);

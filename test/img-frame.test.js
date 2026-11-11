@@ -99,6 +99,7 @@ test('the preview uses a fixed crop window instead of a zoom slider', () => {
   assert.match(js, /EyeDropper/);
   assert.match(js, /studio-dropper/);
   assert.match(js, /data-handle="n"/);
+  assert.match(js, /Number\(spec\.ratio\) > 0 \? Number\(spec\.ratio\) : shapeRatio/);
   assert.match(js, /studio-crop-grid/);
   const grid = css.slice(css.indexOf('.studio-crop-grid'), css.indexOf('.studio-crop-corner'));
   assert.match(grid, /rgba\(0,0,0,\.5\)/);

@@ -499,7 +499,7 @@
       return;
     }
     var dialog = ensureFrameDialog();
-    var ratio = shapeRatio(spec.shape);
+    var ratio = Number(spec.ratio) > 0 ? Number(spec.ratio) : shapeRatio(spec.shape);
     var frame = window.ImgFrame.normalize(spec.frame);
     var drag = null;
     function place() {

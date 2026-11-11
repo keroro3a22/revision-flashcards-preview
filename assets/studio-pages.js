@@ -208,9 +208,9 @@
     thumb.addEventListener('click', function () {
       if (!window.RevisionStudio || !textOf(path)) return;
       window.RevisionStudio.openPhotoFrame({
-        src: textOf(path),
+        src: path.dataset.src || textOf(path),
         frame: currentFrame(),
-        shape: ratio === 1 ? 'revision' : 'grammar',
+        ratio: ratio,
         onDone: function (next) {
           frameInput.value = JSON.stringify(next);
           paint();
