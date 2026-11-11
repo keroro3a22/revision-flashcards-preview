@@ -382,19 +382,19 @@
   function revisionColumns(here) {
     var grammar = here.kind === 'grammar';
     var columns = [
-      { col: 'col-num', label: '#' },
-      { col: 'col-photo', label: 'Photo' },
-      { col: 'col-text', label: 'English' },
-      { col: 'col-text', label: '中文' },
-      { col: 'col-text', label: 'Part of speech' },
-      { col: grammar ? 'col-pattern' : 'col-text', label: grammar ? 'Pattern' : 'Syllables' }
+      { col: 'col-num', key: 'num', label: '#' },
+      { col: 'col-photo', key: 'photo', label: 'Photo' },
+      { col: 'col-text', key: 'en', label: 'English' },
+      { col: 'col-text', key: 'zh', label: '中文' },
+      { col: 'col-text', key: 'pos', label: 'Part of speech' },
+      { col: grammar ? 'col-pattern' : 'col-text', key: grammar ? 'pattern' : 'syllables', label: grammar ? 'Pattern' : 'Syllables' }
     ];
-    if (grammar) columns.push({ col: 'col-note', label: 'Note' });
+    if (grammar) columns.push({ col: 'col-note', key: 'note', label: 'Note' });
     columns.push(
-      { col: 'col-pair', label: 'Example<br>例句' },
-      { col: 'col-pair', label: 'Advanced<br>進階例句' },
-      { col: 'col-state', label: 'State' },
-      { col: 'col-actions', label: '' }
+      { col: 'col-pair', key: 'example', label: 'Example<br>例句' },
+      { col: 'col-pair', key: 'advanced', label: 'Advanced<br>進階例句' },
+      { col: 'col-state', key: 'state', label: 'State' },
+      { col: 'col-actions', key: 'actions', label: '' }
     );
     return { shape: grammar ? 'grammar' : 'revision', columns: columns };
   }
@@ -405,12 +405,12 @@
         shape: 'letters',
         kind: 'letters',
         columns: [
-          { col: 'col-num', label: '#' },
-          { col: 'col-prompt', label: 'Word' },
-          { col: 'col-pair', label: 'Easy' },
-          { col: 'col-pair', label: 'Hard' },
-          { col: 'col-state', label: 'State' },
-          { col: 'col-actions', label: '' }
+          { col: 'col-num', key: 'num', label: '#' },
+          { col: 'col-prompt', key: 'word', label: 'Word' },
+          { col: 'col-pair', key: 'easy', label: 'Easy' },
+          { col: 'col-pair', key: 'hard', label: 'Hard' },
+          { col: 'col-state', key: 'state', label: 'State' },
+          { col: 'col-actions', key: 'actions', label: '' }
         ]
       };
     }
@@ -419,11 +419,11 @@
         shape: 'spell',
         kind: 'match',
         columns: [
-          { col: 'col-num', label: '#' },
-          { col: 'col-pair', label: 'English' },
-          { col: 'col-pair', label: 'Picture' },
-          { col: 'col-state', label: 'State' },
-          { col: 'col-actions', label: '' }
+          { col: 'col-num', key: 'num', label: '#' },
+          { col: 'col-pair', key: 'en', label: 'English' },
+          { col: 'col-pair', key: 'picture', label: 'Picture' },
+          { col: 'col-state', key: 'state', label: 'State' },
+          { col: 'col-actions', key: 'actions', label: '' }
         ]
       };
     }
@@ -432,12 +432,12 @@
         shape: 'fill',
         kind: 'pair',
         columns: [
-          { col: 'col-num', label: '#' },
-          { col: 'col-pair', label: 'Easy' },
-          { col: 'col-pair', label: 'Hard' },
-          { col: 'col-options', label: 'Options' },
-          { col: 'col-state', label: 'State' },
-          { col: 'col-actions', label: '' }
+          { col: 'col-num', key: 'num', label: '#' },
+          { col: 'col-pair', key: 'easy', label: 'Easy' },
+          { col: 'col-pair', key: 'hard', label: 'Hard' },
+          { col: 'col-options', key: 'options', label: 'Options' },
+          { col: 'col-state', key: 'state', label: 'State' },
+          { col: 'col-actions', key: 'actions', label: '' }
         ]
       };
     }
@@ -447,14 +447,14 @@
         kind: 'grammar',
         fields: ['prompt', 'answer', 'explain', 'options'],
         columns: [
-          { col: 'col-num', label: '#' },
-          { col: 'col-passage', label: 'Prompt' },
-          { col: 'col-short', label: 'Answer' },
-          { col: 'col-explain', label: 'Explain' },
-          { col: 'col-options', label: 'Options' },
-          { col: 'col-hard', label: 'Hard' },
-          { col: 'col-state', label: 'State' },
-          { col: 'col-actions', label: '' }
+          { col: 'col-num', key: 'num', label: '#' },
+          { col: 'col-passage', key: 'prompt', label: 'Prompt' },
+          { col: 'col-short', key: 'answer', label: 'Answer' },
+          { col: 'col-explain', key: 'explain', label: 'Explain' },
+          { col: 'col-options', key: 'options', label: 'Options' },
+          { col: 'col-hard', key: 'hard', label: 'Hard' },
+          { col: 'col-state', key: 'state', label: 'State' },
+          { col: 'col-actions', key: 'actions', label: '' }
         ]
       };
     }
@@ -463,33 +463,18 @@
       kind: 'plain',
       fields: ['prompt', 'answer', 'explain', 'options'],
       columns: [
-        { col: 'col-num', label: '#' },
-        { col: 'col-prompt', label: 'Prompt' },
-        { col: 'col-answer', label: 'Answer' },
-        { col: 'col-explain', label: 'Explain' },
-        { col: 'col-options', label: 'Options' },
-        { col: 'col-state', label: 'State' },
-        { col: 'col-actions', label: '' }
+        { col: 'col-num', key: 'num', label: '#' },
+        { col: 'col-prompt', key: 'prompt', label: 'Prompt' },
+        { col: 'col-answer', key: 'answer', label: 'Answer' },
+        { col: 'col-explain', key: 'explain', label: 'Explain' },
+        { col: 'col-options', key: 'options', label: 'Options' },
+        { col: 'col-state', key: 'state', label: 'State' },
+        { col: 'col-actions', key: 'actions', label: '' }
       ]
     };
   }
   function setColumns(shape, columns) {
-    var table = $('studio-table');
-    table.dataset.shape = shape;
-    var group = table.querySelector('colgroup');
-    group.replaceChildren();
-    columns.forEach(function (column) {
-      var col = document.createElement('col');
-      col.className = column.col;
-      group.appendChild(col);
-    });
-    var row = document.createElement('tr');
-    columns.forEach(function (column) {
-      var cell = document.createElement('th');
-      cell.innerHTML = column.label;
-      row.appendChild(cell);
-    });
-    $('studio-head').replaceChildren(row);
+    window.StudioDraft.mountStudioColumns($('studio-table'), $('studio-head'), columns, shape, window.localStorage);
   }
   function shownRows() {
     var review = place().review;
@@ -1238,6 +1223,9 @@
         copyStudioText(window.StudioDraft.studioPath(place()), tableCopy);
       });
     }
+    var opening = place();
+    var openingSpec = opening.section === 'practice' ? practiceColumns(opening) : revisionColumns(opening);
+    setColumns(openingSpec.shape, openingSpec.columns);
     load();
   }
   function boot(deps) {

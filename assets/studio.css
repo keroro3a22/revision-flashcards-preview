@@ -87,6 +87,33 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
   line-height: 1.15;
   white-space: normal;
 }
+.studio-col-resize {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  width: 0.55rem;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  appearance: none;
+  min-width: 0;
+  background: transparent;
+  cursor: col-resize;
+  touch-action: none;
+  user-select: none;
+}
+.studio-col-resize:hover,
+.studio-col-resize:focus-visible,
+.studio-col-resize.is-dragging {
+  background: #2f6fad;
+}
+body.studio-col-dragging,
+body.studio-col-dragging * {
+  cursor: col-resize;
+  user-select: none;
+}
 .studio-edit {
   min-height: 1.5em;
   cursor: text;
