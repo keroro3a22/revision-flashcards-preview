@@ -80,6 +80,13 @@ test('grammar practice stays closed when that unit has no game page', () => {
   assert.equal(unit.items.filter((item) => item.id === 'practice-grammar')[0].ready, false);
 });
 
+test('page photos use the shape students see', () => {
+  assert.equal(pages.photoRatio('hear'), 1);
+  assert.equal(pages.photoRatio('title'), 1);
+  assert.equal(Math.round(pages.photoRatio('revision-vocab') * 100) / 100, Math.round(4 / 3 * 100) / 100);
+  assert.equal(Math.round(pages.photoRatio('see') * 100) / 100, Math.round(4 / 3 * 100) / 100);
+});
+
 test('Get started packs follow titles and open doors', () => {
   const catalog = {
     pages: [{ unit_id: 'unit2', slot: 'title', label: 'Helping', note: 'Storms.', image: '' }],

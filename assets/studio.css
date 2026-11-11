@@ -47,6 +47,7 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
 .studio-table[data-shape="spell"] { min-width: 46.9rem; }
 .studio-table[data-shape="letters"] { min-width: 68.9rem; }
 .studio-table[data-shape="passage"] { min-width: 92.5rem; }
+.studio-table[data-shape="pages"] { min-width: 58rem; }
 .studio-table col.col-num { width: 2.4rem; }
 .studio-table col.col-photo { width: 5.4rem; }
 .studio-table col.col-audio { width: 2.8rem; }
@@ -83,6 +84,10 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
   border-radius: 6px;
   padding: 0 0.15em;
 }
+.studio-table col.col-page-line { width: 11rem; }
+.studio-table col.col-page-photo { width: 8.5rem; }
+.studio-table col.col-page-name { width: 9rem; }
+.studio-table col.col-page-words { width: 18rem; }
 .studio-table col.col-state { width: 4.4rem; }
 .studio-table col.col-actions { width: 5.1rem; }
 .studio-pair .studio-edit + .studio-edit {
@@ -234,16 +239,43 @@ body.studio-col-dragging * {
   object-fit: contain;
 }
 .studio-thumb-preview img[hidden] { display: none; }
-.studio-page-photo {
-  display: block;
-  width: 4.5rem;
-  height: 4.5rem;
-  object-fit: contain;
-  background: #1d3358;
-  margin-bottom: 0.35rem;
-}
-.studio-page-photo[hidden] { display: none; }
 .studio-photo-cell button { margin: 0.25rem 0.25rem 0 0; }
+.studio-library {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(36, 60, 108, 0.46);
+}
+.studio-library-card {
+  width: min(100%, 40rem);
+  max-height: min(80vh, 36rem);
+  overflow: auto;
+  padding: 1rem;
+  border-radius: 16px;
+  background: #fff;
+  color: #243c6c;
+}
+.studio-library-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
+  gap: 0.6rem;
+  margin: 0.8rem 0;
+}
+.studio-library-item {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.35rem;
+  border: 1px solid #8ea4ba;
+  border-radius: 10px;
+  background: #fff;
+  color: #16324f;
+  text-align: left;
+  cursor: pointer;
+}
+.studio-library-item span:last-child { font-size: 0.75rem; line-height: 1.25; }
 .studio-frame {
   position: fixed;
   inset: 0;

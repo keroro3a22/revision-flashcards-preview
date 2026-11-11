@@ -89,6 +89,7 @@
           img.src = item.image;
           img.alt = '';
           frame.appendChild(img);
+          if (window.ImgFrame && item.frame) window.ImgFrame.apply(img, item.frame, 4 / 3);
           el.appendChild(frame);
         }
         var name = document.createElement('h3');

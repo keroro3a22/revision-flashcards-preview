@@ -153,6 +153,18 @@
     return value || fallback;
   }
 
+  function photoRatio(slot) {
+    if (slot === 'hear' || slot === 'title' || slot === 'hero') return 1;
+    return 4 / 3;
+  }
+
+  function rowFrame(row) {
+    if (!row) return null;
+    if (row.frame) return row.frame;
+    if (row.image_frame) return row.image_frame;
+    return null;
+  }
+
   function hrefFor(place, unitId, doorId) {
     var term = 'term=' + encodeURIComponent(place.term || 'first');
     if (doorId === 'revision-vocab') return unitId + '/index.html?' + term;
@@ -172,13 +184,15 @@
       var count = door.source === 'lesson' ? lessonRows(lessons, unitId, door.track).length : countOf(practices, unitId, door.track);
       var ready = count > 0;
       if (door.id === 'practice-grammar' && !/^unit[1-4]$/.test(unitId)) ready = false;
-      var image = imageSrc(unitId, chosen(row, 'image', ready ? base.image : ''));
+      var ownImage = savedValue(row, 'image');
+      var image = imageSrc(unitId, ownImage || (ready ? base.image : ''));
       return {
         id: door.id,
         group: door.group,
         label: chosen(row, 'label', base.label),
         note: ready ? chosen(row, 'note', base.note) : 'Coming soon',
         image: ready ? image : '',
+        frame: ready && ownImage ? rowFrame(row) : null,
         href: ready ? hrefFor(place, unitId, door.id) : '',
         ready: ready
       };
@@ -221,7 +235,8 @@
       out[item.id] = {
         label: chosen(row, 'label', item.label),
         note: chosen(row, 'note', item.note),
-        image: imageSrc('', chosen(row, 'image', item.image))
+        image: imageSrc('', chosen(row, 'image', item.image)),
+        frame: savedValue(row, 'image') ? rowFrame(row) : null
       };
     });
     return out;
@@ -250,7 +265,7 @@
   }
 
   function loadCatalog(db, place) {
-    var pages = db.from('site_pages_live').select('unit_id,slot,label,note,image')
+    var pages = db.from('site_pages_live').select('unit_id,slot,label,note,image,frame')
       .eq('book', place.book).eq('series', place.series).eq('term', place.term).eq('level', place.level);
     var lessons = db.from('lesson_cards_live').select('unit_id,track,n,img')
       .eq('book', place.book).eq('series', place.series).eq('term', place.term).eq('level', place.level).limit(2000);
@@ -291,6 +306,7 @@
         var name = card.querySelector('h3');
         var line = card.querySelector('p');
         if (img && copy[id].image) img.src = copy[id].image;
+        if (img && copy[id].frame && root.ImgFrame) root.ImgFrame.apply(img, copy[id].frame, photoRatio(id));
         if (name) name.textContent = copy[id].label;
         if (line) line.textContent = copy[id].note;
       });
@@ -414,6 +430,7 @@
     doors: DOORS,
     defaults: defaults,
     imageSrc: imageSrc,
+    photoRatio: photoRatio,
     resolveUnit: resolveUnit,
     groupsFor: groupsFor,
     packsFor: packsFor,

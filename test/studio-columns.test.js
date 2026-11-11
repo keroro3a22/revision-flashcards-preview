@@ -36,6 +36,17 @@ test('missing letters show the word and one easy and hard example', () => {
   assert.equal(match.columns[2].label, 'Picture');
 });
 
+test('the pages table resizes like the other tables and picks a unit photo', () => {
+  const pages = fs.readFileSync('assets/studio-pages.js', 'utf8');
+  const css = fs.readFileSync('assets/studio.css', 'utf8');
+  assert.match(pages, /mountStudioColumns/);
+  assert.match(pages, /Choose a photo from this unit/);
+  assert.match(pages, /openPhotoFrame/);
+  assert.doesNotMatch(pages, /type = 'file'/);
+  assert.match(css, /data-shape="pages"/);
+  assert.match(css, /col-page-line/);
+});
+
 test('every studio row copies one path for that row', () => {
   const js = fs.readFileSync('assets/studio.js', 'utf8');
   const start = js.indexOf('function actionCell');
