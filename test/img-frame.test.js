@@ -104,8 +104,10 @@ test('the preview uses a fixed crop window instead of a zoom slider', () => {
   assert.match(grid, /rgba\(0,0,0,\.5\)/);
   assert.doesNotMatch(grid, /255,255,255/);
   const windowRule = css.slice(css.indexOf('.studio-crop-window'), css.indexOf('.studio-crop-grid'));
-  assert.match(windowRule, /border:\s*0/);
+  assert.match(windowRule, /box-sizing:\s*border-box/);
+  assert.match(windowRule, /border:\s*1px solid rgba\(0,\s*0,\s*0,\s*0\.5\)/);
   assert.doesNotMatch(windowRule, /2px solid #fff/);
+  assert.doesNotMatch(grid, /box-shadow/);
   assert.match(css, /\.studio-frame-bar \.studio-dropper \{[^}]*border:\s*0/);
   assert.doesNotMatch(js, /Pick from photo/);
   assert.match(js, /studio-thumb-preview/);
