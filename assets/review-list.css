@@ -1,6 +1,6 @@
 /* Needs review list. No outer frame; rows are soft pills. */
 
-#needs-review { scroll-margin-top: 5rem; }
+#needs-review { scroll-margin-top: 1rem; }
 
 .needs-review { margin-top: 0.35rem; }
 .needs-review-title {

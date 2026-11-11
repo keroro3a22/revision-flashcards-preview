@@ -90,7 +90,6 @@ button { font: inherit; cursor: pointer; }
 ::selection { background: var(--sunny); color: var(--navy); }
 
 .unit-header {
-  position: sticky; top: 0; z-index: 20;
   background: var(--accent);
   color: var(--accent-ink);
   padding: 1rem var(--margin) 1.15rem;
@@ -154,7 +153,7 @@ button { font: inherit; cursor: pointer; }
   background: var(--shell-color, var(--accent));
   /* Keep overflow visible so speaker isn't clipped; shell is padding not border */
   overflow: visible;
-  scroll-margin-top: 6.5rem;
+  scroll-margin-top: 1rem;
 }
 .card > * { position: relative; z-index: 1; }
 .card::after {
