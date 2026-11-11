@@ -303,8 +303,8 @@ body.studio-col-dragging * {
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(to right, transparent calc(33.33% - 0.5px), rgba(255,255,255,.8) calc(33.33% - 0.5px), rgba(255,255,255,.8) calc(33.33% + 0.5px), transparent calc(33.33% + 0.5px), transparent calc(66.66% - 0.5px), rgba(255,255,255,.8) calc(66.66% - 0.5px), rgba(255,255,255,.8) calc(66.66% + 0.5px), transparent calc(66.66% + 0.5px)),
-    linear-gradient(to bottom, transparent calc(33.33% - 0.5px), rgba(255,255,255,.8) calc(33.33% - 0.5px), rgba(255,255,255,.8) calc(33.33% + 0.5px), transparent calc(33.33% + 0.5px), transparent calc(66.66% - 0.5px), rgba(255,255,255,.8) calc(66.66% - 0.5px), rgba(255,255,255,.8) calc(66.66% + 0.5px), transparent calc(66.66% + 0.5px));
+    linear-gradient(to right, transparent calc(33.33% - 0.5px), rgba(0,0,0,.5) calc(33.33% - 0.5px), rgba(0,0,0,.5) calc(33.33% + 0.5px), transparent calc(33.33% + 0.5px), transparent calc(66.66% - 0.5px), rgba(0,0,0,.5) calc(66.66% - 0.5px), rgba(0,0,0,.5) calc(66.66% + 0.5px), transparent calc(66.66% + 0.5px)),
+    linear-gradient(to bottom, transparent calc(33.33% - 0.5px), rgba(0,0,0,.5) calc(33.33% - 0.5px), rgba(0,0,0,.5) calc(33.33% + 0.5px), transparent calc(33.33% + 0.5px), transparent calc(66.66% - 0.5px), rgba(0,0,0,.5) calc(66.66% - 0.5px), rgba(0,0,0,.5) calc(66.66% + 0.5px), transparent calc(66.66% + 0.5px));
 }
 .studio-crop-corner {
   position: absolute;
