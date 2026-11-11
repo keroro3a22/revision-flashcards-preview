@@ -66,10 +66,10 @@
       review: $('filter-review').value
     };
   }
-  function syncMode() {
+  function syncMode(preferredMode, preferredUnit) {
     var kind = $('filter-kind').value === 'grammar' ? 'grammar' : 'vocab';
     var modes = MODES[kind];
-    var current = $('filter-mode').value;
+    var current = preferredMode || $('filter-mode').value;
     if (!modes.some(function (item) { return item.id === current; })) current = modes[0].id;
     fillSelect($('filter-mode'), modes, current);
     var practice = $('filter-section').value === 'practice';
@@ -77,14 +77,14 @@
     $('filter-difficulty-label').hidden = true;
     $('filter-set-label').hidden = !(practice && kind === 'grammar');
     $('filter-unit-label').hidden = practice && $('filter-mode').value === 'boss';
-    syncUnits();
+    syncUnits(preferredUnit);
   }
-  function syncUnits() {
+  function syncUnits(preferred) {
     var practice = $('filter-section').value === 'practice';
     var vocab = $('filter-kind').value !== 'grammar';
     var units = UNITS.slice();
     if (practice && vocab) units = units.concat([{ id: 'mixed', label: 'Mixed topic' }]);
-    var current = $('filter-unit').value;
+    var current = preferred || $('filter-unit').value;
     if (!units.some(function (item) { return item.id === current; })) current = 'unit1';
     fillSelect($('filter-unit'), units, current || 'unit1');
   }
@@ -98,12 +98,23 @@
       select.appendChild(option);
     });
   }
-  function syncSeries() {
+  function syncSeries(preferred) {
     var book = $('filter-book').value;
-    var current = $('filter-series').value;
+    var current = preferred || $('filter-series').value;
     var items = SERIES[book] || SERIES.oxford;
     if (!items.some(function (item) { return item.id === current; })) current = items[0].id;
     fillSelect($('filter-series'), items, current);
+  }
+  function savedPlace() {
+    try {
+      return window.StudioDraft.readStudioPlace(window.localStorage);
+    } catch (e) {
+      return window.StudioDraft.readStudioPlace(null);
+    }
+  }
+  function rememberPlace() {
+    if (!window.StudioDraft) return;
+    try { window.StudioDraft.writeStudioPlace(window.localStorage, place()); } catch (e) {}
   }
 
   function plainPaste(event) {
@@ -968,6 +979,7 @@
       if (result.error) { say(result.error.message); return; }
       var n = window.StudioDraft.nextNumber(here, (result.data || []).map(function (item) { return item.n; }));
       if ($('filter-review').value === 'published') $('filter-review').value = 'all';
+      rememberPlace();
       var row = practice ? window.StudioDraft.practiceInsert(here, n) : window.StudioDraft.revisionInsert(here, n);
       var batch = [row];
       if (practice && here.mode === 'fill' && here.kind !== 'grammar') {
@@ -995,26 +1007,34 @@
   }
 
   function bindEditor() {
-    fillSelect($('filter-book'), BOOKS, 'oxford');
-    syncSeries();
-    fillSelect($('filter-term'), TERMS, 'first');
+    var saved = savedPlace();
+    $('filter-section').value = saved.section;
+    $('filter-kind').value = saved.kind;
+    $('filter-difficulty').value = saved.difficulty;
+    if ($('filter-set')) $('filter-set').value = saved.set;
+    $('filter-review').value = saved.review;
+    fillSelect($('filter-book'), BOOKS, saved.book);
+    syncSeries(saved.series);
+    fillSelect($('filter-term'), TERMS, saved.term);
     LEVELS.forEach(function (id) {
       var option = document.createElement('option');
       option.value = id;
       option.textContent = id.toUpperCase();
-      if (id === 'p6') option.selected = true;
+      if (id === saved.level) option.selected = true;
       $('filter-level').appendChild(option);
     });
-    fillSelect($('filter-unit'), UNITS, 'unit1');
-    syncMode();
+    fillSelect($('filter-unit'), UNITS, saved.unit === 'mixed' ? 'unit1' : saved.unit);
+    syncMode(saved.mode, saved.unit);
     ['filter-book', 'filter-series', 'filter-term', 'filter-level', 'filter-unit', 'filter-section', 'filter-kind', 'filter-mode', 'filter-difficulty', 'filter-set'].forEach(function (id) {
       $(id).addEventListener('change', function () {
         if (id === 'filter-book') syncSeries();
         if (id === 'filter-section' || id === 'filter-kind' || id === 'filter-mode') syncMode();
+        rememberPlace();
         load();
       });
     });
     $('filter-review').addEventListener('change', function () {
+      rememberPlace();
       render();
       say(reviewLine());
     });

@@ -197,6 +197,66 @@
     });
   }
 
+  var STUDIO_PLACE_KEY = 'revision-studio-place';
+  var STUDIO_BOOKS = ['oxford', 'longman'];
+  var STUDIO_SERIES = {
+    oxford: ['oxford'],
+    longman: ['mypearson-express', 'elect']
+  };
+  var STUDIO_TERMS = ['first', 'second'];
+  var STUDIO_LEVELS = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6'];
+  var STUDIO_UNITS = ['unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6'];
+  var STUDIO_MODES = {
+    vocab: ['fill', 'letters', 'match', 'timed'],
+    grammar: ['story', 'chat', 'join', 'boss']
+  };
+
+  function oneOf(list, value, fallback) {
+    return list.indexOf(value) >= 0 ? value : fallback;
+  }
+
+  function studioPlace(input) {
+    var raw = input || {};
+    var book = oneOf(STUDIO_BOOKS, raw.book, 'oxford');
+    var series = oneOf(STUDIO_SERIES[book], raw.series, STUDIO_SERIES[book][0]);
+    var section = raw.section === 'practice' ? 'practice' : 'revision';
+    var kind = raw.kind === 'grammar' ? 'grammar' : 'vocab';
+    var unit = raw.unit;
+    if (!(section === 'practice' && kind === 'vocab' && unit === 'mixed')) {
+      unit = oneOf(STUDIO_UNITS, unit, 'unit1');
+    }
+    var set = oneOf(['1', '2', '3', '4', '5'], String(raw.set || ''), '1');
+    var review = raw.review === 'draft' || raw.review === 'published' ? raw.review : 'all';
+    return {
+      book: book,
+      series: series,
+      term: oneOf(STUDIO_TERMS, raw.term, 'first'),
+      level: oneOf(STUDIO_LEVELS, raw.level, 'p6'),
+      unit: unit,
+      section: section,
+      kind: kind,
+      mode: oneOf(STUDIO_MODES[kind], raw.mode, STUDIO_MODES[kind][0]),
+      difficulty: raw.difficulty === 'hard' ? 'hard' : 'easy',
+      set: set,
+      review: review
+    };
+  }
+
+  function readStudioPlace(storage) {
+    try {
+      var raw = storage && storage.getItem(STUDIO_PLACE_KEY);
+      return studioPlace(raw ? JSON.parse(raw) : null);
+    } catch (e) {
+      return studioPlace(null);
+    }
+  }
+
+  function writeStudioPlace(storage, input) {
+    var next = studioPlace(input);
+    storage.setItem(STUDIO_PLACE_KEY, JSON.stringify(next));
+    return next;
+  }
+
   function practicePatch(data, extra, status) {
     var patch = {
       prompt: data.prompt || '',
@@ -237,6 +297,9 @@
     practicePatch: practicePatch,
     compactNumbers: compactNumbers,
     letterExample: letterExample,
+    STUDIO_PLACE_KEY: STUDIO_PLACE_KEY,
+    readStudioPlace: readStudioPlace,
+    writeStudioPlace: writeStudioPlace,
     fillParts: fillParts,
     fillStored: fillStored
   };
