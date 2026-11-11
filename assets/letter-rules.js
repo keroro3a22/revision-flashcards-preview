@@ -1,5 +1,6 @@
 /* Missing-letter draws.
-   A word of one or two letters is never drawn.
+   A word of one or two letters is never drawn, so those words
+   are not ignore words.
    Ignore words are never drawn.
    Every other word is drawn, stopping at the largest count that does not
    pass the percentage: Easy 35%, Hard 51%.
@@ -11,14 +12,14 @@
   root.LetterRules = api;
   if (typeof root.window === 'object' && root.window) root.window.LetterRules = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
-  var DEFAULT_IGNORE = ['a', 'an', 'the', 'and', 'or', 'but', 'nor', 'as'];
+  var DEFAULT_IGNORE = ['the', 'and', 'but', 'nor'];
   var active = DEFAULT_IGNORE.slice();
 
   function parseIgnore(value) {
     var seen = {};
     var list = [];
     String(value || '').toLowerCase().split(/[^a-z]+/).forEach(function (word) {
-      if (!word || seen[word]) return;
+      if (!word || word.length <= 2 || seen[word]) return;
       seen[word] = true;
       list.push(word);
     });
