@@ -56,6 +56,18 @@ test('a tall photo can sit inside a frame larger than the picture', () => {
   assert.equal(Math.round(box.width / box.height * 100) / 100, 1);
 });
 
+test('dragging an edge keeps the frame ratio', () => {
+  const next = frame.resize({ x: 50, y: 50, z: 1 }, 'e', -30, 0, 200, 100, 200, 100, 1);
+  const box = frame.rect(next, 200, 100, 1);
+  assert.equal(Math.round(box.width / box.height * 100) / 100, 1);
+  assert.ok(next.z > 1);
+});
+
+test('a square frame keeps a portrait picture in proportion', () => {
+  const spot = frame.placement({ x: 50, y: 50, z: 1 }, 366, 847, 1);
+  assert.ok(Math.abs(spot.width / spot.height - 366 / 847) < 0.01);
+});
+
 test('the preview uses a fixed crop window instead of a zoom slider', () => {
   const js = fs.readFileSync('assets/studio.js', 'utf8');
   const css = fs.readFileSync('assets/studio.css', 'utf8');
@@ -68,6 +80,9 @@ test('the preview uses a fixed crop window instead of a zoom slider', () => {
   assert.match(js, /type="color"/);
   assert.match(js, /EyeDropper/);
   assert.match(js, /studio-dropper/);
+  assert.match(js, /data-handle="n"/);
+  assert.match(js, /studio-crop-grid/);
+  assert.match(css, /\.studio-frame-bar \.studio-dropper \{[^}]*border:\s*0/);
   assert.doesNotMatch(js, /Pick from photo/);
   assert.match(js, /studio-thumb-preview/);
   assert.match(js, /path\.hidden = true/);

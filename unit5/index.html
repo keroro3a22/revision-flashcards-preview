@@ -126,8 +126,8 @@ CARDS.forEach(card => {
     wrap.className = 'illust' + (card.cutout ? ' cutout' : '');
     const img = document.createElement('img');
     img.src = card.img; img.alt = card.en; img.loading = 'lazy'; img.decoding = 'async';
-    if (window.ImgFrame) ImgFrame.apply(img, card.img_frame);
     wrap.appendChild(img);
+    if (window.ImgFrame) ImgFrame.apply(img, card.img_frame);
     wrap.setAttribute('role', 'button');
     wrap.setAttribute('tabindex', '0');
     wrap.setAttribute('aria-label', 'Enlarge: ' + card.en);
@@ -192,7 +192,7 @@ if (window.LastPlace && location.hash) {
   LastPlace.focusHash();
 }
 </script>
-<script src="../assets/img-frame.js?v=9"></script>
+<script src="../assets/img-frame.js?v=10"></script>
 <script src="../assets/lesson-live.js?v=4"></script>
 </body>
 </html>

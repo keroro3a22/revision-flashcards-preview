@@ -133,11 +133,45 @@
     var py = (corner === 'se' || corner === 'sw' ? bottom : top) + iy;
     var rawW = Math.abs(px - ax);
     var rawH = Math.abs(py - ay);
-    var width = rawW;
-    var height = width / aspect;
-    if (rawH > height) {
-      height = rawH;
-      width = height * aspect;
+    var width;
+    var height;
+    var nextLeft;
+    var nextTop;
+    var cx = (left + right) / 2;
+    var cy = (top + bottom) / 2;
+    if (corner === 'n' || corner === 's' || corner === 'e' || corner === 'w') {
+      if (corner === 'e') {
+        width = Math.max(1, box.width + ix);
+        height = width / aspect;
+        nextLeft = left;
+        nextTop = cy - height / 2;
+      } else if (corner === 'w') {
+        width = Math.max(1, box.width - ix);
+        height = width / aspect;
+        nextLeft = right - width;
+        nextTop = cy - height / 2;
+      } else if (corner === 's') {
+        height = Math.max(1, box.height + iy);
+        width = height * aspect;
+        nextTop = top;
+        nextLeft = cx - width / 2;
+      } else {
+        height = Math.max(1, box.height - iy);
+        width = height * aspect;
+        nextTop = bottom - height;
+        nextLeft = cx - width / 2;
+      }
+    } else {
+      var rawW = Math.abs(px - ax);
+      var rawH = Math.abs(py - ay);
+      width = rawW;
+      height = width / aspect;
+      if (rawH > height) {
+        height = rawH;
+        width = height * aspect;
+      }
+      nextLeft = corner === 'se' || corner === 'ne' ? ax : ax - width;
+      nextTop = corner === 'se' || corner === 'sw' ? ay : ay - height;
     }
     var max = maxCrop(imageW, imageH, aspect);
     var contain = containCrop(imageW, imageH, aspect);
@@ -151,8 +185,22 @@
       width = maxW;
       height = width / aspect;
     }
-    var nextLeft = corner === 'se' || corner === 'ne' ? ax : ax - width;
-    var nextTop = corner === 'se' || corner === 'sw' ? ay : ay - height;
+    if (corner === 'e') {
+      nextLeft = left;
+      nextTop = cy - height / 2;
+    } else if (corner === 'w') {
+      nextLeft = right - width;
+      nextTop = cy - height / 2;
+    } else if (corner === 's') {
+      nextTop = top;
+      nextLeft = cx - width / 2;
+    } else if (corner === 'n') {
+      nextTop = bottom - height;
+      nextLeft = cx - width / 2;
+    } else {
+      nextLeft = corner === 'se' || corner === 'ne' ? ax : ax - width;
+      nextTop = corner === 'se' || corner === 'sw' ? ay : ay - height;
+    }
     var kept = keepOverlap(nextLeft, nextTop, width, height, imageW, imageH);
     return frameFromRect(kept, imageW, imageH, aspect, normalize(frame).bg);
   }
@@ -178,7 +226,7 @@
       '.illust img.is-cropped,.img-crop img.is-cropped,.story-panel-art img.is-cropped,.illust.chat-hero img.is-cropped,.mcard-photo img.is-cropped,.studio-thumb-preview img.is-cropped{',
       'position:absolute !important;inset:auto !important;left:var(--crop-left) !important;top:var(--crop-top) !important;',
       'width:var(--crop-width) !important;height:var(--crop-height) !important;max-width:none !important;max-height:none !important;',
-      'object-fit:fill !important;object-position:center !important;transform:none !important;} '
+      'object-fit:contain !important;object-position:center !important;transform:none !important;} '
     ].join('');
     document.head.appendChild(style);
   }
@@ -220,7 +268,9 @@
       var iw = img.naturalWidth;
       var ih = img.naturalHeight;
       if (!iw || !ih) return;
-      var spot = placement(frame, iw, ih, useRatio);
+      var parentNow = img.parentElement;
+      if (parentNow) parentNow.style.background = normalize(frame).bg;
+      var spot = placement(frame, iw, ih, ratio > 0 ? ratio : useRatio);
       img.classList.add('is-cropped');
       img.style.setProperty('--crop-left', spot.left + '%');
       img.style.setProperty('--crop-top', spot.top + '%');
@@ -235,8 +285,8 @@
     if (!img) return;
     var parent = img.parentElement;
     if (!(ratio > 0)) {
-      if (parent && (parent.classList.contains('lightbox') || (parent.classList.contains('illust') && parent.closest && parent.closest('.card')))) ratio = 1;
-      else if (parent && parent.classList.contains('mcard-photo')) ratio = 180 / 140;
+      if (!parent || parent.classList.contains('lightbox') || parent.classList.contains('studio-thumb-preview') || (parent.classList.contains('illust') && parent.closest && parent.closest('.card'))) ratio = 1;
+      else if (parent.classList.contains('mcard-photo')) ratio = 180 / 140;
       else ratio = 320 / 220;
     }
     ensureCss();
