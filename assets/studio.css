@@ -6,7 +6,12 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
 .studio-filters { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: end; margin: 0.8rem 0; }
 .studio-filters label { display: grid; gap: 0.2rem; font-size: 0.85rem; }
 .studio-filters label[hidden] { display: none; }
+.studio-filter-actions { display: flex; gap: 0.45rem; align-items: center; }
+.studio-filter-actions button,
 .studio-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   font: inherit;
   font-weight: 700;
   color: #16324f;
@@ -15,6 +20,7 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
   border-radius: 0.4rem;
   padding: 0.4rem 0.75rem;
 }
+.studio-plus { width: 0.85rem; height: 0.85rem; flex: none; }
 .studio-new:focus-visible,
 .studio-filters select:focus-visible,
 .studio-table button:focus-visible,
@@ -167,16 +173,6 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
   flex-direction: column;
   height: 100%;
   min-height: 8.2rem;
-}
-.studio-path-bar { margin: 0 0 0.45rem; }
-.studio-path-bar button {
-  font: inherit;
-  font-weight: 700;
-  color: #16324f;
-  background: #fff;
-  border: 1px solid #8ea4ba;
-  border-radius: 0.4rem;
-  padding: 0.35rem 0.7rem;
 }
 .studio-table td.is-actions .studio-remove {
   margin-top: auto;
