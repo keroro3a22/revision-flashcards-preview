@@ -65,8 +65,9 @@
 <script src="mastery.js"></script>
 <script src="badges.js"></script>
 <script src="match-logic.js?v=2"></script>
+<script src="../assets/img-frame.js?v=1"></script>
 <script src="common.js"></script>
-<script src="practice-live.js?v=2"></script>
+<script src="practice-live.js?v=3"></script>
 <script>
 (function () {
   const C = window.PracticeCommon;
@@ -112,8 +113,8 @@
   let cards = [];
   pairs.forEach(p => {
     const form = formByKey[p.wordKey] || '';
-    cards.push({ pairId: p.id, wordKey: p.wordKey, side: 'en', en: p.en, zh: p.zh, img: p.img, form: form });
-    cards.push({ pairId: p.id, wordKey: p.wordKey, side: 'zh', en: p.en, zh: p.zh, img: p.img, form: form });
+    cards.push({ pairId: p.id, wordKey: p.wordKey, side: 'en', en: p.en, zh: p.zh, img: p.img, frame: p.frame, form: form });
+    cards.push({ pairId: p.id, wordKey: p.wordKey, side: 'zh', en: p.en, zh: p.zh, img: p.img, frame: p.frame, form: form });
   });
   cards = C.shuffle(cards);
 
@@ -159,7 +160,7 @@
       frontClass = 'mcard-face mcard-front face-zh';
       frontBody =
         '<span class="face-badge">Picture</span>' +
-        '<img src="' + C.escapeHtml(c.img) + '" alt=""/>' +
+        '<img src="' + C.escapeHtml(c.img) + '" alt="" style="' + (window.ImgFrame ? ImgFrame.style(c.frame) : '') + '"/>' +
         '<span class="zh">' + C.escapeHtml(c.zh) + '</span>';
     }
     btn.innerHTML = '<div class="mcard-inner"><div class="mcard-face mcard-back">?</div><div class="' + frontClass + '">' + frontBody + '</div></div>';

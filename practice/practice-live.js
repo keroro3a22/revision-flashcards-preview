@@ -21,7 +21,8 @@ window.PracticeLive = (function () {
       en: body.en || body.prompt || '',
       zh: body.zh || body.answer || '',
       form: body.form || body.options || '',
-      img: body.img || ''
+      img: body.img || '',
+      frame: body.frame || null
     };
   }
 

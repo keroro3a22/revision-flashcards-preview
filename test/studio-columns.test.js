@@ -63,7 +63,14 @@ test('sentence fill draws a line between the question and the explanation', () =
 test('grammar practice keeps a set list and a hard column', () => {
   const story = columns.practiceColumns(Object.assign({}, place, { kind: 'grammar', mode: 'story' }));
   assert.equal(story.shape, 'passage');
-  assert.equal(story.columns[1].col, 'col-passage');
+  assert.equal(story.columns[1].label, 'Photo');
+  assert.equal(story.columns[2].col, 'col-passage');
+  ['chat', 'boss'].forEach(function (mode) {
+    const spec = columns.practiceColumns(Object.assign({}, place, { kind: 'grammar', mode: mode }));
+    assert.equal(spec.columns[1].label, 'Photo', mode);
+  });
+  const join = columns.practiceColumns(Object.assign({}, place, { kind: 'grammar', mode: 'join' }));
+  assert.equal(join.columns.some(function (column) { return column.label === 'Photo'; }), false);
   assert.equal(story.columns.some((column) => column.label === 'Hard'), true);
   assert.deepEqual(story.fields, ['prompt', 'answer', 'explain', 'options']);
 });

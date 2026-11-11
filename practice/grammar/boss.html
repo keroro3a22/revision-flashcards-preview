@@ -65,6 +65,7 @@
 </main>
 <script src="../../practice/badges.js"></script>
 <script src="grammar-progress.js"></script>
+<script src="../../assets/img-frame.js?v=1"></script>
 <script src="grammar-live.js?v=2"></script>
 <script>
 (function () {
@@ -679,6 +680,7 @@
     selected = null;
     qNum.textContent = (idx + 1) + " / " + items.length;
     art.src = it.img;
+    if (window.ImgFrame) ImgFrame.apply(art, it.frame);
     toast.hidden = true;
     btnNext.hidden = true;
     btnCheck.disabled = true;

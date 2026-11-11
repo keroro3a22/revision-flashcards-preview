@@ -49,6 +49,7 @@ function openLightbox(card, article) {
   if (window.LastPlace) LastPlace.save(card);
   activeCard = { card, article };
   lbImg.src = card.img;
+  if (window.ImgFrame) ImgFrame.apply(lbImg, card.img_frame);
   lbImg.alt = card.en;
   lightbox.classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -125,6 +126,7 @@ CARDS.forEach(card => {
     wrap.className = 'illust' + (card.cutout ? ' cutout' : '');
     const img = document.createElement('img');
     img.src = card.img; img.alt = card.en; img.loading = 'lazy'; img.decoding = 'async';
+    if (window.ImgFrame) ImgFrame.apply(img, card.img_frame);
     wrap.appendChild(img);
     wrap.setAttribute('role', 'button');
     wrap.setAttribute('tabindex', '0');
@@ -190,6 +192,7 @@ if (window.LastPlace && location.hash) {
   LastPlace.focusHash();
 }
 </script>
-<script src="../assets/lesson-live.js?v=3"></script>
+<script src="../assets/img-frame.js?v=1"></script>
+<script src="../assets/lesson-live.js?v=4"></script>
 </body>
 </html>

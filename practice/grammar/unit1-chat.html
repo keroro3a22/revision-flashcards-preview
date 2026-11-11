@@ -60,6 +60,7 @@
 </main>
 <script src="../../practice/badges.js"></script>
 <script src="grammar-progress.js"></script>
+<script src="../../assets/img-frame.js?v=1"></script>
 <script src="grammar-live.js?v=2"></script>
 <script>
 (function () {
@@ -996,6 +997,7 @@ function boot(SETS) {
   const endQ = activeSet.endQ;
   document.getElementById("chat-sub").textContent = activeSet.sub;
   document.getElementById("chat-hero").src = activeSet.hero;
+  if (window.ImgFrame) ImgFrame.apply(document.getElementById("chat-hero"), activeSet.frame);
   if (forced) {
     document.getElementById("btn-again").href = "unit1-chat.html?set=" + (setIndex + 1);
   }

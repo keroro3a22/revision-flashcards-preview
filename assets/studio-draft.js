@@ -560,6 +560,7 @@
       level_name: data.level_name === 'hard' ? 'hard' : 'easy',
       status: status
     };
+    if (extra) patch.extra = extra;
     if (status === 'published') {
       var published = Object.assign({}, extra || {}, {
         prompt: patch.prompt,

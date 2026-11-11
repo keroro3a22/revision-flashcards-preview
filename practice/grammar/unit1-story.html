@@ -63,6 +63,7 @@
 </main>
 <script src="../../practice/badges.js"></script>
 <script src="grammar-progress.js"></script>
+<script src="../../assets/img-frame.js?v=1"></script>
 <script src="grammar-live.js?v=2"></script>
 <script>
 (function () {
@@ -640,6 +641,7 @@
     qNum.textContent = "Scene " + (idx + 1) + " / " + scenes.length;
     beatLabel.innerHTML = s.label + (s.hard ? ' <span class="hard-badge">Harder</span>' : "");
     art.src = s.img;
+    if (window.ImgFrame) ImgFrame.apply(art, s.frame);
     art.alt = s.label;
     renderDots();
     renderPrompt(null);

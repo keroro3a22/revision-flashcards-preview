@@ -20,7 +20,7 @@
     var client = window.supabase.createClient(cfg.url, cfg.key, {
       auth: { persistSession: false, autoRefreshToken: false }
     });
-    client.from('lesson_cards_live').select('n,en,syllables,zh,pos,ex_en,ex_zh,adv_en,adv_zh,highlight,highlight_adv,audio,img,video,pattern,note_zh,cutout')
+    client.from('lesson_cards_live').select('n,en,syllables,zh,pos,ex_en,ex_zh,adv_en,adv_zh,highlight,highlight_adv,audio,img,img_frame,video,pattern,note_zh,cutout')
       .eq('book', book).eq('series', series).eq('term', term).eq('level', level).eq('unit_id', unit).eq('track', track)
       .order('n', { ascending: true })
       .then(function (result) { if (!result.error) show(result.data); });

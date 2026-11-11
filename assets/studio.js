@@ -359,17 +359,128 @@
       var pub = client.storage.from('lesson-media').getPublicUrl(path);
       var url = pub && pub.data && pub.data.publicUrl;
       if (!url) { say('The photo uploaded, but the address was missing.'); return; }
-      cell.querySelector('[data-field="img"]').textContent = url;
-      paintPhoto(cell);
+      var field = cell.querySelector('[data-field="img"]');
+      if (field) {
+        field.textContent = url;
+        paintPhoto(cell);
+      } else {
+        var img = cell.querySelector('img');
+        if (img) { img.hidden = false; img.src = url; }
+        cell.dispatchEvent(new CustomEvent('studio-photo', { detail: url }));
+      }
       say('Photo is in this row. Publish to show it on the site.');
     });
+  }
+  var frameDialog = null;
+  function ensureFrameDialog() {
+    if (frameDialog) return frameDialog;
+    var root = document.createElement('div');
+    root.className = 'studio-frame';
+    root.hidden = true;
+    root.innerHTML = '<div class="studio-frame-card" role="dialog" aria-modal="true" aria-labelledby="studio-frame-title">'
+      + '<p id="studio-frame-title" class="studio-frame-title">Live preview</p>'
+      + '<p class="studio-frame-note">Drag the picture to reframe it. Zoom changes how close it sits in the same frame as the live page.</p>'
+      + '<div class="studio-frame-stage"><img alt=""></div>'
+      + '<div class="studio-frame-bar"><button type="button" data-zoom="-0.25">Zoom out</button><span data-zoom-label>100%</span><button type="button" data-zoom="0.25">Zoom in</button><button type="button" data-reset>Reset</button><button type="button" data-done>Done</button></div>'
+      + '</div>';
+    document.body.appendChild(root);
+    frameDialog = {
+      root: root,
+      stage: root.querySelector('.studio-frame-stage'),
+      img: root.querySelector('img'),
+      label: root.querySelector('[data-zoom-label]')
+    };
+    root.addEventListener('click', function (event) {
+      if (event.target === root) root.hidden = true;
+    });
+    return frameDialog;
+  }
+  function openPhotoFrame(spec) {
+    if (!window.ImgFrame || !spec.src) {
+      say(spec.src ? 'The picture tools did not load.' : 'Add a photo before reframing it.');
+      return;
+    }
+    var dialog = ensureFrameDialog();
+    var frame = window.ImgFrame.normalize(spec.frame);
+    var stage = dialog.stage;
+    stage.className = 'studio-frame-stage is-' + spec.shape + (spec.cutout ? ' is-cutout' : '');
+    dialog.img.style.objectFit = spec.fit || 'cover';
+    dialog.img.src = spec.src;
+    function paint() {
+      window.ImgFrame.apply(dialog.img, frame);
+      dialog.label.textContent = Math.round(frame.z * 100) + '%';
+    }
+    paint();
+    var drag = null;
+    stage.onpointerdown = function (event) {
+      drag = { x: event.clientX, y: event.clientY, frame: frame, pointer: event.pointerId };
+      stage.setPointerCapture(event.pointerId);
+    };
+    stage.onpointermove = function (event) {
+      if (!drag || drag.pointer !== event.pointerId) return;
+      var box = stage.getBoundingClientRect();
+      frame = window.ImgFrame.pan(drag.frame, event.clientX - drag.x, event.clientY - drag.y, box);
+      paint();
+    };
+    function endDrag(event) {
+      if (!drag || (event && drag.pointer !== event.pointerId)) return;
+      drag = null;
+    }
+    stage.onpointerup = endDrag;
+    stage.onpointercancel = endDrag;
+    dialog.root.querySelector('[data-zoom="-0.25"]').onclick = function () {
+      frame = window.ImgFrame.zoom(frame, -0.25);
+      paint();
+    };
+    dialog.root.querySelector('[data-zoom="0.25"]').onclick = function () {
+      frame = window.ImgFrame.zoom(frame, 0.25);
+      paint();
+    };
+    dialog.root.querySelector('[data-reset]').onclick = function () {
+      frame = window.ImgFrame.normalize(null);
+      paint();
+    };
+    dialog.root.querySelector('[data-done]').onclick = function () {
+      dialog.root.hidden = true;
+      spec.onDone(window.ImgFrame.normalize(frame));
+    };
+    dialog.root.hidden = false;
+  }
+  function thumbButton(src, onClick) {
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'studio-thumb-btn';
+    button.setAttribute('aria-label', 'Preview and reframe photo');
+    var img = document.createElement('img');
+    img.alt = '';
+    img.className = 'studio-thumb';
+    button.appendChild(img);
+    button.addEventListener('click', onClick);
+    if (src) img.src = src;
+    img.hidden = !src;
+    return button;
   }
   function photoCell(row) {
     var cell = document.createElement('td');
     cell.className = 'studio-photo-cell';
-    var img = document.createElement('img');
-    img.alt = '';
-    img.className = 'studio-thumb';
+    var frameInput = document.createElement('input');
+    frameInput.type = 'hidden';
+    frameInput.dataset.field = 'img_frame';
+    frameInput.value = row.img_frame ? JSON.stringify(row.img_frame) : '';
+    var thumb = thumbButton(photoSrc(row.img), function () {
+      openPhotoFrame({
+        src: photoSrc(cell.querySelector('[data-field="img"]').textContent),
+        frame: frameInput.value,
+        shape: 'revision',
+        fit: row.published && row.published.cutout ? 'contain' : 'cover',
+        cutout: !!(row.published && row.published.cutout),
+        onDone: function (frame) {
+          frameInput.value = JSON.stringify(frame);
+          row.img_frame = frame;
+          saveLessonFrame(row);
+        }
+      });
+    });
     var path = document.createElement('div');
     path.className = 'studio-edit';
     path.contentEditable = 'true';
@@ -392,11 +503,115 @@
       picker.value = '';
       if (file) uploadPhoto(file, row.id, cell);
     });
-    cell.appendChild(img);
+    cell.appendChild(thumb);
+    cell.appendChild(frameInput);
     cell.appendChild(path);
     cell.appendChild(button);
     cell.appendChild(picker);
     paintPhoto(cell);
+    return cell;
+  }
+  function saveLessonFrame(row) {
+    if (!client || !row || !row.id) return;
+    var patch = { img_frame: row.img_frame };
+    if (row.status === 'published' && row.published) {
+      row.published = Object.assign({}, row.published, { img_frame: row.img_frame });
+      patch.published = row.published;
+    }
+    client.from('lesson_cards').update(patch).eq('id', row.id).then(function (result) {
+      say(result.error ? result.error.message : 'Reframe saved. Students see it after a refresh.');
+    });
+  }
+  function grammarPicture(row) {
+    var extra = (row && row.extra) || {};
+    var published = (row && row.published) || {};
+    var item = extra.item || published.item || {};
+    var meta = extra.meta || published.meta || {};
+    if (item.img) return { src: item.img, frame: item.frame || null, kind: 'item' };
+    if (meta.hero) return { src: meta.hero, frame: meta.frame || null, kind: 'hero' };
+    return { src: '', frame: null, kind: item.img == null && meta.hero == null ? 'item' : 'item' };
+  }
+  function saveGrammarPicture(row, picture) {
+    row.extra = Object.assign({}, row.extra || {});
+    if (picture.kind === 'hero') {
+      row.extra.meta = Object.assign({}, row.extra.meta || {}, { hero: picture.src, frame: picture.frame });
+      rows.forEach(function (other) {
+        var rowSet = row.extra && row.extra.set != null ? Number(row.extra.set) : null;
+        var otherSet = other.extra && other.extra.set != null ? Number(other.extra.set) : null;
+        if (rowSet == null || otherSet !== rowSet || other === row) return;
+        other.extra = Object.assign({}, other.extra || {});
+        other.extra.meta = Object.assign({}, other.extra.meta || {}, { hero: picture.src, frame: picture.frame });
+        if (client && other.id) client.from('practice_items').update({ extra: other.extra }).eq('id', other.id);
+      });
+    } else {
+      row.extra.item = Object.assign({}, row.extra.item || {}, { img: picture.src, frame: picture.frame });
+    }
+    if (!client || !row.id) return;
+    var patch = { extra: row.extra };
+    if (row.status === 'published' && row.published) {
+      row.published = Object.assign({}, row.published, {
+        item: row.extra.item || row.published.item,
+        meta: row.extra.meta || row.published.meta
+      });
+      patch.published = row.published;
+    }
+    client.from('practice_items').update(patch).eq('id', row.id).then(function (result) {
+      say(result.error ? result.error.message : 'Picture saved. Students see it after a refresh.');
+    });
+  }
+  function grammarPhotoCell(row) {
+    var cell = document.createElement('td');
+    cell.className = 'studio-photo-cell';
+    var picture = grammarPicture(row);
+    var path = document.createElement('div');
+    path.className = 'studio-edit';
+    path.contentEditable = 'true';
+    path.spellcheck = false;
+    path.textContent = picture.src || '';
+    var thumb = thumbButton(photoSrc(picture.src), function () {
+      var current = path.textContent.trim();
+      openPhotoFrame({
+        src: photoSrc(current),
+        frame: picture.frame,
+        shape: place().mode === 'chat' ? 'chat' : 'grammar',
+        fit: 'contain',
+        onDone: function (frame) {
+          picture = { src: current, frame: frame, kind: picture.kind };
+          saveGrammarPicture(row, picture);
+        }
+      });
+    });
+    path.addEventListener('paste', plainPaste);
+    path.addEventListener('input', function () {
+      var img = thumb.querySelector('img');
+      var src = photoSrc(path.textContent);
+      img.hidden = !src;
+      if (src) img.src = src;
+    });
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'studio-upload';
+    button.textContent = 'Change photo';
+    var picker = document.createElement('input');
+    picker.type = 'file';
+    picker.accept = 'image/jpeg,image/png,image/gif,image/webp';
+    picker.hidden = true;
+    button.addEventListener('click', function () { picker.click(); });
+    picker.addEventListener('change', function () {
+      var file = picker.files && picker.files[0];
+      picker.value = '';
+      if (!file) return;
+      uploadPhoto(file, row.id, cell);
+    });
+    cell.addEventListener('studio-photo', function (event) {
+      path.textContent = event.detail;
+      picture = { src: event.detail, frame: picture.frame, kind: picture.kind };
+      saveGrammarPicture(row, picture);
+    });
+    cell.appendChild(thumb);
+    cell.appendChild(path);
+    cell.appendChild(button);
+    cell.appendChild(picker);
     return cell;
   }
   function revisionColumns(here) {
@@ -462,20 +677,24 @@
       };
     }
     if (here.kind === 'grammar') {
+      var columns = [
+        { col: 'col-num', key: 'num', label: '#' },
+        { col: 'col-passage', key: 'prompt', label: 'Prompt' },
+        { col: 'col-short', key: 'answer', label: 'Answer' },
+        { col: 'col-explain', key: 'explain', label: 'Explain' },
+        { col: 'col-options', key: 'options', label: 'Options' },
+        { col: 'col-hard', key: 'hard', label: 'Hard' },
+        { col: 'col-state', key: 'state', label: 'State' },
+        { col: 'col-actions', key: 'actions', label: '' }
+      ];
+      if (mode === 'story' || mode === 'chat' || mode === 'boss') {
+        columns.splice(1, 0, { col: 'col-photo', key: 'photo', label: 'Photo' });
+      }
       return {
         shape: 'passage',
         kind: 'grammar',
         fields: ['prompt', 'answer', 'explain', 'options'],
-        columns: [
-          { col: 'col-num', key: 'num', label: '#' },
-          { col: 'col-passage', key: 'prompt', label: 'Prompt' },
-          { col: 'col-short', key: 'answer', label: 'Answer' },
-          { col: 'col-explain', key: 'explain', label: 'Explain' },
-          { col: 'col-options', key: 'options', label: 'Options' },
-          { col: 'col-hard', key: 'hard', label: 'Hard' },
-          { col: 'col-state', key: 'state', label: 'State' },
-          { col: 'col-actions', key: 'actions', label: '' }
-        ]
+        columns: columns
       };
     }
     return {
@@ -726,22 +945,40 @@
   function matchPictureCell(row) {
     var cell = document.createElement('td');
     cell.className = 'studio-pair';
-    var img = document.createElement('img');
-    img.className = 'studio-thumb';
-    img.alt = '';
     var path = edit('img', row.extra && row.extra.img);
+    var thumb = thumbButton(photoSrc(row.extra && row.extra.img), function () {
+      openPhotoFrame({
+        src: photoSrc(path.textContent),
+        frame: row.extra && row.extra.frame,
+        shape: 'match',
+        fit: 'contain',
+        onDone: function (frame) {
+          row.extra = Object.assign({}, row.extra || {}, { frame: frame, img: path.textContent.trim() });
+          savePracticeFrame(row);
+        }
+      });
+    });
+    var img = thumb.querySelector('img');
     path.addEventListener('input', function () {
       var src = photoSrc(path.textContent);
       img.hidden = !src;
       if (src) img.src = src;
     });
-    var src = photoSrc(row.extra && row.extra.img);
-    img.hidden = !src;
-    if (src) img.src = src;
-    cell.appendChild(img);
+    cell.appendChild(thumb);
     cell.appendChild(path);
     cell.appendChild(edit('answer', row.answer));
     return cell;
+  }
+  function savePracticeFrame(row) {
+    if (!client || !row || !row.id) return;
+    var patch = { extra: row.extra };
+    if (row.status === 'published' && row.published) {
+      row.published = Object.assign({}, row.published, { frame: row.extra.frame, img: row.extra.img });
+      patch.published = row.published;
+    }
+    client.from('practice_items').update(patch).eq('id', row.id).then(function (result) {
+      say(result.error ? result.error.message : 'Reframe saved. Students see it after a refresh.');
+    });
   }
   function renderFillPair(row) {
     var tr = document.createElement('tr');
@@ -800,6 +1037,9 @@
       number.className = 'is-num';
       number.textContent = String(row.n);
       tr.appendChild(number);
+      if (spec.kind === 'grammar' && (place().mode === 'story' || place().mode === 'chat' || place().mode === 'boss')) {
+        tr.appendChild(grammarPhotoCell(row));
+      }
       spec.fields.forEach(function (name) {
         tr.appendChild(box(name, row[name]));
       });
@@ -941,6 +1181,13 @@
     data.video = row && row.video ? row.video : '';
     data.highlight = row && row.highlight ? row.highlight : '';
     data.highlight_adv = row && row.highlight_adv != null ? row.highlight_adv : null;
+    if (typeof data.img_frame === 'string') {
+      if (!data.img_frame) delete data.img_frame;
+      else {
+        try { data.img_frame = JSON.parse(data.img_frame); }
+        catch (error) { delete data.img_frame; }
+      }
+    }
     if (tableName === 'practice_items') {
       ['prompt', 'answer', 'explain', 'options'].forEach(function (name) {
         if (!Object.prototype.hasOwnProperty.call(data, name)) data[name] = row && row[name] ? row[name] : '';
@@ -1041,7 +1288,7 @@
     say('Loading…');
     var query = client.from(tableName).select(practice
       ? 'id,n,status,prompt,answer,explain,options,level_name,extra'
-      : 'id,n,status,en,zh,pos,syllables,pattern,note_zh,highlight,highlight_adv,ex_en,ex_zh,adv_en,adv_zh,img,audio,video,published')
+      : 'id,n,status,en,zh,pos,syllables,pattern,note_zh,highlight,highlight_adv,ex_en,ex_zh,adv_en,adv_zh,img,img_frame,audio,video,published')
       .eq('book', here.book).eq('series', here.series).eq('term', here.term)
       .eq('level', here.level).eq('track', here.kind);
     if (practice) {
