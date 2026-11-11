@@ -494,6 +494,15 @@
     cell.appendChild(input);
     return cell;
   }
+  function placeCaret(node) {
+    var range = document.createRange();
+    range.selectNodeContents(node);
+    range.collapse(false);
+    var sel = window.getSelection();
+    if (!sel) return;
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
   function paintMasked(field, phrase, which) {
     var hide = window.StudioDraft.letterMasks(phrase)[which] || {};
     var word = String(phrase || '');
@@ -507,12 +516,28 @@
       var mark = document.createElement('span');
       mark.className = 'studio-hl';
       mark.textContent = ch;
+      if (which === 'easy') {
+        mark.contentEditable = 'true';
+        mark.spellcheck = false;
+        mark.setAttribute('aria-label', 'Missing letter');
+        mark.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter') { event.preventDefault(); mark.blur(); }
+        });
+        mark.addEventListener('input', function () {
+          var text = mark.textContent || '';
+          if (text.length <= 1) return;
+          mark.textContent = text.slice(-1);
+          placeCaret(mark);
+        });
+        mark.addEventListener('blur', function () { syncMasked(field); });
+      }
       field.appendChild(mark);
     }
   }
   function syncMasked(field) {
     var text = cellText(field.textContent);
     var row = field.closest('tr');
+    if (!row) return;
     row.querySelectorAll('[data-mask]').forEach(function (other) {
       paintMasked(other, text, other.dataset.mask);
     });
@@ -521,13 +546,9 @@
     var cell = document.createElement('td');
     var field = document.createElement('div');
     field.className = 'studio-edit';
-    field.contentEditable = 'true';
-    field.spellcheck = true;
     field.dataset.mask = which;
     if (which === 'easy') field.dataset.field = 'prompt';
     paintMasked(field, phrase, which);
-    field.addEventListener('paste', plainPaste);
-    field.addEventListener('blur', function () { syncMasked(field); });
     cell.appendChild(field);
     return cell;
   }

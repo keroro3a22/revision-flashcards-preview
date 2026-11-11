@@ -88,6 +88,10 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
   box-shadow: inset 0 0 0 2px #2f6fad;
   background: #fffdf3;
 }
+.studio-edit .studio-hl[contenteditable="true"] { cursor: text; }
+.studio-edit .studio-hl[contenteditable="true"]:focus {
+  box-shadow: inset 0 0 0 2px #2f6fad;
+}
 .studio-thumb {
   display: block;
   width: 100%;
