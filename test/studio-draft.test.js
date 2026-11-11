@@ -185,6 +185,53 @@ test('mixed topic is kept only for vocab practice', () => {
   assert.equal(place.review, 'published');
 });
 
+test('a studio path names the table and one row', () => {
+  const table = draft.studioPath({
+    book: 'oxford',
+    series: 'oxford',
+    term: 'first',
+    level: 'p6',
+    unit: 'unit1',
+    section: 'practice',
+    kind: 'vocab',
+    mode: 'letters',
+    set: '1'
+  });
+  assert.match(table, /^Studio table\n/);
+  assert.match(table, /Oxford · P6 · 上學期 · Unit 1 · Practice · Vocab · Missing letters/);
+  assert.match(table, /oxford\/oxford\/first\/p6\/unit1\/practice\/vocab\/letters$/);
+
+  const revision = draft.studioPath({
+    book: 'oxford',
+    series: 'oxford',
+    term: 'first',
+    level: 'p6',
+    unit: 'unit3',
+    section: 'revision',
+    kind: 'grammar',
+    mode: 'fill',
+    set: '1'
+  });
+  assert.equal(revision.includes('fill'), false);
+  assert.match(revision, /Revision card · Grammar/);
+  assert.match(revision, /oxford\/oxford\/first\/p6\/unit3\/revision\/grammar$/);
+
+  const row = draft.studioPath({
+    book: 'oxford',
+    series: 'oxford',
+    term: 'first',
+    level: 'p6',
+    unit: 'unit1',
+    section: 'practice',
+    kind: 'grammar',
+    mode: 'story',
+    set: '2'
+  }, { n: '4', label: 'where' });
+  assert.match(row, /^Studio row 4\n/);
+  assert.match(row, /Set 2 · #4 · where/);
+  assert.match(row, /practice\/grammar\/story\/set2\/4\nwhere$/);
+});
+
 test('option tags split on bars and keep a dotted pair together', () => {
   assert.deepEqual(draft.optionList('so many | so much | although'), ['so many', 'so much', 'although']);
   assert.deepEqual(draft.optionList('  as · as | so · that  '), ['as · as', 'so · that']);

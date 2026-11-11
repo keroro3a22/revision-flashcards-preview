@@ -413,3 +413,19 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 })();
+
+(function () {
+  var scripts = document.getElementsByTagName('script');
+  var src = 'assets/copy-path.js?v=1';
+  var i;
+  for (i = 0; i < scripts.length; i += 1) {
+    var current = scripts[i].src || '';
+    if (current.indexOf('place-ui.js') !== -1) {
+      src = current.replace(/place-ui\.js(?:\?.*)?$/, 'copy-path.js?v=1');
+      break;
+    }
+  }
+  var tag = document.createElement('script');
+  tag.src = src;
+  document.head.appendChild(tag);
+})();

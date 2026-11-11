@@ -810,11 +810,53 @@
     state.textContent = row.status === 'published' ? 'Published' : 'Draft';
     return state;
   }
+  function rowLabel(tr) {
+    var named = tr.querySelector('[data-field="prompt"], [data-field="en"]');
+    var text = named ? cellText(named.textContent).trim() : '';
+    if (text) return text;
+    var easy = tr.querySelector('[data-side="easy"]');
+    if (easy) {
+      var blank = readBlankField(easy);
+      if (blank.answer) return blank.answer;
+      if (blank.sentence) return blank.sentence;
+    }
+    return '';
+  }
+  function copyStudioText(text, button) {
+    function mark() {
+      var old = button.textContent;
+      button.textContent = 'Copied';
+      setTimeout(function () { button.textContent = old; }, 1200);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(mark, mark);
+      return;
+    }
+    var area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'fixed';
+    area.style.left = '-9999px';
+    document.body.appendChild(area);
+    area.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    area.remove();
+    mark();
+  }
   function actionCell(tr) {
     var actions = document.createElement('td');
     actions.className = 'is-actions';
     var stack = document.createElement('div');
     stack.className = 'studio-actions';
+    var copy = document.createElement('button');
+    copy.type = 'button';
+    copy.className = 'studio-copy';
+    copy.textContent = 'Copy path';
+    copy.addEventListener('click', function () {
+      var number = tr.querySelector('.is-num').textContent.trim();
+      copyStudioText(window.StudioDraft.studioPath(place(), { n: number, label: rowLabel(tr) }), copy);
+    });
+    stack.appendChild(copy);
     var save = document.createElement('button');
     save.type = 'button';
     save.textContent = 'Save draft';
@@ -1156,6 +1198,12 @@
     }
     var ignoreSave = $('letter-ignore-save');
     if (ignoreSave) ignoreSave.addEventListener('click', saveIgnoreWords);
+    var tableCopy = $('studio-copy-path');
+    if (tableCopy) {
+      tableCopy.addEventListener('click', function () {
+        copyStudioText(window.StudioDraft.studioPath(place()), tableCopy);
+      });
+    }
     load();
   }
   function boot(deps) {

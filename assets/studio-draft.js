@@ -265,6 +265,59 @@
     return next;
   }
 
+  var PATH_BOOK = { oxford: 'Oxford', longman: 'Longman' };
+  var PATH_SERIES = { oxford: 'Oxford', 'mypearson-express': 'MyPearson Express', elect: 'Elect' };
+  var PATH_TERM = { first: '上學期', second: '下學期' };
+  var PATH_SECTION = { revision: 'Revision card', practice: 'Practice' };
+  var PATH_KIND = { vocab: 'Vocab', grammar: 'Grammar' };
+  var PATH_MODE = {
+    fill: 'Sentence fill-in',
+    letters: 'Missing letters',
+    match: 'Memory match',
+    timed: 'Timed challenge',
+    story: 'Story',
+    chat: 'Chat',
+    join: 'Join',
+    boss: 'Boss'
+  };
+
+  function studioPath(place, row) {
+    var here = place || {};
+    var practice = here.section === 'practice';
+    var grammar = here.kind === 'grammar';
+    var bits = [here.book, here.series, here.term, here.level, here.unit, here.section, here.kind];
+    var title = [
+      PATH_BOOK[here.book] || here.book,
+      String(here.level || '').toUpperCase(),
+      PATH_TERM[here.term] || here.term,
+      here.unit === 'mixed' ? 'Mixed topic' : ('Unit ' + String(here.unit || '').replace(/^unit/, '')),
+      PATH_SECTION[here.section] || here.section,
+      PATH_KIND[here.kind] || here.kind
+    ];
+    if (here.book === 'longman') title.splice(1, 0, PATH_SERIES[here.series] || here.series);
+    if (practice) {
+      bits.push(here.mode);
+      title.push(PATH_MODE[here.mode] || here.mode);
+    }
+    if (practice && grammar) {
+      bits.push('set' + here.set);
+      title.push('Set ' + here.set);
+    }
+    var lines = [];
+    if (row && row.n) {
+      bits.push(String(row.n));
+      title.push('#' + row.n);
+      if (row.label) title.push(row.label);
+      lines.push('Studio row ' + row.n);
+    } else {
+      lines.push('Studio table');
+    }
+    lines.push(title.join(' · '));
+    lines.push(bits.join('/'));
+    if (row && row.label) lines.push(String(row.label));
+    return lines.join('\n');
+  }
+
   function practicePatch(data, extra, status) {
     var patch = {
       prompt: data.prompt || '',
@@ -308,6 +361,7 @@
     STUDIO_PLACE_KEY: STUDIO_PLACE_KEY,
     readStudioPlace: readStudioPlace,
     writeStudioPlace: writeStudioPlace,
+    studioPath: studioPath,
     optionList: optionList,
     joinOptions: joinOptions,
     fillParts: fillParts,
