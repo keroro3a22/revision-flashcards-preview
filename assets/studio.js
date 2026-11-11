@@ -589,6 +589,7 @@
     button.addEventListener('mousedown', function (event) { event.preventDefault(); });
     button.addEventListener('click', function () { markBlank(sentence); });
     var explain = edit(side + '_explain', row && row.explain);
+    explain.classList.add('studio-fill-note');
     cell.appendChild(sentence);
     cell.appendChild(button);
     cell.appendChild(explain);

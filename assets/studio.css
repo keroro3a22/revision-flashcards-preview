@@ -63,6 +63,11 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
   padding-top: 0.28rem;
   border-top: 1px solid #8ea4ba;
 }
+.studio-fill-note {
+  margin-top: 0.28rem;
+  padding-top: 0.28rem;
+  border-top: 1px solid #8ea4ba;
+}
 .studio-table th,
 .studio-table td {
   border: 1px solid #8ea4ba;

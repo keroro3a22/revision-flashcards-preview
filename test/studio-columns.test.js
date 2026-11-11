@@ -44,6 +44,14 @@ test('sentence fill shows easy and hard together', () => {
   assert.equal(hard.kind, 'pair');
 });
 
+test('sentence fill draws a line between the question and the explanation', () => {
+  const js = fs.readFileSync('assets/studio.js', 'utf8');
+  const css = fs.readFileSync('assets/studio.css', 'utf8');
+  const cell = js.slice(js.indexOf('function fillSideCell'), js.indexOf('function hardCell'));
+  assert.match(cell, /studio-fill-note/);
+  assert.match(css, /\.studio-fill-note\s*\{[^}]*border-top:\s*1px solid #8ea4ba/);
+});
+
 test('grammar practice keeps a set list and a hard column', () => {
   const story = columns.practiceColumns(Object.assign({}, place, { kind: 'grammar', mode: 'story' }));
   assert.equal(story.shape, 'passage');
