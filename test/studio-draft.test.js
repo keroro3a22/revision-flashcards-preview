@@ -180,6 +180,13 @@ test('the pages table can stay on Get started', () => {
   assert.equal(saved.unit, 'home');
   assert.equal(draft.readStudioPlace(store).unit, 'home');
   assert.equal(draft.studioPath(saved), 'oxford/Livingoxfordenglish/second/p6/home/pages');
+  const row = draft.studioPath(saved, { slot: 'hear' });
+  assert.equal(row, 'oxford/Livingoxfordenglish/second/p6/home/pages/hear');
+  assert.equal(draft.parseStudioPath(row).slot, 'hear');
+  assert.equal(draft.parseStudioPath(row).unit, 'home');
+  const grammar = 'oxford/Livingoxfordenglish/second/p6/unit1/pages/revision-grammar';
+  assert.equal(draft.parseStudioPath(grammar).slot, 'revision-grammar');
+  assert.equal(draft.parseStudioPath(grammar).section, 'pages');
 });
 
 test('mixed topic is kept only for vocab practice', () => {

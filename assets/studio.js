@@ -1538,6 +1538,7 @@
     $('studio-rows').querySelectorAll('tr').forEach(function (tr) {
       var num = tr.querySelector('.is-num');
       if (num && num.textContent.trim() === want) found = tr;
+      if (tr.dataset.slot === want) found = tr;
     });
     if (!found) return;
     found.classList.add('is-path-row');
@@ -1555,7 +1556,7 @@
     syncMode(parsed.mode, parsed.unit);
     if ($('filter-set') && parsed.set) $('filter-set').value = parsed.set;
     rememberPlace();
-    pendingFocus = parsed.n || '';
+    pendingFocus = parsed.slot || parsed.n || '';
     load();
     var shown = window.StudioDraft.studioPath(parsed, parsed.n ? { n: parsed.n, level: parsed.levelRow } : null);
     var box = $('studio-path-jump');
@@ -1565,7 +1566,13 @@
   function load(doneMessage) {
     var here = place();
     if (here.section === 'pages') {
-      if (window.RevisionStudioPages) window.RevisionStudioPages.load(client, here, { say: say });
+      if (window.RevisionStudioPages) {
+        window.RevisionStudioPages.load(client, here, {
+          say: say,
+          focus: pendingFocus,
+          focused: function () { pendingFocus = ''; }
+        });
+      }
       else say('The page editor did not load.');
       return;
     }

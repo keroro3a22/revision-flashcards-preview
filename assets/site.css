@@ -1606,6 +1606,7 @@ html[data-view="home"] .place-shell { display: none; }
   aspect-ratio: 4 / 3;
   width: 100%;
   overflow: hidden;
+  background: #fff;
 }
 .place-entry-media img {
   position: absolute;
@@ -1614,8 +1615,9 @@ html[data-view="home"] .place-shell { display: none; }
   height: 100%;
   max-width: none;
   margin: 0;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
+  background: #fff;
 }
 .place-entry-copy {
   display: flex;

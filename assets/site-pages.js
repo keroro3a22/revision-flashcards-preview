@@ -192,7 +192,7 @@
         label: chosen(row, 'label', base.label),
         note: ready ? chosen(row, 'note', base.note) : 'Coming soon',
         image: ready ? image : '',
-        frame: ready && ownImage ? rowFrame(row) : null,
+        frame: ready ? rowFrame(row) : null,
         href: ready ? hrefFor(place, unitId, door.id) : '',
         ready: ready
       };
@@ -236,7 +236,7 @@
         label: chosen(row, 'label', item.label),
         note: chosen(row, 'note', item.note),
         image: imageSrc('', chosen(row, 'image', item.image)),
-        frame: savedValue(row, 'image') ? rowFrame(row) : null
+        frame: rowFrame(row)
       };
     });
     return out;

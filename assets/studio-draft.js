@@ -528,12 +528,18 @@
     story: 1, chat: 1, join: 1, boss: 1
   };
 
+  var PAGE_SLOTS = {
+    title: 1, hero: 1, hear: 1, see: 1, read: 1,
+    'revision-vocab': 1, 'revision-grammar': 1, 'practice-vocab': 1, 'practice-grammar': 1
+  };
+
   function studioPath(place, row) {
     var here = place || {};
     var bits = [here.book, seriesSlug(here.series), here.term, here.level, here.unit, here.section];
     if (here.section !== 'pages') bits.push(here.kind || 'vocab');
     if (here.section === 'practice' && here.mode) bits.push(here.mode);
     if (here.section === 'practice' && here.kind === 'grammar' && String(here.set || '1') !== '1') bits.push('set' + here.set);
+    if (here.section === 'pages' && row && PAGE_SLOTS[row.slot]) bits.push(row.slot);
     if (row && row.n) bits.push(String(row.n));
     if (row && (row.level === 'easy' || row.level === 'hard')) bits.push(row.level);
     return bits.filter(Boolean).join('/');
@@ -569,6 +575,7 @@
     var set = '1';
     var n = '';
     var levelRow = '';
+    var slot = '';
     var index = 6;
     if (section !== 'pages') {
       if (parts[index] !== 'vocab' && parts[index] !== 'grammar') return null;
@@ -578,6 +585,10 @@
     }
     if (section === 'practice' && MODES[parts[index]]) {
       mode = parts[index];
+      index += 1;
+    }
+    if (section === 'pages' && PAGE_SLOTS[parts[index]]) {
+      slot = parts[index];
       index += 1;
     }
     while (index < parts.length) {
@@ -601,7 +612,8 @@
       difficulty: 'easy',
       review: 'all',
       n: n,
-      levelRow: levelRow
+      levelRow: levelRow,
+      slot: slot
     };
   }
 

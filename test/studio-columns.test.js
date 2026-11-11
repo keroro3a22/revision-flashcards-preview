@@ -39,6 +39,7 @@ test('missing letters show the word and one easy and hard example', () => {
 test('the pages table resizes like the other tables and picks a unit photo', () => {
   const pages = fs.readFileSync('assets/studio-pages.js', 'utf8');
   const css = fs.readFileSync('assets/studio.css', 'utf8');
+  assert.match(pages, /Copy path/);
   assert.match(pages, /mountStudioColumns/);
   assert.match(pages, /Choose a photo from this unit/);
   assert.match(pages, /openPhotoFrame/);

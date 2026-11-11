@@ -12,6 +12,8 @@
 
   function load(client, place, hooks) {
     var say = hooks.say || function () {};
+    var focus = hooks.focus || '';
+    var focused = hooks.focused || function () {};
     var api = window.SitePages;
     if (!api) { say('The page tools did not load.'); return; }
     say('Loading…');
@@ -37,7 +39,7 @@
       if (results[0].error) { say(results[0].error.message); return; }
       var lessons = results[1].error ? [] : (results[1].data || []);
       var grammar = results[2].error ? [] : (results[2].data || []);
-      render(client, place, unitId, results[0].data || [], lessons, grammar, say);
+      render(client, place, unitId, results[0].data || [], lessons, grammar, say, focus, focused);
     });
   }
 
@@ -52,7 +54,7 @@
     ];
   }
 
-  function render(client, place, unitId, rows, lessons, grammar, say) {
+  function render(client, place, unitId, rows, lessons, grammar, say, focus, focused) {
     var head = $('studio-head');
     var body = $('studio-rows');
     if (window.StudioDraft && window.StudioDraft.mountStudioColumns) {
@@ -61,11 +63,19 @@
     body.replaceChildren();
     var publishedLessons = lessons.filter(function (card) { return card.status === 'published'; });
     var library = photoLibrary(lessons, grammar);
+    var hit = null;
     window.SitePages.slotsFor(unitId).forEach(function (slot) {
       var row = rows.filter(function (item) { return item.slot === slot.id; })[0] || null;
       var fallback = window.SitePages.defaults(place, unitId, slot.id, publishedLessons);
-      body.appendChild(line(client, place, unitId, slot, row, fallback, library, say));
+      var tr = line(client, place, unitId, slot, row, fallback, library, say);
+      if (focus && slot.id === focus) hit = tr;
+      body.appendChild(tr);
     });
+    if (hit) {
+      hit.classList.add('is-path-row');
+      hit.scrollIntoView({ block: 'center' });
+    }
+    if (focus) focused();
     say('Empty fields keep the default. Publish is what students see.');
   }
 
@@ -75,6 +85,7 @@
 
   function line(client, place, unitId, slot, row, fallback, library, say) {
     var tr = document.createElement('tr');
+    tr.dataset.slot = slot.id;
     if (!row || row.status !== 'published') tr.classList.add('is-draft');
     var name = document.createElement('td');
     name.textContent = slot.name;
@@ -150,7 +161,9 @@
     path.hidden = true;
     path.dataset.field = 'image';
     path.dataset.default = fallback.image || '';
-    path.textContent = stored || fallback.image || '';
+    path.dataset.src = stored || fallback.image || '';
+    path.dataset.picked = stored ? '1' : '';
+    path.textContent = path.dataset.src;
     var frameInput = document.createElement('input');
     frameInput.type = 'hidden';
     frameInput.dataset.field = 'frame';
@@ -171,22 +184,26 @@
       try { return JSON.parse(frameInput.value); } catch (error) { return null; }
     }
     function paint() {
-      var src = textOf(path);
+      var src = path.dataset.src || textOf(path);
       var next = currentFrame();
-      var bg = window.ImgFrame ? window.ImgFrame.normalize(next).bg : '#ffffff';
-      preview.style.background = bg;
+      preview.style.background = next && window.ImgFrame ? window.ImgFrame.normalize(next).bg : '#ffffff';
       preview.style.aspectRatio = String(ratio);
+      img.classList.remove('is-cropped');
+      ['--crop-left', '--crop-top', '--crop-width', '--crop-height'].forEach(function (name) {
+        img.style.removeProperty(name);
+      });
       if (!src) {
         img.hidden = true;
         img.removeAttribute('src');
         return;
       }
       img.hidden = false;
-      img.onload = function () {
-        if (window.ImgFrame) window.ImgFrame.apply(img, next, ratio);
-      };
+      function framed() {
+        if (next && window.ImgFrame) window.ImgFrame.apply(img, next, ratio);
+      }
+      img.onload = framed;
       if (img.getAttribute('src') !== src) img.src = src;
-      else if (img.complete && img.naturalWidth && window.ImgFrame) window.ImgFrame.apply(img, next, ratio);
+      else framed();
     }
     thumb.addEventListener('click', function () {
       if (!window.RevisionStudio || !textOf(path)) return;
@@ -206,6 +223,8 @@
     change.textContent = 'Change photo';
     change.addEventListener('click', function () {
       choosePhoto(library, ratio, say, function (item) {
+        path.dataset.src = item.src;
+        path.dataset.picked = '1';
         path.textContent = item.src;
         frameInput.value = item.frame ? JSON.stringify(item.frame) : '';
         paint();
@@ -215,7 +234,9 @@
     clear.type = 'button';
     clear.textContent = 'Use default photo';
     clear.addEventListener('click', function () {
-      path.textContent = fallback.image || '';
+      path.dataset.src = fallback.image || '';
+      path.dataset.picked = '';
+      path.textContent = path.dataset.src;
       frameInput.value = '';
       paint();
     });
@@ -303,13 +324,43 @@
       });
       var imageField = tr.querySelector('[data-field="image"]');
       var frameField = tr.querySelector('[data-field="frame"]');
-      var imageText = textOf(imageField);
-      data.image = imageText === (imageField && imageField.dataset.default || '') ? '' : imageText;
-      if (data.image && frameField && frameField.value) {
+      var imageText = (imageField && imageField.dataset.src) || textOf(imageField);
+      var fallbackImage = imageField && imageField.dataset.default || '';
+      var picked = imageField && imageField.dataset.picked === '1';
+      data.image = picked || imageText !== fallbackImage ? imageText : '';
+      if (frameField && frameField.value) {
         try { data.frame = JSON.parse(frameField.value); } catch (error) { data.frame = null; }
       }
       return data;
     }
+    function copyText(text, button) {
+      function mark() {
+        var old = button.textContent;
+        button.textContent = 'Copied';
+        setTimeout(function () { button.textContent = old; }, 1200);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(mark, mark);
+        return;
+      }
+      var area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.left = '-9999px';
+      document.body.appendChild(area);
+      area.select();
+      try { document.execCommand('copy'); } catch (error) {}
+      area.remove();
+      mark();
+    }
+    var copy = document.createElement('button');
+    copy.type = 'button';
+    copy.className = 'studio-copy';
+    copy.textContent = 'Copy path';
+    copy.addEventListener('click', function () {
+      copyText(window.StudioDraft.studioPath(place, { slot: slot.id }), copy);
+    });
     function store(status) {
       var data = read();
       var patch = {
@@ -369,6 +420,7 @@
       });
       return retract;
     }
+    td.appendChild(copy);
     td.appendChild(save);
     td.appendChild(publish);
     if (row && row.status === 'published') td.appendChild(retractButton());

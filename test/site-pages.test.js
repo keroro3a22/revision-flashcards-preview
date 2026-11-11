@@ -80,6 +80,17 @@ test('grammar practice stays closed when that unit has no game page', () => {
   assert.equal(unit.items.filter((item) => item.id === 'practice-grammar')[0].ready, false);
 });
 
+test('a saved crop stays on the automatic photo', () => {
+  const lessons = [{ unit_id: 'unit1', track: 'grammar', n: 1, img: 'https://cdn.example/grammar.png' }];
+  const frame = { x: 20, y: 40, z: 1.2, bg: '#ffffff' };
+  const unit = pages.resolveUnit(bookB, 'unit1', [
+    { unit_id: 'unit1', slot: 'revision-grammar', label: '', note: '', image: '', frame: frame }
+  ], lessons, []);
+  const grammar = unit.items.filter((item) => item.id === 'revision-grammar')[0];
+  assert.equal(grammar.image, 'https://cdn.example/grammar.png');
+  assert.deepEqual(grammar.frame, frame);
+});
+
 test('page photos use the shape students see', () => {
   assert.equal(pages.photoRatio('hear'), 1);
   assert.equal(pages.photoRatio('title'), 1);
