@@ -36,18 +36,18 @@ test('missing letters and memory match omit unused explain and options', () => {
   assert.equal(match.columns[2].label, '中文');
 });
 
-test('sentence fill keeps the choice list on easy and hides it on hard', () => {
+test('sentence fill shows easy and hard together', () => {
   const easy = columns.practiceColumns(place);
-  assert.deepEqual(easy.fields, ['prompt', 'answer', 'explain', 'options']);
-  assert.equal(easy.shape, 'fill');
+  assert.equal(easy.kind, 'pair');
+  assert.deepEqual(easy.columns.map((column) => column.label), ['#', 'Easy', 'Hard', 'Options', 'State', '']);
   const hard = columns.practiceColumns(Object.assign({}, place, { difficulty: 'hard' }));
-  assert.deepEqual(hard.fields, ['prompt', 'answer', 'explain']);
-  assert.equal(hard.shape, 'fill-hard');
+  assert.equal(hard.kind, 'pair');
 });
 
-test('grammar practice gives the passage the wide column', () => {
+test('grammar practice keeps a set list and a hard column', () => {
   const story = columns.practiceColumns(Object.assign({}, place, { kind: 'grammar', mode: 'story' }));
   assert.equal(story.shape, 'passage');
   assert.equal(story.columns[1].col, 'col-passage');
+  assert.equal(story.columns.some((column) => column.label === 'Hard'), true);
   assert.deepEqual(story.fields, ['prompt', 'answer', 'explain', 'options']);
 });

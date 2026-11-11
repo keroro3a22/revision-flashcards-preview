@@ -11,6 +11,15 @@ test('vocab and grammar each continue their own card numbers', () => {
   assert.equal(draft.nextNumber(Object.assign({}, oxford, { unit: 'unit3', kind: 'grammar' }), [1, 2]), 4);
 });
 
+test('a fill sentence keeps the missing words separate from the rest', () => {
+  const parts = draft.fillParts('They want to ______ today.', 'adopt a pet');
+  assert.deepEqual(parts, { before: 'They want to ', missing: 'adopt a pet', after: ' today.' });
+  assert.deepEqual(draft.fillStored(parts.before, 'adopt pets', parts.after), {
+    sentence: 'They want to ______ today.',
+    answer: 'adopt pets'
+  });
+});
+
 test('removing a row closes the gap without touching earlier numbers first', () => {
   const plan = draft.compactNumbers([
     { id: 4, n: 4 },

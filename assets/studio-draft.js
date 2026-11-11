@@ -91,14 +91,34 @@
       track: place.kind === 'grammar' ? 'grammar' : 'vocab',
       mode: place.mode,
       level_name: difficulty(place),
+      set_no: place.kind === 'grammar' ? (Number(place.set) || 1) : 1,
       n: n,
       prompt: '',
       answer: '',
       explain: '',
       options: '',
-      extra: {},
+      extra: place.kind === 'grammar' ? { set: Number(place.set) || 1, item: {} } : {},
       published: null,
       status: 'draft'
+    };
+  }
+
+  function fillParts(sentence, answer, blank) {
+    var token = blank || '______';
+    var text = String(sentence || '');
+    var at = text.indexOf(token);
+    if (at < 0) return { before: text, missing: String(answer || ''), after: '' };
+    return {
+      before: text.slice(0, at),
+      missing: String(answer || ''),
+      after: text.slice(at + token.length)
+    };
+  }
+
+  function fillStored(before, missing, after) {
+    return {
+      sentence: String(before || '') + '______' + String(after || ''),
+      answer: String(missing || '').trim()
     };
   }
 
@@ -205,6 +225,8 @@
     practiceInsert: practiceInsert,
     revisionPatch: revisionPatch,
     practicePatch: practicePatch,
-    compactNumbers: compactNumbers
+    compactNumbers: compactNumbers,
+    fillParts: fillParts,
+    fillStored: fillStored
   };
 });

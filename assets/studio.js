@@ -62,6 +62,7 @@
       kind: $('filter-kind').value,
       mode: $('filter-mode').value,
       difficulty: $('filter-difficulty').value,
+      set: $('filter-set') ? $('filter-set').value : '1',
       review: $('filter-review').value
     };
   }
@@ -73,7 +74,8 @@
     fillSelect($('filter-mode'), modes, current);
     var practice = $('filter-section').value === 'practice';
     $('filter-mode-label').hidden = !practice;
-    $('filter-difficulty-label').hidden = !(practice && $('filter-mode').value === 'fill');
+    $('filter-difficulty-label').hidden = true;
+    $('filter-set-label').hidden = !(practice && kind === 'grammar');
     $('filter-unit-label').hidden = practice && $('filter-mode').value === 'boss';
     syncUnits();
   }
@@ -301,21 +303,51 @@
         ]
       };
     }
-    var grammar = here.kind === 'grammar';
-    var hard = mode === 'fill' && here.difficulty === 'hard';
-    var fields = ['prompt', 'answer', 'explain'];
-    var columns = [
-      { col: 'col-num', label: '#' },
-      { col: grammar ? 'col-passage' : 'col-prompt', label: 'Prompt' },
-      { col: grammar ? 'col-short' : 'col-answer', label: 'Answer' },
-      { col: 'col-explain', label: 'Explain' }
-    ];
-    if (!hard) {
-      fields.push('options');
-      columns.push({ col: 'col-options', label: 'Options' });
+    if (mode === 'fill' && here.kind !== 'grammar') {
+      return {
+        shape: 'fill',
+        kind: 'pair',
+        columns: [
+          { col: 'col-num', label: '#' },
+          { col: 'col-pair', label: 'Easy' },
+          { col: 'col-pair', label: 'Hard' },
+          { col: 'col-options', label: 'Options' },
+          { col: 'col-state', label: 'State' },
+          { col: 'col-actions', label: '' }
+        ]
+      };
     }
-    columns.push({ col: 'col-state', label: 'State' }, { col: 'col-actions', label: '' });
-    return { shape: hard ? 'fill-hard' : (grammar ? 'passage' : 'fill'), fields: fields, columns: columns };
+    if (here.kind === 'grammar') {
+      return {
+        shape: 'passage',
+        kind: 'grammar',
+        fields: ['prompt', 'answer', 'explain', 'options'],
+        columns: [
+          { col: 'col-num', label: '#' },
+          { col: 'col-passage', label: 'Prompt' },
+          { col: 'col-short', label: 'Answer' },
+          { col: 'col-explain', label: 'Explain' },
+          { col: 'col-options', label: 'Options' },
+          { col: 'col-hard', label: 'Hard' },
+          { col: 'col-state', label: 'State' },
+          { col: 'col-actions', label: '' }
+        ]
+      };
+    }
+    return {
+      shape: 'fill',
+      kind: 'plain',
+      fields: ['prompt', 'answer', 'explain', 'options'],
+      columns: [
+        { col: 'col-num', label: '#' },
+        { col: 'col-prompt', label: 'Prompt' },
+        { col: 'col-answer', label: 'Answer' },
+        { col: 'col-explain', label: 'Explain' },
+        { col: 'col-options', label: 'Options' },
+        { col: 'col-state', label: 'State' },
+        { col: 'col-actions', label: '' }
+      ]
+    };
   }
   function setColumns(shape, columns) {
     var table = $('studio-table');
@@ -348,12 +380,133 @@
       ? '1 draft is waiting for a person to check.'
       : drafts + ' drafts are waiting for a person to check.';
   }
+  function zipFill(list) {
+    var map = {};
+    (list || []).forEach(function (row) {
+      var key = String(row.n);
+      if (!map[key]) map[key] = { id: row.id, n: row.n, status: row.status, easy: null, hard: null };
+      if (row.level_name === 'hard') map[key].hard = row;
+      else {
+        map[key].easy = row;
+        map[key].id = row.id;
+        map[key].status = row.status;
+      }
+    });
+    return Object.keys(map).map(function (key) { return map[key]; }).sort(function (a, b) {
+      return Number(a.n) - Number(b.n);
+    });
+  }
+  function paintBlank(field, sentence, answer, blank) {
+    var parts = window.StudioDraft.fillParts(sentence, answer, blank);
+    field.innerHTML = '';
+    field.appendChild(document.createTextNode(parts.before));
+    var mark = document.createElement('span');
+    mark.className = 'studio-hl';
+    mark.textContent = parts.missing;
+    field.appendChild(mark);
+    field.appendChild(document.createTextNode(parts.after));
+  }
+  function readBlankField(field) {
+    var answer = '';
+    var sentence = '';
+    function walk(node) {
+      if (node.nodeType === 3) { sentence += node.textContent; return; }
+      if (node.nodeType !== 1) return;
+      if (node.classList && node.classList.contains('studio-hl')) {
+        answer += node.textContent;
+        sentence += '______';
+        return;
+      }
+      Array.prototype.forEach.call(node.childNodes, walk);
+    }
+    walk(field);
+    return {
+      sentence: cellText(sentence).trim(),
+      answer: cellText(answer).trim()
+    };
+  }
+  function markBlank(field) {
+    var sel = window.getSelection();
+    if (!sel || !sel.rangeCount || sel.isCollapsed || !field.contains(sel.anchorNode)) {
+      say('Select the missing words in this sentence, then press Highlight this.');
+      return;
+    }
+    field.querySelectorAll('.studio-hl').forEach(function (span) {
+      span.replaceWith(document.createTextNode(span.textContent));
+    });
+    field.normalize();
+    var range = sel.getRangeAt(0);
+    if (!field.contains(range.commonAncestorContainer)) {
+      say('Select the missing words in this sentence, then press Highlight this.');
+      return;
+    }
+    var mark = document.createElement('span');
+    mark.className = 'studio-hl';
+    try { range.surroundContents(mark); }
+    catch (error) {
+      say('Select the missing words inside one part of the sentence.');
+    }
+  }
+  function fillSideCell(side, row) {
+    var cell = document.createElement('td');
+    cell.className = 'studio-pair';
+    var sentence = document.createElement('div');
+    sentence.className = 'studio-edit';
+    sentence.contentEditable = 'true';
+    sentence.spellcheck = true;
+    sentence.dataset.side = side;
+    var blank = row && row.extra && row.extra.blank;
+    paintBlank(sentence, (row && (row.extra && row.extra.sentence || row.prompt)) || '', (row && row.answer) || '', blank);
+    sentence.addEventListener('paste', plainPaste);
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'studio-mark';
+    button.textContent = 'Highlight this';
+    button.addEventListener('mousedown', function (event) { event.preventDefault(); });
+    button.addEventListener('click', function () { markBlank(sentence); });
+    var explain = edit(side + '_explain', row && row.explain);
+    cell.appendChild(sentence);
+    cell.appendChild(button);
+    cell.appendChild(explain);
+    return cell;
+  }
+  function hardCell(row) {
+    var cell = document.createElement('td');
+    var input = document.createElement('input');
+    input.type = 'checkbox';
+    input.dataset.field = 'hard';
+    input.checked = !!(row && row.extra && row.extra.item && row.extra.item.hard);
+    cell.appendChild(input);
+    return cell;
+  }
+  function renderFillPair(row) {
+    var tr = document.createElement('tr');
+    tr.dataset.pair = 'fill';
+    tr.dataset.id = String((row.easy && row.easy.id) || (row.hard && row.hard.id) || '');
+    if (row.easy && row.easy.id) tr.dataset.easyId = String(row.easy.id);
+    if (row.hard && row.hard.id) tr.dataset.hardId = String(row.hard.id);
+    if (row.status !== 'published') tr.classList.add('is-draft');
+    var number = document.createElement('td');
+    number.className = 'is-num';
+    number.textContent = String(row.n);
+    tr.appendChild(number);
+    tr.appendChild(fillSideCell('easy', row.easy));
+    tr.appendChild(fillSideCell('hard', row.hard));
+    tr.appendChild(box('options', row.easy && row.easy.options));
+    tr.appendChild(stateCell(row));
+    tr.appendChild(actionCell(tr));
+    return tr;
+  }
   function renderPractice() {
     var spec = practiceColumns(place());
     setColumns(spec.shape, spec.columns);
     var body = $('studio-rows');
     body.replaceChildren();
     shownRows().forEach(function (row) {
+      if (spec.kind === 'pair') {
+        body.appendChild(renderFillPair(row));
+        return;
+      }
       var tr = document.createElement('tr');
       tr.dataset.id = String(row.id);
       if (row.status !== 'published') tr.classList.add('is-draft');
@@ -364,6 +517,7 @@
       spec.fields.forEach(function (name) {
         tr.appendChild(box(name, row[name]));
       });
+      if (spec.kind === 'grammar') tr.appendChild(hardCell(row));
       tr.appendChild(stateCell(row));
       tr.appendChild(actionCell(tr));
       body.appendChild(tr);
@@ -447,7 +601,7 @@
   function readRow(tr) {
     var data = {};
     tr.querySelectorAll('[data-field]').forEach(function (field) {
-      data[field.dataset.field] = cellText(field.textContent).trim();
+      data[field.dataset.field] = field.type === 'checkbox' ? field.checked : cellText(field.textContent).trim();
     });
     var row = rows.filter(function (item) { return String(item.id) === tr.dataset.id; })[0];
     data.audio = row && row.audio ? row.audio : '';
@@ -470,11 +624,18 @@
   }
   function store(tr, status) {
     if (!window.StudioDraft) { say('The draft script did not load.'); return; }
+    if (tr.dataset.pair === 'fill') { storeFill(tr, status); return; }
     var data = readRow(tr);
     var row = rows.filter(function (item) { return String(item.id) === tr.dataset.id; })[0];
     var wasPublished = row && row.status === 'published';
+    var extra = row && row.extra;
+    if (tableName === 'practice_items' && place().kind === 'grammar') {
+      extra = Object.assign({}, extra || {});
+      extra.item = Object.assign({}, extra.item || {}, { hard: data.hard === true });
+      extra.set = Number(place().set) || extra.set || 1;
+    }
     var patch = tableName === 'practice_items'
-      ? window.StudioDraft.practicePatch(data, row && row.extra, status)
+      ? window.StudioDraft.practicePatch(data, extra, status)
       : window.StudioDraft.revisionPatch(data, status, row && row.published);
     say('Saving…');
     client.from(tableName).update(patch).eq('id', Number(tr.dataset.id)).select('id,status').then(function (result) {
@@ -493,6 +654,45 @@
     });
   }
 
+  function storeFill(tr, status) {
+    var optionsField = tr.querySelector('[data-field="options"]');
+    var options = optionsField ? cellText(optionsField.textContent).trim() : '';
+    var number = Number(tr.querySelector('.is-num').textContent);
+    var pair = rows.filter(function (item) { return Number(item.n) === number; })[0] || {};
+    var pending = 2;
+    function done(error) {
+      if (error) { say(error); return; }
+      pending -= 1;
+      if (pending > 0) return;
+      load(status === 'published' ? 'Published. Students see it after a refresh.' : 'Draft saved. Students do not see it yet.');
+    }
+    ['easy', 'hard'].forEach(function (side) {
+      var field = tr.querySelector('[data-side="' + side + '"]');
+      var blank = readBlankField(field);
+      var explainField = tr.querySelector('[data-field="' + side + '_explain"]');
+      var sideRow = pair[side];
+      var data = {
+        prompt: blank.sentence,
+        answer: blank.answer,
+        explain: explainField ? cellText(explainField.textContent).trim() : '',
+        options: side === 'easy' ? options : ((sideRow && sideRow.options) || ''),
+        level_name: side
+      };
+      var patch = window.StudioDraft.practicePatch(data, sideRow && sideRow.extra, status);
+      var id = tr.dataset[side + 'Id'];
+      if (!id) {
+        var insert = window.StudioDraft.practiceInsert(Object.assign({}, place(), { difficulty: side }), number);
+        Object.assign(insert, patch);
+        client.from(tableName).insert(insert).select('id').then(function (result) {
+          done(result.error && result.error.message);
+        });
+        return;
+      }
+      client.from(tableName).update(patch).eq('id', Number(id)).then(function (result) {
+        done(result.error && result.error.message);
+      });
+    });
+  }
   function load(doneMessage) {
     var here = place();
     var practice = here.section === 'practice';
@@ -503,12 +703,16 @@
       : 'id,n,status,en,zh,pos,syllables,pattern,note_zh,highlight,ex_en,ex_zh,adv_en,adv_zh,img,audio,video,published')
       .eq('book', here.book).eq('series', here.series).eq('term', here.term)
       .eq('level', here.level).eq('track', here.kind);
-    if (practice) query = query.eq('unit_id', window.StudioDraft.unitId(here)).eq('mode', here.mode).eq('level_name', window.StudioDraft.difficulty(here));
-    else query = query.eq('unit_id', here.unit);
+    if (practice) {
+      query = query.eq('unit_id', window.StudioDraft.unitId(here)).eq('mode', here.mode);
+      if (here.kind === 'grammar') query = query.eq('set_no', Number(here.set) || 1);
+      else if (here.mode !== 'fill') query = query.eq('level_name', window.StudioDraft.difficulty(here));
+    } else query = query.eq('unit_id', here.unit);
     query.order('n', { ascending: true })
       .then(function (result) {
         if (result.error) { say(result.error.message); return; }
         rows = result.data || [];
+        if (practice && here.mode === 'fill' && here.kind !== 'grammar') rows = zipFill(rows);
         render();
         say(doneMessage || reviewLine());
       });
@@ -516,10 +720,12 @@
   function sameList(table) {
     var here = place();
     var practice = here.section === 'practice';
-    var query = client.from(table).select('id,n')
+    var query = client.from(table).select(here.mode === 'fill' ? 'id,n,level_name' : 'id,n')
       .eq('book', here.book).eq('series', here.series).eq('term', here.term).eq('level', here.level);
     if (practice) {
-      query = query.eq('unit_id', window.StudioDraft.unitId(here)).eq('track', here.kind).eq('mode', here.mode).eq('level_name', window.StudioDraft.difficulty(here));
+      query = query.eq('unit_id', window.StudioDraft.unitId(here)).eq('track', here.kind).eq('mode', here.mode);
+      if (here.kind === 'grammar') query = query.eq('set_no', Number(here.set) || 1);
+      else if (here.mode !== 'fill') query = query.eq('level_name', window.StudioDraft.difficulty(here));
     } else {
       query = query.eq('unit_id', here.unit).eq('track', here.kind === 'grammar' ? 'grammar' : 'vocab');
     }
@@ -535,19 +741,34 @@
       writeNumbers(changes, index + 1);
     });
   }
-  function removeRow(tr) {
-    var row = rows.filter(function (item) { return String(item.id) === tr.dataset.id; })[0];
-    if (!row) return;
-    var message = row.status === 'published'
-      ? 'Remove ' + row.n + '? Students will not see it after a refresh. The photo and audio stay.'
-      : 'Remove draft ' + row.n + '?';
-    if (!window.confirm(message)) return;
-    say('Removing…');
-    client.from(tableName).delete().eq('id', row.id).then(function (result) {
+  function deleteIds(ids, done) {
+    if (!ids.length) { done(); return; }
+    client.from(tableName).delete().eq('id', ids[0]).then(function (result) {
       if (result.error) { say(result.error.message); return; }
+      deleteIds(ids.slice(1), done);
+    });
+  }
+  function removeRow(tr) {
+    var number = tr.querySelector('.is-num').textContent;
+    var row = rows.filter(function (item) { return String(item.id) === tr.dataset.id || String(item.n) === number; })[0];
+    var published = row && row.status === 'published';
+    var message = published
+      ? 'Remove ' + number + '? Students will not see it after a refresh. The photo and audio stay.'
+      : 'Remove draft ' + number + '?';
+    if (!window.confirm(message)) return;
+    var ids = tr.dataset.pair === 'fill'
+      ? [tr.dataset.easyId, tr.dataset.hardId].filter(Boolean).map(Number)
+      : [Number(tr.dataset.id)];
+    say('Removing…');
+    deleteIds(ids, function () {
       sameList(tableName).then(function (listed) {
         if (listed.error) { say(listed.error.message); return; }
-        writeNumbers(window.StudioDraft.compactNumbers(listed.data || []), 0);
+        var data = listed.data || [];
+        var changes = place().mode === 'fill' && place().kind !== 'grammar'
+          ? window.StudioDraft.compactNumbers(data.filter(function (item) { return item.level_name !== 'hard'; }))
+            .concat(window.StudioDraft.compactNumbers(data.filter(function (item) { return item.level_name === 'hard'; })))
+          : window.StudioDraft.compactNumbers(data);
+        writeNumbers(changes, 0);
       });
     });
   }
@@ -560,7 +781,10 @@
     var numbers = client.from(table).select('n')
       .eq('book', here.book).eq('series', here.series).eq('term', here.term).eq('level', here.level);
     if (practice) {
-      numbers = numbers.eq('unit_id', window.StudioDraft.unitId(here)).eq('track', here.kind).eq('mode', here.mode).eq('level_name', window.StudioDraft.difficulty(here));
+      numbers = numbers.eq('unit_id', window.StudioDraft.unitId(here)).eq('track', here.kind).eq('mode', here.mode);
+      if (here.kind === 'grammar') numbers = numbers.eq('set_no', Number(here.set) || 1);
+      else if (here.mode !== 'fill') numbers = numbers.eq('level_name', window.StudioDraft.difficulty(here));
+      else numbers = numbers.eq('level_name', 'easy');
     } else {
       numbers = numbers.eq('unit_id', here.unit).eq('track', here.kind === 'grammar' ? 'grammar' : 'vocab');
     }
@@ -569,7 +793,11 @@
       var n = window.StudioDraft.nextNumber(here, (result.data || []).map(function (item) { return item.n; }));
       if ($('filter-review').value === 'published') $('filter-review').value = 'all';
       var row = practice ? window.StudioDraft.practiceInsert(here, n) : window.StudioDraft.revisionInsert(here, n);
-      client.from(table).insert(row).select('id').then(function (inserted) {
+      var batch = [row];
+      if (practice && here.mode === 'fill' && here.kind !== 'grammar') {
+        batch.push(window.StudioDraft.practiceInsert(Object.assign({}, here, { difficulty: 'hard' }), n));
+      }
+      client.from(table).insert(batch).select('id').then(function (inserted) {
         if (inserted.error) { say(inserted.error.message); return; }
         load('Draft ' + n + ' added. Students do not see it until you publish.');
       });
@@ -603,7 +831,7 @@
     });
     fillSelect($('filter-unit'), UNITS, 'unit1');
     syncMode();
-    ['filter-book', 'filter-series', 'filter-term', 'filter-level', 'filter-unit', 'filter-section', 'filter-kind', 'filter-mode', 'filter-difficulty'].forEach(function (id) {
+    ['filter-book', 'filter-series', 'filter-term', 'filter-level', 'filter-unit', 'filter-section', 'filter-kind', 'filter-mode', 'filter-difficulty', 'filter-set'].forEach(function (id) {
       $(id).addEventListener('change', function () {
         if (id === 'filter-book') syncSeries();
         if (id === 'filter-section' || id === 'filter-kind' || id === 'filter-mode') syncMode();

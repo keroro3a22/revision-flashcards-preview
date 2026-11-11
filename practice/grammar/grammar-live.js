@@ -119,7 +119,13 @@
       .order('n', { ascending: true })
       .then(function (result) {
         if (result.error || !result.data || !result.data.length) return null;
-        return rebuild(result.data);
+        var data = result.data.slice().sort(function (a, b) {
+          var aSet = Number(a.published && a.published.set) || 1;
+          var bSet = Number(b.published && b.published.set) || 1;
+          if (aSet !== bSet) return aSet - bSet;
+          return Number(a.n) - Number(b.n);
+        });
+        return rebuild(data);
       }, function () { return null; });
   }
 
