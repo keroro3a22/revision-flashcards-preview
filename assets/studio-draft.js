@@ -533,9 +533,15 @@
     'revision-vocab': 1, 'revision-grammar': 1, 'practice-vocab': 1, 'practice-grammar': 1
   };
 
+  function termSlug(term) {
+    if (term === 'second') return 'bookB';
+    if (term === 'first') return 'bookA';
+    return term || '';
+  }
+
   function studioPath(place, row) {
     var here = place || {};
-    var bits = [here.book, seriesSlug(here.series), here.term, here.level, here.unit, here.section];
+    var bits = [here.book, seriesSlug(here.series), termSlug(here.term), here.level, here.unit, here.section];
     if (here.section !== 'pages') bits.push(here.kind || 'vocab');
     if (here.section === 'practice' && here.mode) bits.push(here.mode);
     if (here.section === 'practice' && here.kind === 'grammar' && String(here.set || '1') !== '1') bits.push('set' + here.set);

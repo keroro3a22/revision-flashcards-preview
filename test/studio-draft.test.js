@@ -179,13 +179,15 @@ test('the pages table can stay on Get started', () => {
   assert.equal(saved.section, 'pages');
   assert.equal(saved.unit, 'home');
   assert.equal(draft.readStudioPlace(store).unit, 'home');
-  assert.equal(draft.studioPath(saved), 'oxford/Livingoxfordenglish/second/p6/home/pages');
+  assert.equal(draft.studioPath(saved), 'oxford/Livingoxfordenglish/bookB/p6/home/pages');
   const row = draft.studioPath(saved, { slot: 'hear' });
-  assert.equal(row, 'oxford/Livingoxfordenglish/second/p6/home/pages/hear');
+  assert.equal(row, 'oxford/Livingoxfordenglish/bookB/p6/home/pages/hear');
   assert.equal(draft.parseStudioPath(row).slot, 'hear');
+  assert.equal(draft.parseStudioPath(row).term, 'second');
   assert.equal(draft.parseStudioPath(row).unit, 'home');
   const grammar = 'oxford/Livingoxfordenglish/second/p6/unit1/pages/revision-grammar';
   assert.equal(draft.parseStudioPath(grammar).slot, 'revision-grammar');
+  assert.equal(draft.parseStudioPath(grammar).term, 'second');
   assert.equal(draft.parseStudioPath(grammar).section, 'pages');
 });
 
@@ -232,7 +234,7 @@ test('a studio path names the table and one row', () => {
     mode: 'letters',
     set: '1'
   });
-  assert.equal(table, 'oxford/Livingoxfordenglish/first/p6/unit1/practice/vocab/letters');
+  assert.equal(table, 'oxford/Livingoxfordenglish/bookA/p6/unit1/practice/vocab/letters');
   const longman = draft.studioPath({
     book: 'longman',
     series: 'mypearson-express',
@@ -242,7 +244,7 @@ test('a studio path names the table and one row', () => {
     section: 'revision',
     kind: 'vocab'
   });
-  assert.equal(longman, 'longman/Primarylongmanexpress/first/p6/unit1/revision/vocab');
+  assert.equal(longman, 'longman/Primarylongmanexpress/bookA/p6/unit1/revision/vocab');
 
   const revision = draft.studioPath({
     book: 'oxford',
@@ -255,7 +257,7 @@ test('a studio path names the table and one row', () => {
     mode: 'fill',
     set: '1'
   });
-  assert.equal(revision, 'oxford/Livingoxfordenglish/first/p6/unit3/revision/grammar');
+  assert.equal(revision, 'oxford/Livingoxfordenglish/bookA/p6/unit3/revision/grammar');
 
   const row = draft.studioPath({
     book: 'oxford',
@@ -266,11 +268,13 @@ test('a studio path names the table and one row', () => {
     section: 'revision',
     kind: 'vocab'
   }, { n: '4', label: 'Korea' });
-  assert.equal(row, 'oxford/Livingoxfordenglish/first/p6/unit6/revision/vocab/4');
+  assert.equal(row, 'oxford/Livingoxfordenglish/bookA/p6/unit6/revision/vocab/4');
   const opened = draft.parseStudioPath(row);
+  assert.equal(opened.term, 'first');
   assert.equal(opened.series, 'oxford');
   assert.equal(opened.unit, 'unit6');
   assert.equal(opened.n, '4');
+  assert.equal(draft.parseStudioPath('oxford/Livingoxfordenglish/first/p6/unit6/revision/vocab/4').n, '4');
   const old = draft.parseStudioPath('Studio row 4\nOxford · P6 · Book A\noxford/oxford/first/p6/unit6/revision/vocab/4\nKorea');
   assert.equal(old.series, 'oxford');
   assert.equal(old.n, '4');
@@ -286,7 +290,7 @@ test('a studio path names the table and one row', () => {
     mode: 'story',
     set: '2'
   }, { n: '4', label: 'where' });
-  assert.equal(story, 'oxford/Livingoxfordenglish/first/p6/unit1/practice/grammar/story/set2/4');
+  assert.equal(story, 'oxford/Livingoxfordenglish/bookA/p6/unit1/practice/grammar/story/set2/4');
   assert.equal(draft.parseStudioPath(story).set, '2');
   assert.equal(draft.parseStudioPath(story).mode, 'story');
 
@@ -303,8 +307,8 @@ test('a studio path names the table and one row', () => {
   };
   const easy = draft.studioPath(letters, { n: '3', label: 'bad for', level: 'easy' });
   const hard = draft.studioPath(letters, { n: '3', label: 'bad for', level: 'hard' });
-  assert.equal(easy, 'oxford/Livingoxfordenglish/first/p6/unit1/practice/vocab/letters/3/easy');
-  assert.equal(hard, 'oxford/Livingoxfordenglish/first/p6/unit1/practice/vocab/letters/3/hard');
+  assert.equal(easy, 'oxford/Livingoxfordenglish/bookA/p6/unit1/practice/vocab/letters/3/easy');
+  assert.equal(hard, 'oxford/Livingoxfordenglish/bookA/p6/unit1/practice/vocab/letters/3/hard');
   assert.equal(draft.parseStudioPath('not a path'), null);
 });
 
