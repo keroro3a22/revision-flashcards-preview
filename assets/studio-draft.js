@@ -138,7 +138,7 @@
 
   function advancedHighlight(row) {
     if (!row) return '';
-    if (row.highlight_adv == null) return row.highlight || '';
+    if (row.highlight_adv == null || String(row.highlight_adv).trim() === '') return row.highlight || '';
     return row.highlight_adv;
   }
 

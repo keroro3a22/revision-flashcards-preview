@@ -130,13 +130,35 @@
   }
   function highlightHtml(text, phrase) {
     var value = String(text || '');
-    var mark = String(phrase || '').trim();
-    if (!mark) return escapeHtml(value);
-    var at = value.toLowerCase().indexOf(mark.toLowerCase());
-    if (at < 0) return escapeHtml(value);
-    return escapeHtml(value.slice(0, at))
-      + '<span class="studio-hl">' + escapeHtml(value.slice(at, at + mark.length)) + '</span>'
-      + escapeHtml(value.slice(at + mark.length));
+    var marks = String(phrase || '').split(/\s*(?:\n|\|)\s*/).map(function (part) {
+      return part.trim();
+    }).filter(Boolean);
+    if (!marks.length) return escapeHtml(value);
+    marks.sort(function (a, b) { return b.length - a.length; });
+    var lower = value.toLowerCase();
+    var spans = [];
+    marks.forEach(function (mark) {
+      var needle = mark.toLowerCase();
+      var from = 0;
+      while (from <= lower.length - needle.length) {
+        var at = lower.indexOf(needle, from);
+        if (at < 0) break;
+        var end = at + mark.length;
+        var clash = spans.some(function (span) { return at < span.end && end > span.start; });
+        if (!clash) spans.push({ start: at, end: end });
+        from = at + Math.max(needle.length, 1);
+      }
+    });
+    if (!spans.length) return escapeHtml(value);
+    spans.sort(function (a, b) { return a.start - b.start; });
+    var html = '';
+    var cursor = 0;
+    spans.forEach(function (span) {
+      html += escapeHtml(value.slice(cursor, span.start));
+      html += '<span class="studio-hl">' + escapeHtml(value.slice(span.start, span.end)) + '</span>';
+      cursor = span.end;
+    });
+    return html + escapeHtml(value.slice(cursor));
   }
   function paintField(field, phrase) {
     field.innerHTML = highlightHtml(field.textContent, phrase);

@@ -251,6 +251,12 @@ test('a studio path names the table and one row', () => {
   assert.notEqual(easy, hard);
 });
 
+test('a blank advanced highlight still uses the example highlight', () => {
+  assert.equal(draft.advancedHighlight({ highlight: 'adopt a pet', highlight_adv: '' }), 'adopt a pet');
+  assert.equal(draft.advancedHighlight({ highlight: 'adopt a pet', highlight_adv: null }), 'adopt a pet');
+  assert.equal(draft.advancedHighlight({ highlight: 'adopt a pet', highlight_adv: 'adopted a pet' }), 'adopted a pet');
+});
+
 test('example and advanced highlights stay on their own sentence', () => {
   const shared = { highlight: 'does voluntary work', highlight_adv: null };
   assert.equal(draft.advancedHighlight(shared), 'does voluntary work');

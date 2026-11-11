@@ -64,10 +64,31 @@ if (lbPlay) lbPlay.addEventListener('click', () => { if (activeCard) playCard(ac
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 
 function hl(text, target) {
-  if (!target) return text;
-  const i = text.toLowerCase().indexOf(target.toLowerCase());
-  if (i < 0) return text;
-  return text.slice(0,i) + '<span class="hl">' + text.slice(i,i+target.length) + '</span>' + text.slice(i+target.length);
+  const marks = String(target || '').split(/\s*(?:\n|\|)\s*/).map(part => part.trim()).filter(Boolean);
+  if (!marks.length) return text;
+  marks.sort((a, b) => b.length - a.length);
+  const lower = text.toLowerCase();
+  const spans = [];
+  marks.forEach(mark => {
+    const needle = mark.toLowerCase();
+    let from = 0;
+    while (from <= lower.length - needle.length) {
+      const at = lower.indexOf(needle, from);
+      if (at < 0) break;
+      const end = at + mark.length;
+      if (!spans.some(span => at < span.end && end > span.start)) spans.push({ start: at, end });
+      from = at + Math.max(needle.length, 1);
+    }
+  });
+  if (!spans.length) return text;
+  spans.sort((a, b) => a.start - b.start);
+  let html = '';
+  let cursor = 0;
+  spans.forEach(span => {
+    html += text.slice(cursor, span.start) + '<span class="hl">' + text.slice(span.start, span.end) + '</span>';
+    cursor = span.end;
+  });
+  return html + text.slice(cursor);
 }
 
 function playCard(card, article) {
@@ -144,7 +165,7 @@ CARDS.forEach(card => {
   ex1.innerHTML = '<span class="ex-label">Example</span><p class="ex-en">' + hl(card.ex_en, card.highlight) + '</p><p class="ex-zh">' + card.ex_zh + '</p>';
   const ex2 = document.createElement('div');
   ex2.className = 'ex';
-  ex2.innerHTML = '<span class="ex-label">Advanced example</span><p class="ex-en">' + hl(card.adv_en, card.highlight_adv == null ? card.highlight : card.highlight_adv) + '</p><p class="ex-zh">' + card.adv_zh + '</p>';
+  ex2.innerHTML = '<span class="ex-label">Advanced example</span><p class="ex-en">' + hl(card.adv_en, card.highlight_adv || card.highlight) + '</p><p class="ex-zh">' + card.adv_zh + '</p>';
   article.appendChild(ex1);
   article.appendChild(ex2);
 

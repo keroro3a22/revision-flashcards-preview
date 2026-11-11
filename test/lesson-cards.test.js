@@ -32,7 +32,7 @@ test('the public page asks for the published series and term', () => {
     assert.match(html, /function renderLesson/);
     assert.match(html, /window\.applyLessonCards/);
     assert.match(html, /lesson-live\.js\?v=3/);
-    assert.match(html, /highlight_adv == null \? card\.highlight : card\.highlight_adv/);
+    assert.match(html, /card\.highlight_adv \|\| card\.highlight/);
   });
   assert.match(live, /SUPABASE_PUBLIC/);
   assert.match(live, /\.eq\('series', series\)/);
@@ -110,4 +110,12 @@ test('a chosen phrase is marked in the example and left alone when the words dif
   );
   assert.equal(highlightHtml('the disaster injured people nearby.', 'injure people'), 'the disaster injured people nearby.');
   assert.equal(highlightHtml('<b>', ''), '&lt;b&gt;');
+  assert.equal(
+    highlightHtml('Yesterday she did voluntary work.', 'does voluntary work\ndid voluntary work'),
+    'Yesterday she <span class="studio-hl">did voluntary work</span>.'
+  );
+  assert.equal(
+    highlightHtml('Tom would rather go rock climbing than play air hockey.', 'would rather | than'),
+    'Tom <span class="studio-hl">would rather</span> go rock climbing <span class="studio-hl">than</span> play air hockey.'
+  );
 });
