@@ -171,9 +171,89 @@
     field.addEventListener('paste', plainPaste);
     return field;
   }
+  function fieldValue(field) {
+    if (!field) return '';
+    if (field.type === 'checkbox') return field.checked;
+    if (field.tagName === 'INPUT' || field.tagName === 'TEXTAREA') return cellText(field.value).trim();
+    return cellText(field.textContent).trim();
+  }
+  function optionEditor(value) {
+    var wrap = document.createElement('div');
+    wrap.className = 'studio-tags';
+    var hidden = document.createElement('input');
+    hidden.type = 'hidden';
+    hidden.dataset.field = 'options';
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'studio-tag-input';
+    input.setAttribute('aria-label', 'Add option');
+    input.autocomplete = 'off';
+    input.spellcheck = true;
+    function current() {
+      return Array.prototype.map.call(wrap.querySelectorAll('[data-option]'), function (chip) {
+        return chip.getAttribute('data-option');
+      });
+    }
+    function sync() {
+      hidden.value = window.StudioDraft.joinOptions(current());
+    }
+    function addOne(part) {
+      if (!part || current().indexOf(part) >= 0) return;
+      var chip = document.createElement('span');
+      chip.className = 'studio-tag';
+      chip.setAttribute('data-option', part);
+      var label = document.createElement('span');
+      label.textContent = part;
+      var remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'studio-tag-x';
+      remove.textContent = '×';
+      remove.setAttribute('aria-label', 'Remove ' + part);
+      remove.addEventListener('click', function () {
+        chip.remove();
+        sync();
+        input.focus();
+      });
+      chip.appendChild(label);
+      chip.appendChild(remove);
+      wrap.insertBefore(chip, input);
+    }
+    function commit() {
+      var parts = window.StudioDraft.optionList(input.value);
+      input.value = '';
+      parts.forEach(addOne);
+      sync();
+    }
+    wrap.appendChild(input);
+    wrap.appendChild(hidden);
+    window.StudioDraft.optionList(value).forEach(addOne);
+    sync();
+    input.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        commit();
+      } else if (event.key === 'Backspace' && !input.value) {
+        var chips = wrap.querySelectorAll('[data-option]');
+        var last = chips[chips.length - 1];
+        if (last) {
+          last.remove();
+          sync();
+        }
+      }
+    });
+    input.addEventListener('paste', function (event) {
+      var text = (event.clipboardData || window.clipboardData).getData('text/plain');
+      if (text.indexOf('|') === -1) return;
+      event.preventDefault();
+      window.StudioDraft.optionList(text).forEach(addOne);
+      sync();
+    });
+    input.addEventListener('blur', commit);
+    return wrap;
+  }
   function box(name, value) {
     var cell = document.createElement('td');
-    cell.appendChild(edit(name, value));
+    cell.appendChild(name === 'options' ? optionEditor(value) : edit(name, value));
     return cell;
   }
   function pairCell(topName, bottomName, row) {
@@ -715,7 +795,7 @@
   function readRow(tr) {
     var data = {};
     tr.querySelectorAll('[data-field]').forEach(function (field) {
-      data[field.dataset.field] = field.type === 'checkbox' ? field.checked : cellText(field.textContent).trim();
+      data[field.dataset.field] = fieldValue(field);
     });
     var row = rows.filter(function (item) { return String(item.id) === tr.dataset.id; })[0];
     data.audio = row && row.audio ? row.audio : '';
@@ -777,7 +857,7 @@
 
   function storeFill(tr, status) {
     var optionsField = tr.querySelector('[data-field="options"]');
-    var options = optionsField ? cellText(optionsField.textContent).trim() : '';
+    var options = fieldValue(optionsField);
     var number = Number(tr.querySelector('.is-num').textContent);
     var pair = rows.filter(function (item) { return Number(item.n) === number; })[0] || {};
     var pending = 2;

@@ -87,3 +87,11 @@ test('practice publish keeps the draft fields and does not publish early', () =>
   assert.deepEqual(scene.published.item.parts, ['There are ', '____', ' ideas.']);
   assert.equal(scene.published.item.explain, 'Countable.');
 });
+
+test('option tags split on bars and keep a dotted pair together', () => {
+  assert.deepEqual(draft.optionList('so many | so much | although'), ['so many', 'so much', 'although']);
+  assert.deepEqual(draft.optionList('  as · as | so · that  '), ['as · as', 'so · that']);
+  assert.deepEqual(draft.optionList(''), []);
+  assert.equal(draft.joinOptions(['so many', ' so much ', '']), 'so many | so much');
+  assert.equal(draft.joinOptions(draft.optionList('will · so that | would · although')), 'will · so that | would · although');
+});
