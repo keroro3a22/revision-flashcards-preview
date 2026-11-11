@@ -5,7 +5,7 @@
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.ImgFrame = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
-  var MIN_Z = 1;
+  var MIN_Z = 0.5;
   var MAX_Z = 3;
 
   function clamp(value, min, max) {
@@ -25,10 +25,20 @@
     if (!isFinite(y)) y = 50;
     if (!isFinite(z)) z = 1;
     return {
-      x: Math.round(clamp(x, 0, 100) * 10) / 10,
-      y: Math.round(clamp(y, 0, 100) * 10) / 10,
-      z: Math.round(clamp(z, MIN_Z, MAX_Z) * 1000) / 1000
+      x: Math.round(clamp(x, -250, 350) * 10) / 10,
+      y: Math.round(clamp(y, -250, 350) * 10) / 10,
+      z: Math.round(clamp(z, MIN_Z, MAX_Z) * 1000) / 1000,
+      bg: hexColor(src.bg)
     };
+  }
+
+  function hexColor(value) {
+    var text = String(value || '').trim();
+    var full = text.match(/^#([0-9a-fA-F]{6})$/);
+    if (full) return '#' + full[1].toLowerCase();
+    var short = text.match(/^#([0-9a-fA-F]{3})$/);
+    if (!short) return '#ffffff';
+    return '#' + short[1].split('').map(function (ch) { return ch + ch; }).join('').toLowerCase();
   }
 
   function maxCrop(imageWidth, imageHeight, ratio) {
@@ -46,19 +56,32 @@
     var max = maxCrop(imageW, imageH, ratio);
     var width = max.width / next.z;
     var height = max.height / next.z;
-    var left = clamp(next.x / 100 * imageW - width / 2, 0, Math.max(0, imageW - width));
-    var top = clamp(next.y / 100 * imageH - height / 2, 0, Math.max(0, imageH - height));
+    return {
+      left: next.x / 100 * imageW - width / 2,
+      top: next.y / 100 * imageH - height / 2,
+      width: width,
+      height: height
+    };
+  }
+
+  function keepOverlap(left, top, width, height, imageW, imageH) {
+    var overlap = Math.max(8, Math.min(width, height, imageW, imageH) * 0.2);
+    if (left + width < overlap) left = overlap - width;
+    if (top + height < overlap) top = overlap - height;
+    if (left > imageW - overlap) left = imageW - overlap;
+    if (top > imageH - overlap) top = imageH - overlap;
     return { left: left, top: top, width: width, height: height };
   }
 
-  function frameFromRect(box, imageWidth, imageHeight, ratio) {
+  function frameFromRect(box, imageWidth, imageHeight, ratio, bg) {
     var imageW = imageWidth > 0 ? imageWidth : 1;
     var imageH = imageHeight > 0 ? imageHeight : 1;
     var max = maxCrop(imageW, imageH, ratio);
     return normalize({
       x: (box.left + box.width / 2) / imageW * 100,
       y: (box.top + box.height / 2) / imageH * 100,
-      z: max.width / box.width
+      z: max.width / box.width,
+      bg: bg
     });
   }
 
@@ -78,9 +101,10 @@
     var box = rect(frame, imageWidth, imageHeight, ratio);
     var imageW = imageWidth > 0 ? imageWidth : 1;
     var imageH = imageHeight > 0 ? imageHeight : 1;
-    var left = clamp(box.left + dx * imageW / viewWidth, 0, imageW - box.width);
-    var top = clamp(box.top + dy * imageH / viewHeight, 0, imageH - box.height);
-    return frameFromRect({ left: left, top: top, width: box.width, height: box.height }, imageW, imageH, ratio);
+    var left = box.left + dx * imageW / viewWidth;
+    var top = box.top + dy * imageH / viewHeight;
+    var kept = keepOverlap(left, top, box.width, box.height, imageW, imageH);
+    return frameFromRect(kept, imageW, imageH, ratio, normalize(frame).bg);
   }
 
   function resize(frame, corner, dx, dy, imageWidth, imageHeight, viewWidth, viewHeight, ratio) {
@@ -108,21 +132,19 @@
     }
     var max = maxCrop(imageW, imageH, aspect);
     var minW = max.width / MAX_Z;
+    var maxW = max.width / MIN_Z;
     if (width < minW) {
       width = minW;
       height = width / aspect;
     }
-    if (width > max.width) {
-      width = max.width;
-      height = max.height;
+    if (width > maxW) {
+      width = maxW;
+      height = width / aspect;
     }
     var nextLeft = corner === 'se' || corner === 'ne' ? ax : ax - width;
     var nextTop = corner === 'se' || corner === 'sw' ? ay : ay - height;
-    if (nextLeft < 0) nextLeft = 0;
-    if (nextTop < 0) nextTop = 0;
-    if (nextLeft + width > imageW) nextLeft = imageW - width;
-    if (nextTop + height > imageH) nextTop = imageH - height;
-    return frameFromRect({ left: nextLeft, top: nextTop, width: width, height: height }, imageW, imageH, aspect);
+    var kept = keepOverlap(nextLeft, nextTop, width, height, imageW, imageH);
+    return frameFromRect(kept, imageW, imageH, aspect, normalize(frame).bg);
   }
 
   function placement(frame, imageWidth, imageHeight, ratio) {
@@ -155,7 +177,7 @@
     var parent = img.parentElement;
     var aspect = ratio > 0 ? ratio : 1;
     if (!parent) return { box: null, ratio: aspect };
-    if (parent.classList.contains('img-crop') || parent.classList.contains('mcard-photo')) {
+    if (parent.classList.contains('img-crop') || parent.classList.contains('mcard-photo') || parent.classList.contains('studio-thumb-preview')) {
       return { box: parent, ratio: aspect };
     }
     if (parent.classList.contains('illust') && parent.closest && parent.closest('.card')) {
@@ -179,9 +201,10 @@
   function paint(img, frame, ratio) {
     var host = hostFor(img, ratio);
     var useRatio = host.ratio;
+    var plain = normalize(frame);
+    if (host.box) host.box.style.background = plain.bg;
     if (host.box && host.box.classList.contains('cutout')) {
-      var plain = normalize(frame);
-      if (plain.x === 50 && plain.y === 50 && plain.z === 1) return;
+      if (plain.x === 50 && plain.y === 50 && plain.z === 1 && plain.bg === '#ffffff') return;
     }
     function place() {
       var iw = img.naturalWidth;

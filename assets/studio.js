@@ -382,9 +382,20 @@
     return place().unit + '/' + value.replace(/^\.\//, '');
   }
   function paintPhoto(cell) {
+    var button = cell.querySelector('.studio-thumb-btn');
+    var path = cell.querySelector('[data-field="img"]');
+    if (button && button.update) {
+      var hidden = cell.querySelector('[data-field="img_frame"]');
+      var stored = null;
+      if (hidden && hidden.value) {
+        try { stored = JSON.parse(hidden.value); } catch (error) { stored = null; }
+      }
+      button.update(photoSrc(path ? path.textContent : ''), stored);
+      return;
+    }
     var img = cell.querySelector('img');
-    var path = cell.querySelector('[data-field="img"]').textContent;
-    var src = photoSrc(path);
+    if (!img) return;
+    var src = photoSrc(path ? path.textContent : '');
     img.hidden = !src;
     if (src) img.src = src;
   }
@@ -430,7 +441,7 @@
     root.hidden = true;
     root.innerHTML = '<div class="studio-frame-card" role="dialog" aria-modal="true" aria-labelledby="studio-frame-title">'
       + '<p id="studio-frame-title" class="studio-frame-title">Live preview</p>'
-      + '<p class="studio-frame-note">Drag inside the frame to move it. Drag a corner to resize it.</p>'
+      + '<p class="studio-frame-note">Drag inside the frame to move it. Drag a corner to resize it. The frame can be larger than the photo.</p>'
       + '<div class="studio-crop" data-crop>'
       + '<img alt="" draggable="false">'
       + '<div class="studio-crop-shade" data-shade="top"></div>'
@@ -443,7 +454,7 @@
       + '<button type="button" class="studio-crop-corner" data-corner="sw" aria-label="Resize from the bottom left"></button>'
       + '<button type="button" class="studio-crop-corner" data-corner="se" aria-label="Resize from the bottom right"></button>'
       + '</div></div>'
-      + '<div class="studio-frame-bar"><button type="button" data-reset>Reset</button><button type="button" data-done>Done</button></div>'
+      + '<div class="studio-frame-bar"><label class="studio-color">Background <input type="color" data-color value="#ffffff" aria-label="Background color"></label><button type="button" data-dropper>Pick from photo</button><button type="button" data-reset>Reset</button><button type="button" data-done>Done</button></div>'
       + '</div>';
     document.body.appendChild(root);
     frameDialog = {
@@ -456,7 +467,9 @@
         left: root.querySelector('[data-shade="left"]'),
         right: root.querySelector('[data-shade="right"]'),
         bottom: root.querySelector('[data-shade="bottom"]')
-      }
+      },
+      color: root.querySelector('[data-color]'),
+      dropper: root.querySelector('[data-dropper]')
     };
     frameDialog.img.draggable = false;
     frameDialog.img.addEventListener('dragstart', function (event) { event.preventDefault(); });
@@ -479,21 +492,51 @@
     var frame = window.ImgFrame.normalize(spec.frame);
     var drag = null;
     function place() {
-      var viewW = dialog.img.offsetWidth;
-      var viewH = dialog.img.offsetHeight;
       var imageW = dialog.img.naturalWidth;
       var imageH = dialog.img.naturalHeight;
-      if (!viewW || !viewH || !imageW || !imageH) return;
+      if (!imageW || !imageH) return;
+      var base = Math.min(460 / imageW, 340 / imageH, 1);
+      var viewW = imageW * base;
+      var viewH = imageH * base;
       var box = window.ImgFrame.viewRect(frame, imageW, imageH, viewW, viewH, ratio);
+      var margin = 16;
+      var originX = Math.min(0, box.left) - margin;
+      var originY = Math.min(0, box.top) - margin;
+      var rawW = Math.max(viewW, box.left + box.width) - originX + margin;
+      var rawH = Math.max(viewH, box.top + box.height) - originY + margin;
+      var maxW = Math.min(560, window.innerWidth - 80);
+      var maxH = Math.min(window.innerHeight * 0.62, 520);
+      var fit = Math.min(1, maxW / rawW, maxH / rawH);
+      dialog.crop.style.width = (rawW * fit) + 'px';
+      dialog.crop.style.height = (rawH * fit) + 'px';
+      dialog.crop.style.background = frame.bg;
+      dialog.view = { w: viewW * fit, h: viewH * fit };
+      var imgX = (0 - originX) * fit;
+      var imgY = (0 - originY) * fit;
+      var imgW = viewW * fit;
+      var imgH = viewH * fit;
+      dialog.img.style.left = imgX + 'px';
+      dialog.img.style.top = imgY + 'px';
+      dialog.img.style.width = imgW + 'px';
+      dialog.img.style.height = imgH + 'px';
+      var winX = (box.left - originX) * fit;
+      var winY = (box.top - originY) * fit;
+      var winW = box.width * fit;
+      var winH = box.height * fit;
       var win = dialog.window;
-      win.style.left = box.left + 'px';
-      win.style.top = box.top + 'px';
-      win.style.width = box.width + 'px';
-      win.style.height = box.height + 'px';
-      dialog.shades.top.style.cssText = 'left:0;top:0;width:100%;height:' + box.top + 'px;';
-      dialog.shades.bottom.style.cssText = 'left:0;top:' + (box.top + box.height) + 'px;width:100%;height:' + Math.max(0, viewH - box.top - box.height) + 'px;';
-      dialog.shades.left.style.cssText = 'left:0;top:' + box.top + 'px;width:' + box.left + 'px;height:' + box.height + 'px;';
-      dialog.shades.right.style.cssText = 'left:' + (box.left + box.width) + 'px;top:' + box.top + 'px;width:' + Math.max(0, viewW - box.left - box.width) + 'px;height:' + box.height + 'px;';
+      win.style.left = winX + 'px';
+      win.style.top = winY + 'px';
+      win.style.width = winW + 'px';
+      win.style.height = winH + 'px';
+      win.style.background = 'transparent';
+      var clipL = Math.max(imgX, Math.min(imgX + imgW, winX));
+      var clipT = Math.max(imgY, Math.min(imgY + imgH, winY));
+      var clipR = Math.max(imgX, Math.min(imgX + imgW, winX + winW));
+      var clipB = Math.max(imgY, Math.min(imgY + imgH, winY + winH));
+      dialog.shades.top.style.cssText = 'left:' + imgX + 'px;top:' + imgY + 'px;width:' + imgW + 'px;height:' + Math.max(0, clipT - imgY) + 'px;';
+      dialog.shades.bottom.style.cssText = 'left:' + imgX + 'px;top:' + clipB + 'px;width:' + imgW + 'px;height:' + Math.max(0, imgY + imgH - clipB) + 'px;';
+      dialog.shades.left.style.cssText = 'left:' + imgX + 'px;top:' + clipT + 'px;width:' + Math.max(0, clipL - imgX) + 'px;height:' + Math.max(0, clipB - clipT) + 'px;';
+      dialog.shades.right.style.cssText = 'left:' + clipR + 'px;top:' + clipT + 'px;width:' + Math.max(0, imgX + imgW - clipR) + 'px;height:' + Math.max(0, clipB - clipT) + 'px;';
     }
     dialog.place = place;
     dialog.img.onload = place;
@@ -509,15 +552,14 @@
     };
     dialog.crop.onpointermove = function (event) {
       if (!drag || drag.pointer !== event.pointerId) return;
-      var viewW = dialog.img.offsetWidth;
-      var viewH = dialog.img.offsetHeight;
+      var view = dialog.view || { w: dialog.img.offsetWidth, h: dialog.img.offsetHeight };
       var imageW = dialog.img.naturalWidth;
       var imageH = dialog.img.naturalHeight;
       var dx = event.clientX - drag.x;
       var dy = event.clientY - drag.y;
       frame = drag.corner
-        ? window.ImgFrame.resize(drag.frame, drag.corner, dx, dy, imageW, imageH, viewW, viewH, ratio)
-        : window.ImgFrame.move(drag.frame, dx, dy, imageW, imageH, viewW, viewH, ratio);
+        ? window.ImgFrame.resize(drag.frame, drag.corner, dx, dy, imageW, imageH, view.w, view.h, ratio)
+        : window.ImgFrame.move(drag.frame, dx, dy, imageW, imageH, view.w, view.h, ratio);
       place();
     };
     function endDrag(event) {
@@ -526,8 +568,25 @@
     }
     dialog.crop.onpointerup = endDrag;
     dialog.crop.onpointercancel = endDrag;
+    dialog.color.value = frame.bg;
+    dialog.color.oninput = function () {
+      frame = Object.assign({}, frame, { bg: dialog.color.value });
+      place();
+    };
+    dialog.dropper.onclick = function () {
+      if (!window.EyeDropper) {
+        say('Use the color box to choose a background.');
+        return;
+      }
+      new window.EyeDropper().open().then(function (result) {
+        frame = Object.assign({}, frame, { bg: result.sRGBHex });
+        dialog.color.value = frame.bg;
+        place();
+      }).catch(function () {});
+    };
     dialog.root.querySelector('[data-reset]').onclick = function () {
       frame = window.ImgFrame.normalize(null);
+      dialog.color.value = frame.bg;
       place();
     };
     dialog.root.querySelector('[data-done]').onclick = function () {
@@ -535,18 +594,38 @@
       spec.onDone(window.ImgFrame.normalize(frame));
     };
   }
-  function thumbButton(src, onClick) {
+  function thumbButton(src, frame, ratio, onClick) {
     var button = document.createElement('button');
     button.type = 'button';
     button.className = 'studio-thumb-btn';
     button.setAttribute('aria-label', 'Preview and reframe photo');
+    var preview = document.createElement('span');
+    preview.className = 'studio-thumb-preview';
     var img = document.createElement('img');
     img.alt = '';
-    img.className = 'studio-thumb';
-    button.appendChild(img);
+    img.draggable = false;
+    preview.appendChild(img);
+    button.appendChild(preview);
     button.addEventListener('click', onClick);
-    if (src) img.src = src;
-    img.hidden = !src;
+    button.update = function (nextSrc, nextFrame) {
+      src = nextSrc;
+      frame = nextFrame;
+      var bg = window.ImgFrame ? window.ImgFrame.normalize(frame).bg : '#ffffff';
+      preview.style.background = bg;
+      preview.style.aspectRatio = String(ratio);
+      if (!src) {
+        img.hidden = true;
+        img.removeAttribute('src');
+        return;
+      }
+      img.hidden = false;
+      img.onload = function () {
+        if (window.ImgFrame) window.ImgFrame.apply(img, frame, ratio);
+      };
+      if (img.getAttribute('src') !== src) img.src = src;
+      else if (img.complete && img.naturalWidth && window.ImgFrame) window.ImgFrame.apply(img, frame, ratio);
+    };
+    button.update(src, frame);
     return button;
   }
   function photoCell(row) {
@@ -556,7 +635,7 @@
     frameInput.type = 'hidden';
     frameInput.dataset.field = 'img_frame';
     frameInput.value = row.img_frame ? JSON.stringify(row.img_frame) : '';
-    var thumb = thumbButton(photoSrc(row.img), function () {
+    var thumb = thumbButton(photoSrc(row.img), row.img_frame, 1, function () {
       openPhotoFrame({
         src: photoSrc(cell.querySelector('[data-field="img"]').textContent),
         frame: frameInput.value,
@@ -566,6 +645,7 @@
         onDone: function (frame) {
           frameInput.value = JSON.stringify(frame);
           row.img_frame = frame;
+          thumb.update(photoSrc(cell.querySelector('[data-field="img"]').textContent), frame);
           saveLessonFrame(row);
         }
       });
@@ -657,7 +737,7 @@
     path.contentEditable = 'true';
     path.spellcheck = false;
     path.textContent = picture.src || '';
-    var thumb = thumbButton(photoSrc(picture.src), function () {
+    var thumb = thumbButton(photoSrc(picture.src), picture.frame, 320 / 220, function () {
       var current = path.textContent.trim();
       openPhotoFrame({
         src: photoSrc(current),
@@ -666,16 +746,14 @@
         fit: 'contain',
         onDone: function (frame) {
           picture = { src: current, frame: frame, kind: picture.kind };
+          thumb.update(photoSrc(current), frame);
           saveGrammarPicture(row, picture);
         }
       });
     });
     path.addEventListener('paste', plainPaste);
     path.addEventListener('input', function () {
-      var img = thumb.querySelector('img');
-      var src = photoSrc(path.textContent);
-      img.hidden = !src;
-      if (src) img.src = src;
+      thumb.update(photoSrc(path.textContent), picture.frame);
     });
     var button = document.createElement('button');
     button.type = 'button';
@@ -1036,7 +1114,7 @@
     var cell = document.createElement('td');
     cell.className = 'studio-pair';
     var path = edit('img', row.extra && row.extra.img);
-    var thumb = thumbButton(photoSrc(row.extra && row.extra.img), function () {
+    var thumb = thumbButton(photoSrc(row.extra && row.extra.img), row.extra && row.extra.frame, 180 / 140, function () {
       openPhotoFrame({
         src: photoSrc(path.textContent),
         frame: row.extra && row.extra.frame,
@@ -1044,15 +1122,13 @@
         fit: 'contain',
         onDone: function (frame) {
           row.extra = Object.assign({}, row.extra || {}, { frame: frame, img: path.textContent.trim() });
+          thumb.update(photoSrc(path.textContent), frame);
           savePracticeFrame(row);
         }
       });
     });
-    var img = thumb.querySelector('img');
     path.addEventListener('input', function () {
-      var src = photoSrc(path.textContent);
-      img.hidden = !src;
-      if (src) img.src = src;
+      thumb.update(photoSrc(path.textContent), row.extra && row.extra.frame);
     });
     cell.appendChild(thumb);
     cell.appendChild(path);

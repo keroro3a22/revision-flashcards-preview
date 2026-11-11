@@ -198,21 +198,26 @@ body.studio-col-dragging * {
   display: block;
   width: 100%;
   margin: 0 0 0.3rem;
-  padding: 0;
+  padding: 0.4rem;
   border: 0;
-  background: #fff;
+  background: #1d3358;
   cursor: pointer;
 }
 .studio-thumb-btn:focus-visible { outline: 2px solid #2f6fad; outline-offset: 2px; }
-.studio-thumb {
+.studio-thumb-preview {
   display: block;
+  position: relative;
   width: 100%;
-  max-height: 4.2rem;
-  object-fit: contain;
-  margin: 0;
+  overflow: hidden;
   background: #fff;
+  aspect-ratio: 1;
 }
-.studio-thumb[hidden] { display: none; }
+.studio-thumb-preview img {
+  position: absolute;
+  max-width: none;
+  max-height: none;
+}
+.studio-thumb-preview img[hidden] { display: none; }
 .studio-frame {
   position: fixed;
   inset: 0;
@@ -242,14 +247,26 @@ body.studio-col-dragging * {
   touch-action: none;
 }
 .studio-crop img {
-  display: block;
-  max-width: 100%;
-  max-height: 58vh;
-  width: auto;
-  height: auto;
+  position: absolute;
+  max-width: none;
+  max-height: none;
   -webkit-user-drag: none;
   user-select: none;
   pointer-events: none;
+}
+.studio-color {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 700;
+}
+.studio-color input[type="color"] {
+  width: 2.2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid #8ea4ba;
+  background: #fff;
+  cursor: pointer;
 }
 .studio-crop-shade {
   position: absolute;
