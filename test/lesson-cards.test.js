@@ -44,6 +44,9 @@ test('the public page asks for the published series and term', () => {
 test('the studio edits the same place and publishes a snapshot', () => {
   assert.match(studio, /mypearson-express/);
   assert.match(studio, /elect/);
+  assert.match(studio, /Living Oxford English/);
+  assert.match(studio, /Primary Longman Express/);
+  assert.match(studio, /Primary Longman Elect/);
   assert.match(studio, /Book A/);
   assert.match(studio, /Book B/);
   assert.doesNotMatch(studio, /上學期|下學期/);

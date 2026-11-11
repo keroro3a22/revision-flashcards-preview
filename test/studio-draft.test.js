@@ -199,6 +199,16 @@ test('a studio path names the table and one row', () => {
   });
   assert.match(table, /^Studio table\n/);
   assert.match(table, /Oxford · P6 · Book A · Unit 1 · Practice · Vocab · Missing letters/);
+  const longman = draft.studioPath({
+    book: 'longman',
+    series: 'mypearson-express',
+    term: 'first',
+    level: 'p6',
+    unit: 'unit1',
+    section: 'revision',
+    kind: 'vocab'
+  });
+  assert.match(longman, /Longman · Primary Longman Express · P6 · Book A/);
   assert.match(table, /oxford\/oxford\/first\/p6\/unit1\/practice\/vocab\/letters$/);
 
   const revision = draft.studioPath({

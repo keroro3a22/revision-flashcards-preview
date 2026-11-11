@@ -493,7 +493,7 @@
   }
 
   var PATH_BOOK = { oxford: 'Oxford', longman: 'Longman' };
-  var PATH_SERIES = { oxford: 'Oxford', 'mypearson-express': 'MyPearson Express', elect: 'Elect' };
+  var PATH_SERIES = { oxford: 'Living Oxford English', 'mypearson-express': 'Primary Longman Express', elect: 'Primary Longman Elect' };
   var PATH_TERM = { first: 'Book A', second: 'Book B' };
   var PATH_SECTION = { revision: 'Revision card', practice: 'Practice' };
   var PATH_KIND = { vocab: 'Vocab', grammar: 'Grammar' };

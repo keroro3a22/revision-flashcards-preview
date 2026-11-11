@@ -5,10 +5,10 @@
     { id: 'longman', label: 'Longman' }
   ];
   var SERIES = {
-    oxford: [{ id: 'oxford', label: 'Oxford' }],
+    oxford: [{ id: 'oxford', label: 'Living Oxford English' }],
     longman: [
-      { id: 'mypearson-express', label: 'MyPearson Express' },
-      { id: 'elect', label: 'Elect' }
+      { id: 'mypearson-express', label: 'Primary Longman Express' },
+      { id: 'elect', label: 'Primary Longman Elect' }
     ]
   };
   var TERMS = [
