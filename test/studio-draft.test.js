@@ -4,10 +4,11 @@ const draft = require('../assets/studio-draft.js');
 
 const oxford = { book: 'oxford', series: 'oxford', term: 'first', level: 'p6', unit: 'unit1', section: 'revision', kind: 'vocab' };
 
-test('a new revision card continues the unit number students already see', () => {
-  assert.equal(draft.nextNumber(oxford, [1, 2, 10]), 15);
-  assert.equal(draft.nextNumber(Object.assign({}, oxford, { unit: 'unit5' }), []), 34);
-  assert.equal(draft.nextNumber(Object.assign({}, oxford, { unit: 'unit3', kind: 'grammar' }), [12]), 16);
+test('vocab and grammar each continue their own card numbers', () => {
+  assert.equal(draft.nextNumber(oxford, [1, 2, 10]), 11);
+  assert.equal(draft.nextNumber(Object.assign({}, oxford, { unit: 'unit5' }), []), 17);
+  assert.equal(draft.nextNumber(Object.assign({}, oxford, { unit: 'unit1', kind: 'grammar' }), []), 5);
+  assert.equal(draft.nextNumber(Object.assign({}, oxford, { unit: 'unit3', kind: 'grammar' }), [1, 2]), 4);
 });
 
 test('a new practice question numbers only that mode', () => {
@@ -20,11 +21,11 @@ test('a new practice question numbers only that mode', () => {
 });
 
 test('a draft stays off the site until publish copies a snapshot', () => {
-  const card = draft.revisionInsert(Object.assign({}, oxford, { kind: 'grammar' }), 15);
+  const card = draft.revisionInsert(Object.assign({}, oxford, { kind: 'grammar' }), 5);
   assert.equal(card.status, 'draft');
   assert.equal(card.published, null);
   assert.equal(card.track, 'grammar');
-  assert.equal(card.n, 15);
+  assert.equal(card.n, 5);
   const saved = draft.revisionPatch({ en: 'so many', zh: '這麼多' }, 'draft');
   assert.equal(saved.status, 'draft');
   assert.equal(Object.prototype.hasOwnProperty.call(saved, 'published'), false);

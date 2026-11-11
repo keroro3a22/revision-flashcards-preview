@@ -524,7 +524,7 @@
     if (practice) {
       numbers = numbers.eq('unit_id', window.StudioDraft.unitId(here)).eq('track', here.kind).eq('mode', here.mode).eq('level_name', window.StudioDraft.difficulty(here));
     } else {
-      numbers = numbers.eq('unit_id', here.unit);
+      numbers = numbers.eq('unit_id', here.unit).eq('track', here.kind === 'grammar' ? 'grammar' : 'vocab');
     }
     numbers.then(function (result) {
       if (result.error) { say(result.error.message); return; }

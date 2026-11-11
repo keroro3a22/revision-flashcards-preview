@@ -9,16 +9,23 @@
   root.StudioDraft = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   var STATIC_LAST = {
-    'oxford|oxford|first|p6|unit1': 14,
-    'oxford|oxford|first|p6|unit2': 12,
-    'oxford|oxford|first|p6|unit3': 15,
-    'oxford|oxford|first|p6|unit4': 16,
-    'oxford|oxford|first|p6|unit5': 33,
-    'oxford|oxford|first|p6|unit6': 23
+    'oxford|oxford|first|p6|unit1|vocab': 10,
+    'oxford|oxford|first|p6|unit1|grammar': 4,
+    'oxford|oxford|first|p6|unit2|vocab': 10,
+    'oxford|oxford|first|p6|unit2|grammar': 2,
+    'oxford|oxford|first|p6|unit3|vocab': 12,
+    'oxford|oxford|first|p6|unit3|grammar': 3,
+    'oxford|oxford|first|p6|unit4|vocab': 14,
+    'oxford|oxford|first|p6|unit4|grammar': 2,
+    'oxford|oxford|first|p6|unit5|vocab': 16,
+    'oxford|oxford|first|p6|unit5|grammar': 17,
+    'oxford|oxford|first|p6|unit6|vocab': 19,
+    'oxford|oxford|first|p6|unit6|grammar': 4
   };
 
   function placeKey(place) {
-    return [place.book, place.series, place.term, place.level, place.unit].join('|');
+    var track = place && place.kind === 'grammar' ? 'grammar' : 'vocab';
+    return [place.book, place.series, place.term, place.level, place.unit, track].join('|');
   }
 
   function nextNumber(place, existingNumbers) {
