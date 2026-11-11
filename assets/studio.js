@@ -1530,6 +1530,21 @@
       });
     });
   }
+  var pathMark = null;
+  function markPathRow(row) {
+    if (!row) return;
+    if (pathMark && pathMark.row !== row) {
+      clearTimeout(pathMark.timer);
+      pathMark.row.classList.remove('is-path-row');
+    }
+    row.classList.add('is-path-row');
+    row.scrollIntoView({ block: 'center' });
+    var timer = setTimeout(function () {
+      row.classList.remove('is-path-row');
+      if (pathMark && pathMark.row === row) pathMark = null;
+    }, 1100);
+    pathMark = { row: row, timer: timer };
+  }
   function focusPendingRow() {
     if (!pendingFocus) return;
     var want = String(pendingFocus);
@@ -1540,9 +1555,7 @@
       if (num && num.textContent.trim() === want) found = tr;
       if (tr.dataset.slot === want) found = tr;
     });
-    if (!found) return;
-    found.classList.add('is-path-row');
-    found.scrollIntoView({ block: 'center' });
+    if (found) markPathRow(found);
   }
   function goToPath(text) {
     var parsed = window.StudioDraft && window.StudioDraft.parseStudioPath(text);
@@ -1794,6 +1807,6 @@
       });
     });
   }
-  window.RevisionStudio = { boot: boot, openPhotoFrame: openPhotoFrame };
+  window.RevisionStudio = { boot: boot, openPhotoFrame: openPhotoFrame, markPathRow: markPathRow };
   if (!window.STUDIO_TEST) boot();
 })();

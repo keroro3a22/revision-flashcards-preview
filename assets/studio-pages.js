@@ -71,10 +71,7 @@
       if (focus && slot.id === focus) hit = tr;
       body.appendChild(tr);
     });
-    if (hit) {
-      hit.classList.add('is-path-row');
-      hit.scrollIntoView({ block: 'center' });
-    }
+    if (hit && window.RevisionStudio && window.RevisionStudio.markPathRow) window.RevisionStudio.markPathRow(hit);
     if (focus) focused();
     say('Empty fields keep the default. Publish is what students see.');
   }

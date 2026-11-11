@@ -108,6 +108,7 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
   text-align: left;
   background: #fff;
   overflow-wrap: anywhere;
+  transition: background-color 0.7s ease;
 }
 .studio-table th {
   position: sticky;

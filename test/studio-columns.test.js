@@ -50,6 +50,15 @@ test('the pages table resizes like the other tables and picks a unit photo', () 
   assert.match(css, /col-page-line/);
 });
 
+test('a path jump highlight fades back to the row color', () => {
+  const js = fs.readFileSync('assets/studio.js', 'utf8');
+  const css = fs.readFileSync('assets/studio.css', 'utf8');
+  assert.match(js, /function markPathRow/);
+  assert.match(js, /classList\.remove\('is-path-row'\)/);
+  assert.match(css, /transition: background-color 0\.7s ease/);
+  assert.match(css, /tr\.is-path-row td \{ background: #e7f1fb; \}/);
+});
+
 test('every studio row copies one path for that row', () => {
   const js = fs.readFileSync('assets/studio.js', 'utf8');
   const start = js.indexOf('function actionCell');
