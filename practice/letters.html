@@ -72,7 +72,8 @@
 <script src="data/registry.js"></script>
 <script src="mastery.js"></script>
 <script src="badges.js"></script>
-<script src="common.js?v=2"></script>
+<script src="../assets/letter-rules.js?v=1"></script>
+<script src="common.js?v=3"></script>
 <script src="practice-live.js?v=2"></script>
 <script>
 (function () {
@@ -258,8 +259,36 @@
   syncHardLock();
   render();
   }
-  if (window.PracticeLive) window.PracticeLive.ready('letters').then(begin);
-  else begin();
+  function whenSdk() {
+    if (window.supabase && window.supabase.createClient) return Promise.resolve();
+    return new Promise(function (resolve) {
+      var tag = document.createElement('script');
+      tag.src = '../assets/vendor/supabase.js?v=1';
+      tag.onload = function () { resolve(); };
+      tag.onerror = function () { resolve(); };
+      document.head.appendChild(tag);
+    });
+  }
+  function loadLetterIgnore() {
+    var cfg = window.SUPABASE_PUBLIC || {};
+    if (!cfg.url || !cfg.key || !window.supabase || !window.supabase.createClient || !window.LetterRules) {
+      return Promise.resolve();
+    }
+    var client = window.supabase.createClient(cfg.url, cfg.key, {
+      auth: { persistSession: false, autoRefreshToken: false }
+    });
+    return client.from('content_settings_live').select('value').eq('key', 'letter_ignore_words').maybeSingle().then(function (result) {
+      if (!result.error && result.data && result.data.value) window.LetterRules.setIgnoreWords(result.data.value);
+    }, function () {});
+  }
+  function deadline(ms) {
+    return new Promise(function (resolve) { setTimeout(resolve, ms); });
+  }
+  whenSdk().then(function () {
+    var jobs = [loadLetterIgnore()];
+    if (window.PracticeLive) jobs.push(window.PracticeLive.ready('letters'));
+    return Promise.race([Promise.all(jobs), deadline(5000)]);
+  }).then(begin);
 })();
 </script>
 </body>

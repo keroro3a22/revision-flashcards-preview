@@ -29,6 +29,7 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
 .studio-table[data-shape="fill"] { min-width: 62.9rem; }
 .studio-table[data-shape="fill-hard"] { min-width: 63.9rem; }
 .studio-table[data-shape="spell"] { min-width: 46.9rem; }
+.studio-table[data-shape="letters"] { min-width: 68.9rem; }
 .studio-table[data-shape="passage"] { min-width: 87.1rem; }
 .studio-table col.col-num { width: 2.4rem; }
 .studio-table col.col-photo { width: 5.4rem; }
@@ -126,4 +127,53 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
   color: #fff;
   background: #9f2d2d;
   border: 1px solid #7d2424;
+}
+.studio-mask {
+  min-height: 1.5em;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}
+.studio-random {
+  margin-top: 0.45rem;
+  font: inherit;
+  font-weight: 700;
+  color: #16324f;
+  background: #fff;
+  border: 1px solid #8ea4ba;
+  border-radius: 0.4rem;
+  padding: 0.2rem 0.55rem;
+}
+.studio-ignore {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: end;
+  margin: 0 0 0.8rem;
+}
+.studio-ignore[hidden] { display: none; }
+.studio-ignore label { display: grid; gap: 0.2rem; font-size: 0.85rem; }
+.studio-ignore input {
+  font: inherit;
+  min-width: 22rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #8ea4ba;
+  border-radius: 0.4rem;
+  color: #16324f;
+  background: #fff;
+}
+.studio-ignore p {
+  flex-basis: 100%;
+  margin: 0;
+  color: #3d5a73;
+  font-size: 0.85rem;
+}
+.studio-ignore button {
+  font: inherit;
+  font-weight: 700;
+  color: #16324f;
+  background: #fff;
+  border: 1px solid #8ea4ba;
+  border-radius: 0.4rem;
+  padding: 0.4rem 0.75rem;
 }

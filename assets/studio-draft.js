@@ -103,33 +103,14 @@
     };
   }
 
-  var SHOWN_WORDS = { a: 1, an: 1, the: 1, and: 1, or: 1, but: 1, nor: 1, as: 1 };
-
-  function functionWordAt(word, index) {
-    if (!/[a-zA-Z]/.test(word.charAt(index))) return false;
-    var start = index;
-    var end = index;
-    while (start > 0 && /[a-zA-Z]/.test(word.charAt(start - 1))) start -= 1;
-    while (end + 1 < word.length && /[a-zA-Z]/.test(word.charAt(end + 1))) end += 1;
-    return !!SHOWN_WORDS[word.slice(start, end + 1).toLowerCase()];
+  function letterRules() {
+    if (typeof globalThis !== 'undefined' && globalThis.LetterRules) return globalThis.LetterRules;
+    if (typeof require === 'function') return require('./letter-rules.js');
+    return null;
   }
 
-  function letterMasks(phrase) {
-    var word = String(phrase || '');
-    var easy = {};
-    var hard = {};
-    var letters = [];
-    var i;
-    for (i = 0; i < word.length; i += 1) {
-      if (!/[a-zA-Z]/.test(word.charAt(i)) || functionWordAt(word, i)) continue;
-      letters.push(i);
-    }
-    letters.forEach(function (index, n) {
-      hard[index] = true;
-      if (n % 3 === 1) easy[index] = true;
-    });
-    if (letters.length && !Object.keys(easy).length) easy[letters[0]] = true;
-    return { easy: easy, hard: hard };
+  function letterExample(phrase, mode, random, ignoreWords) {
+    return letterRules().hiddenIndexes(phrase, mode, random, ignoreWords);
   }
 
   function fillParts(sentence, answer, blank) {
@@ -255,7 +236,7 @@
     revisionPatch: revisionPatch,
     practicePatch: practicePatch,
     compactNumbers: compactNumbers,
-    letterMasks: letterMasks,
+    letterExample: letterExample,
     fillParts: fillParts,
     fillStored: fillStored
   };

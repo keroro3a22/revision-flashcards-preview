@@ -47,39 +47,11 @@ window.PracticeCommon = (function () {
 
   /**
    * Mask a full phrase. Spaces and punctuation stay visible.
-   * Easy hides every 3rd letter (stable). Hard hides about half, shuffled.
+   * Easy and Hard each draw one legal combination from letter-rules.js.
    */
-  const SHOWN_WORDS = { a: 1, an: 1, the: 1, and: 1, or: 1, but: 1, nor: 1, as: 1 };
-
-  function isShownFunctionWord(word, index) {
-    if (!/[a-zA-Z]/.test(word.charAt(index))) return false;
-    let start = index;
-    let end = index;
-    while (start > 0 && /[a-zA-Z]/.test(word.charAt(start - 1))) start -= 1;
-    while (end + 1 < word.length && /[a-zA-Z]/.test(word.charAt(end + 1))) end += 1;
-    return !!SHOWN_WORDS[word.slice(start, end + 1).toLowerCase()];
-  }
-
-  function maskPhrase(phrase, mode, shuffleFn) {
-    const word = String(phrase || '');
-    const chars = word.split('');
-    const letterIdx = [];
-    chars.forEach(function (c, i) {
-      if (/[a-zA-Z]/.test(c) && !isShownFunctionWord(word, i)) letterIdx.push(i);
-    });
-    if (!letterIdx.length) return word;
-    const hide = {};
-    if (mode === 'hard') {
-      const mix = typeof shuffleFn === 'function' ? shuffleFn(letterIdx.slice()) : shuffle(letterIdx);
-      const hideCount = Math.max(2, Math.ceil(letterIdx.length / 2));
-      mix.slice(0, hideCount).forEach(function (i) { hide[i] = true; });
-    } else {
-      letterIdx.forEach(function (idx, n) {
-        if (n % 3 === 1) hide[idx] = true;
-      });
-      if (!Object.keys(hide).length) hide[letterIdx[0]] = true;
-    }
-    return chars.map(function (c, i) { return hide[i] ? '_' : c; }).join('');
+  function maskPhrase(phrase, mode, random, ignoreWords) {
+    if (window.LetterRules) return window.LetterRules.maskPhrase(phrase, mode, random, ignoreWords);
+    return String(phrase || '');
   }
 
   /** @deprecated use maskPhrase so phrases keep spaces */

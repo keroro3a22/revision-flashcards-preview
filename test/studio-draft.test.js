@@ -11,12 +11,17 @@ test('vocab and grammar each continue their own card numbers', () => {
   assert.equal(draft.nextNumber(Object.assign({}, oxford, { unit: 'unit3', kind: 'grammar' }), [1, 2]), 4);
 });
 
-test('easy missing letters are stable and hard can hide any content letter', () => {
-  const masks = draft.letterMasks('adopt a pet');
-  assert.deepEqual(Object.keys(masks.easy).map(Number), [1, 4, 10]);
-  assert.equal(masks.hard[6], undefined);
-  assert.equal(masks.hard[0], true);
-  assert.equal(masks.hard[8], true);
+test('a missing-letter example hides one legal easy or hard set', () => {
+  const easy = draft.letterExample('adopt a pet', 'easy', () => 0);
+  assert.equal(easy[0], undefined);
+  assert.equal(easy[1], true);
+  assert.equal(easy[6], undefined);
+  assert.equal(easy[9], true);
+  const hard = draft.letterExample('adopt a pet', 'hard', () => 0);
+  assert.equal(hard[0], true);
+  assert.equal(hard[1], true);
+  assert.equal(hard[6], undefined);
+  assert.equal(hard[8], true);
 });
 
 test('a fill sentence keeps the missing words separate from the rest', () => {

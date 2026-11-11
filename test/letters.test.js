@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const { loadScripts, loadPacks } = require('./helpers');
 
 test('easy and hard masks keep spaces and punctuation', () => {
-  const { window } = loadScripts(['practice/common.js']);
+  const { window } = loadScripts(['assets/letter-rules.js', 'practice/common.js']);
   const phrase = 'buy/sell raffle tickets';
   const easy = window.PracticeCommon.maskPhrase(phrase, 'easy');
   const hard = window.PracticeCommon.maskPhrase(phrase, 'hard', arr => arr.slice());
@@ -33,6 +33,7 @@ test('articles and little conjunctions stay filled in on every pack', () => {
     'practice/data/unit5.js',
     'practice/data/unit6.js',
     'practice/data/mixed.js',
+    'assets/letter-rules.js',
     'practice/common.js'
   ]);
   const shownWords = { a: 1, an: 1, the: 1, and: 1, or: 1, but: 1, nor: 1, as: 1 };
@@ -46,25 +47,27 @@ test('articles and little conjunctions stay filled in on every pack', () => {
   function tokens(mask, phrase) {
     const parts = [];
     let buf = '';
+    let original = '';
     for (let i = 0; i < phrase.length; i++) {
       if (!/[a-zA-Z]/.test(phrase[i])) {
-        if (buf) parts.push(buf);
+        if (buf) parts.push({ mask: buf, word: original });
         buf = '';
+        original = '';
       } else {
         buf += mask[i];
+        original += phrase[i];
       }
     }
-    if (buf) parts.push(buf);
+    if (buf) parts.push({ mask: buf, word: original });
     return parts;
   }
   packs.forEach(pack => {
     pack.missingLetters.forEach(item => {
       ['easy', 'hard'].forEach(mode => {
-        const mask = window.PracticeCommon.maskPhrase(item.word, mode, arr => arr.slice());
-        tokens(mask, item.word).forEach(token => {
-          const plain = token.replace(/_/g, '');
-          if (shownWords[plain.toLowerCase()] || shownWords[token.toLowerCase()]) {
-            assert.equal(token.includes('_'), false, item.word + ' ' + mode + ' ' + token);
+        const mask = window.PracticeCommon.maskPhrase(item.word, mode, () => 0);
+        tokens(mask, item.word).forEach(part => {
+          if (shownWords[part.word.toLowerCase()]) {
+            assert.equal(part.mask.includes('_'), false, item.word + ' ' + mode + ' ' + part.word);
           }
         });
       });
@@ -118,6 +121,7 @@ test('letter groups keep each English word intact and wrap at spaces, slashes, a
     'practice/data/unit4.js',
     'practice/data/unit5.js',
     'practice/data/unit6.js',
+    'assets/letter-rules.js',
     'practice/common.js'
   ]);
   const C = window.PracticeCommon;
@@ -192,7 +196,8 @@ test('missing letters render wraps between words, not inside them', () => {
   assert.match(inputRule, /background:\s*transparent/);
   assert.match(inputRule, /color:\s*var\(--navy\)/);
   assert.doesNotMatch(inputRule, /var\(--sunny\)/);
-  assert.match(html, /practice\.css\?v=8/);
+  assert.match(html, /practice\.css\?v=11/);
+  assert.match(html, /letter-rules\.js/);
   const rowRule = css.slice(css.indexOf('.letter-row {'), css.indexOf('.letter-word {'));
   assert.doesNotMatch(rowRule, /display:\s*flex/);
   assert.match(css, /overflow-wrap:\s*normal/);

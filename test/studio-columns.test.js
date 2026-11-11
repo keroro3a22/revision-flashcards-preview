@@ -25,11 +25,11 @@ test('grammar adds pattern and note without taking the example width', () => {
   ]);
 });
 
-test('missing letters and memory match use the two cards students see', () => {
+test('missing letters show the word and one easy and hard example', () => {
   const letters = columns.practiceColumns(Object.assign({}, place, { mode: 'letters' }));
   assert.equal(letters.kind, 'letters');
-  assert.equal(letters.columns[1].label, 'Easy');
-  assert.match(letters.columns[2].label, /chosen at random from these letters/);
+  assert.equal(letters.shape, 'letters');
+  assert.deepEqual(letters.columns.map((column) => column.label), ['#', 'Word', 'Easy', 'Hard', 'State', '']);
   const match = columns.practiceColumns(Object.assign({}, place, { mode: 'match' }));
   assert.equal(match.kind, 'match');
   assert.equal(match.columns[1].label, 'English');

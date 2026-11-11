@@ -294,12 +294,13 @@
     var mode = here.mode;
     if (mode === 'letters') {
       return {
-        shape: 'spell',
+        shape: 'letters',
         kind: 'letters',
         columns: [
           { col: 'col-num', label: '#' },
+          { col: 'col-prompt', label: 'Word' },
           { col: 'col-pair', label: 'Easy' },
-          { col: 'col-pair', label: 'Hard (chosen at random from these letters)' },
+          { col: 'col-pair', label: 'Hard' },
           { col: 'col-state', label: 'State' },
           { col: 'col-actions', label: '' }
         ]
@@ -494,19 +495,25 @@
     cell.appendChild(input);
     return cell;
   }
-  function placeCaret(node) {
-    var range = document.createRange();
-    range.selectNodeContents(node);
-    range.collapse(false);
-    var sel = window.getSelection();
-    if (!sel) return;
-    sel.removeAllRanges();
-    sel.addRange(range);
+  var ignoreLoaded = false;
+  var ignoreDirty = false;
+  function currentIgnore() {
+    var input = $('letter-ignore-words');
+    if (!input || !window.LetterRules) return null;
+    return window.LetterRules.parseIgnore(input.value);
   }
-  function paintMasked(field, phrase, which) {
-    var hide = window.StudioDraft.letterMasks(phrase)[which] || {};
+  function paintMask(field, phrase, which, again) {
+    var rules = window.LetterRules;
     var word = String(phrase || '');
-    field.innerHTML = '';
+    var hide = {};
+    if (rules) {
+      var ignored = currentIgnore();
+      hide = again
+        ? rules.anotherHide(word, which, field._hide, ignored)
+        : rules.hiddenIndexes(word, which, Math.random, ignored);
+    }
+    field._hide = hide;
+    field.textContent = '';
     for (var i = 0; i < word.length; i += 1) {
       var ch = word.charAt(i);
       if (!hide[i]) {
@@ -516,41 +523,87 @@
       var mark = document.createElement('span');
       mark.className = 'studio-hl';
       mark.textContent = ch;
-      if (which === 'easy') {
-        mark.contentEditable = 'true';
-        mark.spellcheck = false;
-        mark.setAttribute('aria-label', 'Missing letter');
-        mark.addEventListener('keydown', function (event) {
-          if (event.key === 'Enter') { event.preventDefault(); mark.blur(); }
-        });
-        mark.addEventListener('input', function () {
-          var text = mark.textContent || '';
-          if (text.length <= 1) return;
-          mark.textContent = text.slice(-1);
-          placeCaret(mark);
-        });
-        mark.addEventListener('blur', function () { syncMasked(field); });
-      }
       field.appendChild(mark);
     }
   }
-  function syncMasked(field) {
-    var text = cellText(field.textContent);
-    var row = field.closest('tr');
-    if (!row) return;
-    row.querySelectorAll('[data-mask]').forEach(function (other) {
-      paintMasked(other, text, other.dataset.mask);
+  function rowPhrase(node) {
+    var row = node.closest('tr');
+    var word = row && row.querySelector('[data-field="prompt"]');
+    return cellText(word && word.textContent);
+  }
+  function repaintLetterMasks() {
+    document.querySelectorAll('[data-mask]').forEach(function (field) {
+      paintMask(field, rowPhrase(field), field.dataset.mask, false);
     });
   }
   function lettersCell(phrase, which) {
     var cell = document.createElement('td');
     var field = document.createElement('div');
-    field.className = 'studio-edit';
+    field.className = 'studio-mask';
     field.dataset.mask = which;
-    if (which === 'easy') field.dataset.field = 'prompt';
-    paintMasked(field, phrase, which);
+    field.setAttribute('aria-label', which === 'hard' ? 'Hard example' : 'Easy example');
+    paintMask(field, phrase, which, false);
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'studio-random';
+    button.textContent = 'Random';
+    button.setAttribute('aria-label', which === 'hard' ? 'Another hard example' : 'Another easy example');
+    button.addEventListener('click', function () {
+      paintMask(field, rowPhrase(button), which, true);
+    });
+    cell.appendChild(field);
+    cell.appendChild(button);
+    return cell;
+  }
+  function wordCell(phrase) {
+    var cell = document.createElement('td');
+    var field = edit('prompt', phrase);
+    field.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter') event.preventDefault();
+    });
+    field.addEventListener('input', function () {
+      var text = cellText(field.textContent);
+      var row = field.closest('tr');
+      if (!row) return;
+      row.querySelectorAll('[data-mask]').forEach(function (preview) {
+        paintMask(preview, text, preview.dataset.mask, false);
+      });
+    });
     cell.appendChild(field);
     return cell;
+  }
+  function syncIgnoreBar() {
+    var bar = $('letter-ignore');
+    if (!bar) return;
+    var here = place();
+    var show = here.section === 'practice' && here.mode === 'letters';
+    bar.hidden = !show;
+    if (!show || ignoreLoaded || ignoreDirty || !client || !window.LetterRules) return;
+    ignoreLoaded = true;
+    var input = $('letter-ignore-words');
+    input.value = window.LetterRules.ignoreText();
+    client.from('content_settings_live').select('value').eq('key', 'letter_ignore_words').maybeSingle().then(function (result) {
+      if (ignoreDirty || !input) return;
+      if (!result.error && result.data && result.data.value) {
+        input.value = result.data.value;
+        window.LetterRules.setIgnoreWords(result.data.value);
+        repaintLetterMasks();
+      }
+    });
+  }
+  function saveIgnoreWords() {
+    if (!client || !window.LetterRules) { say('The draft script did not load.'); return; }
+    var text = window.LetterRules.ignoreText(currentIgnore());
+    var input = $('letter-ignore-words');
+    input.value = text;
+    window.LetterRules.setIgnoreWords(text);
+    repaintLetterMasks();
+    say('Saving ignore words…');
+    client.from('content_settings').upsert({ key: 'letter_ignore_words', value: text }, { onConflict: 'key' }).then(function (result) {
+      if (result.error) { say(result.error.message); return; }
+      ignoreDirty = false;
+      say('Ignore words saved. Students see them after a refresh.');
+    });
   }
   function matchPictureCell(row) {
     var cell = document.createElement('td');
@@ -610,6 +663,7 @@
         shaped.appendChild(shapedNumber);
         if (spec.kind === 'letters') {
           var phrase = row.prompt || row.answer || '';
+          shaped.appendChild(wordCell(phrase));
           shaped.appendChild(lettersCell(phrase, 'easy'));
           shaped.appendChild(lettersCell(phrase, 'hard'));
         } else {
@@ -669,6 +723,7 @@
     return actions;
   }
   function render() {
+    syncIgnoreBar();
     if (tableName === 'practice_items') {
       renderPractice();
       return;
@@ -964,6 +1019,16 @@
       say(reviewLine());
     });
     $('studio-new').addEventListener('click', createDraft);
+    var ignoreInput = $('letter-ignore-words');
+    if (ignoreInput) {
+      ignoreInput.addEventListener('input', function () {
+        ignoreDirty = true;
+        if (window.LetterRules) window.LetterRules.setIgnoreWords(ignoreInput.value);
+        repaintLetterMasks();
+      });
+    }
+    var ignoreSave = $('letter-ignore-save');
+    if (ignoreSave) ignoreSave.addEventListener('click', saveIgnoreWords);
     load();
   }
   function boot(deps) {
