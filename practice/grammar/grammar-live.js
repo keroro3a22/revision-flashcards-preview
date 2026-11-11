@@ -1,10 +1,10 @@
 /* Published grammar practice is the same list the studio edits.
    When that list is empty, the page keeps the questions written in the file. */
 (function (root, factory) {
-  var api = factory();
+  var api = factory(root);
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.GrammarLive = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (root) {
   function extractSets(source) {
     var start = source.search(/(?:const|let|var)\s+set1Data\s*=/);
     var end = source.search(/(?:const|let|var)\s+SETS\s*=|function boot\(SETS\)/);
