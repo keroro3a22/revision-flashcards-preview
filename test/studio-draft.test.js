@@ -198,7 +198,7 @@ test('a studio path names the table and one row', () => {
     set: '1'
   });
   assert.match(table, /^Studio table\n/);
-  assert.match(table, /Oxford · P6 · 上學期 · Unit 1 · Practice · Vocab · Missing letters/);
+  assert.match(table, /Oxford · P6 · Book A · Unit 1 · Practice · Vocab · Missing letters/);
   assert.match(table, /oxford\/oxford\/first\/p6\/unit1\/practice\/vocab\/letters$/);
 
   const revision = draft.studioPath({

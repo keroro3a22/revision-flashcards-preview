@@ -44,8 +44,9 @@ test('the public page asks for the published series and term', () => {
 test('the studio edits the same place and publishes a snapshot', () => {
   assert.match(studio, /mypearson-express/);
   assert.match(studio, /elect/);
-  assert.match(studio, /上學期/);
-  assert.match(studio, /下學期/);
+  assert.match(studio, /Book A/);
+  assert.match(studio, /Book B/);
+  assert.doesNotMatch(studio, /上學期|下學期/);
   assert.match(studio, /New draft|studio-new/);
   assert.match(studio, /Drafts to check|filter-review/);
   assert.match(studio, /Students do not see it yet/);

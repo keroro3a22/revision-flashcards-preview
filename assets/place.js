@@ -26,8 +26,8 @@ window.RevisionPlace = (function () {
     ]
   };
   var terms = [
-    { id: 'first', label: '上學期' },
-    { id: 'second', label: '下學期' }
+    { id: 'first', label: 'Book A' },
+    { id: 'second', label: 'Book B' }
   ];
 
   var cardArt = {

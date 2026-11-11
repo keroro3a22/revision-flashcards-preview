@@ -14,8 +14,9 @@ test('books are Longman and Oxford, levels are P1 to P6', () => {
   assert.equal(P.levels.every((level) => level.image), true);
   assert.equal(P.seriesFor('longman').map((item) => item.label).join(','), 'MyPearson Express,Elect');
   assert.equal(P.terms.map((item) => item.id).join(','), 'first,second');
-  assert.equal(P.headerText({ book: 'oxford', level: 'p6' }), 'Oxford · P6 · 上學期');
-  assert.equal(P.headerText({ book: 'longman', series: 'elect', level: 'p6', term: 'second' }), 'Longman · Elect · P6 · 下學期');
+  assert.equal(P.terms.map((item) => item.label).join(','), 'Book A,Book B');
+  assert.equal(P.headerText({ book: 'oxford', level: 'p6' }), 'Oxford · P6 · Book A');
+  assert.equal(P.headerText({ book: 'longman', series: 'elect', level: 'p6', term: 'second' }), 'Longman · Elect · P6 · Book B');
   assert.equal(P.HOME, 'home');
 });
 

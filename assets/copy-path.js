@@ -36,7 +36,15 @@
   }
 
   function termLabel(term) {
-    return term === 'second' ? '下學期' : '上學期';
+    return term === 'second' ? 'Book B' : 'Book A';
+  }
+
+  function currentTerm() {
+    try {
+      var saved = window.RevisionPlace && window.RevisionPlace.read(localStorage);
+      if (saved && saved.term) return saved.term;
+    } catch (e) {}
+    return 'first';
   }
 
   function unitLabel(unit) {
@@ -104,7 +112,7 @@
     var name = (file.split('/').pop() || '').replace(/\.html.*/, '').replace(/-/g, ' ');
     var level = practiceLevel();
     var lines = [question ? 'Practice question' : 'Practice page'];
-    var title = ['Oxford', 'P6', '上學期', unitLabel(unit), name];
+    var title = ['Oxford', 'P6', termLabel(currentTerm()), unitLabel(unit), name];
     if (level) title.push(level === 'hard' ? 'Hard' : 'Easy');
     if (question) title.push(question);
     lines.push(title.join(' · '));

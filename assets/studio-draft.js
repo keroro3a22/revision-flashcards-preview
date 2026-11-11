@@ -494,7 +494,7 @@
 
   var PATH_BOOK = { oxford: 'Oxford', longman: 'Longman' };
   var PATH_SERIES = { oxford: 'Oxford', 'mypearson-express': 'MyPearson Express', elect: 'Elect' };
-  var PATH_TERM = { first: '上學期', second: '下學期' };
+  var PATH_TERM = { first: 'Book A', second: 'Book B' };
   var PATH_SECTION = { revision: 'Revision card', practice: 'Practice' };
   var PATH_KIND = { vocab: 'Vocab', grammar: 'Grammar' };
   var PATH_MODE = {

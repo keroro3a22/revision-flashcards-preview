@@ -12,8 +12,8 @@
     ]
   };
   var TERMS = [
-    { id: 'first', label: '上學期' },
-    { id: 'second', label: '下學期' }
+    { id: 'first', label: 'Book A' },
+    { id: 'second', label: 'Book B' }
   ];
   var LEVELS = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6'];
   var UNITS = [
