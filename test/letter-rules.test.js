@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const rules = require('../assets/letter-rules.js');
 const { loadScripts } = require('./helpers');
 
-const IGNORE = ['a', 'an', 'the', 'and', 'or', 'but', 'nor', 'as'];
+const IGNORE = ['the', 'and', 'but', 'nor'];
 
 function cap(word, mode) {
   if (word.length <= 2 || IGNORE.includes(word.toLowerCase())) return 0;
@@ -81,15 +81,16 @@ test('random picks another legal mask when more than one exists', () => {
   assert.deepEqual(rules.anotherHide('go', 'easy', {}), {});
 });
 
-test('ignore words are a comma list with the built-in defaults', () => {
-  assert.deepEqual(rules.parseIgnore('A, an the, and'), ['a', 'an', 'the', 'and']);
-  assert.equal(rules.ignoreText(), 'a, an, the, and, or, but, nor, as');
+test('ignore words are longer than two letters', () => {
+  assert.deepEqual(rules.parseIgnore('A, an the, and, or, as'), ['the', 'and']);
+  assert.equal(rules.ignoreText(), 'the, and, but, nor');
+  rules.ignoreWords().forEach(word => assert.ok(word.length > 2, word));
   rules.setIgnoreWords('a, are, the');
   try {
     assert.equal(rules.maskPhrase('are they', 'easy', () => 0), 'are t_ey');
-    assert.deepEqual(rules.ignoreWords(), ['a', 'are', 'the']);
+    assert.deepEqual(rules.ignoreWords(), ['are', 'the']);
   } finally {
-    rules.setIgnoreWords(rules.parseIgnore('a, an, the, and, or, but, nor, as'));
+    rules.setIgnoreWords(IGNORE);
   }
 });
 
