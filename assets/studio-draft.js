@@ -746,7 +746,7 @@
       }, { slot: row.slot });
     });
     found.sort(function (a, b) { return a.rank - b.rank; });
-    return found.slice(0, 8);
+    return found;
   }
 
   return {

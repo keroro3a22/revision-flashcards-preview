@@ -341,6 +341,12 @@ test('search suggestions quote nearby words and put a starting match first', () 
     ]
   }, 'Korea');
   assert.equal(hits.length, 2);
+  const many = draft.searchSuggestions({
+    lessons: Array.from({ length: 12 }, (_, index) => ({
+      book: 'oxford', series: 'oxford', term: 'first', level: 'p6', unit_id: 'unit1', track: 'vocab', n: index + 1, en: 'Korea ' + (index + 1)
+    }))
+  }, 'Korea');
+  assert.equal(many.length, 12);
   assert.equal(hits[0].snippet.match, 'Korea');
   assert.equal(hits[0].snippet.before, '');
   assert.match(hits[0].snippet.after, /韓國/);
