@@ -78,7 +78,7 @@
     var name = document.createElement('td');
     name.textContent = slot.name;
     tr.appendChild(name);
-    tr.appendChild(photoCell(client, row, fallback, slot, say, unitId));
+    tr.appendChild(photoCell(client, row, fallback, slot, say, unitId, place));
     tr.appendChild(editCell('label', shown(row && row.label, fallback.label), fallback.label));
     tr.appendChild(editCell('note', shown(row && row.note, fallback.note), fallback.note));
     var state = document.createElement('td');
@@ -102,7 +102,7 @@
     return td;
   }
 
-  function photoCell(client, row, fallback, slot, say, unitId) {
+  function photoCell(client, row, fallback, slot, say, unitId, place) {
     var td = document.createElement('td');
     td.className = 'studio-photo-cell';
     var ratio = window.SitePages.photoRatio(slot.id);
@@ -177,7 +177,13 @@
       if (!window.RevisionStudioLibrary) { say('The library did not load.'); return; }
       window.RevisionStudioLibrary.open(client, {
         say: say,
-        folder: unitId,
+        place: {
+          book: place.book,
+          series: place.series,
+          term: place.term,
+          level: place.level,
+          unit: unitId === 'home' ? '' : unitId
+        },
         onPick: function (src) {
           path.dataset.src = src;
           path.dataset.picked = '1';

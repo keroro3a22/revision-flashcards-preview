@@ -86,10 +86,14 @@ test('the library button opens website folders and stored files', () => {
   assert.match(browser, /Use this photo/);
   assert.doesNotMatch(browser, /studio-library/);
   assert.match(page, /chooseLibraryPhoto/);
-  assert.match(page, /folder: place\(\)\.unit/);
+  assert.match(page, /place: libraryPlace\(\)/);
+  assert.match(browser, /Living Oxford English/);
+  assert.match(browser, /Primary Longman Elect/);
+  assert.match(browser, /Book A/);
+  assert.match(browser, /textContent = 'Back'/);
   assert.doesNotMatch(page, /type = 'file'/);
   const pages = fs.readFileSync('assets/studio-pages.js', 'utf8');
-  assert.match(pages, /folder: unitId/);
+  assert.match(pages, /unit: unitId === 'home' \? '' : unitId/);
   assert.match(browser, /hooks\.folder/);
   assert.match(browser, /dragover/);
   assert.match(browser, /dataTransfer/);

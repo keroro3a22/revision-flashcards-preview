@@ -346,46 +346,174 @@
     closer.focus();
 
     var siteFolders = [];
-    var view = { kind: 'site', index: 0, bucket: '', parts: [] };
+    var BOOKS = {
+      oxford: { label: 'Oxford', series: { oxford: 'Living Oxford English' } },
+      longman: { label: 'Longman', series: { 'mypearson-express': 'Primary Longman Express', elect: 'Primary Longman Elect' } }
+    };
+    var TERMS = [{ id: 'first', label: 'Book A' }, { id: 'second', label: 'Book B' }];
+    var LEVELS = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6'];
+    var UNITS = ['unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6'];
+    var FILE_GROUPS = [
+      { id: 'covers', label: 'Covers' },
+      { id: 'practice', label: 'Practice' },
+      { id: 'game', label: 'Game' },
+      { id: 'assets', label: 'Assets' }
+    ];
+    var here = hooks.place || {};
+    var unit = /^unit[1-6]$/.test(here.unit || '') ? here.unit : (/^unit[1-6]$/.test(preferred) ? preferred : '');
+    var view = {
+      kind: 'site',
+      area: 'lessons',
+      lesson: {
+        book: here.book === 'longman' ? 'longman' : 'oxford',
+        series: here.series || (here.book === 'longman' ? 'mypearson-express' : 'oxford'),
+        term: here.term === 'second' ? 'second' : 'first',
+        level: /^p[1-6]$/.test(here.level || '') ? here.level : 'p6',
+        unit: unit
+      },
+      folder: '',
+      bucket: '',
+      parts: []
+    };
+    var chosen = false;
     var pinned = '';
     function status(text) {
       if (uploadJob || pinned) return;
       say(text);
     }
 
-    function navButton(label, on, pick) {
+    function groupOf(name) {
+      if (name === 'covers' || name.slice(-7) === '/covers') return 'covers';
+      if (name.indexOf('practice/') === 0) return 'practice';
+      if (name.indexOf('game/') === 0) return 'game';
+      if (name === 'assets' || name.indexOf('assets/') === 0) return 'assets';
+      return '';
+    }
+
+    function childLabel(name, group) {
+      if (group === 'practice') return name.replace(/^practice\//, '');
+      if (group === 'game') return name.replace(/^game\//, '');
+      if (group === 'assets' && name !== 'assets') return name.replace(/^assets\//, '');
+      return name;
+    }
+
+    function foldersIn(group) {
+      return siteFolders.filter(function (folder) { return groupOf(folder.name) === group; });
+    }
+
+    function blankView() {
+      return { kind: 'site', area: 'lessons', lesson: null, folder: '', bucket: '', parts: [] };
+    }
+
+    function chooseLesson(lesson) {
+      chosen = true;
+      view = blankView();
+      view.area = 'lessons';
+      view.lesson = lesson;
+      paint();
+    }
+
+    function goBack() {
+      if (view.kind === 'store') {
+        if (!view.parts.length) return;
+        view.parts = view.parts.slice(0, -1);
+        paint();
+        return;
+      }
+      if (view.area === 'lessons' && view.lesson) {
+        var lesson = view.lesson;
+        if (lesson.unit) { lesson.unit = ''; paint(); return; }
+        if (lesson.level) { lesson.level = ''; paint(); return; }
+        if (lesson.term) { lesson.term = ''; paint(); return; }
+        if (lesson.series) { lesson.series = ''; paint(); return; }
+        if (lesson.book) { lesson.book = ''; paint(); }
+        return;
+      }
+      if (view.folder) { view.folder = ''; paint(); }
+    }
+
+    function navButton(label, on, pick, depth) {
       var button = document.createElement('button');
       button.type = 'button';
       button.className = 'studio-files-nav' + (on ? ' is-on' : '');
       button.textContent = label;
+      button.style.marginLeft = ((depth || 0) * 0.7) + 'rem';
+      button.style.width = 'calc(100% - ' + ((depth || 0) * 0.7) + 'rem)';
       button.addEventListener('click', pick);
       return button;
     }
 
     function paintNav() {
       nav.replaceChildren();
-      var siteLabel = document.createElement('p');
-      siteLabel.className = 'studio-files-group';
-      siteLabel.textContent = 'Website';
-      nav.appendChild(siteLabel);
-      siteFolders.forEach(function (folder, index) {
-        nav.appendChild(navButton(folder.name, view.kind === 'site' && view.index === index, function () {
-          view = { kind: 'site', index: index, bucket: '', parts: [] };
+      var lessonLabel = document.createElement('p');
+      lessonLabel.className = 'studio-files-group';
+      lessonLabel.textContent = 'Lessons';
+      nav.appendChild(lessonLabel);
+      Object.keys(BOOKS).forEach(function (bookId) {
+        var book = BOOKS[bookId];
+        var openBook = view.area === 'lessons' && view.lesson && view.lesson.book === bookId;
+        nav.appendChild(navButton(book.label, openBook && !view.lesson.series, function () {
+          chooseLesson({ book: bookId });
+        }, 0));
+        if (!openBook) return;
+        Object.keys(book.series).forEach(function (seriesId) {
+          var openSeries = view.lesson.series === seriesId;
+          nav.appendChild(navButton(book.series[seriesId], openSeries && !view.lesson.term, function () {
+            chooseLesson({ book: bookId, series: seriesId });
+          }, 1));
+          if (!openSeries) return;
+          TERMS.forEach(function (term) {
+            var openTerm = view.lesson.term === term.id;
+            nav.appendChild(navButton(term.label, openTerm && !view.lesson.level, function () {
+              chooseLesson({ book: bookId, series: seriesId, term: term.id });
+            }, 2));
+            if (!openTerm) return;
+            LEVELS.forEach(function (levelId) {
+              var openLevel = view.lesson.level === levelId;
+              nav.appendChild(navButton(levelId.toUpperCase(), openLevel && !view.lesson.unit, function () {
+                chooseLesson({ book: bookId, series: seriesId, term: term.id, level: levelId });
+              }, 3));
+              if (!openLevel) return;
+              UNITS.forEach(function (unitId) {
+                nav.appendChild(navButton('Unit ' + unitId.replace('unit', ''), view.lesson.unit === unitId, function () {
+                  chooseLesson({ book: bookId, series: seriesId, term: term.id, level: levelId, unit: unitId });
+                }, 4));
+              });
+            });
+          });
+        });
+      });
+      FILE_GROUPS.forEach(function (group) {
+        var open = view.area === group.id;
+        nav.appendChild(navButton(group.label, open && !view.folder, function () {
+          chosen = true;
+          view = { kind: 'site', area: group.id, lesson: null, folder: '', bucket: '', parts: [] };
           paint();
-        }));
+        }, 0));
+        if (!open) return;
+        foldersIn(group.id).forEach(function (folder) {
+          nav.appendChild(navButton(childLabel(folder.name, group.id), view.folder === folder.name, function () {
+            chosen = true;
+            view.folder = folder.name;
+            view.kind = 'site';
+            paint();
+          }, 1));
+        });
       });
       var storeLabel = document.createElement('p');
       storeLabel.className = 'studio-files-group';
       storeLabel.textContent = 'Storage';
       nav.appendChild(storeLabel);
-      nav.appendChild(navButton('Public uploads', view.bucket === 'lesson-media', function () {
-        view = { kind: 'store', index: 0, bucket: 'lesson-media', parts: [] };
+      nav.appendChild(navButton('Public uploads', view.kind === 'store' && view.bucket === 'lesson-media', function () {
+        chosen = true;
+        view = { kind: 'store', area: 'store', lesson: null, folder: '', bucket: 'lesson-media', parts: [] };
         paint();
-      }));
-      nav.appendChild(navButton('Private inbox', view.bucket === 'lesson-inbox', function () {
-        view = { kind: 'store', index: 0, bucket: 'lesson-inbox', parts: [] };
+      }, 0));
+      nav.appendChild(navButton('Private inbox', view.kind === 'store' && view.bucket === 'lesson-inbox', function () {
+        chosen = true;
+        view = { kind: 'store', area: 'store', lesson: null, folder: '', bucket: 'lesson-inbox', parts: [] };
         paint();
-      }));
+      }, 0));
       var current = nav.querySelector('.is-on');
       if (current && current.scrollIntoView) current.scrollIntoView({ block: 'nearest' });
     }
@@ -506,14 +634,76 @@
       return box;
     }
 
-    function paintSite() {
-      paintNav();
-      main.replaceChildren();
-      var folder = siteFolders[view.index];
-      if (!folder) {
-        main.textContent = 'No website files were found.';
-        return;
+    function crumbBar(steps, showBack) {
+      var bar = document.createElement('p');
+      bar.className = 'studio-files-crumbs';
+      if (showBack) {
+        var back = document.createElement('button');
+        back.type = 'button';
+        back.className = 'studio-files-back';
+        back.textContent = 'Back';
+        back.addEventListener('click', goBack);
+        bar.appendChild(back);
       }
+      steps.forEach(function (step, index) {
+        if (index || showBack) bar.appendChild(document.createTextNode(' / '));
+        if (!step.go) {
+          bar.appendChild(document.createTextNode(step.label));
+          return;
+        }
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = step.label;
+        button.addEventListener('click', step.go);
+        bar.appendChild(button);
+      });
+      return bar;
+    }
+
+    function lessonSteps(lesson) {
+      var steps = [];
+      if (!lesson || !lesson.book || !BOOKS[lesson.book]) return steps;
+      var book = BOOKS[lesson.book];
+      steps.push({ label: book.label, go: function () { chooseLesson({ book: lesson.book }); } });
+      if (!lesson.series || !book.series[lesson.series]) return steps;
+      steps.push({ label: book.series[lesson.series], go: function () { chooseLesson({ book: lesson.book, series: lesson.series }); } });
+      if (!lesson.term) return steps;
+      var term = TERMS.filter(function (item) { return item.id === lesson.term; })[0];
+      steps.push({ label: term ? term.label : lesson.term, go: function () { chooseLesson({ book: lesson.book, series: lesson.series, term: lesson.term }); } });
+      if (!lesson.level) return steps;
+      steps.push({ label: lesson.level.toUpperCase(), go: function () { chooseLesson({ book: lesson.book, series: lesson.series, term: lesson.term, level: lesson.level }); } });
+      if (!lesson.unit) return steps;
+      steps.push({ label: 'Unit ' + lesson.unit.replace('unit', '') });
+      steps[steps.length - 2].go = function () {
+        chooseLesson({ book: lesson.book, series: lesson.series, term: lesson.term, level: lesson.level });
+      };
+      return steps;
+    }
+
+    function lessonFiles(lesson) {
+      if (!lesson || lesson.book !== 'oxford' || lesson.series !== 'oxford' || lesson.term !== 'first' || lesson.level !== 'p6' || !lesson.unit) return null;
+      var found = null;
+      siteFolders.forEach(function (folder) {
+        if (folder.name === lesson.unit) found = folder;
+      });
+      return found;
+    }
+
+    function choiceGrid(items) {
+      var grid = document.createElement('div');
+      grid.className = 'studio-files-grid';
+      items.forEach(function (item) {
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'studio-files-folder';
+        button.textContent = item.label;
+        button.addEventListener('click', item.go);
+        grid.appendChild(button);
+      });
+      return grid;
+    }
+
+    function paintFiles(folder) {
       var grid = document.createElement('div');
       grid.className = 'studio-files-grid';
       folder.files.forEach(function (file) {
@@ -521,6 +711,81 @@
       });
       main.appendChild(grid);
       status(folder.files.length + (folder.files.length === 1 ? ' file in ' : ' files in ') + folder.name + '.');
+    }
+
+    function paintSite() {
+      paintNav();
+      main.replaceChildren();
+      if (view.area === 'lessons') {
+        var lesson = view.lesson || {};
+        var steps = lessonSteps(lesson);
+        main.appendChild(crumbBar(steps, !!(lesson.book || lesson.series || lesson.term || lesson.level || lesson.unit)));
+        if (lesson.unit) {
+          var folder = lessonFiles(lesson);
+          if (!folder) {
+            var empty = document.createElement('p');
+            empty.textContent = 'This folder is empty.';
+            main.appendChild(empty);
+            status('This folder is empty.');
+            return;
+          }
+          paintFiles(folder);
+          return;
+        }
+        var book = BOOKS[lesson.book];
+        var items = [];
+        if (!lesson.book) {
+          Object.keys(BOOKS).forEach(function (bookId) {
+            items.push({ label: BOOKS[bookId].label, go: function () { chooseLesson({ book: bookId }); } });
+          });
+        } else if (!lesson.series) {
+          Object.keys(book.series).forEach(function (seriesId) {
+            items.push({ label: book.series[seriesId], go: function () { chooseLesson({ book: lesson.book, series: seriesId }); } });
+          });
+        } else if (!lesson.term) {
+          TERMS.forEach(function (term) {
+            items.push({ label: term.label, go: function () { chooseLesson({ book: lesson.book, series: lesson.series, term: term.id }); } });
+          });
+        } else if (!lesson.level) {
+          LEVELS.forEach(function (levelId) {
+            items.push({ label: levelId.toUpperCase(), go: function () { chooseLesson({ book: lesson.book, series: lesson.series, term: lesson.term, level: levelId }); } });
+          });
+        } else {
+          UNITS.forEach(function (unitId) {
+            items.push({ label: 'Unit ' + unitId.replace('unit', ''), go: function () { chooseLesson({ book: lesson.book, series: lesson.series, term: lesson.term, level: lesson.level, unit: unitId }); } });
+          });
+        }
+        main.appendChild(choiceGrid(items));
+        status(items.length + (items.length === 1 ? ' folder.' : ' folders.'));
+        return;
+      }
+      var group = FILE_GROUPS.filter(function (item) { return item.id === view.area; })[0];
+      var groupSteps = [{ label: group ? group.label : 'Files', go: view.folder ? function () { view.folder = ''; paint(); } : null }];
+      if (view.folder) groupSteps.push({ label: childLabel(view.folder, view.area) });
+      main.appendChild(crumbBar(groupSteps, !!view.folder));
+      if (!view.folder) {
+        var folders = foldersIn(view.area).map(function (folder) {
+          return { label: childLabel(folder.name, view.area), go: function () { view.folder = folder.name; paint(); } };
+        });
+        if (!folders.length) {
+          var none = document.createElement('p');
+          none.textContent = 'This folder is empty.';
+          main.appendChild(none);
+          status('This folder is empty.');
+          return;
+        }
+        main.appendChild(choiceGrid(folders));
+        status(folders.length + (folders.length === 1 ? ' folder.' : ' folders.'));
+        return;
+      }
+      var picked = null;
+      siteFolders.forEach(function (folder) { if (folder.name === view.folder) picked = folder; });
+      if (!picked) {
+        main.appendChild(document.createTextNode(''));
+        status('This folder is empty.');
+        return;
+      }
+      paintFiles(picked);
     }
 
     function paintStore() {
@@ -548,6 +813,14 @@
         });
         crumbs.appendChild(jump);
       });
+      if (view.parts.length) {
+        var back = document.createElement('button');
+        back.type = 'button';
+        back.className = 'studio-files-back';
+        back.textContent = 'Back';
+        back.addEventListener('click', goBack);
+        crumbs.insertBefore(back, crumbs.firstChild);
+      }
       main.appendChild(crumbs);
       if (!client || !client.storage) {
         status('Sign in to open stored files.');
@@ -628,7 +901,7 @@
         pinned = '';
         return;
       }
-      view = { kind: 'store', index: 0, bucket: 'lesson-inbox', parts: ['inbox'] };
+      view = { kind: 'store', area: 'store', lesson: null, folder: '', bucket: 'lesson-inbox', parts: ['inbox'] };
       paint();
       pinned = '';
     };
@@ -669,11 +942,6 @@
       return response.json();
     }).then(function (catalog) {
       siteFolders = (catalog && catalog.folders) || [];
-      var start = -1;
-      siteFolders.forEach(function (folder, index) {
-        if (folder.name === preferred) start = index;
-      });
-      if (start >= 0) view.index = start;
       if (!siteFolders.length) say('No website files were found.');
       paint();
     }).catch(function (error) {

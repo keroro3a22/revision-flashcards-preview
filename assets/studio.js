@@ -406,9 +406,14 @@
     img.hidden = !src;
     if (src) img.src = src;
   }
+  function libraryPlace() {
+    var here = place();
+    var unit = here.unit === 'home' || here.unit === 'mixed' ? '' : here.unit;
+    return { book: here.book, series: here.series, term: here.term, level: here.level, unit: unit };
+  }
   function chooseLibraryPhoto(done) {
     if (!window.RevisionStudioLibrary) { say('The library did not load.'); return; }
-    window.RevisionStudioLibrary.open(client, { say: say, onPick: done, folder: place().unit });
+    window.RevisionStudioLibrary.open(client, { say: say, onPick: done, place: libraryPlace() });
   }
   var frameDialog = null;
   function shapeRatio(shape) {
@@ -1743,7 +1748,7 @@
     var libraryButton = $('studio-library-open');
     if (libraryButton) {
       libraryButton.addEventListener('click', function () {
-        if (window.RevisionStudioLibrary) window.RevisionStudioLibrary.open(client, { say: say, folder: place().unit });
+        if (window.RevisionStudioLibrary) window.RevisionStudioLibrary.open(client, { say: say, place: libraryPlace() });
         else say('The library did not load.');
       });
     }

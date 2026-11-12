@@ -116,7 +116,7 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
 .studio-files-note { color: #5d7190; }
 .studio-files-body {
   display: grid;
-  grid-template-columns: 14rem minmax(0, 1fr);
+  grid-template-columns: 18rem minmax(0, 1fr);
   min-height: 0;
   margin-top: 0.7rem;
   border-top: 1px solid #d5e0ea;
