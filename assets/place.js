@@ -4,6 +4,7 @@ window.RevisionPlace = (function () {
   var STORAGE_KEY = 'revision-place-v1';
   var HOME = 'home';
   var GAME = 'game';
+  var RESOURCES = 'resources';
   var SOON = 'Coming soon';
 
   var books = [
@@ -144,7 +145,7 @@ window.RevisionPlace = (function () {
     var series = chosenSeries(input.book, input.series);
     var term = chosenTerm(input.term);
     var units = unitsFor(input.book, input.level, series, term);
-    var unit = input.unit === HOME || input.unit === GAME || known(units, input.unit) ? input.unit : HOME;
+    var unit = input.unit === HOME || input.unit === GAME || input.unit === RESOURCES || known(units, input.unit) ? input.unit : HOME;
     return { book: input.book, series: series, level: input.level, term: term, unit: unit };
   }
 
@@ -189,6 +190,12 @@ window.RevisionPlace = (function () {
       && chosenTerm(place.term) === 'first';
   }
 
+  function tabsFor(place) {
+    return [{ id: HOME, label: 'Get started' }]
+      .concat(unitsFor(place.book, place.level, place.series, place.term))
+      .concat([{ id: GAME, label: 'Game' }, { id: RESOURCES, label: 'Resources' }]);
+  }
+
   function entriesFor(place) {
     if (!place || place.unit === HOME) return [];
     if (place.unit === GAME) {
@@ -227,6 +234,8 @@ window.RevisionPlace = (function () {
     STORAGE_KEY: STORAGE_KEY,
     HOME: HOME,
     GAME: GAME,
+    RESOURCES: RESOURCES,
+    tabsFor: tabsFor,
     SOON: SOON,
     books: books,
     levels: levels,

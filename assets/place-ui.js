@@ -51,6 +51,11 @@
     var box = document.getElementById('place-entries');
     var heading = document.getElementById('unit-heading');
     box.replaceChildren();
+    if (place.unit === P.RESOURCES) {
+      heading.textContent = 'Resources';
+      if (window.Resources) window.Resources.mount(place, box);
+      return;
+    }
     if (place.unit === P.HOME) {
       heading.textContent = '';
       return;
@@ -274,9 +279,7 @@
       choosePlace(P.withChange(place, { term: id }));
     });
 
-    var views = [{ id: P.HOME, label: 'Get started' }]
-      .concat(P.unitsFor(place.book, place.level, place.series, place.term))
-      .concat([{ id: P.GAME, label: 'Game' }]);
+    var views = P.tabsFor(place);
     var tabs = document.getElementById('unit-tabs');
     function choose(unitId) {
       var next = P.withChange(place, { unit: unitId });

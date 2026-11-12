@@ -32,6 +32,8 @@ test('Oxford P6 keeps four units and there is no dictation tab', () => {
   assert.equal(P.unitsFor('oxford', 'p6')[0].title, 'For a good cause');
   assert.equal(P.unitsFor('longman', 'p3').map((unit) => unit.id).join(','), 'unit1,unit2,unit3,unit4');
   assert.equal(P.normalize({ book: 'oxford', level: 'p6', unit: 'dictation3' }).unit, 'home');
+  assert.equal(P.normalize({ book: 'oxford', level: 'p6', unit: 'resources' }).unit, 'resources');
+  assert.equal(P.tabsFor({ book: 'oxford', series: 'oxford', level: 'p6', term: 'first' }).slice(-2).map((tab) => tab.label).join(','), 'Game,Resources');
   assert.equal(flat(P.entriesFor({ book: 'oxford', series: 'oxford', level: 'p6', term: 'second', unit: 'unit1' }))[0].ready, false);
 });
 

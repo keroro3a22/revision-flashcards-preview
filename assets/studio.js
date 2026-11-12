@@ -74,13 +74,14 @@
     if (!modes.some(function (item) { return item.id === current; })) current = modes[0].id;
     fillSelect($('filter-mode'), modes, current);
     var practice = $('filter-section').value === 'practice';
-    var pages = $('filter-section').value === 'pages';
+    var section = $('filter-section').value;
+    var pages = section === 'pages' || section === 'resources' || section === 'library';
     $('filter-kind').parentElement.hidden = pages;
     $('filter-mode-label').hidden = pages || !practice;
     $('filter-difficulty-label').hidden = true;
     $('filter-set-label').hidden = pages || !(practice && kind === 'grammar');
-    $('filter-unit-label').hidden = !pages && practice && $('filter-mode').value === 'boss';
-    if ($('studio-new')) $('studio-new').hidden = pages;
+    $('filter-unit-label').hidden = pages || (practice && $('filter-mode').value === 'boss');
+    if ($('studio-new')) $('studio-new').hidden = section === 'pages' || section === 'library';
     syncUnits(preferredUnit);
   }
   function syncUnits(preferred) {
@@ -1577,8 +1578,25 @@
     if (box) box.value = shown;
     say('Opened ' + shown + '.');
   }
+  function showLibrary(on) {
+    var library = $('studio-library');
+    var table = document.querySelector('.studio-scroll');
+    if (library) library.hidden = !on;
+    if (table) table.hidden = on;
+  }
   function load(doneMessage) {
     var here = place();
+    showLibrary(here.section === 'library');
+    if (here.section === 'library') {
+      if (window.RevisionStudioLibrary) window.RevisionStudioLibrary.load(client, { say: say });
+      else say('The library did not load.');
+      return;
+    }
+    if (here.section === 'resources') {
+      if (window.RevisionStudioResources) window.RevisionStudioResources.load(client, here, { say: say });
+      else say('The resources editor did not load.');
+      return;
+    }
     if (here.section === 'pages') {
       if (window.RevisionStudioPages) {
         window.RevisionStudioPages.load(client, here, {
@@ -1670,6 +1688,10 @@
   function createDraft() {
     if (!window.StudioDraft) { say('The draft script did not load.'); return; }
     var here = place();
+    if (here.section === 'resources' && window.RevisionStudioResources) {
+      window.RevisionStudioResources.create(client, here, say);
+      return;
+    }
     var practice = here.section === 'practice';
     var table = practice ? 'practice_items' : 'lesson_cards';
     say('Adding a draft…');

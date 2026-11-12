@@ -1226,6 +1226,17 @@ html[data-place="guide"] .place-shell,
 html[data-place="guide"] .home-overview,
 html[data-place="guide"] .place-nav { display: none; }
 html[data-place="ready"] .place-guide { display: none; }
+.resource-list { display: grid; gap: 0.75rem; }
+.resource-card {
+  background: var(--white);
+  border-radius: 18px;
+  padding: 1rem 1.05rem;
+  box-shadow: 0 10px 22px rgba(36, 60, 108, 0.12);
+}
+.resource-card h3 { margin: 0 0 0.25rem; color: var(--navy); }
+.resource-meta { margin: 0 0 0.35rem; font-weight: 700; color: var(--navy); }
+.resource-card button:disabled { opacity: 0.65; cursor: default; }
+.resource-empty { color: var(--navy); font-weight: 700; }
 html[data-view="unit"] .home-overview { display: none; }
 html[data-view="home"] .unit-panel { display: none; }
 html[data-level-live="no"] .level-live { display: none; }
