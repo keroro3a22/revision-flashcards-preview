@@ -154,7 +154,7 @@
   }
 
   function photoRatio(slot) {
-    if (slot === 'hear' || slot === 'title' || slot === 'hero') return 1;
+    if (slot === 'title' || slot === 'hero') return 1;
     return 4 / 3;
   }
 

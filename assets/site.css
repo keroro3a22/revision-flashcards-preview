@@ -575,34 +575,15 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   position: relative;
   border-radius: calc(var(--radius) - 6px);
   overflow: hidden;
-  aspect-ratio: 1;
+  aspect-ratio: 4 / 3;
   background: color-mix(in srgb, var(--sky) 42%, #fff);
 }
 .how-card .how-art img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
   background: color-mix(in srgb, var(--sky) 42%, #fff);
-}
-.how-card.tone-sunny .how-art,
-.how-card.tone-pink .how-art {
-  aspect-ratio: 4 / 3;
-}
-.how-card.tone-sunny .how-art img,
-.how-card.tone-pink .how-art img {
-  object-fit: contain;
-}
-/* Hear it art has a white strip along the top. Shift it up so the scene fills the square. */
-.how-card.tone-sky .how-art img {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  height: 107%;
-  max-width: none;
-  object-fit: cover;
-  object-position: center bottom;
 }
 .how-card .how-body {
   background: var(--cream);

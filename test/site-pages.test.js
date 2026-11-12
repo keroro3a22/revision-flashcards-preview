@@ -92,7 +92,7 @@ test('a saved crop stays on the automatic photo', () => {
 });
 
 test('page photos use the shape students see', () => {
-  assert.equal(pages.photoRatio('hear'), 1);
+  assert.equal(Math.round(pages.photoRatio('hear') * 100) / 100, Math.round(4 / 3 * 100) / 100);
   assert.equal(pages.photoRatio('title'), 1);
   assert.equal(Math.round(pages.photoRatio('revision-vocab') * 100) / 100, Math.round(4 / 3 * 100) / 100);
   assert.equal(Math.round(pages.photoRatio('see') * 100) / 100, Math.round(4 / 3 * 100) / 100);
