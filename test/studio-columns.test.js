@@ -98,6 +98,9 @@ test('the library button opens website folders and stored files', () => {
   assert.match(browser, /Upload stopped because the page was left/);
   assert.match(browser, /textContent = 'Remove'/);
   assert.match(browser, /studio-preview/);
+  assert.match(browser, /pdf\.worker\.min\.js/);
+  assert.match(browser, /Making the PDF preview/);
+  assert.match(fs.readFileSync('assets/vendor/pdf.min.js', 'utf8'), /pdfjsLib/);
   assert.doesNotMatch(browser, /if \(!dialog\) return;/);
   assert.ok(unit1.files.some((file) => file.path === 'unit1/thumb_01.jpg'));
 });

@@ -13,6 +13,107 @@
     return /\.(png|jpe?g|gif|webp|svg)$/i.test(name);
   }
 
+  function isPdf(name) {
+    return /\.pdf$/i.test(name || '');
+  }
+
+  var pdfLoading = null;
+  var thumbQueue = [];
+  var thumbRunning = false;
+
+  function loadPdfJs() {
+    if (window.pdfjsLib) {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'assets/vendor/pdf.worker.min.js?v=1';
+      return Promise.resolve(window.pdfjsLib);
+    }
+    if (pdfLoading) return pdfLoading;
+    pdfLoading = new Promise(function (resolve, reject) {
+      var script = document.createElement('script');
+      script.src = 'assets/vendor/pdf.min.js?v=1';
+      script.onload = function () {
+        if (!window.pdfjsLib) { reject(new Error('The PDF preview did not load.')); return; }
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'assets/vendor/pdf.worker.min.js?v=1';
+        resolve(window.pdfjsLib);
+      };
+      script.onerror = function () { reject(new Error('The PDF preview did not load.')); };
+      document.head.appendChild(script);
+    });
+    return pdfLoading;
+  }
+
+  function fileAddress(item) {
+    if (item.signed) {
+      return new Promise(function (resolve) {
+        item.signed(function (url) { resolve(url || ''); });
+      });
+    }
+    return Promise.resolve(item.src || item.path || '');
+  }
+
+  function renderPdfPage(url, width) {
+    return loadPdfJs().then(function (pdfjs) {
+      return pdfjs.getDocument({ url: url }).promise;
+    }).then(function (doc) {
+      return doc.getPage(1).then(function (page) {
+        var base = page.getViewport({ scale: 1 });
+        var view = page.getViewport({ scale: Math.max(width, 1) / base.width });
+        var canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.floor(view.width));
+        canvas.height = Math.max(1, Math.floor(view.height));
+        var ctx = canvas.getContext('2d', { alpha: false });
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        return page.render({ canvasContext: ctx, viewport: view }).promise.then(function () {
+          doc.destroy();
+          return canvas;
+        });
+      });
+    });
+  }
+
+  function enqueueThumb(task) {
+    thumbQueue.push(task);
+    if (thumbRunning) return;
+    function next() {
+      var job = thumbQueue.shift();
+      if (!job) { thumbRunning = false; return; }
+      thumbRunning = true;
+      Promise.resolve().then(job).then(next, next);
+    }
+    next();
+  }
+
+  function usePdfThumb(client, item, say, pick) {
+    say('Making the PDF preview…');
+    fileAddress(item).then(function (url) {
+      if (!url) throw new Error('The PDF preview could not be made.');
+      return renderPdfPage(url, 960);
+    }).then(function (canvas) {
+      return new Promise(function (resolve, reject) {
+        canvas.toBlob(function (blob) {
+          if (blob) resolve(blob);
+          else reject(new Error('The PDF preview could not be made.'));
+        }, 'image/png');
+      });
+    }).then(function (blob) {
+      if (!client || !client.storage) throw new Error('Sign in before using a PDF.');
+      var safe = String(item.name || 'page').replace(/\.pdf$/i, '').replace(/[^\w.\-]+/g, '-').replace(/^\.+/, '');
+      var path = 'library/' + Date.now() + '-' + (safe || 'page') + '.png';
+      return client.storage.from('lesson-media').upload(path, blob, { contentType: 'image/png', upsert: false }).then(function (result) {
+        if (result.error) throw new Error(result.error.message);
+        var pub = client.storage.from('lesson-media').getPublicUrl(path);
+        var made = pub && pub.data && pub.data.publicUrl;
+        if (!made) throw new Error('The PDF preview was made, but the address was missing.');
+        return made;
+      });
+    }).then(function (url) {
+      close();
+      pick(url);
+    }).catch(function (error) {
+      say(error.message || 'The PDF preview could not be made.');
+    });
+  }
+
   function saveBlob(blob, name) {
     var link = document.createElement('a');
     var objectUrl = URL.createObjectURL(blob);
@@ -306,7 +407,22 @@
     function fileBox(item) {
       var box = document.createElement('article');
       box.className = 'studio-files-item';
-      var previewable = isImage(item.name) || /\.pdf$/i.test(item.name);
+      var previewable = isImage(item.name) || isPdf(item.name);
+      if (isPdf(item.name)) {
+        var pdfImg = document.createElement('img');
+        pdfImg.alt = '';
+        box.appendChild(pdfImg);
+        watchPreview(pdfImg, item);
+        enqueueThumb(function () {
+          if (!pdfImg.isConnected) return;
+          return fileAddress(item).then(function (url) {
+            if (!url || !pdfImg.isConnected) return;
+            return renderPdfPage(url, 360).then(function (canvas) {
+              if (pdfImg.isConnected) pdfImg.src = canvas.toDataURL('image/jpeg', 0.82);
+            });
+          }).catch(function () {});
+        });
+      }
       if (isImage(item.name)) {
         var img = document.createElement('img');
         img.alt = '';
@@ -341,11 +457,15 @@
         downloadUrl(item.href || item.src || item.path, item.name, say);
       });
       box.appendChild(download);
-      if (picking && isImage(item.name)) {
+      if (picking && (isImage(item.name) || isPdf(item.name))) {
         var use = document.createElement('button');
         use.type = 'button';
         use.textContent = 'Use this photo';
         use.addEventListener('click', function () {
+          if (isPdf(item.name)) {
+            usePdfThumb(client, item, say, hooks.onPick);
+            return;
+          }
           if (item.privateImage) {
             copyPublic(client, item.storagePath, item.name, say, function (url) {
               if (!url) return;
@@ -460,14 +580,16 @@
               return;
             }
             var src = '';
-            if (isImage(item.name) && view.bucket === 'lesson-media') {
+            var publicUrl = '';
+            if (view.bucket === 'lesson-media') {
               var pub = client.storage.from(view.bucket).getPublicUrl(path);
-              src = pub && pub.data && pub.data.publicUrl;
+              publicUrl = pub && pub.data && pub.data.publicUrl || '';
+              if (isImage(item.name)) src = publicUrl;
             }
             var privateFile = view.bucket === 'lesson-inbox';
             var box = fileBox({
               name: item.name,
-              path: view.bucket === 'lesson-media' ? (src || path) : path,
+              path: view.bucket === 'lesson-media' ? (publicUrl || path) : path,
               src: src,
               bucket: view.bucket,
               storagePath: path,
