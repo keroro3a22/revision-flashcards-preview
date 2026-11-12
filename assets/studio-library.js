@@ -9,6 +9,37 @@
     return /\.(png|jpe?g|gif|webp|svg)$/i.test(name);
   }
 
+  function saveBlob(blob, name) {
+    var link = document.createElement('a');
+    var objectUrl = URL.createObjectURL(blob);
+    link.href = objectUrl;
+    link.download = name || 'download';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(function () { URL.revokeObjectURL(objectUrl); }, 1500);
+  }
+
+  function downloadUrl(url, name, say) {
+    say('Downloading…');
+    fetch(url).then(function (response) {
+      if (!response.ok) throw new Error('The file could not be downloaded.');
+      return response.blob();
+    }).then(function (blob) {
+      saveBlob(blob, name);
+      say('Download started.');
+    }).catch(function () {
+      var link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      say('Download opened.');
+    });
+  }
+
   function copyText(value, button) {
     var done = function () {
       var previous = button.textContent;
@@ -64,9 +95,12 @@
     head.appendChild(title);
     head.appendChild(actions);
 
+    var picking = !!(hooks && hooks.onPick);
     var note = document.createElement('p');
     note.className = 'studio-files-note';
-    note.textContent = 'Website folders are the photos already on the site. New uploads go into the private inbox.';
+    note.textContent = picking
+      ? 'Choose a photo. Upload a new one here if it is not in the library yet.'
+      : 'Website folders are the photos already on the site. New uploads go into the private inbox.';
 
     var body = document.createElement('div');
     body.className = 'studio-files-body';
@@ -144,11 +178,45 @@
       copy.textContent = 'Copy path';
       copy.addEventListener('click', function () { copyText(item.path, copy); });
       box.appendChild(copy);
-      if (item.privateImage) {
+      var download = document.createElement('button');
+      download.type = 'button';
+      download.textContent = 'Download';
+      download.addEventListener('click', function () {
+        if (item.signed) {
+          item.signed(function (url) {
+            if (!url) { say('The file could not be downloaded.'); return; }
+            downloadUrl(url, item.name, say);
+          });
+          return;
+        }
+        downloadUrl(item.href || item.src || item.path, item.name, say);
+      });
+      box.appendChild(download);
+      if (picking && isImage(item.name)) {
+        var use = document.createElement('button');
+        use.type = 'button';
+        use.textContent = 'Use this photo';
+        use.addEventListener('click', function () {
+          if (item.privateImage) {
+            copyPublic(client, item.storagePath, item.name, say, function (url) {
+              if (!url) return;
+              var pick = hooks.onPick;
+              close();
+              pick(url);
+            });
+            return;
+          }
+          var chosen = item.path;
+          var pick = hooks.onPick;
+          close();
+          pick(chosen);
+        });
+        box.appendChild(use);
+      } else if (item.privateImage) {
         var publish = document.createElement('button');
         publish.type = 'button';
         publish.textContent = 'Copy to public library';
-        publish.addEventListener('click', function () { copyPublic(client, item.path, item.name, say); });
+        publish.addEventListener('click', function () { copyPublic(client, item.storagePath || item.path, item.name, say); });
         box.appendChild(publish);
       }
       return box;
@@ -230,20 +298,27 @@
               var pub = client.storage.from(view.bucket).getPublicUrl(path);
               src = pub && pub.data && pub.data.publicUrl;
             }
+            var privateFile = view.bucket === 'lesson-inbox';
             var box = fileBox({
               name: item.name,
               path: view.bucket === 'lesson-media' ? (src || path) : path,
               src: src,
-              privateImage: view.bucket === 'lesson-inbox' && isImage(item.name)
+              storagePath: privateFile ? path : '',
+              privateImage: privateFile && isImage(item.name),
+              signed: privateFile ? function (done) {
+                client.storage.from(bucket).createSignedUrl(path, 120).then(function (signed) {
+                  done(signed.data && signed.data.signedUrl);
+                });
+              } : null
             });
-            if (view.bucket === 'lesson-inbox' && isImage(item.name)) {
+            if (privateFile && isImage(item.name)) {
               var img = box.querySelector('img');
               if (!img) {
                 img = document.createElement('img');
                 img.alt = '';
                 box.insertBefore(img, box.firstChild);
               }
-              client.storage.from(view.bucket).createSignedUrl(path, 120).then(function (signed) {
+              client.storage.from(bucket).createSignedUrl(path, 120).then(function (signed) {
                 if (signed.data && signed.data.signedUrl) img.src = signed.data.signedUrl;
               });
             }
@@ -301,7 +376,7 @@
     });
   }
 
-  function copyPublic(client, path, name, say) {
+  function copyPublic(client, path, name, say, done) {
     if (!client || !client.storage) { say('Sign in before copying a file.'); return; }
     say('Copying to the public library…');
     client.storage.from('lesson-inbox').download(path).then(function (result) {
@@ -311,7 +386,9 @@
         if (uploaded.error) { say(uploaded.error.message); return; }
         var pub = client.storage.from('lesson-media').getPublicUrl(dest);
         var url = pub && pub.data && pub.data.publicUrl;
-        say(url ? 'Public copy: ' + url : 'Copied to the public library.');
+        if (!url) { say('Copied to the public library, but the address was missing.'); return; }
+        say('Public copy: ' + url);
+        if (done) done(url);
       });
     });
   }

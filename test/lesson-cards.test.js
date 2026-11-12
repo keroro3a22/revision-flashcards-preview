@@ -62,7 +62,8 @@ test('the studio edits the same place and publishes a snapshot', () => {
   assert.match(studio, /\['ex_en', 'ex_zh'\]/);
   assert.match(studio, /\['adv_en', 'adv_zh'\]/);
   assert.match(studio, /Change photo/);
-  assert.match(studio, /lesson-media/);
+  assert.match(studio, /RevisionStudioLibrary\.open/);
+  assert.doesNotMatch(studio, /type = 'file'/);
   assert.match(studio, /SUPABASE_PUBLIC/);
   assert.match(studio, /is_content_editor/);
   assert.match(studio, /Back to website|revision-studio-from/);

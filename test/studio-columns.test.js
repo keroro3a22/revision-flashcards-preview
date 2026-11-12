@@ -41,7 +41,8 @@ test('the pages table resizes like the other tables and picks a unit photo', () 
   const css = fs.readFileSync('assets/studio.css', 'utf8');
   assert.match(pages, /Copy path/);
   assert.match(pages, /mountStudioColumns/);
-  assert.match(pages, /Choose a photo from this unit/);
+  assert.match(pages, /RevisionStudioLibrary\.open/);
+  assert.doesNotMatch(pages, /Choose a photo from this unit/);
   assert.match(pages, /openPhotoFrame/);
   assert.match(pages, /ratio: ratio/);
   assert.doesNotMatch(pages, /shape: ratio === 1/);
@@ -81,7 +82,11 @@ test('the library button opens website folders and stored files', () => {
   assert.match(browser, /lesson-media/);
   assert.match(browser, /lesson-inbox/);
   assert.match(browser, /className = 'studio-files'/);
+  assert.match(browser, /Download/);
+  assert.match(browser, /Use this photo/);
   assert.doesNotMatch(browser, /studio-library/);
+  assert.match(page, /chooseLibraryPhoto/);
+  assert.doesNotMatch(page, /type = 'file'/);
   assert.ok(unit1.files.some((file) => file.path === 'unit1/thumb_01.jpg'));
 });
 

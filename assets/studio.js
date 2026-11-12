@@ -406,34 +406,9 @@
     img.hidden = !src;
     if (src) img.src = src;
   }
-  function uploadPhoto(file, rowId, cell) {
-    var ext = ((file.name || '').split('.').pop() || '').toLowerCase();
-    if (ext === 'jpeg') ext = 'jpg';
-    if (!/^(jpg|png|gif|webp)$/.test(ext)) {
-      say('Use a jpg, png, gif, or webp photo.');
-      return;
-    }
-    var path = 'cards/' + rowId + '/' + Date.now() + '.' + ext;
-    say('Uploading photo…');
-    client.storage.from('lesson-media').upload(path, file, {
-      contentType: file.type || 'image/' + (ext === 'jpg' ? 'jpeg' : ext),
-      upsert: false
-    }).then(function (result) {
-      if (result.error) { say(result.error.message); return; }
-      var pub = client.storage.from('lesson-media').getPublicUrl(path);
-      var url = pub && pub.data && pub.data.publicUrl;
-      if (!url) { say('The photo uploaded, but the address was missing.'); return; }
-      var field = cell.querySelector('[data-field="img"]');
-      if (field) {
-        field.textContent = url;
-        paintPhoto(cell);
-      } else {
-        var img = cell.querySelector('img');
-        if (img) { img.hidden = false; img.src = url; }
-        cell.dispatchEvent(new CustomEvent('studio-photo', { detail: url }));
-      }
-      say('Photo is in this row. Publish to show it on the site.');
-    });
+  function chooseLibraryPhoto(done) {
+    if (!window.RevisionStudioLibrary) { say('The library did not load.'); return; }
+    window.RevisionStudioLibrary.open(client, { say: say, onPick: done });
   }
   var frameDialog = null;
   function shapeRatio(shape) {
@@ -675,21 +650,19 @@
     button.type = 'button';
     button.className = 'studio-upload';
     button.textContent = 'Change photo';
-    var picker = document.createElement('input');
-    picker.type = 'file';
-    picker.accept = 'image/jpeg,image/png,image/gif,image/webp';
-    picker.hidden = true;
-    button.addEventListener('click', function () { picker.click(); });
-    picker.addEventListener('change', function () {
-      var file = picker.files && picker.files[0];
-      picker.value = '';
-      if (file) uploadPhoto(file, row.id, cell);
+    button.addEventListener('click', function () {
+      chooseLibraryPhoto(function (src) {
+        path.textContent = src;
+        frameInput.value = '';
+        row.img_frame = null;
+        paintPhoto(cell);
+        say('Photo is in this row. Publish to show it on the site.');
+      });
     });
     cell.appendChild(thumb);
     cell.appendChild(frameInput);
     cell.appendChild(path);
     cell.appendChild(button);
-    cell.appendChild(picker);
     paintPhoto(cell);
     return cell;
   }
@@ -773,26 +746,20 @@
     button.type = 'button';
     button.className = 'studio-upload';
     button.textContent = 'Change photo';
-    var picker = document.createElement('input');
-    picker.type = 'file';
-    picker.accept = 'image/jpeg,image/png,image/gif,image/webp';
-    picker.hidden = true;
-    button.addEventListener('click', function () { picker.click(); });
-    picker.addEventListener('change', function () {
-      var file = picker.files && picker.files[0];
-      picker.value = '';
-      if (!file) return;
-      uploadPhoto(file, row.id, cell);
+    button.addEventListener('click', function () {
+      chooseLibraryPhoto(function (src) {
+        cell.dispatchEvent(new CustomEvent('studio-photo', { detail: src }));
+      });
     });
     cell.addEventListener('studio-photo', function (event) {
       path.textContent = event.detail;
-      picture = { src: event.detail, frame: picture.frame, kind: picture.kind };
+      picture = { src: event.detail, frame: null, kind: picture.kind };
+      thumb.update(photoSrc(event.detail), null);
       saveGrammarPicture(row, picture);
     });
     cell.appendChild(thumb);
     cell.appendChild(path);
     cell.appendChild(button);
-    cell.appendChild(picker);
     return cell;
   }
   function revisionColumns(here) {
@@ -1373,10 +1340,10 @@
     data.highlight = row && row.highlight ? row.highlight : '';
     data.highlight_adv = row && row.highlight_adv != null ? row.highlight_adv : null;
     if (typeof data.img_frame === 'string') {
-      if (!data.img_frame) delete data.img_frame;
+      if (!data.img_frame) data.img_frame = null;
       else {
         try { data.img_frame = JSON.parse(data.img_frame); }
-        catch (error) { delete data.img_frame; }
+        catch (error) { data.img_frame = null; }
       }
     }
     if (tableName === 'practice_items') {
