@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/site.css?v=53" />
+  <link rel="stylesheet" href="assets/site.css?v=54" />
   <script>
   (function () {
     var mode = 'guide';
@@ -202,21 +202,6 @@
         </div>
       </div>
     </section>
-
-    <section class="section today-home" id="today" aria-labelledby="today-title">
-      <div class="today-home-inner reveal">
-          <div class="today-home-card today-progress-card">
-          <div class="today-progress-head">
-            <h2 class="today-home-title" id="today-title">Review progress</h2>
-            <p class="today-home-lead"><span id="today-home-count">0</span> words ready · open Practice to start</p>
-            <a class="btn btn-primary" href="practice/grammar/practice-entry.html">Practice hub</a>
-            <a class="btn badges-entry" id="badges-entry" href="badges.html">Badges</a>
-          </div>
-          <div class="review-progress-list" id="review-progress" aria-label="Review progress by unit"></div>
-        </div>
-      </div>
-    </section>
-
 
     <section class="section how" id="how" aria-labelledby="how-title">
       <div class="how-wrap reveal">
@@ -422,36 +407,6 @@
         }
       }
 
-      var M = window.Mastery;
-      if (!M || !R) return;
-      var keys = M.allKnownKeysFromRegistry();
-      var list = M.suggestToday(keys, 20);
-      var el = document.getElementById('today-home-count');
-      if (el) el.textContent = String(list.length);
-
-      var tones = { sunny: 'sunny', green: 'green', sky: 'sky', coral: 'coral', pink: 'pink' };
-      var box = document.getElementById('review-progress');
-      if (!box || !R) return;
-      R.listUnits().forEach(function (u) {
-        var pack = R.getUnit(u.id);
-        var total = (pack && pack.words) ? pack.words.length : 0;
-        var pct = window.Badges ? window.Badges.practiceProgress(u.id) : 0;
-        var locked = !u.ready || !total;
-        var pctLabel = (!total) ? 'Soon' : (pct + '%');
-        var row = document.createElement('div');
-        row.className = 'review-row tone-' + (tones[u.tone] || 'sky') + (locked ? ' is-locked' : '');
-        var link = document.createElement('a');
-        link.className = 'review-row-link';
-        link.href = 'practice/index.html?unit=' + encodeURIComponent(u.id);
-        link.innerHTML =
-          '<div class="review-row-top">' +
-            '<span class="review-label">' + u.label + '</span>' +
-            '<span class="review-pct">' + pctLabel + '</span>' +
-          '</div>' +
-          '<div class="review-track" aria-hidden="true"><span class="review-fill" style="width:' + (locked ? 0 : pct) + '%"></span></div>';
-        row.appendChild(link);
-        box.appendChild(row);
-      });
     } catch (e) {}
   })();
   </script>

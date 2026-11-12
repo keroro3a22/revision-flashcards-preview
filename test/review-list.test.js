@@ -70,13 +70,14 @@ test('every badge states exactly how to unlock it', () => {
   });
 });
 
-test('homepage keeps practice bars and hides the needs-review word list', () => {
+test('homepage hides the review progress block and the needs-review word list', () => {
   const home = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   const hub = fs.readFileSync(path.join(root, 'practice/index.html'), 'utf8');
   const badges = fs.readFileSync(path.join(root, 'badges.html'), 'utf8');
   const css = fs.readFileSync(path.join(root, 'assets/site.css'), 'utf8');
-  assert.match(home, /id="review-progress"/);
-  assert.match(home, /practiceProgress/);
+  assert.doesNotMatch(home, /id="review-progress"/);
+  assert.doesNotMatch(home, /Review progress/);
+  assert.doesNotMatch(home, /practiceProgress/);
   assert.doesNotMatch(home, /mastered \/ total/);
   assert.doesNotMatch(home, /review-list\.js/);
   assert.doesNotMatch(home, /appendWords/);
