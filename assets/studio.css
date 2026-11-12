@@ -72,6 +72,7 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
   background: rgba(36, 60, 108, 0.46);
 }
 .studio-files[hidden] { display: none !important; }
+.studio-files.is-dropping .studio-files-card { box-shadow: inset 0 0 0 3px #2f6fad; }
 .studio-files-card {
   width: min(100%, 68rem);
   height: min(86vh, 44rem);

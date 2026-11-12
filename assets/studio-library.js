@@ -83,6 +83,7 @@
     upload.textContent = 'Upload';
     var picker = document.createElement('input');
     picker.type = 'file';
+    picker.multiple = true;
     picker.hidden = true;
     upload.addEventListener('click', function () { picker.click(); });
     var closer = document.createElement('button');
@@ -96,11 +97,12 @@
     head.appendChild(actions);
 
     var picking = !!(hooks && hooks.onPick);
+    var preferred = String((hooks && hooks.folder) || '');
     var note = document.createElement('p');
     note.className = 'studio-files-note';
     note.textContent = picking
-      ? 'Choose a photo. Upload a new one here if it is not in the library yet.'
-      : 'Website folders are the photos already on the site. New uploads go into the private inbox.';
+      ? 'Choose a photo. Drop a new one here if it is not in the library yet.'
+      : 'Website folders are the photos already on the site. Drop new files here to put them in the private inbox.';
 
     var body = document.createElement('div');
     body.className = 'studio-files-body';
@@ -159,6 +161,8 @@
         view = { kind: 'store', index: 0, bucket: 'lesson-inbox', parts: [] };
         paint();
       }));
+      var current = nav.querySelector('.is-on');
+      if (current && current.scrollIntoView) current.scrollIntoView({ block: 'nearest' });
     }
 
     function fileBox(item) {
@@ -341,14 +345,55 @@
       else paintSite();
     }
 
+    function showInbox() {
+      view = { kind: 'store', index: 0, bucket: 'lesson-inbox', parts: ['inbox'] };
+      paint();
+    }
+
+    function uploadFiles(list) {
+      var files = Array.prototype.slice.call(list || []).filter(Boolean);
+      if (!files.length) return;
+      var index = 0;
+      function next() {
+        if (!dialog) return;
+        if (index >= files.length) { showInbox(); return; }
+        send(client, files[index], say, function () {
+          index += 1;
+          next();
+        });
+      }
+      next();
+    }
+
     picker.addEventListener('change', function () {
-      var file = picker.files && picker.files[0];
+      var files = picker.files;
       picker.value = '';
-      if (!file) return;
-      send(client, file, say, function () {
-        view = { kind: 'store', index: 0, bucket: 'lesson-inbox', parts: ['inbox'] };
-        paint();
-      });
+      uploadFiles(files);
+    });
+
+    var dragDepth = 0;
+    root.addEventListener('dragenter', function (event) {
+      event.preventDefault();
+      dragDepth += 1;
+      root.classList.add('is-dropping');
+    });
+    root.addEventListener('dragover', function (event) {
+      event.preventDefault();
+      if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
+    });
+    root.addEventListener('dragleave', function () {
+      dragDepth -= 1;
+      if (dragDepth <= 0) {
+        dragDepth = 0;
+        root.classList.remove('is-dropping');
+      }
+    });
+    root.addEventListener('drop', function (event) {
+      event.preventDefault();
+      dragDepth = 0;
+      root.classList.remove('is-dropping');
+      var files = event.dataTransfer && event.dataTransfer.files;
+      uploadFiles(files);
     });
 
     fetch(SITE).then(function (response) {
@@ -356,6 +401,11 @@
       return response.json();
     }).then(function (catalog) {
       siteFolders = (catalog && catalog.folders) || [];
+      var start = -1;
+      siteFolders.forEach(function (folder, index) {
+        if (folder.name === preferred) start = index;
+      });
+      if (start >= 0) view.index = start;
       if (!siteFolders.length) say('No website files were found.');
       paint();
     }).catch(function (error) {
@@ -364,15 +414,21 @@
     });
   }
 
+  var uploadSerial = 0;
+
   function send(client, file, say, done) {
-    if (!client || !client.storage) { say('Sign in before uploading.'); return; }
+    if (!client || !client.storage) { say('Sign in before uploading.'); if (done) done(); return; }
     var safe = String(file.name || 'file').replace(/[^\w.\-]+/g, '-').replace(/^\.+/, '');
-    var path = 'inbox/' + Date.now() + '-' + (safe || 'file');
+    uploadSerial += 1;
+    var path = 'inbox/' + Date.now() + '-' + uploadSerial + '-' + (safe || 'file');
     say('Uploading…');
     client.storage.from('lesson-inbox').upload(path, file, { upsert: false }).then(function (result) {
-      if (result.error) { say(result.error.message); return; }
-      say('Uploaded to the private inbox.');
-      done();
+      if (result.error) say(result.error.message);
+      else say('Uploaded to the private inbox.');
+      if (done) done();
+    }).catch(function () {
+      say('The file could not be uploaded.');
+      if (done) done();
     });
   }
 

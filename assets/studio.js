@@ -408,7 +408,7 @@
   }
   function chooseLibraryPhoto(done) {
     if (!window.RevisionStudioLibrary) { say('The library did not load.'); return; }
-    window.RevisionStudioLibrary.open(client, { say: say, onPick: done });
+    window.RevisionStudioLibrary.open(client, { say: say, onPick: done, folder: place().unit });
   }
   var frameDialog = null;
   function shapeRatio(shape) {
@@ -1743,7 +1743,7 @@
     var libraryButton = $('studio-library-open');
     if (libraryButton) {
       libraryButton.addEventListener('click', function () {
-        if (window.RevisionStudioLibrary) window.RevisionStudioLibrary.open(client, { say: say });
+        if (window.RevisionStudioLibrary) window.RevisionStudioLibrary.open(client, { say: say, folder: place().unit });
         else say('The library did not load.');
       });
     }

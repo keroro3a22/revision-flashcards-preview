@@ -86,7 +86,13 @@ test('the library button opens website folders and stored files', () => {
   assert.match(browser, /Use this photo/);
   assert.doesNotMatch(browser, /studio-library/);
   assert.match(page, /chooseLibraryPhoto/);
+  assert.match(page, /folder: place\(\)\.unit/);
   assert.doesNotMatch(page, /type = 'file'/);
+  const pages = fs.readFileSync('assets/studio-pages.js', 'utf8');
+  assert.match(pages, /folder: unitId/);
+  assert.match(browser, /hooks\.folder/);
+  assert.match(browser, /dragover/);
+  assert.match(browser, /dataTransfer/);
   assert.ok(unit1.files.some((file) => file.path === 'unit1/thumb_01.jpg'));
 });
 
