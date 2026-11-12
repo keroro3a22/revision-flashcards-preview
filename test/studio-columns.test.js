@@ -54,8 +54,8 @@ test('lesson search looks through every table and quotes the words', () => {
   const js = fs.readFileSync('assets/studio.js', 'utf8');
   const html = fs.readFileSync('studio.html', 'utf8');
   assert.match(html, /id="studio-search"/);
-  assert.match(html, /id="studio-library" class="studio-inbox"/);
-  assert.doesNotMatch(html, /id="studio-library" class="studio-library"/);
+  assert.match(html, /id="studio-library-open"/);
+  assert.doesNotMatch(html, /value="library"/);
   assert.match(js, /searchSuggestions/);
   assert.match(js, /studio-suggest-path/);
   assert.match(js, /lesson_cards/);
@@ -64,6 +64,25 @@ test('lesson search looks through every table and quotes the words', () => {
   const library = js.slice(js.indexOf('function searchLibrary'), js.indexOf('function mountSearch'));
   assert.doesNotMatch(library, /\.eq\('book'/);
   assert.doesNotMatch(library, /'options'/);
+});
+
+test('the library button opens website folders and stored files', () => {
+  const html = fs.readFileSync('studio.html', 'utf8');
+  const browser = fs.readFileSync('assets/studio-library.js', 'utf8');
+  const page = fs.readFileSync('assets/studio.js', 'utf8');
+  const catalog = JSON.parse(fs.readFileSync('assets/site-files.json', 'utf8'));
+  const unit1 = catalog.folders.find((folder) => folder.name === 'unit1');
+  assert.equal(html.includes('value="library"'), false);
+  assert.match(html, /id="studio-library-open">Library/);
+  assert.match(page, /studio-library-open/);
+  assert.match(page, /RevisionStudioLibrary\.open/);
+  assert.doesNotMatch(page, /section === 'library'/);
+  assert.match(browser, /assets\/site-files\.json/);
+  assert.match(browser, /lesson-media/);
+  assert.match(browser, /lesson-inbox/);
+  assert.match(browser, /className = 'studio-files'/);
+  assert.doesNotMatch(browser, /studio-library/);
+  assert.ok(unit1.files.some((file) => file.path === 'unit1/thumb_01.jpg'));
 });
 
 test('a path jump highlight fades back to the row color', () => {

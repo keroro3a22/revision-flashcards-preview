@@ -454,7 +454,7 @@
     var raw = input || {};
     var book = oneOf(STUDIO_BOOKS, raw.book, 'oxford');
     var series = oneOf(STUDIO_SERIES[book], raw.series, STUDIO_SERIES[book][0]);
-    var section = raw.section === 'practice' || raw.section === 'pages' || raw.section === 'resources' || raw.section === 'library'
+    var section = raw.section === 'practice' || raw.section === 'pages' || raw.section === 'resources'
       ? raw.section
       : 'revision';
     var kind = raw.kind === 'grammar' ? 'grammar' : 'vocab';

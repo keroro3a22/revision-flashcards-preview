@@ -138,6 +138,12 @@ test('the studio returns to the last table on this device', () => {
   assert.equal(store.getItem(draft.STUDIO_PLACE_KEY).includes('elect'), true);
 });
 
+test('the library is not a lesson section', () => {
+  const store = memory();
+  store.setItem(draft.STUDIO_PLACE_KEY, JSON.stringify({ section: 'library', book: 'oxford', series: 'oxford' }));
+  assert.equal(draft.readStudioPlace(store).section, 'revision');
+});
+
 test('a stored studio table drops choices that no longer fit', () => {
   const store = memory();
   store.setItem(draft.STUDIO_PLACE_KEY, '{');
