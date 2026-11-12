@@ -10,7 +10,7 @@
     if (!host) return;
     host.replaceChildren();
     var bar = document.createElement('div');
-    bar.className = 'studio-library-bar';
+    bar.className = 'studio-inbox-bar';
     var upload = document.createElement('button');
     upload.type = 'button';
     upload.textContent = 'Upload';
@@ -30,7 +30,7 @@
     host.appendChild(bar);
     host.appendChild(note);
     var grid = document.createElement('div');
-    grid.className = 'studio-library-grid';
+    grid.className = 'studio-inbox-grid';
     host.appendChild(grid);
     say('Loading files…');
     client.storage.from('lesson-inbox').list(FOLDER, { limit: 100, sortBy: { column: 'name', order: 'desc' } })
@@ -50,7 +50,7 @@
   function card(client, item, say) {
     var path = FOLDER + '/' + item.name;
     var box = document.createElement('article');
-    box.className = 'studio-library-file';
+    box.className = 'studio-inbox-file';
     var name = document.createElement('p');
     name.textContent = item.name;
     box.appendChild(name);
