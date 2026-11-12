@@ -93,6 +93,12 @@ test('the library button opens website folders and stored files', () => {
   assert.match(browser, /hooks\.folder/);
   assert.match(browser, /dragover/);
   assert.match(browser, /dataTransfer/);
+  assert.match(browser, /Uploading /);
+  assert.match(browser, /beforeunload/);
+  assert.match(browser, /Upload stopped because the page was left/);
+  assert.match(browser, /textContent = 'Remove'/);
+  assert.match(browser, /studio-preview/);
+  assert.doesNotMatch(browser, /if \(!dialog\) return;/);
   assert.ok(unit1.files.some((file) => file.path === 'unit1/thumb_01.jpg'));
 });
 

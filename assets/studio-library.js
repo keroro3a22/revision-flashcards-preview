@@ -4,6 +4,10 @@
   var SITE = 'assets/site-files.json?v=1';
   var dialog = null;
   var onKey = null;
+  var preview = null;
+  var uploadJob = null;
+  var refreshAfterUpload = null;
+  var activeSay = function () {};
 
   function isImage(name) {
     return /\.(png|jpe?g|gif|webp|svg)$/i.test(name);
@@ -50,15 +54,128 @@
     else done();
   }
 
+  function closePreview() {
+    if (preview) preview.remove();
+    preview = null;
+  }
+
+  function showPreview(url, name) {
+    closePreview();
+    var root = document.createElement('div');
+    root.className = 'studio-preview';
+    var card = document.createElement('div');
+    card.className = 'studio-preview-card';
+    card.setAttribute('role', 'dialog');
+    card.setAttribute('aria-modal', 'true');
+    card.setAttribute('aria-label', name || 'Preview');
+    var bar = document.createElement('div');
+    var heading = document.createElement('p');
+    heading.textContent = name || 'Preview';
+    var closer = document.createElement('button');
+    closer.type = 'button';
+    closer.textContent = 'Close';
+    closer.addEventListener('click', closePreview);
+    bar.appendChild(heading);
+    bar.appendChild(closer);
+    card.appendChild(bar);
+    if (/\.pdf$/i.test(name || '')) {
+      var frame = document.createElement('iframe');
+      frame.src = url;
+      frame.title = name || 'Preview';
+      card.appendChild(frame);
+    } else {
+      var img = document.createElement('img');
+      img.src = url;
+      img.alt = name || '';
+      card.appendChild(img);
+    }
+    root.addEventListener('click', function (event) {
+      if (event.target === root) closePreview();
+    });
+    card.addEventListener('click', function (event) { event.stopPropagation(); });
+    root.appendChild(card);
+    document.body.appendChild(root);
+    preview = root;
+    closer.focus();
+  }
+
+  function openPreview(item) {
+    function show(url) {
+      if (!url) { activeSay('This file could not be previewed.'); return; }
+      showPreview(url, item.name);
+    }
+    if (item.signed) item.signed(show);
+    else show(item.src || item.path);
+  }
+
   function close() {
+    closePreview();
+    refreshAfterUpload = null;
     if (onKey) document.removeEventListener('keydown', onKey);
     onKey = null;
     if (dialog) dialog.remove();
     dialog = null;
   }
 
+  function keepPage(event) {
+    if (!uploadJob) return;
+    event.preventDefault();
+    event.returnValue = '';
+  }
+
+  function uploadFiles(client, list, say) {
+    var files = Array.prototype.slice.call(list || []).filter(Boolean);
+    if (!files.length) return;
+    if (!client || !client.storage) { say('Sign in before uploading.'); return; }
+    if (uploadJob) {
+      uploadJob.files = uploadJob.files.concat(files);
+      uploadJob.say = say || uploadJob.say;
+      return;
+    }
+    uploadJob = { client: client, files: files, index: 0, ok: 0, say: say, left: false };
+    window.addEventListener('beforeunload', keepPage);
+    nextUpload();
+  }
+
+  function finishUpload(message) {
+    var say = uploadJob && uploadJob.say;
+    uploadJob = null;
+    window.removeEventListener('beforeunload', keepPage);
+    if (refreshAfterUpload) refreshAfterUpload(message);
+    else if (say) say(message);
+  }
+
+  function nextUpload() {
+    var job = uploadJob;
+    if (!job) return;
+    if (job.left) {
+      finishUpload('Upload stopped because the page was left. ' + job.ok + ' of ' + job.files.length + ' finished.');
+      return;
+    }
+    if (job.index >= job.files.length) {
+      var total = job.files.length;
+      var ok = job.ok;
+      var message = ok === total
+        ? (total === 1 ? 'Uploaded 1 file to the private inbox.' : 'Uploaded ' + total + ' files to the private inbox.')
+        : ('Uploaded ' + ok + ' of ' + total + ' files to the private inbox.');
+      finishUpload(message);
+      return;
+    }
+    var file = job.files[job.index];
+    job.say('Uploading ' + (job.index + 1) + ' of ' + job.files.length + ' · ' + (file.name || 'file') + '.');
+    send(job.client, file, function (ok) {
+      if (!uploadJob) return;
+      if (uploadJob.left) { nextUpload(); return; }
+      if (ok) uploadJob.ok += 1;
+      else uploadJob.say('Could not upload ' + (file.name || 'file') + '.');
+      uploadJob.index += 1;
+      nextUpload();
+    });
+  }
+
   function open(client, hooks) {
     var say = (hooks && hooks.say) || function () {};
+    activeSay = say;
     close();
     var root = document.createElement('div');
     root.className = 'studio-files';
@@ -120,13 +237,20 @@
     document.body.appendChild(root);
     dialog = root;
     onKey = function (event) {
-      if (event.key === 'Escape') close();
+      if (event.key !== 'Escape') return;
+      if (preview) { closePreview(); return; }
+      close();
     };
     document.addEventListener('keydown', onKey);
     closer.focus();
 
     var siteFolders = [];
     var view = { kind: 'site', index: 0, bucket: '', parts: [] };
+    var pinned = '';
+    function status(text) {
+      if (uploadJob || pinned) return;
+      say(text);
+    }
 
     function navButton(label, on, pick) {
       var button = document.createElement('button');
@@ -165,17 +289,38 @@
       if (current && current.scrollIntoView) current.scrollIntoView({ block: 'nearest' });
     }
 
+    function watchPreview(node, item) {
+      node.tabIndex = 0;
+      node.setAttribute('role', 'button');
+      function open(event) {
+        event.preventDefault();
+        openPreview(item);
+      }
+      node.addEventListener('click', open);
+      node.addEventListener('keydown', function (event) {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        open(event);
+      });
+    }
+
     function fileBox(item) {
       var box = document.createElement('article');
       box.className = 'studio-files-item';
-      if (isImage(item.name) && item.src) {
+      var previewable = isImage(item.name) || /\.pdf$/i.test(item.name);
+      if (isImage(item.name)) {
         var img = document.createElement('img');
         img.alt = '';
-        img.src = item.src;
+        if (item.src) img.src = item.src;
+        else if (item.signed) item.signed(function (url) { if (url) img.src = url; });
         box.appendChild(img);
+        watchPreview(img, item);
       }
       var name = document.createElement('p');
       name.textContent = item.name;
+      if (previewable) {
+        name.className = 'is-preview';
+        watchPreview(name, item);
+      }
       box.appendChild(name);
       var copy = document.createElement('button');
       copy.type = 'button';
@@ -223,6 +368,21 @@
         publish.addEventListener('click', function () { copyPublic(client, item.storagePath || item.path, item.name, say); });
         box.appendChild(publish);
       }
+      if (item.bucket && item.storagePath) {
+        var remove = document.createElement('button');
+        remove.type = 'button';
+        remove.textContent = 'Remove';
+        remove.addEventListener('click', function () {
+          if (!window.confirm('Remove ' + item.name + '?')) return;
+          say('Removing…');
+          client.storage.from(item.bucket).remove([item.storagePath]).then(function (result) {
+            if (result.error) { say(result.error.message); return; }
+            say('Removed ' + item.name + '.');
+            paint();
+          });
+        });
+        box.appendChild(remove);
+      }
       return box;
     }
 
@@ -240,7 +400,7 @@
         grid.appendChild(fileBox({ name: file.name, path: file.path, src: file.path }));
       });
       main.appendChild(grid);
-      say(folder.files.length + (folder.files.length === 1 ? ' file in ' : ' files in ') + folder.name + '.');
+      status(folder.files.length + (folder.files.length === 1 ? ' file in ' : ' files in ') + folder.name + '.');
     }
 
     function paintStore() {
@@ -270,12 +430,14 @@
       });
       main.appendChild(crumbs);
       if (!client || !client.storage) {
-        say('Sign in to open stored files.');
+        status('Sign in to open stored files.');
         return;
       }
       var bucket = view.bucket;
       var prefix = view.parts.join('/');
-      say('Loading files…');
+      var keep = pinned;
+      if (keep) say(keep);
+      else status('Loading files…');
       client.storage.from(bucket).list(prefix, { limit: 100, sortBy: { column: 'name', order: 'asc' } })
         .then(function (result) {
           if (!dialog || view.kind !== 'store' || view.bucket !== bucket || view.parts.join('/') !== prefix) return;
@@ -307,7 +469,8 @@
               name: item.name,
               path: view.bucket === 'lesson-media' ? (src || path) : path,
               src: src,
-              storagePath: privateFile ? path : '',
+              bucket: view.bucket,
+              storagePath: path,
               privateImage: privateFile && isImage(item.name),
               signed: privateFile ? function (done) {
                 client.storage.from(bucket).createSignedUrl(path, 120).then(function (signed) {
@@ -315,28 +478,19 @@
                 });
               } : null
             });
-            if (privateFile && isImage(item.name)) {
-              var img = box.querySelector('img');
-              if (!img) {
-                img = document.createElement('img');
-                img.alt = '';
-                box.insertBefore(img, box.firstChild);
-              }
-              client.storage.from(bucket).createSignedUrl(path, 120).then(function (signed) {
-                if (signed.data && signed.data.signedUrl) img.src = signed.data.signedUrl;
-              });
-            }
             grid.appendChild(box);
           });
           if (!items.length) {
             var empty = document.createElement('p');
             empty.textContent = 'This folder is empty.';
             main.appendChild(empty);
-            say('This folder is empty.');
+            if (keep) say(keep);
+            else status('This folder is empty.');
             return;
           }
           main.appendChild(grid);
-          say(items.length + (items.length === 1 ? ' item here.' : ' items here.'));
+          if (keep) say(keep);
+          else status(items.length + (items.length === 1 ? ' item here.' : ' items here.'));
         });
     }
 
@@ -345,30 +499,22 @@
       else paintSite();
     }
 
-    function showInbox() {
+    refreshAfterUpload = function (message) {
+      pinned = message || '';
+      if (!dialog) {
+        if (pinned) say(pinned);
+        pinned = '';
+        return;
+      }
       view = { kind: 'store', index: 0, bucket: 'lesson-inbox', parts: ['inbox'] };
       paint();
-    }
-
-    function uploadFiles(list) {
-      var files = Array.prototype.slice.call(list || []).filter(Boolean);
-      if (!files.length) return;
-      var index = 0;
-      function next() {
-        if (!dialog) return;
-        if (index >= files.length) { showInbox(); return; }
-        send(client, files[index], say, function () {
-          index += 1;
-          next();
-        });
-      }
-      next();
-    }
+      pinned = '';
+    };
 
     picker.addEventListener('change', function () {
       var files = picker.files;
       picker.value = '';
-      uploadFiles(files);
+      uploadFiles(client, files, say);
     });
 
     var dragDepth = 0;
@@ -393,7 +539,7 @@
       dragDepth = 0;
       root.classList.remove('is-dropping');
       var files = event.dataTransfer && event.dataTransfer.files;
-      uploadFiles(files);
+      uploadFiles(client, files, say);
     });
 
     fetch(SITE).then(function (response) {
@@ -416,19 +562,17 @@
 
   var uploadSerial = 0;
 
-  function send(client, file, say, done) {
-    if (!client || !client.storage) { say('Sign in before uploading.'); if (done) done(); return; }
+  function send(client, file, done) {
+    if (!client || !client.storage) { if (done) done(false); return; }
     var safe = String(file.name || 'file').replace(/[^\w.\-]+/g, '-').replace(/^\.+/, '');
     uploadSerial += 1;
     var path = 'inbox/' + Date.now() + '-' + uploadSerial + '-' + (safe || 'file');
-    say('Uploading…');
     client.storage.from('lesson-inbox').upload(path, file, { upsert: false }).then(function (result) {
-      if (result.error) say(result.error.message);
-      else say('Uploaded to the private inbox.');
-      if (done) done();
+      if (uploadJob && document.visibilityState === 'hidden') uploadJob.left = true;
+      if (done) done(!(result && result.error));
     }).catch(function () {
-      say('The file could not be uploaded.');
-      if (done) done();
+      if (uploadJob && document.visibilityState === 'hidden') uploadJob.left = true;
+      if (done) done(false);
     });
   }
 
