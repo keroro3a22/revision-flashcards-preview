@@ -1,11 +1,11 @@
 ---
-description: The user tests. Ship the smallest change and publish when asked.
+description: The user tests. Read enough to change every place that needs it.
 alwaysApply: true
 ---
 
 The user tests every change. Do not run tests, open a browser, take screenshots, or click through the site.
 
-Make the smallest edit that finishes the request. Skip extra investigation and extra files.
+Read the code that the change touches, then update every place that must change with it.
 
 When the user asks to publish, commit, push, and merge to the branch that deploys. Reply with the live URL. The user will check it.
 
