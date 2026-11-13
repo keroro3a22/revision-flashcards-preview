@@ -456,7 +456,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .pack-cover {
   aspect-ratio: 1;
   overflow: hidden;
-  background: color-mix(in srgb, var(--sky) 42%, #fff);
+  background: #fff;
   border-radius: calc(var(--radius) - 6px);
 }
 .pack-cover img {
@@ -464,7 +464,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   height: 100%;
   object-fit: contain;
   object-position: center;
-  background: color-mix(in srgb, var(--sky) 42%, #fff);
+  background: #fff;
   -webkit-user-drag: none;
   user-select: none;
 }
@@ -576,14 +576,14 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   border-radius: calc(var(--radius) - 6px);
   overflow: hidden;
   aspect-ratio: 4 / 3;
-  background: color-mix(in srgb, var(--sky) 42%, #fff);
+  background: #fff;
 }
 .how-card .how-art img {
   width: 100%;
   height: 100%;
   object-fit: contain;
   object-position: center;
-  background: color-mix(in srgb, var(--sky) 42%, #fff);
+  background: #fff;
 }
 .how-card .how-body {
   background: var(--cream);
@@ -656,7 +656,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   height: 6.5rem;
   object-fit: contain;
   border-radius: 18px;
-  background: color-mix(in srgb, var(--sky) 42%, #fff);
+  background: #fff;
   flex: 0 0 auto;
 }
 .daily-en {
@@ -1313,7 +1313,7 @@ a.account-entry:hover { background: var(--coral); color: var(--navy); }
   aspect-ratio: 4 / 3;
   object-fit: cover;
   border-radius: 14px;
-  background: color-mix(in srgb, var(--sky) 42%, #fff);
+  background: #fff;
 }
 .place-choice span {
   padding: 0.65rem 0.35rem 0.35rem;
@@ -1509,7 +1509,7 @@ html[data-view="home"] .place-shell { display: none; }
   aspect-ratio: 4 / 3;
   object-fit: cover;
   border-radius: 14px;
-  background: color-mix(in srgb, var(--sky) 42%, #fff);
+  background: #fff;
 }
 .grade-cover span {
   padding: 0.65rem 0.4rem 0.4rem;

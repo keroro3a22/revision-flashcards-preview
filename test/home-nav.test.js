@@ -40,7 +40,7 @@ test('homepage topbar is the account link, with book, level, and unit navigation
   assert.doesNotMatch(html, /<select/);
   assert.match(html, /assets\/place\.js\?v=5/);
   assert.match(html, /assets\/place-ui\.js\?v=6/);
-  assert.equal(html.includes('site.css?v=55'), true);
+  assert.equal(html.includes('site.css?v=56'), true);
   assert.match(html, /<header class="topbar">[\s\S]*id="unit-tabs" role="tablist"[\s\S]*<\/header>/);
   assert.doesNotMatch(html, /Open Dictation/);
 });
@@ -49,7 +49,8 @@ test('pack and card art keeps its frame', () => {
   const css = fs.readFileSync(path.join(root, 'assets/site.css'), 'utf8');
   assert.match(css, /scroll-snap-type:\s*x mandatory/);
   const cover = css.slice(css.indexOf('.pack-cover {'), css.indexOf('.pack-body'));
-  assert.match(cover, /background:\s*color-mix\(in srgb, var\(--sky\) 42%, #fff\)/);
+  assert.match(cover, /background:\s*#fff/);
+  assert.doesNotMatch(cover, /color-mix\(in srgb, var\(--sky\)/);
   assert.match(cover, /object-fit:\s*contain/);
   assert.doesNotMatch(cover, /object-fit:\s*cover/);
   assert.doesNotMatch(cover, /#000|black/);
@@ -57,12 +58,13 @@ test('pack and card art keeps its frame', () => {
   assert.match(css, /\.how-card \.how-art img \{[^}]*object-fit:\s*contain/);
   assert.doesNotMatch(css, /\.how-card\.tone-sky \.how-art img/);
   assert.match(css, /\.daily-img \{[^}]*object-fit:\s*contain/);
-  assert.match(css, /\.daily-img \{[^}]*background:\s*color-mix\(in srgb, var\(--sky\) 42%, #fff\)/);
+  assert.match(css, /\.daily-img \{[^}]*background:\s*#fff/);
   const unitCss = fs.readFileSync(path.join(root, 'assets/unit.css'), 'utf8');
   const unitIllust = unitCss.slice(unitCss.indexOf('.illust {'), unitCss.indexOf('.main .num'));
   assert.match(unitIllust, /\.illust img \{[^}]*object-fit:\s*cover/);
   assert.match(unitIllust, /\.illust\.cutout img \{[^}]*object-fit:\s*contain/);
-  assert.match(unitIllust, /background:\s*color-mix\(in srgb, var\(--sky\) 42%, #fff\)/);
+  assert.match(unitIllust, /background:\s*#fff/);
+  assert.doesNotMatch(unitIllust, /color-mix\(in srgb, var\(--sky\)/);
   assert.match(css, /\.pack-card \{[^}]*flex:\s*0 0 min\(26rem, 70%\)/);
   assert.match(css, /aspect-ratio:\s*1/);
   assert.doesNotMatch(cover, /max-height:\s*18rem/);

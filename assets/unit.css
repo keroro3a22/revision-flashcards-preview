@@ -213,7 +213,7 @@ button { font: inherit; cursor: pointer; }
   border-radius: var(--radius-sm);
   overflow: hidden;
   aspect-ratio: 1;
-  background: color-mix(in srgb, var(--sky) 42%, #fff);
+  background: #fff;
   cursor: pointer;
 }
 .illust img {

@@ -853,17 +853,24 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
 }
 .mcard-front.face-zh {
   background: var(--sky);
+  color: var(--ink);
+  container-type: size;
 }
 .mcard-front.face-zh .face-badge {
   background: var(--navy);
   color: var(--sky);
 }
 .mcard-front.face-zh .mcard-photo {
-  width: 100%;
-  height: 48%;
+  position: relative;
+  width: min(100cqw, max(2.5rem, calc(100cqh - 2.7rem)));
+  max-width: 100%;
+  aspect-ratio: 1;
+  height: auto;
+  flex: 0 0 auto;
+  align-self: center;
   border-radius: 12px;
-  background: color-mix(in srgb, var(--sky) 42%, #fff);
-  flex: 1 1 auto;
+  background: #fff;
+  overflow: hidden;
 }
 .mcard-front.face-zh .mcard-photo img {
   width: 100%;
@@ -876,6 +883,7 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
   font-size: clamp(0.72rem, 2.7vw, 0.92rem);
   text-align: center;
   line-height: 1.2;
+  color: var(--navy);
 }
 .mcard.is-matched .mcard-front {
   background: var(--green);
