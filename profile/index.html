@@ -15,7 +15,7 @@
   <script>
   try {
     if ((localStorage.getItem('p6-sb-auth') || '').indexOf('access_token') === -1) {
-      location.replace('account/');
+      location.replace('account/?next=' + encodeURIComponent('profile/'));
     }
   } catch (e) {}
   </script>
@@ -23,7 +23,7 @@
   <script src="assets/progress-sync.js?v=3"></script>
   <script src="practice/badges.js?v=4"></script>
   <script src="assets/profile.js?v=6"></script>
-  <script src="assets/account.js?v=13"></script>
+  <script src="assets/account.js?v=15"></script>
 </head>
 <body class="account-page">
   <header class="topbar">
