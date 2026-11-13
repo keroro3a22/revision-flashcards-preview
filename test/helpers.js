@@ -36,6 +36,7 @@ function loadScripts(rels, extras) {
     setInterval,
     clearInterval
   };
+  if (extras && extras.document) sandbox.document = extras.document;
   rels.forEach(rel => {
     const file = path.join(__dirname, '..', rel);
     const code = fs.readFileSync(file, 'utf8');
