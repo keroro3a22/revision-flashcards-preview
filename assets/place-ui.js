@@ -434,6 +434,47 @@
 })();
 
 (function () {
+  var style = document.createElement('style');
+  style.textContent = '.back-to-top{position:fixed;right:1rem;bottom:1rem;z-index:60;font:700 .95rem/1 Nunito,"Noto Sans TC",sans-serif;color:#16324f;background:#fff;border:1px solid #8ea4ba;border-radius:999px;padding:.55rem .9rem;box-shadow:0 8px 20px rgba(22,50,79,.16);cursor:pointer}.back-to-top[hidden]{display:none}';
+  document.head.appendChild(style);
+
+  function scrollY() {
+    return window.scrollY || document.documentElement.scrollTop || 0;
+  }
+
+  function mount() {
+    if (document.body.classList.contains('studio-page') || document.getElementById('back-to-top')) return;
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.id = 'back-to-top';
+    button.className = 'back-to-top';
+    button.textContent = 'Top';
+    button.setAttribute('aria-label', 'Back to top');
+    button.hidden = true;
+    button.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    document.body.appendChild(button);
+    var shown = false;
+    function paint() {
+      var y = scrollY();
+      var height = window.innerHeight || 1;
+      var doc = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+      if (doc <= height + 48) shown = false;
+      else if (!shown && y > height) shown = true;
+      else if (shown && y < height * 0.6) shown = false;
+      button.hidden = !shown;
+    }
+    window.addEventListener('scroll', paint, { passive: true });
+    window.addEventListener('resize', paint);
+    paint();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount);
+  else mount();
+})();
+
+(function () {
   var scripts = document.getElementsByTagName('script');
   var src = 'assets/copy-path.js?v=5';
   var i;
