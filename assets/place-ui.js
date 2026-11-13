@@ -183,10 +183,10 @@
     brand.href = scriptRoot() || './';
     brand.setAttribute('aria-label', 'Play and Learn Club');
     var mark = document.createElement('img');
-    mark.src = scriptRoot() + 'assets/logo.png?v=1';
+    mark.src = scriptRoot() + 'assets/logo.png?v=2';
     mark.alt = '';
-    mark.width = 720;
-    mark.height = 342;
+    mark.width = 1554;
+    mark.height = 734;
     brand.appendChild(mark);
     inner.appendChild(brand);
     var nav = document.createElement('nav');
@@ -385,7 +385,7 @@
       var icon = document.createElement('link');
       icon.rel = 'icon';
       icon.type = 'image/png';
-      icon.href = scriptRoot() + 'assets/favicon.png';
+      icon.href = scriptRoot() + 'assets/favicon.png?v=2';
       document.head.appendChild(icon);
     }
     var kind = pageKind();
