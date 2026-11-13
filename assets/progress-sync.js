@@ -102,6 +102,7 @@
     storage.removeItem(LAST_AT);
     storage.removeItem(CHOICE_KEY);
     storage.removeItem(HELD_KEY);
+    storage.removeItem('p6-flash-badge-popups-v1');
     if (typeof storage.key !== 'function' || typeof storage.length !== 'number') return;
     var drop = [];
     for (var i = 0; i < storage.length; i++) {
@@ -184,6 +185,24 @@
     return out;
   }
 
+  function mergeSeen(a, b) {
+    var out = {};
+    function take(src) {
+      if (!src || typeof src !== 'object' || Array.isArray(src)) return;
+      Object.keys(src).forEach(function (id) {
+        var list = Array.isArray(src[id]) ? src[id] : [];
+        if (!out[id]) out[id] = [];
+        list.forEach(function (step) {
+          var at = Number(step);
+          if (isFinite(at) && out[id].indexOf(at) === -1) out[id].push(at);
+        });
+      });
+    }
+    take(a);
+    take(b);
+    return out;
+  }
+
   function mergeBadges(a, b) {
     a = a && typeof a === 'object' ? a : {};
     b = b && typeof b === 'object' ? b : {};
@@ -196,6 +215,8 @@
       units: mergeUnits(a.units, b.units),
       hadReview: mergeHad(a.hadReview, b.hadReview)
     };
+    var seen = mergeSeen(a.nudgesSeen, b.nudgesSeen);
+    if (Object.keys(seen).length) out.nudgesSeen = seen;
     var wins = Math.max(leftWins, rightWins);
     if (wins > 0) out.grammarInferenceWins = wins;
     return out;

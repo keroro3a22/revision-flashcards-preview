@@ -340,3 +340,89 @@ body.account-page .topbar { position: relative; flex: none; }
   gap: 0.55rem;
   margin-top: 1rem;
 }
+.settings-avatars button.is-filtered img,
+.profile-choice.is-filtered img { filter: grayscale(1); opacity: 0.72; }
+.badge-meter {
+  width: min(100%, 9rem);
+  height: 0.55rem;
+  margin: 0.45rem auto 0;
+  border-radius: 999px;
+  background: rgba(36, 60, 108, 0.12);
+  overflow: hidden;
+}
+.badge-meter > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #fc903c;
+}
+.badge-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+.badge-popup-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(36, 60, 108, 0.55);
+}
+.badge-popup-panel {
+  position: relative;
+  width: min(28rem, 100%);
+  max-height: min(88vh, 40rem);
+  overflow: auto;
+  padding: 1.15rem 1.1rem 1.2rem;
+  border-radius: 28px;
+  background: var(--cream, #fcf0d8);
+  color: var(--navy, #243c6c);
+  text-align: center;
+}
+.badge-popup-kicker,
+.badge-popup-card h2,
+.badge-popup-english,
+.badge-popup-cheer {
+  font-family: Fredoka, var(--font-display, sans-serif);
+}
+.badge-popup-kicker {
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--coral, #fc903c);
+}
+.badge-popup-card { margin-top: 0.65rem; }
+.badge-popup-card h2 { margin: 0.35rem 0 0; font-size: 1.45rem; }
+.badge-popup-english,
+.badge-popup-how,
+.badge-popup-cheer,
+.badge-fraction { margin: 0.2rem 0 0; font-weight: 700; }
+.badge-popup-art {
+  width: 8rem;
+  height: 8rem;
+  margin: 0 auto;
+}
+.badge-popup-art img { width: 100%; height: 100%; object-fit: contain; }
+.badge-popup-art.is-filtered img { filter: grayscale(1); opacity: 0.72; }
+.badge-popup .badge-meter { margin: 0.7rem auto 0; }
+.badge-popup-close {
+  margin-top: 0.9rem;
+  min-height: 44px;
+  padding: 0.4rem 1.2rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--navy, #243c6c);
+  color: var(--cream, #fcf0d8);
+  font: inherit;
+  font-weight: 800;
+}
+.badge-confetti {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 91;
+}
