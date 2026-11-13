@@ -16,10 +16,35 @@
   }
 
   function builtinTarget(id) {
+    if (window.Badges && window.Badges.builtinTarget) return window.Badges.builtinTarget(id);
     if (id === 'starter' || id === 'grammar-boss') return 1;
     if (String(id).indexOf('unit-done:') === 0) return 3;
     if (id === 'grammar-inference') return 3;
     return 4;
+  }
+
+  function targetLimit(id) {
+    if (window.Badges && window.Badges.targetLimit) return window.Badges.targetLimit(id);
+    if (id === 'grammar-inference') return 99;
+    return builtinTarget(id);
+  }
+
+  function shownTarget(saved, id) {
+    var base = builtinTarget(id);
+    var next = Number(saved);
+    var max = targetLimit(id);
+    if (isFinite(next) && next >= 1 && next <= max && Math.floor(next) === next) return next;
+    return base;
+  }
+
+  function readTarget(value, id) {
+    var max = targetLimit(id);
+    var base = builtinTarget(id);
+    var text = String(value == null ? '' : value).trim();
+    if (!text) return { ok: true, target: null, goal: base };
+    var next = Number(text);
+    if (!isFinite(next) || next < 1 || next > max || Math.floor(next) !== next) return { ok: false, max: max };
+    return { ok: true, target: next === base ? null : next, goal: next };
   }
 
   function imageOk(value) {
@@ -84,8 +109,7 @@
 
   function card(client, badge, saved, say, focus) {
     var row = saved || null;
-    var editable = badge.id === 'grammar-inference';
-    var target = editable && row && row.target ? row.target : builtinTarget(badge.id);
+    var target = shownTarget(row && row.target, badge.id);
     var article = document.createElement('article');
     article.className = 'studio-badge';
     article.dataset.id = badge.id;
@@ -147,26 +171,18 @@
     top.appendChild(names);
     article.appendChild(top);
     article.appendChild(detail.wrap);
-    var targetInput = null;
-    if (editable) {
-      var targetWrap = document.createElement('label');
-      targetWrap.className = 'studio-badge-field';
-      var targetName = document.createElement('span');
-      targetName.textContent = 'Target total';
-      targetInput = document.createElement('input');
-      targetInput.type = 'number';
-      targetInput.min = '1';
-      targetInput.max = '99';
-      targetInput.value = String(target);
-      targetWrap.appendChild(targetName);
-      targetWrap.appendChild(targetInput);
-      article.appendChild(targetWrap);
-    } else {
-      var fixed = document.createElement('p');
-      fixed.className = 'studio-badge-target';
-      fixed.textContent = 'Target total ' + target;
-      article.appendChild(fixed);
-    }
+    var targetWrap = document.createElement('label');
+    targetWrap.className = 'studio-badge-field studio-badge-target';
+    var targetName = document.createElement('span');
+    targetName.textContent = 'Target total';
+    var targetInput = document.createElement('input');
+    targetInput.type = 'number';
+    targetInput.min = '1';
+    targetInput.max = String(targetLimit(badge.id));
+    targetInput.value = String(target);
+    targetWrap.appendChild(targetName);
+    targetWrap.appendChild(targetInput);
+    article.appendChild(targetWrap);
     var steps = document.createElement('div');
     steps.className = 'studio-badge-steps';
     var storedSteps = row && Array.isArray(row.milestones) ? row.milestones : [];
@@ -183,16 +199,16 @@
     state.textContent = row && row.status === 'published' ? 'Published' : (row ? 'Draft' : 'Built-in');
     article.appendChild(state);
     function payload(status) {
-      var nextTarget = editable ? Number(targetInput.value) : null;
-      if (editable && (!isFinite(nextTarget) || nextTarget < 1 || nextTarget > 99 || Math.floor(nextTarget) !== nextTarget)) {
-        say('The inference target is a whole number from 1 to 99.');
+      var chosen = readTarget(targetInput.value, badge.id);
+      if (!chosen.ok) {
+        say('Target total is a whole number from 1 to ' + chosen.max + '.');
         return null;
       }
       if (!imageOk(imageValue)) {
         say('Choose a library photo, or leave the picture empty to use the built-in one.');
         return null;
       }
-      var goal = editable ? nextTarget : builtinTarget(badge.id);
+      var goal = chosen.goal;
       var milestones = window.Badges && window.Badges.cleanMilestones
         ? window.Badges.cleanMilestones(readSteps(steps), goal)
         : [];
@@ -202,7 +218,7 @@
         english: savedCopy(english.input.value, badge.english, 40),
         detail: savedCopy(detail.input.value, badge.detail, 280),
         image: imageOk(imageValue) ? String(imageValue || '').trim() : '',
-        target: editable ? nextTarget : null,
+        target: chosen.target,
         milestones: milestones,
         status: status
       };
@@ -212,7 +228,7 @@
           english: patch.english,
           detail: patch.detail,
           image: patch.image,
-          target: editable ? nextTarget : null,
+          target: chosen.target,
           milestones: milestones
         };
       }
@@ -284,7 +300,7 @@
       var hit = hooks && hooks.focus ? host.querySelector('[data-id="' + hooks.focus + '"]') : null;
       if (hit && hit.scrollIntoView) hit.scrollIntoView({ block: 'center' });
       if (hooks && hooks.focused) hooks.focused();
-      say('Names and how-to start from the built-in badge. Publish is what students see.');
+      say('Names, how-to, and the target start from the built-in badge. Publish is what students see.');
     });
   }
 

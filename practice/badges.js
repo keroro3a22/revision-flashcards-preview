@@ -118,6 +118,11 @@ window.Badges = (function () {
     return 4;
   }
 
+  function targetLimit(id) {
+    if (id === 'grammar-inference') return 99;
+    return builtinTarget(id);
+  }
+
   function cleanText(value, fallback, max) {
     var text = String(value || '').replace(/\s+/g, ' ').trim();
     if (text.length > max) text = text.slice(0, max).trim();
@@ -161,10 +166,9 @@ window.Badges = (function () {
   function presented(raw) {
     var over = overlay[raw.id] || {};
     var target = builtinTarget(raw.id);
-    if (raw.id === 'grammar-inference') {
-      var custom = Number(over.target);
-      if (isFinite(custom) && custom >= 1 && custom <= 99 && Math.floor(custom) === custom) target = custom;
-    }
+    var custom = Number(over.target);
+    var max = targetLimit(raw.id);
+    if (isFinite(custom) && custom >= 1 && custom <= max && Math.floor(custom) === custom) target = custom;
     var image = cleanText(over.image, raw.image || '', 400);
     return {
       id: raw.id,
@@ -423,12 +427,6 @@ window.Badges = (function () {
     if (typeof st[key] !== 'number' || ratio > st[key]) st[key] = ratio;
   }
 
-  function crossUnit(data, pred) {
-    return CROSS_UNITS.every(function (id) {
-      return pred(data.units[id] || {});
-    });
-  }
-
   function recordSession(unitId, activity, difficulty, stats) {
     const data = load();
     const before = snapshot(data);
@@ -463,25 +461,16 @@ window.Badges = (function () {
     function take(badge) {
       if (badge) fresh.push(badge);
     }
-    take(award(data, 'starter'));
-    if (crossUnit(data, function (unit) { return meets(unit.lettersEasyBest, 1); })) {
-      take(award(data, 'letters-phrase'));
+    function qualifies(id) {
+      return measure(data, id) >= viewById(id).target;
     }
-    if (crossUnit(data, function (unit) { return !!unit.match; })) {
-      take(award(data, 'match-pro'));
-    }
-    if (crossUnit(data, function (unit) { return !!unit.timed; })) {
-      take(award(data, 'timed-brave'));
-    }
-    if (crossUnit(data, function (unit) {
-      return meets(unit.fillHardBest, 0.9) && meets(unit.lettersHardBest, 0.9);
-    })) {
-      take(award(data, 'hard-challenger'));
-    }
-    if (unitId === 'mixed' && (st.fillEasy || st.fillHard) && (st.lettersEasy || st.lettersHard) && st.match && st.timed) {
-      take(award(data, 'all-rounder'));
-    }
-    if (ORDER.some(function (u) { return u.id === unitId; }) && coreCompleteFrom(st)) {
+    if (qualifies('starter')) take(award(data, 'starter'));
+    if (qualifies('letters-phrase')) take(award(data, 'letters-phrase'));
+    if (qualifies('match-pro')) take(award(data, 'match-pro'));
+    if (qualifies('timed-brave')) take(award(data, 'timed-brave'));
+    if (qualifies('hard-challenger')) take(award(data, 'hard-challenger'));
+    if (unitId === 'mixed' && qualifies('all-rounder')) take(award(data, 'all-rounder'));
+    if (ORDER.some(function (u) { return u.id === unitId; }) && qualifies('unit-done:' + unitId)) {
       take(award(data, 'unit-done:' + unitId));
     }
     return finish(data, before, fresh);
@@ -492,10 +481,10 @@ window.Badges = (function () {
     function take(badge) {
       if (badge) fresh.push(badge);
     }
-    if (crossUnit(data, function (unit) { return !!unit.grammarStory; })) {
+    if (measure(data, 'grammar-story') >= viewById('grammar-story').target) {
       take(award(data, 'grammar-story'));
     }
-    if (crossUnit(data, function (unit) { return !!unit.grammarJoin; })) {
+    if (measure(data, 'grammar-join') >= viewById('grammar-join').target) {
       take(award(data, 'grammar-join'));
     }
     if (measure(data, 'grammar-inference') >= viewById('grammar-inference').target) {
@@ -892,6 +881,8 @@ window.Badges = (function () {
     progress: progress,
     applyOverlay: applyOverlay,
     cleanMilestones: cleanMilestones,
+    builtinTarget: builtinTarget,
+    targetLimit: targetLimit,
     catchUp: catchUp,
     clearPopups: clearPopups,
     showPending: showPending,

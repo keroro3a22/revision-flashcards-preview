@@ -380,6 +380,30 @@ test('progress counts units and activities toward each badge target', () => {
   assert.equal(window.Badges.progress('all-rounder').target, 4);
 });
 
+test('a lower match target unlocks before all four units', () => {
+  const { window } = setup();
+  window.Badges.applyOverlay([{ id: 'match-pro', target: 2 }]);
+  window.Badges.recordSession('unit1', 'match');
+  assert.equal(window.Badges.isEarned('match-pro'), false);
+  assert.equal(window.Badges.progress('match-pro').current, 1);
+  const second = window.Badges.recordSession('unit2', 'match');
+  assert.equal(window.Badges.isEarned('match-pro'), true);
+  assert.equal(second.newBadges.some(b => b.id === 'match-pro'), true);
+  assert.equal(window.Badges.progress('match-pro').target, 2);
+  window.Badges.recordSession('unit3', 'match');
+  window.Badges.recordSession('unit4', 'match');
+  assert.equal(window.Badges.progress('match-pro').current, 2);
+});
+
+test('a lower unit target does not open the next unit early', () => {
+  const { window } = setup();
+  window.Badges.applyOverlay([{ id: 'unit-done:unit1', target: 1 }]);
+  window.Badges.recordSession('unit1', 'fill', 'easy');
+  assert.equal(window.Badges.isEarned('unit-done:unit1'), true);
+  assert.equal(window.Badges.unitUnlocked('unit2'), false);
+  assert.equal(window.Badges.progress('unit-done:unit1').target, 1);
+});
+
 test('inference target and pep lines come from the published overlay', () => {
   const { window, localStorage } = setup();
   window.Badges.applyOverlay([{

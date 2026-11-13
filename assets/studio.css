@@ -662,7 +662,7 @@ body.studio-col-dragging * {
   font-weight: 700;
 }
 .studio-badge-field textarea { min-height: 4.8rem; resize: vertical; }
-.studio-badge-target,
+.studio-badge-target input { width: 5.5rem; }
 .studio-badge-state { margin: 0; font-weight: 700; }
 .studio-badge-state { color: #5d7190; font-size: 0.82rem; }
 .studio-badge-steps { display: grid; gap: 0.4rem; }

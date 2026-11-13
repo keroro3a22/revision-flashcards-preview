@@ -498,13 +498,16 @@ function studioNode(tag) {
   return node;
 }
 
-function labeledValue(card, label) {
+function labeledInput(card, label) {
   const match = card.querySelectorAll('label').find((item) => (
     item.children.some((child) => child.tag === 'span' && child.textContent === label)
   ));
   assert.ok(match, label);
-  const input = match.children.find((child) => child.tag === 'input' || child.tag === 'textarea');
-  return input.value;
+  return match.children.find((child) => child.tag === 'input' || child.tag === 'textarea');
+}
+
+function labeledValue(card, label) {
+  return labeledInput(card, label).value;
 }
 
 function badgeClient(rows, writes) {
@@ -548,17 +551,34 @@ test('the badge editor shows the built-in name and how to earn it', () => {
   const unit = host.querySelector('[data-id="unit-done:unit1"]');
   assert.equal(unit.querySelector('.studio-badge-unit').textContent, 'Unit 1');
   assert.equal(labeledValue(unit, 'Chinese name'), 'Unit 完成者');
+  const starterTarget = labeledInput(starter, 'Target total');
+  assert.equal(starterTarget.value, '1');
+  assert.equal(starterTarget.max, '1');
+  const match = host.querySelector('[data-id="match-pro"]');
+  const matchTarget = labeledInput(match, 'Target total');
+  assert.equal(matchTarget.value, '4');
+  assert.equal(matchTarget.max, '4');
   starter.querySelectorAll('button').find((button) => button.textContent === 'Save draft').listeners.click();
   assert.equal(writes[0].title, '');
   assert.equal(writes[0].english, '');
   assert.equal(writes[0].detail, '');
+  assert.equal(writes[0].target, null);
+  matchTarget.value = '2';
+  match.querySelectorAll('button').find((button) => button.textContent === 'Save draft').listeners.click();
+  assert.equal(writes[1].target, 2);
+  matchTarget.value = '4';
+  match.querySelectorAll('button').find((button) => button.textContent === 'Save draft').listeners.click();
+  assert.equal(writes[2].target, null);
+  matchTarget.value = '9';
+  match.querySelectorAll('button').find((button) => button.textContent === 'Save draft').listeners.click();
+  assert.equal(writes.length, 3);
   const title = starter.querySelectorAll('label')
     .find((item) => item.children.some((child) => child.textContent === 'Chinese name'))
     .children.find((child) => child.tag === 'input');
   title.value = '開步';
   starter.querySelectorAll('button').find((button) => button.textContent === 'Save draft').listeners.click();
-  assert.equal(writes[1].title, '開步');
-  assert.equal(writes[1].english, '');
+  assert.equal(writes[3].title, '開步');
+  assert.equal(writes[3].english, '');
 
   const customHost = studioNode('div');
   document.getElementById = () => customHost;
