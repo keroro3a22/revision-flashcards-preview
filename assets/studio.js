@@ -79,7 +79,8 @@
     $('filter-kind').parentElement.hidden = pages;
     $('filter-mode-label').hidden = pages || !practice;
     $('filter-difficulty-label').hidden = true;
-    $('filter-set-label').hidden = pages || !(practice && kind === 'grammar');
+    var sentenceFill = practice && $('filter-mode').value === 'fill';
+    $('filter-set-label').hidden = pages || !(practice && (kind === 'grammar' || sentenceFill));
     $('filter-unit-label').hidden = section === 'resources' || (practice && $('filter-mode').value === 'boss');
     if ($('studio-new')) $('studio-new').hidden = section === 'pages';
     syncUnits(preferredUnit);
@@ -1578,8 +1579,8 @@
       .eq('level', here.level).eq('track', here.kind);
     if (practice) {
       query = query.eq('unit_id', window.StudioDraft.unitId(here)).eq('mode', here.mode);
-      if (here.kind === 'grammar') query = query.eq('set_no', Number(here.set) || 1);
-      else if (here.mode !== 'fill') query = query.eq('level_name', window.StudioDraft.difficulty(here));
+      if (here.kind === 'grammar' || here.mode === 'fill') query = query.eq('set_no', Number(here.set) || 1);
+      if (here.kind !== 'grammar' && here.mode !== 'fill') query = query.eq('level_name', window.StudioDraft.difficulty(here));
     } else query = query.eq('unit_id', here.unit);
     query.order('n', { ascending: true })
       .then(function (result) {
@@ -1597,8 +1598,8 @@
       .eq('book', here.book).eq('series', here.series).eq('term', here.term).eq('level', here.level);
     if (practice) {
       query = query.eq('unit_id', window.StudioDraft.unitId(here)).eq('track', here.kind).eq('mode', here.mode);
-      if (here.kind === 'grammar') query = query.eq('set_no', Number(here.set) || 1);
-      else if (here.mode !== 'fill') query = query.eq('level_name', window.StudioDraft.difficulty(here));
+      if (here.kind === 'grammar' || here.mode === 'fill') query = query.eq('set_no', Number(here.set) || 1);
+      if (here.kind !== 'grammar' && here.mode !== 'fill') query = query.eq('level_name', window.StudioDraft.difficulty(here));
     } else {
       query = query.eq('unit_id', here.unit).eq('track', here.kind === 'grammar' ? 'grammar' : 'vocab');
     }
@@ -1659,8 +1660,8 @@
       .eq('book', here.book).eq('series', here.series).eq('term', here.term).eq('level', here.level);
     if (practice) {
       numbers = numbers.eq('unit_id', window.StudioDraft.unitId(here)).eq('track', here.kind).eq('mode', here.mode);
-      if (here.kind === 'grammar') numbers = numbers.eq('set_no', Number(here.set) || 1);
-      else if (here.mode !== 'fill') numbers = numbers.eq('level_name', window.StudioDraft.difficulty(here));
+      if (here.kind === 'grammar' || here.mode === 'fill') numbers = numbers.eq('set_no', Number(here.set) || 1);
+      if (here.kind !== 'grammar' && here.mode !== 'fill') numbers = numbers.eq('level_name', window.StudioDraft.difficulty(here));
       else numbers = numbers.eq('level_name', 'easy');
     } else {
       numbers = numbers.eq('unit_id', here.unit).eq('track', here.kind === 'grammar' ? 'grammar' : 'vocab');

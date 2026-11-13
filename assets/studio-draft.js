@@ -91,7 +91,7 @@
       track: place.kind === 'grammar' ? 'grammar' : 'vocab',
       mode: place.mode,
       level_name: difficulty(place),
-      set_no: place.kind === 'grammar' ? (Number(place.set) || 1) : 1,
+      set_no: (place.kind === 'grammar' || place.mode === 'fill') ? (Number(place.set) || 1) : 1,
       n: n,
       prompt: '',
       answer: '',
@@ -546,7 +546,7 @@
     var bits = [here.book, seriesSlug(here.series), termSlug(here.term), here.level, here.unit, here.section];
     if (here.section !== 'pages') bits.push(here.kind || 'vocab');
     if (here.section === 'practice' && here.mode) bits.push(here.mode);
-    if (here.section === 'practice' && here.kind === 'grammar' && String(here.set || '1') !== '1') bits.push('set' + here.set);
+    if (here.section === 'practice' && (here.kind === 'grammar' || here.mode === 'fill') && String(here.set || '1') !== '1') bits.push('set' + here.set);
     if (here.section === 'pages' && row && PAGE_SLOTS[row.slot]) bits.push(row.slot);
     if (row && row.n) bits.push(String(row.n));
     if (row && (row.level === 'easy' || row.level === 'hard')) bits.push(row.level);

@@ -300,6 +300,23 @@ test('a studio path names the table and one row', () => {
   assert.equal(draft.parseStudioPath(story).set, '2');
   assert.equal(draft.parseStudioPath(story).mode, 'story');
 
+  const fill = draft.studioPath({
+    book: 'oxford',
+    series: 'oxford',
+    term: 'first',
+    level: 'p6',
+    unit: 'unit4',
+    section: 'practice',
+    kind: 'vocab',
+    mode: 'fill',
+    set: '3'
+  }, { n: '2', level: 'easy' });
+  assert.equal(fill, 'oxford/Livingoxfordenglish/bookA/p6/unit4/practice/vocab/fill/set3/2/easy');
+  assert.equal(draft.parseStudioPath(fill).set, '3');
+  assert.equal(draft.parseStudioPath(fill).mode, 'fill');
+  const fillSet = draft.practiceInsert(Object.assign({}, oxford, { section: 'practice', mode: 'fill', set: '3' }), 2);
+  assert.equal(fillSet.set_no, 3);
+
   const letters = {
     book: 'oxford',
     series: 'oxford',
