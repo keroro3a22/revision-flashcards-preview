@@ -442,6 +442,28 @@
     return window.scrollY || document.documentElement.scrollTop || 0;
   }
 
+  var scrollFrame = 0;
+  function scrollToTop() {
+    if (scrollFrame) cancelAnimationFrame(scrollFrame);
+    var start = scrollY();
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (start <= 0 || reduce) {
+      window.scrollTo(0, 0);
+      scrollFrame = 0;
+      return;
+    }
+    var duration = 280;
+    var began = 0;
+    function step(now) {
+      if (!began) began = now;
+      var t = Math.min(1, (now - began) / duration);
+      window.scrollTo(0, Math.round(start * (1 - t)));
+      if (t < 1) scrollFrame = requestAnimationFrame(step);
+      else scrollFrame = 0;
+    }
+    scrollFrame = requestAnimationFrame(step);
+  }
+
   function mount() {
     if (document.body.classList.contains('studio-page') || document.getElementById('back-to-top')) return;
     var button = document.createElement('button');
@@ -451,7 +473,7 @@
     button.setAttribute('aria-label', 'Back to top');
     button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V6"/><path d="m6.5 11.5 5.5-5.5 5.5 5.5"/></svg>';
     button.addEventListener('click', function () {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollToTop();
     });
     document.body.appendChild(button);
     var shown = false;
