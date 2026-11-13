@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="grammar.css?v=47"/>
+<link rel="stylesheet" href="grammar.css?v=49"/>
 <link rel="stylesheet" href="../../assets/chrome.css?v=4" />
 <link rel="stylesheet" href="../../assets/profile.css?v=4" />
 <link rel="stylesheet" href="../../assets/account.css?v=1" />
@@ -58,7 +58,7 @@
 </main>
 <script src="../../practice/badges.js"></script>
 <script src="grammar-progress.js"></script>
-<script src="../../assets/img-frame.js?v=12"></script>
+<script src="../../assets/img-frame.js?v=13"></script>
 <script src="../../assets/vendor/supabase.js?v=1"></script>
 <script src="grammar-live.js?v=3"></script>
 <script>
@@ -992,7 +992,7 @@
   document.getElementById("chat-sub").textContent = activeSet.sub;
   document.getElementById("chat-hero").src = activeSet.hero;
   if (window.ImgFrame) ImgFrame.apply(document.getElementById("chat-hero"), activeSet.frame);
-  if (forced) document.getElementById("btn-again").href = "unit6-chat/?set=" + (setIndex + 1);
+  if (forced) document.getElementById("btn-again").href="unit6-chat/?set=" + (setIndex + 1);
   const names = { tom: "Tom", may: "May", mr: "Mr Tam" };
   const totalDots = bubbles.length + 1;
   let idx = 0, selected = null, locked = false, correctCount = 0, filled = [], inferenceRewards = null;
@@ -1005,7 +1005,7 @@
   const btnClear = document.getElementById("btn-clear");
   const toast = document.getElementById("toast");
   const qLabel = document.getElementById("q-label");
-  function buildBubbleHtml(parts, value, mode) {
+  function buildBubbleHtml(parts, value, mode, hard) {
     let html = "";
     parts.forEach((p) => {
       if (p === "____") {
@@ -1020,6 +1020,7 @@
         html += '<span class="' + cls + '">' + v + "</span>";
       } else html += p;
     });
+    if (hard) html += '<span class="hard-badge">Harder</span>';
     return html;
   }
   function renderDots() {
@@ -1037,14 +1038,14 @@
       const b = bubbles[i];
       const d = document.createElement("div");
       d.className = "bubble " + b.speaker;
-      d.innerHTML = '<span class="who">' + names[b.speaker] + "</span>" + buildBubbleHtml(b.parts, filled[i] || b.answer, "done");
+      d.innerHTML = '<span class="who">' + names[b.speaker] + "</span>" + buildBubbleHtml(b.parts, filled[i] || b.answer, "done", b.hard);
       thread.appendChild(d);
     }
     if (idx < bubbles.length) {
       const b = bubbles[idx];
       const d = document.createElement("div");
       d.className = "bubble " + b.speaker + " active-bubble";
-      d.innerHTML = '<span class="who">' + names[b.speaker] + "</span>" + buildBubbleHtml(b.parts, activeValue, activeMode);
+      d.innerHTML = '<span class="who">' + names[b.speaker] + "</span>" + buildBubbleHtml(b.parts, activeValue, activeMode, b.hard);
       thread.appendChild(d);
     }
     thread.scrollTop = thread.scrollHeight;
@@ -1071,7 +1072,7 @@
     if (idx < bubbles.length) {
       phaseChip.textContent = (idx + 1) + " / " + bubbles.length;
       phaseChip.className = "chip sky";
-      qLabel.innerHTML = "Fill the blank in " + names[bubbles[idx].speaker] + "’s message" + (bubbles[idx].hard ? ' <span class="hard-badge">Harder</span>' : "");
+      qLabel.textContent = "Fill the blank in " + names[bubbles[idx].speaker] + "’s message";
       renderThread(null); renderChoices(bubbles[idx].options);
     } else {
       phaseChip.textContent = "Inference"; phaseChip.className = "chip coral";
@@ -1079,7 +1080,7 @@
       bubbles.forEach((b, i) => {
         const d = document.createElement("div");
         d.className = "bubble " + b.speaker;
-        d.innerHTML = '<span class="who">' + names[b.speaker] + "</span>" + buildBubbleHtml(b.parts, filled[i] || b.answer, "done");
+        d.innerHTML = '<span class="who">' + names[b.speaker] + "</span>" + buildBubbleHtml(b.parts, filled[i] || b.answer, "done", b.hard);
         thread.appendChild(d);
       });
       renderChoices(endQ.options);

@@ -154,6 +154,7 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
   .studio-files-folders { border-right: 0; border-bottom: 1px solid #d5e0ea; }
 }
 .studio-filter-actions { display: flex; gap: 0.45rem; align-items: center; }
+.studio-new[hidden] { display: none; }
 .studio-filter-actions button,
 .studio-new {
   display: inline-flex;
@@ -593,6 +594,25 @@ body.studio-col-dragging * {
   margin: 0 0 0.8rem;
 }
 .studio-ignore[hidden] { display: none; }
+.studio-badges { display: grid; gap: 1rem; margin: 1rem 0 2rem; }
+.studio-badges[hidden] { display: none; }
+.studio-badge {
+  display: grid;
+  gap: 0.55rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: #fff;
+}
+.studio-badge.is-path { outline: 3px solid #fc903c; }
+.studio-badge h2 { margin: 0; font-size: 1.15rem; }
+.studio-badge img { width: 6rem; height: 6rem; object-fit: contain; }
+.studio-badge-field { display: grid; gap: 0.2rem; }
+.studio-badge-field input,
+.studio-badge-field textarea { width: min(100%, 36rem); font: inherit; }
+.studio-badge-steps { display: grid; gap: 0.4rem; }
+.studio-badge-step { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+.studio-badge-at { width: 5rem; }
+.studio-badge-message { width: min(100%, 24rem); }
 .studio-ignore-field {
   display: grid;
   gap: 0.2rem;

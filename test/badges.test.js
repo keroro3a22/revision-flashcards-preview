@@ -358,6 +358,115 @@ test('grammar catalog copy is listed for the shared badges page', () => {
   assert.ok(listed.includes('Boss Beater'));
 });
 
+test('progress counts units and activities toward each badge target', () => {
+  const { window } = setup();
+  const starter = window.Badges.progress('starter');
+  assert.equal(starter.current, 0);
+  assert.equal(starter.raw, 0);
+  assert.equal(starter.target, 1);
+  assert.equal(window.Badges.progress('match-pro').target, 4);
+  assert.equal(window.Badges.progress('unit-done:unit1').target, 3);
+  assert.equal(window.Badges.progress('grammar-boss').target, 1);
+  window.Badges.recordSession('unit1', 'fill', 'easy');
+  assert.equal(window.Badges.progress('starter').current, 1);
+  assert.equal(window.Badges.progress('unit-done:unit1').current, 1);
+  window.Badges.recordSession('unit1', 'letters', 'easy', { correct: 10, total: 10 });
+  window.Badges.recordSession('unit2', 'letters', 'easy', { correct: 9, total: 10 });
+  assert.equal(window.Badges.progress('letters-phrase').current, 1);
+  assert.equal(window.Badges.progress('letters-phrase').target, 4);
+  window.Badges.recordSession('mixed', 'match');
+  window.Badges.recordSession('mixed', 'timed');
+  assert.equal(window.Badges.progress('all-rounder').current, 2);
+  assert.equal(window.Badges.progress('all-rounder').target, 4);
+});
+
+test('inference target and pep lines come from the published overlay', () => {
+  const { window, localStorage } = setup();
+  window.Badges.applyOverlay([{
+    id: 'grammar-inference',
+    title: '推理明星',
+    english: 'Mystery Star',
+    detail: 'Get the mystery right 2 times.',
+    target: 2,
+    milestones: [
+      { at: 1, message: '  First mystery. Keep going.  ' },
+      { at: 2, message: 'This one is the unlock line.' },
+      { at: 1, message: 'duplicate' }
+    ]
+  }]);
+  const first = window.Badges.recordGrammarInference();
+  assert.equal(window.Badges.isEarned('grammar-inference'), false);
+  assert.equal(first.nudges.length, 1);
+  assert.equal(first.nudges[0].at, 1);
+  assert.equal(first.nudges[0].message, 'First mystery. Keep going.');
+  const again = window.Badges.recordGrammarInference();
+  assert.equal(again.nudges.length, 0);
+  assert.equal(window.Badges.isEarned('grammar-inference'), true);
+  assert.equal(again.newBadges[0].title, '推理明星');
+  assert.equal(again.newBadges[0].english, 'Mystery Star');
+  const saved = JSON.parse(localStorage.getItem(window.Badges.KEY));
+  assert.deepEqual(saved.nudgesSeen['grammar-inference'], [1]);
+  const listed = window.Badges.listWithStatus().find(b => b.id === 'grammar-inference');
+  assert.equal(listed.title, '推理明星');
+  assert.equal(listed.detail, 'Get the mystery right 2 times.');
+  assert.equal(listed.current, 2);
+  assert.equal(listed.target, 2);
+});
+
+test('a higher inference target leaves an earned badge in place', () => {
+  const { window } = setup();
+  window.Badges.recordGrammarInference();
+  window.Badges.recordGrammarInference();
+  window.Badges.recordGrammarInference();
+  window.Badges.applyOverlay([{ id: 'grammar-inference', target: 10 }]);
+  assert.equal(window.Badges.isEarned('grammar-inference'), true);
+  const progress = window.Badges.progress('grammar-inference');
+  assert.equal(progress.target, 10);
+  assert.equal(progress.current, 10);
+  assert.equal(progress.raw, 3);
+});
+
+test('lowering the inference target grants the badge when settings are applied', () => {
+  const { window } = setup();
+  window.Badges.recordGrammarInference();
+  window.Badges.applyOverlay([{ id: 'grammar-inference', target: 10 }]);
+  assert.equal(window.Badges.isEarned('grammar-inference'), false);
+  window.Badges.applyOverlay([{ id: 'grammar-inference', target: 1 }]);
+  const caught = window.Badges.catchUp();
+  assert.equal(window.Badges.isEarned('grammar-inference'), true);
+  assert.equal(caught.newBadges.some(b => b.id === 'grammar-inference'), true);
+});
+
+test('pep steps below 1 or at the target are dropped', () => {
+  const { window } = setup();
+  const clean = window.Badges.cleanMilestones([
+    { at: 1, message: '  Go on.  ' },
+    { at: 4, message: 'Too far' },
+    { at: 1, message: 'Second' },
+    { at: 2, message: '' }
+  ], 4);
+  assert.equal(clean.length, 1);
+  assert.equal(clean[0].at, 1);
+  assert.equal(clean[0].message, 'Go on.');
+});
+
+test('an unlock dialog is queued ahead of a pep dialog', () => {
+  const { window, localStorage } = setup();
+  window.Badges.applyOverlay([{
+    id: 'match-pro',
+    milestones: [{ at: 1, message: 'One unit matched.' }]
+  }]);
+  window.Badges.recordSession('unit1', 'match');
+  const pending = JSON.parse(localStorage.getItem(window.Badges.POPUP_KEY));
+  assert.equal(pending[0].kind, 'unlock');
+  assert.equal(pending[0].id, 'starter');
+  assert.equal(pending[1].kind, 'nudge');
+  assert.equal(pending[1].id, 'match-pro');
+  assert.equal(pending[1].message, 'One unit matched.');
+  window.Badges.clearPopups();
+  assert.equal(localStorage.getItem(window.Badges.POPUP_KEY), null);
+});
+
 test('mastery still tracks review words without awarding a badge', () => {
   const { window } = setup();
   const M = window.Mastery;

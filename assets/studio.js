@@ -53,47 +53,81 @@
     note.textContent = text || '';
   }
   function place() {
-    return {
+    var draft = window.StudioDraft || window.RevisionStudioDraft;
+    var raw = {
       book: $('filter-book').value,
       series: $('filter-series').value,
       term: $('filter-term').value,
       level: $('filter-level').value,
       unit: $('filter-unit').value,
-      section: $('filter-section').value,
+      open: $('filter-section').value,
+      part: $('filter-part') ? $('filter-part').value : '',
+      site: $('filter-site') ? $('filter-site').value : '',
+      source: $('filter-source') ? $('filter-source').value : '',
       kind: $('filter-kind').value,
       mode: $('filter-mode').value,
       difficulty: $('filter-difficulty').value,
       set: $('filter-set') ? $('filter-set').value : '1',
       review: $('filter-review').value
     };
+    return draft && draft.studioPlace ? draft.studioPlace(raw) : raw;
   }
   function syncMode(preferredMode, preferredUnit) {
+    var open = $('filter-section').value;
+    var part = $('filter-part') ? $('filter-part').value : 'revision';
+    var source = $('filter-source') ? $('filter-source').value : 'unit';
     var kind = $('filter-kind').value === 'grammar' ? 'grammar' : 'vocab';
-    var modes = MODES[kind];
+    if (open === 'unit' && part === 'practice' && source === 'boss') kind = 'grammar';
+    if (open === 'unit' && part === 'practice' && source === 'mixed') kind = 'vocab';
+    $('filter-kind').value = kind;
+    var modes = MODES[kind].filter(function (item) { return item.id !== 'boss'; });
     var current = preferredMode || $('filter-mode').value;
-    if (!modes.some(function (item) { return item.id === current; })) current = modes[0].id;
-    fillSelect($('filter-mode'), modes, current);
-    var practice = $('filter-section').value === 'practice';
-    var section = $('filter-section').value;
-    var pages = section === 'pages' || section === 'resources';
-    $('filter-kind').parentElement.hidden = pages;
-    $('filter-mode-label').hidden = pages || !practice;
+    if (source === 'boss') current = 'boss';
+    else if (!modes.some(function (item) { return item.id === current; })) current = modes[0].id;
+    fillSelect($('filter-mode'), source === 'boss' ? [{ id: 'boss', label: 'Boss' }] : modes, current);
+    var practice = open === 'unit' && part === 'practice';
+    var sources = kind === 'grammar'
+      ? [{ id: 'unit', label: 'This unit' }, { id: 'boss', label: 'Boss round' }]
+      : [{ id: 'unit', label: 'This unit' }, { id: 'mixed', label: 'Mixed topic' }];
+    if ($('filter-source')) {
+      if (!sources.some(function (item) { return item.id === source; })) source = sources[0].id;
+      fillSelect($('filter-source'), sources, source);
+    }
+    ['filter-book', 'filter-series', 'filter-term', 'filter-level'].forEach(function (id) {
+      var node = $(id);
+      if (node && node.parentElement) node.parentElement.hidden = open === 'site';
+    });
+    if ($('filter-part-label')) $('filter-part-label').hidden = open !== 'unit';
+    if ($('filter-site-label')) $('filter-site-label').hidden = open !== 'site';
+    if ($('filter-source-label')) $('filter-source-label').hidden = !practice;
+    if ($('filter-review') && $('filter-review').parentElement) $('filter-review').parentElement.hidden = open === 'site';
+    var lesson = open === 'unit' && part !== 'doors';
+    $('filter-kind').parentElement.hidden = !lesson || (practice && source !== 'unit');
+    $('filter-mode-label').hidden = !practice || source === 'boss';
     $('filter-difficulty-label').hidden = true;
-    var sentenceFill = practice && $('filter-mode').value === 'fill';
-    $('filter-set-label').hidden = pages || !(practice && (kind === 'grammar' || sentenceFill));
-    $('filter-unit-label').hidden = section === 'resources' || (practice && $('filter-mode').value === 'boss');
-    if ($('studio-new')) $('studio-new').hidden = section === 'pages';
+    var sentenceFill = practice && source !== 'boss' && $('filter-mode').value === 'fill';
+    $('filter-set-label').hidden = !practice || source === 'boss' || !(kind === 'grammar' || sentenceFill);
+    $('filter-unit-label').hidden = open !== 'unit' || (part === 'practice' && source !== 'unit');
+    if ($('studio-new')) $('studio-new').hidden = open === 'home' || open === 'site' || (open === 'unit' && part === 'doors');
     syncUnits(preferredUnit);
+    syncPanels();
   }
   function syncUnits(preferred) {
-    var practice = $('filter-section').value === 'practice';
-    var vocab = $('filter-kind').value !== 'grammar';
     var units = UNITS.slice();
-    if ($('filter-section').value === 'pages') units = [{ id: 'home', label: 'Get started' }].concat(UNITS);
-    else if (practice && vocab) units = units.concat([{ id: 'mixed', label: 'Mixed topic' }]);
     var current = preferred || $('filter-unit').value;
     if (!units.some(function (item) { return item.id === current; })) current = 'unit1';
     fillSelect($('filter-unit'), units, current || 'unit1');
+  }
+  function syncPanels() {
+    var here = place();
+    var site = here.open === 'site';
+    var scroll = document.querySelector('.studio-scroll');
+    if (scroll) scroll.hidden = site;
+    var badges = $('studio-badges');
+    if (badges) badges.hidden = !(site && here.site === 'badges');
+    var bar = $('letter-ignore');
+    if (bar && !(site && here.site === 'ignore')) bar.hidden = true;
+    if ($('studio-empty') && site) $('studio-empty').hidden = true;
   }
   function fillSelect(select, items, selected) {
     select.replaceChildren();
@@ -418,7 +452,7 @@
   }
   var frameDialog = null;
   function shapeRatio(shape) {
-    if (shape === 'match') return 180 / 140;
+    if (shape === 'match') return 1;
     if (shape === 'grammar' || shape === 'chat') return 320 / 220;
     return 1;
   }
@@ -1074,7 +1108,7 @@
     var bar = $('letter-ignore');
     if (!bar) return;
     var here = place();
-    var show = here.section === 'practice' && here.mode === 'letters';
+    var show = here.open === 'site' && here.site === 'ignore';
     bar.hidden = !show;
     if (!show || ignoreLoaded || ignoreDirty || !client || !window.LetterRules) return;
     ignoreLoaded = true;
@@ -1108,7 +1142,7 @@
     cell.className = 'studio-pair';
     var path = edit('img', row.extra && row.extra.img);
     path.hidden = true;
-    var thumb = thumbButton(photoSrc(row.extra && row.extra.img), row.extra && row.extra.frame, 180 / 140, function () {
+    var thumb = thumbButton(photoSrc(row.extra && row.extra.img), row.extra && row.extra.frame, 1, function () {
       openPhotoFrame({
         src: photoSrc(path.textContent),
         frame: row.extra && row.extra.frame,
@@ -1538,13 +1572,16 @@
     syncSeries(parsed.series);
     $('filter-term').value = parsed.term;
     $('filter-level').value = parsed.level;
-    $('filter-section').value = parsed.section;
+    $('filter-section').value = parsed.open || 'unit';
+    if ($('filter-part')) $('filter-part').value = parsed.part || 'revision';
+    if ($('filter-site')) $('filter-site').value = parsed.site || 'badges';
+    if ($('filter-source')) $('filter-source').value = parsed.source || 'unit';
     $('filter-kind').value = parsed.kind || 'vocab';
-    syncMode(parsed.mode, parsed.unit);
     if ($('filter-set') && parsed.set) $('filter-set').value = parsed.set;
     if (parsed.levelRow && $('filter-difficulty')) $('filter-difficulty').value = parsed.levelRow;
+    syncMode(parsed.mode, parsed.unit);
     rememberPlace();
-    pendingFocus = parsed.slot || parsed.n || '';
+    pendingFocus = parsed.badgeId || parsed.slot || parsed.n || '';
     load();
     var shown = window.StudioDraft.studioPath(parsed, parsed.n ? { n: parsed.n, level: parsed.levelRow } : null);
     var box = $('studio-path-jump');
@@ -1553,6 +1590,17 @@
   }
   function load(doneMessage) {
     var here = place();
+    syncPanels();
+    if (here.open === 'site' && here.site === 'badges') {
+      if (window.RevisionStudioBadges) window.RevisionStudioBadges.load(client, here, { say: say, focus: pendingFocus, focused: function () { pendingFocus = ''; } });
+      else say('The badge editor did not load.');
+      return;
+    }
+    if (here.open === 'site' && here.site === 'ignore') {
+      syncIgnoreBar();
+      say('Ignore words apply to every Missing Letters practice.');
+      return;
+    }
     if (here.section === 'resources') {
       if (window.RevisionStudioResources) window.RevisionStudioResources.load(client, here, { say: say });
       else say('The resources editor did not load.');
@@ -1649,6 +1697,7 @@
   function createDraft() {
     if (!window.StudioDraft) { say('The draft script did not load.'); return; }
     var here = place();
+    if (here.open === 'site' || here.open === 'home' || here.part === 'doors') return;
     if (here.section === 'resources' && window.RevisionStudioResources) {
       window.RevisionStudioResources.create(client, here, say);
       return;
@@ -1709,7 +1758,10 @@
 
   function bindEditor() {
     var saved = savedPlace();
-    $('filter-section').value = saved.section;
+    $('filter-section').value = saved.open || 'unit';
+    if ($('filter-part')) $('filter-part').value = saved.part || 'revision';
+    if ($('filter-site')) $('filter-site').value = saved.site || 'badges';
+    if ($('filter-source')) $('filter-source').value = saved.source || 'unit';
     $('filter-kind').value = saved.kind;
     $('filter-difficulty').value = saved.difficulty;
     if ($('filter-set')) $('filter-set').value = saved.set;
@@ -1726,10 +1778,12 @@
     });
     fillSelect($('filter-unit'), UNITS, saved.unit === 'mixed' ? 'unit1' : saved.unit);
     syncMode(saved.mode, saved.unit);
-    ['filter-book', 'filter-series', 'filter-term', 'filter-level', 'filter-unit', 'filter-section', 'filter-kind', 'filter-mode', 'filter-difficulty', 'filter-set'].forEach(function (id) {
-      $(id).addEventListener('change', function () {
+    ['filter-book', 'filter-series', 'filter-term', 'filter-level', 'filter-unit', 'filter-section', 'filter-part', 'filter-site', 'filter-source', 'filter-kind', 'filter-mode', 'filter-difficulty', 'filter-set'].forEach(function (id) {
+      var node = $(id);
+      if (!node) return;
+      node.addEventListener('change', function () {
         if (id === 'filter-book') syncSeries();
-        if (id === 'filter-section' || id === 'filter-kind' || id === 'filter-mode') syncMode();
+        if (id === 'filter-section' || id === 'filter-part' || id === 'filter-site' || id === 'filter-source' || id === 'filter-kind' || id === 'filter-mode') syncMode();
         rememberPlace();
         load();
       });

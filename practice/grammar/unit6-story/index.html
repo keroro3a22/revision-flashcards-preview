@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="grammar.css?v=47"/>
+<link rel="stylesheet" href="grammar.css?v=49"/>
 <link rel="stylesheet" href="../../assets/chrome.css?v=4" />
 <link rel="stylesheet" href="../../assets/profile.css?v=4" />
 <link rel="stylesheet" href="../../assets/account.css?v=1" />
@@ -58,7 +58,7 @@
 </main>
 <script src="../../practice/badges.js"></script>
 <script src="grammar-progress.js"></script>
-<script src="../../assets/img-frame.js?v=12"></script>
+<script src="../../assets/img-frame.js?v=13"></script>
 <script src="../../assets/vendor/supabase.js?v=1"></script>
 <script src="grammar-live.js?v=3"></script>
 <script>
@@ -1348,7 +1348,7 @@
   const activeSet = SETS[setIndex];
   const scenes = activeSet.scenes;
   document.getElementById("story-sub").textContent = activeSet.sub;
-  if (forced) document.getElementById("btn-again").href = "unit6-story/?set=" + (setIndex + 1);
+  if (forced) document.getElementById("btn-again").href="unit6-story/?set=" + (setIndex + 1);
   let idx = 0, selectedIdx = null, locked = false, correctCount = 0;
   const qNum = document.getElementById("q-num");
   const dots = document.getElementById("dots");
@@ -1391,13 +1391,14 @@
         bi++;
       } else html += p;
     });
+    if (s.hard) html += '<span class="hard-badge">Harder</span>';
     prompt.innerHTML = html;
   }
   function render() {
     const s = scenes[idx];
     locked = false; selectedIdx = null;
     qNum.textContent = "Scene " + (idx + 1) + " / " + scenes.length;
-    beatLabel.innerHTML = s.label + (s.hard ? ' <span class="hard-badge">Harder</span>' : "");
+    beatLabel.textContent = s.label;
     art.src = s.img;
     if (window.ImgFrame) ImgFrame.apply(art, s.frame);
     art.alt = s.label;

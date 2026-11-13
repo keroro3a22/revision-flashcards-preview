@@ -182,7 +182,7 @@
     window.Profile.list().forEach(function (item) {
       var choice = document.createElement('button');
       choice.type = 'button';
-      choice.className = 'profile-choice' + (item.unlocked ? '' : ' is-locked') + (item.id === settingsAvatar ? ' is-on' : '');
+      choice.className = 'profile-choice' + (item.unlocked ? '' : ' is-locked') + (item.filtered ? ' is-filtered' : '') + (item.id === settingsAvatar ? ' is-on' : '');
       choice.disabled = !item.unlocked;
       choice.setAttribute('aria-pressed', item.id === settingsAvatar ? 'true' : 'false');
       choice.setAttribute('aria-label', item.unlocked ? item.label : item.lockLabel);
@@ -224,6 +224,7 @@
       link.setAttribute('href', accountHref());
     }
     if (window.Profile && window.Profile.labelChip) window.Profile.labelChip(displayName);
+    paintBadges();
     paintLessons();
     var form = document.getElementById('account-form');
     var panel = document.getElementById('account-settings');
@@ -239,6 +240,23 @@
       if (panel) panel.hidden = true;
       if (form) form.hidden = false;
     }
+  }
+
+  function paintBadges() {
+    var slot = document.getElementById('profile-slot');
+    var link = document.getElementById('badges-link');
+    if (!slot || !userId) {
+      if (link) link.remove();
+      return;
+    }
+    if (!link) {
+      link = document.createElement('a');
+      link.id = 'badges-link';
+      link.className = 'edit-lessons';
+      link.textContent = 'Badges';
+    }
+    link.href = pageHref('badges/');
+    slot.insertBefore(link, slot.firstChild);
   }
 
   function paintLessons() {
@@ -268,7 +286,13 @@
         });
       }
       link.href = pageHref('studio/');
-      slot.insertBefore(link, slot.firstChild);
+      var badges = document.getElementById('badges-link');
+      if (badges && badges.parentNode === slot) slot.insertBefore(link, badges.nextSibling);
+      else {
+        var chip = slot.querySelector('.profile-chip');
+        if (chip) slot.insertBefore(link, chip);
+        else slot.appendChild(link);
+      }
     });
   }
 

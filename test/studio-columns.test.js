@@ -87,7 +87,7 @@ test('the library button opens website folders and stored files', () => {
   assert.doesNotMatch(browser, /studio-library/);
   assert.match(page, /chooseLibraryPhoto/);
   assert.match(page, /place: libraryPlace\(\)/);
-  assert.match(page, /filter-unit-label'\)\.hidden = section === 'resources'/);
+  assert.match(page, /filter-unit-label'\)\.hidden = open !== 'unit' \|\| \(part === 'practice' && source !== 'unit'\)/);
   assert.doesNotMatch(page, /filter-unit-label'\)\.hidden = pages/);
   assert.match(browser, /Living Oxford English/);
   assert.match(browser, /Primary Longman Elect/);
