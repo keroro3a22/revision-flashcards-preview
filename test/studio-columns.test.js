@@ -53,7 +53,7 @@ test('the pages table resizes like the other tables and picks a unit photo', () 
 
 test('lesson search looks through every table and quotes the words', () => {
   const js = fs.readFileSync('assets/studio.js', 'utf8');
-  const html = fs.readFileSync('studio.html', 'utf8');
+  const html = fs.readFileSync('studio/index.html', 'utf8');
   assert.match(html, /id="studio-search"/);
   assert.match(html, /id="studio-library-open"/);
   assert.doesNotMatch(html, /value="library"/);
@@ -68,7 +68,7 @@ test('lesson search looks through every table and quotes the words', () => {
 });
 
 test('the library button opens website folders and stored files', () => {
-  const html = fs.readFileSync('studio.html', 'utf8');
+  const html = fs.readFileSync('studio/index.html', 'utf8');
   const browser = fs.readFileSync('assets/studio-library.js', 'utf8');
   const page = fs.readFileSync('assets/studio.js', 'utf8');
   const catalog = JSON.parse(fs.readFileSync('assets/site-files.json', 'utf8'));

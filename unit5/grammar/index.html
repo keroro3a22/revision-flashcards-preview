@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<base href="../">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="format-detection" content="telephone=no"/>
+<title>Unit 5 The Land of Kangaroos · Grammar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../assets/unit.css?v=9"/>
+<link rel="stylesheet" href="../assets/chrome.css?v=4" />
+<link rel="stylesheet" href="../assets/profile.css?v=5" />
+<link rel="stylesheet" href="../assets/account.css?v=6" />
+<script src="../assets/supabase-public.js?v=1"></script>
+<script src="../assets/progress-sync.js?v=3"></script>
+<script src="../assets/place.js?v=8"></script>
+<script src="../assets/place-ui.js?v=17"></script>
+<script src="../assets/profile.js?v=6"></script>
+<script src="../assets/account.js?v=13"></script>
+</head>
+<body data-book="oxford" data-series="oxford" data-level="p6" data-term="first" data-track="grammar" data-unit="unit5" class="theme-unit5">
+<header class="unit-header">
+  <a class="back" href="../">← Back to packs</a>
+  <h1>Unit 5 The Land of Kangaroos · Grammar</h1>
+  <p class="sub">Tap Play for audio. Tap the illustration to enlarge.</p>
+</header>
+<div class="list" id="list"></div>
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarge illustration">
+  <img id="lb-img" alt="" />
+  <div class="lb-bar">
+    <button type="button" class="lb-btn lb-play" id="lb-play">Play audio</button>
+    <button type="button" class="lb-btn lb-close" id="lb-close">Close</button>
+  </div>
+</div>
+<script>
+let CARDS = [{"n":1,"en":"afraid of","syllables":"","zh":"害怕……","pos":"adj. + prep.","note_zh":"用 of，不要寫 afraid to + (n.)","chips":[{"ok":true,"text":"of"},{"ok":false,"text":"to"}],"pattern":"be + afraid of + noun / pronoun","ex_en":"The boy is afraid of the loud monkeys.","ex_zh":"那個男孩害怕那些吵鬧的猴子。","adv_en":"Even though the monkeys are behind a fence, the boy is afraid of them and steps back when they shout.","adv_zh":"即使猴子在圍欄後面，男孩仍害怕牠們，牠們一叫便往後退。","highlight":"afraid of","audio":"audio/audio_17.mp3","img":"thumb_17.png","cutout":true,"art_source":"irasutoya:https://www.irasutoya.com/2018/09/blog-post_42.html"},{"n":2,"en":"fond of","syllables":"","zh":"喜愛……","pos":"adj. + prep.","note_zh":"用 of，不要寫 fond with","chips":[{"ok":true,"text":"of"},{"ok":false,"text":"with"}],"pattern":"be + fond of + noun / pronoun","ex_en":"Grandma is fond of music.","ex_zh":"奶奶喜愛音樂。","adv_en":"Because she grew up with old songs, Grandma is fond of music and often hums along.","adv_zh":"因為她從小聽老歌長大，奶奶喜愛音樂，常常跟着哼。","highlight":"fond of","audio":"audio/audio_18.mp3","img":"thumb_18.png","cutout":true,"art_source":"irasutoya:https://www.irasutoya.com/2016/03/blog-post_506.html"},{"n":3,"en":"full of","syllables":"","zh":"充滿……","pos":"adj. + prep.","note_zh":"用 of，不要寫 full about","chips":[{"ok":true,"text":"of"},{"ok":false,"text":"about"}],"pattern":"be + full of + noun","ex_en":"The room is full of laughter.","ex_zh":"房間裡充滿笑聲。","adv_en":"As more friends walk in with gifts, the room is full of laughter and bright balloons.","adv_zh":"隨着愈來愈多朋友帶着禮物進來，房間充滿笑聲與鮮艷的氣球。","highlight":"full of","audio":"audio/audio_19.mp3","img":"thumb_19.png","cutout":true,"art_source":"irasutoya:https://www.irasutoya.com/2014/09/blog-post_798.html"},{"n":4,"en":"angry with","syllables":"","zh":"對……生氣","pos":"adj. + prep.","pattern":"be + angry with + noun / pronoun","ex_en":"Dad is angry with my brother.","ex_zh":"爸爸對我弟弟生氣。","adv_en":"After my brother broke Mum's favourite cup, Dad is angry with him and asks him to apologise.","adv_zh":"弟弟打破媽媽最愛的杯子後，爸爸對他生氣，並叫他道歉。","highlight":"angry with","audio":"audio/audio_20.mp3","img":"thumb_20.png","cutout":true,"art_source":"irasutoya:https://www.irasutoya.com/2016/08/blog-post_140.html"},{"n":5,"en":"bored with","syllables":"","zh":"對……感到無聊","pos":"adj. + prep.","pattern":"be + bored with + noun / pronoun","ex_en":"Lily is bored with the same game.","ex_zh":"Lily對同一個遊戲感到無聊。","adv_en":"Although the game was fun at first, Lily is bored with it after playing the same levels all week.","adv_zh":"雖然這遊戲起初很好玩，Lily玩同一關卡整個星期後已對它感到無聊。","highlight":"bored with","audio":"audio/audio_21.mp3","img":"thumb_21.png","cutout":true,"art_source":"irasutoya:https://www.irasutoya.com/2017/03/blog-post_63.html"},{"n":6,"en":"pleased with","syllables":"","zh":"對……滿意","pos":"adj. + prep.","note_zh":"用 with，不要寫 pleased about（對人）","chips":[{"ok":true,"text":"with"},{"ok":false,"text":"about"}],"pattern":"be + pleased with + noun / pronoun","ex_en":"The teacher is pleased with me.","ex_zh":"老師對我感到滿意。","adv_en":"Now that my handwriting is neat and my answers are complete, the teacher is pleased with me.","adv_zh":"既然我的字跡整齊而且答案齊全，老師對我感到滿意。","highlight":"pleased with","audio":"audio/audio_22.mp3","img":"thumb_22.png","cutout":true,"art_source":"irasutoya:https://www.irasutoya.com/2019/01/blog-post_753.html"},{"n":7,"en":"popular with","syllables":"","zh":"受……歡迎","pos":"adj. + prep.","pattern":"be + popular with + noun","ex_en":"Sam is popular with the neighbours.","ex_zh":"Sam很受鄰居歡迎。","adv_en":"Because he often helps elderly neighbours carry heavy bags, Sam is popular with everyone in the building.","adv_zh":"因為他常常幫年長鄰居提重袋，Sam在整棟樓都很受歡迎。","highlight":"popular with","audio":"audio/audio_23.mp3","img":"thumb_23.png","cutout":true,"art_source":"irasutoya:https://www.irasutoya.com/2016/12/blog-post_76.html"},{"n":8,"en":"crazy about","syllables":"","zh":"對……痴迷","pos":"adj. + prep.","pattern":"be + crazy about + noun / pronoun","ex_en":"May is crazy about cats.","ex_zh":"May對貓很痴迷。","adv_en":"Although she already has two cats, May is crazy about cats and wants another.","adv_zh":"雖然她已有兩隻貓，May仍對貓很痴迷，還想再養一隻。","highlight":"crazy about","audio":"audio/audio_24.mp3","img":"thumb_24.png","cutout":true,"art_source":"irasutoya:https://www.irasutoya.com/2018/09/blog-post_84.html"},{"n":9,"en":"excited about","syllables":"","zh":"對……感到興奮","pos":"adj. + prep.","note_zh":"用 about，不要寫 excited with","chips":[{"ok":true,"text":"about"},{"ok":false,"text":"with"}],"pattern":"be + excited about + noun","ex_en":"Tom is excited about the camp.","ex_zh":"Tom對營會感到興奮。","adv_en":"If the camp bus arrives before lunch, Tom is excited about packing his bag and meeting his teammates.","adv_zh":"如果營隊巴士在午飯前到達，Tom會為收拾行李和會見隊友而感到興奮。","highlight":"excited about","audio":"audio/audio_25.mp3","img":"thumb_25.png","cutout":true,"art_source":"irasutoya:https://www.irasutoya.com/2012/12/blog-post_5119.html"},{"n":10,"en":"happy about","syllables":"","zh":"對……感到高興","pos":"adj. + prep.","pattern":"be + happy about + noun / pronoun","ex_en":"Amy is happy about her surprise cake.","ex_zh":"Amy對驚喜蛋糕感到高興。","adv_en":"As soon as she sees the candles on the table, Amy is happy about her surprise cake.","adv_zh":"她一看見桌上的蠟燭，就為驚喜蛋糕感到高興。","highlight":"happy about","audio":"audio/audio_26.mp3","img":"thumb_26.png","cutout":true,"art_source":"irasutoya:https://www.irasutoya.com/2017/12/blog-post_833.html"},{"n":11,"en":"worried about","syllables":"","zh":"擔心……","pos":"adj. + prep.","note_zh":"用 about，不要寫 worried of／in","chips":[{"ok":true,"text":"about"},{"ok":false,"text":"of"},{"ok":false,"text":"in"}],"pattern":"be + worried about + noun","ex_en":"Mum is worried about the long flight.","ex_zh":"媽媽擔心那趟長途飛行。","adv_en":"Because the plane leaves at night, Mum is worried about the long flight.","adv_zh":"因為飛機在晚上起飛，媽媽擔心那趟長途飛行。","highlight":"worried about","audio":"audio/audio_27.mp3","img":"thumb_27.png","cutout":true,"art_source":"irasutoya:https://www.irasutoya.com/2018/03/blog-post_81.html"},{"n":12,"en":"bad for","syllables":"","zh":"對……有害","pos":"adj. + prep.","pattern":"be + bad for + noun / pronoun","ex_en":"Too many sweets are bad for your teeth.","ex_zh":"太多糖果對你的牙齒有害。","adv_en":"Unless you brush after sweets, they are bad for your teeth and gums.","adv_zh":"除非吃糖後刷牙，否則它們對你的牙齒和牙齦有害。","highlight":"bad for","audio":"audio/audio_28.mp3","img":"thumb_28.png","cutout":true,"art_source":"irasutoya:https://www.irasutoya.com/2014/05/blog-post_3061.html"},{"n":13,"en":"famous for","syllables":"","zh":"以……聞名","pos":"adj. + prep.","note_zh":"表示出名的原因用 for，不要寫 famous in","chips":[{"ok":true,"text":"for"},{"ok":false,"text":"in"}],"pattern":"be + famous for + noun","ex_en":"That town is famous for kimchi.","ex_zh":"那個城鎮以泡菜聞名。","adv_en":"Visitors who travel through the market soon learn that the town is famous for kimchi.","adv_zh":"走過市場的旅客很快就知道，那市鎮以泡菜聞名。","highlight":"famous for","audio":"audio/audio_29.mp3","img":"thumb_29.jpg?v=4","cutout":false,"art_source":"irasutoya:https://www.irasutoya.com/2014/09/blog-post_145.html"},{"n":14,"en":"good for","syllables":"","zh":"對……有益","pos":"adj. + prep.","pattern":"be + good for + noun / pronoun","ex_en":"Fresh fruit is good for her.","ex_zh":"新鮮水果對她有益。","adv_en":"Because it is rich in vitamins, fresh fruit is good for her.","adv_zh":"因為富含維生素，新鮮水果對她有益。","highlight":"good for","audio":"audio/audio_30.mp3","img":"thumb_30.png","cutout":true,"art_source":"irasutoya:https://www.irasutoya.com/2018/06/blog-post_282.html"},{"n":15,"en":"interested in","syllables":"","zh":"對……感興趣","pos":"adj. + prep.","note_zh":"用 in，不要寫 interested on","chips":[{"ok":true,"text":"in"},{"ok":false,"text":"on"}],"pattern":"be + interested in + noun","ex_en":"Ben is interested in animals.","ex_zh":"Ben對動物感興趣。","adv_en":"Because he reads many animal books, Ben is interested in animals and visits the zoo often.","adv_zh":"因為他讀了很多動物書，Ben對動物感興趣，也常去動物園。","highlight":"interested in","audio":"audio/audio_31.mp3","img":"thumb_31.png","cutout":true,"art_source":"irasutoya:https://www.irasutoya.com/2019/05/blog-post_297.html"},{"n":16,"en":"successful in","syllables":"","zh":"在……方面成功","pos":"adj. + prep.","note_zh":"用 in，不要寫 successful for","chips":[{"ok":true,"text":"in"},{"ok":false,"text":"for"}],"pattern":"be + successful in + noun","ex_en":"Dad is successful in his work.","ex_zh":"爸爸在工作方面很成功。","adv_en":"While others rush their tasks, Dad is successful in his work because he plans each step carefully.","adv_zh":"當別人匆忙趕工時，爸爸因仔細計劃每一步而在工作上取得成功。","highlight":"successful in","audio":"audio/audio_32.mp3","img":"thumb_32.jpg","cutout":true,"art_source":"irasutoya:https://www.irasutoya.com/2019/01/blog-post_57.html"},{"n":17,"en":"where","syllables":"","zh":"為地方加資料","pos":"","pattern":"place + where + clause","ex_en":"This is the museum where we saw the dinosaur bones.","ex_zh":"這就是我們看過恐龍骨骼的博物館。","adv_en":"After school we go to the park where the children play football.","adv_zh":"放學後我們去那座孩子們踢足球的公園。","highlight":"where","audio":"audio/audio_33.mp3","img":"thumb_33.png","cutout":true,"art_source":"irasutoya:https://www.irasutoya.com/2019/09/3d_28.html"}];
+const list = document.getElementById('list');
+const FILLS = ['fill-a','fill-b','fill-c','fill-d','fill-e','fill-f'];
+const lightbox = document.getElementById('lightbox');
+const lbImg = document.getElementById('lb-img');
+const lbPlay = document.getElementById('lb-play');
+const lbClose = document.getElementById('lb-close');
+const SPEAKER_SVG = "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" fill=\"currentColor\"><path d=\"M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06a9 9 0 0 0 0-17.54z\"/></svg>";
+let currentAudio = null;
+let activeCard = null;
+
+function openLightbox(card, article) {
+  if (window.LastPlace) LastPlace.save(card);
+  activeCard = { card, article };
+  lbImg.src = card.img;
+  if (window.ImgFrame) ImgFrame.apply(lbImg, card.img_frame);
+  lbImg.alt = card.en;
+  lightbox.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  lightbox.classList.remove('open');
+  document.body.style.overflow = '';
+  activeCard = null;
+}
+if (lbClose) lbClose.addEventListener('click', closeLightbox);
+if (lightbox) lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+if (lbPlay) lbPlay.addEventListener('click', () => { if (activeCard) playCard(activeCard.card, activeCard.article); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+function hl(text, target) {
+  const marks = String(target || '').split(/\s*(?:\n|\|)\s*/).map(part => part.trim()).filter(Boolean);
+  if (!marks.length) return text;
+  marks.sort((a, b) => b.length - a.length);
+  const lower = text.toLowerCase();
+  const spans = [];
+  marks.forEach(mark => {
+    const needle = mark.toLowerCase();
+    let from = 0;
+    while (from <= lower.length - needle.length) {
+      const at = lower.indexOf(needle, from);
+      if (at < 0) break;
+      const end = at + mark.length;
+      if (!spans.some(span => at < span.end && end > span.start)) spans.push({ start: at, end });
+      from = at + Math.max(needle.length, 1);
+    }
+  });
+  if (!spans.length) return text;
+  spans.sort((a, b) => a.start - b.start);
+  let html = '';
+  let cursor = 0;
+  spans.forEach(span => {
+    html += text.slice(cursor, span.start) + '<span class="hl">' + text.slice(span.start, span.end) + '</span>';
+    cursor = span.end;
+  });
+  return html + text.slice(cursor);
+}
+
+function playCard(card, article) {
+  if (window.LastPlace) LastPlace.save(card);
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  document.querySelectorAll('.card.playing').forEach(el => el.classList.remove('playing'));
+  article.classList.add('playing');
+  const a = new Audio(card.audio);
+  currentAudio = a;
+  a.play().catch(()=>{});
+  a.onended = () => article.classList.remove('playing');
+}
+
+function renderLesson() {
+list.innerHTML = '';
+CARDS.forEach(card => {
+  const article = document.createElement('article');
+  article.className = 'card ' + FILLS[(card.n - 1) % FILLS.length];
+  article.id = 'c' + card.n;
+
+  const speaker = document.createElement('button');
+  speaker.type = 'button';
+  speaker.className = 'speaker';
+  speaker.setAttribute('aria-label', 'Play: ' + card.en);
+  speaker.innerHTML = SPEAKER_SVG;
+  speaker.addEventListener('click', e => { e.stopPropagation(); playCard(card, article); });
+  article.appendChild(speaker);
+
+  const top = document.createElement('div');
+  top.className = 'top';
+
+  if (card.img) {
+    const wrap = document.createElement('div');
+    wrap.className = 'illust' + (card.cutout ? ' cutout' : '');
+    const img = document.createElement('img');
+    img.src = card.img; img.alt = card.en; img.loading = 'lazy'; img.decoding = 'async';
+    wrap.appendChild(img);
+    wrap.setAttribute('role', 'button');
+    wrap.setAttribute('tabindex', '0');
+    wrap.setAttribute('aria-label', 'Enlarge: ' + card.en);
+    wrap.addEventListener('click', e => { e.stopPropagation(); openLightbox(card, article); });
+    wrap.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); openLightbox(card, article); }
+    });
+    top.appendChild(wrap);
+  }
+
+  const main = document.createElement('div');
+  main.className = 'main';
+  var gloss = card.pos ? card.zh + '（' + card.pos + '）' : card.zh;
+  var syl = (card.syllables && String(card.syllables).indexOf('-') >= 0)
+    ? '<p class="syllables">' + card.syllables + '</p>' : '';
+  main.innerHTML =
+    '<span class="num">' + card.n + '</span>' +
+    '<p class="headword">' + card.en + '</p>' + syl +
+    '<p class="zh">' + gloss + '</p>';
+  top.appendChild(main);
+  article.appendChild(top);
+  var framed = top.querySelector('.illust img');
+  if (framed && window.ImgFrame) ImgFrame.apply(framed, card.img_frame);
+  if (card.pattern) {
+    var pattern = document.createElement('div');
+    pattern.className = 'teach';
+    pattern.innerHTML = '<span class="ex-label">Pattern</span><p class="pattern">' + card.pattern + '</p>';
+    article.appendChild(pattern);
+  }
+  if (card.note_zh) {
+    var tip = document.createElement('div');
+    tip.className = 'teach teach-tip';
+    tip.innerHTML = '<span class="ex-label">Note</span><p class="tip-en">' + card.note_zh + '</p>';
+    article.appendChild(tip);
+  }
+
+  const ex1 = document.createElement('div');
+  ex1.className = 'ex';
+  ex1.innerHTML = '<span class="ex-label">Example</span><p class="ex-en">' + hl(card.ex_en, card.highlight) + '</p><p class="ex-zh">' + card.ex_zh + '</p>';
+  const ex2 = document.createElement('div');
+  ex2.className = 'ex';
+  ex2.innerHTML = '<span class="ex-label">Advanced example</span><p class="ex-en">' + hl(card.adv_en, card.highlight_adv || card.highlight) + '</p><p class="ex-zh">' + card.adv_zh + '</p>';
+  article.appendChild(ex1);
+  article.appendChild(ex2);
+
+  article.addEventListener('click', e => {
+    if (e.target === speaker || speaker.contains(e.target)) return;
+    playCard(card, article);
+  });
+
+  list.appendChild(article);
+});
+}
+renderLesson();
+window.applyLessonCards = function (cards) {
+  if (!cards || !cards.length) return;
+  CARDS = cards;
+  renderLesson();
+};
+if (window.LastPlace && location.hash) {
+  var hashN = Number(String(location.hash).replace('#c', ''));
+  var hashed = CARDS.filter(function (c) { return c.n === hashN; })[0];
+  if (hashed) LastPlace.save(hashed);
+  LastPlace.focusHash();
+}
+</script>
+<script src="../assets/img-frame.js?v=13"></script>
+<script src="../assets/lesson-live.js?v=6"></script>
+</body>
+</html>

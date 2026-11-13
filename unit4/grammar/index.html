@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<base href="../">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="format-detection" content="telephone=no"/>
+<title>Unit 4 Film magic · Grammar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../assets/unit.css?v=9"/>
+<link rel="stylesheet" href="../assets/chrome.css?v=4" />
+<link rel="stylesheet" href="../assets/profile.css?v=5" />
+<link rel="stylesheet" href="../assets/account.css?v=6" />
+<script src="../assets/supabase-public.js?v=1"></script>
+<script src="../assets/progress-sync.js?v=3"></script>
+<script src="../assets/place.js?v=8"></script>
+<script src="../assets/place-ui.js?v=17"></script>
+<script src="../assets/profile.js?v=6"></script>
+<script src="../assets/account.js?v=13"></script>
+</head>
+<body data-book="oxford" data-series="oxford" data-level="p6" data-term="first" data-track="grammar" data-unit="unit4" class="theme-unit4">
+<header class="unit-header">
+  <a class="back" href="../">← Back to packs</a>
+  <h1>Unit 4 Film magic · Grammar</h1>
+  <p class="sub">Tap Play for audio. Tap the illustration to enlarge.</p>
+</header>
+<div class="list" id="list"></div>
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarge illustration">
+  <img id="lb-img" alt="" />
+  <div class="lb-bar">
+    <button type="button" class="lb-btn lb-play" id="lb-play">Play audio</button>
+    <button type="button" class="lb-btn lb-close" id="lb-close">Close</button>
+  </div>
+</div>
+<script>
+let CARDS = [{"n":1,"en":"If … were …, … would …","syllables":"","zh":"如果……是……（假設／建議）","pos":"","note_zh":"If I were you，不要寫 If I was you","chips":[{"ok":true,"text":"were"},{"ok":false,"text":"was"}],"pattern":"If + past (were), … would …","ex_en":"If I were you, I would take the offer.","ex_zh":"如果我是你，我會接受這個提議／工作機會。","adv_en":"If I were the hero in that action film, I would save the timid boy first.","adv_zh":"如果我是那部動作片裡的英雄，我會先救出那個膽小的男孩。","highlight":"If … were …, … would …","audio":"audio/audio_15.mp3","img":"thumb_15.png","cutout":true,"art_source":"irasutoya:https://www.irasutoya.com/2015/03/blog-post_64.html"},{"n":2,"en":"as … as","syllables":"","zh":"和……一樣……","pos":"","pattern":"as + adjective + as","ex_en":"She is as determined as her brother.","ex_zh":"她和她哥哥一樣堅定。","adv_en":"Although the wicked witch looks gentle, she is as cruel as the harsh winter.","adv_zh":"雖然邪惡的女巫看起來很溫柔，但她像嚴冬一樣無情殘忍。","highlight":"as … as","audio":"audio/audio_16.mp3","img":"thumb_16.png","cutout":true,"art_source":"generated"}];
+const list = document.getElementById('list');
+const FILLS = ['fill-a','fill-b','fill-c','fill-d','fill-e','fill-f'];
+const lightbox = document.getElementById('lightbox');
+const lbImg = document.getElementById('lb-img');
+const lbPlay = document.getElementById('lb-play');
+const lbClose = document.getElementById('lb-close');
+const SPEAKER_SVG = "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" fill=\"currentColor\"><path d=\"M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.23v2.06a7 7 0 0 1 0 13.42v2.06a9 9 0 0 0 0-17.54z\"/></svg>";
+let currentAudio = null;
+let activeCard = null;
+
+function openLightbox(card, article) {
+  if (window.LastPlace) LastPlace.save(card);
+  activeCard = { card, article };
+  lbImg.src = card.img;
+  if (window.ImgFrame) ImgFrame.apply(lbImg, card.img_frame);
+  lbImg.alt = card.en;
+  lightbox.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  lightbox.classList.remove('open');
+  document.body.style.overflow = '';
+  activeCard = null;
+}
+if (lbClose) lbClose.addEventListener('click', closeLightbox);
+if (lightbox) lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+if (lbPlay) lbPlay.addEventListener('click', () => { if (activeCard) playCard(activeCard.card, activeCard.article); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+function hl(text, target) {
+  const marks = String(target || '').split(/\s*(?:\n|\|)\s*/).map(part => part.trim()).filter(Boolean);
+  if (!marks.length) return text;
+  marks.sort((a, b) => b.length - a.length);
+  const lower = text.toLowerCase();
+  const spans = [];
+  marks.forEach(mark => {
+    const needle = mark.toLowerCase();
+    let from = 0;
+    while (from <= lower.length - needle.length) {
+      const at = lower.indexOf(needle, from);
+      if (at < 0) break;
+      const end = at + mark.length;
+      if (!spans.some(span => at < span.end && end > span.start)) spans.push({ start: at, end });
+      from = at + Math.max(needle.length, 1);
+    }
+  });
+  if (!spans.length) return text;
+  spans.sort((a, b) => a.start - b.start);
+  let html = '';
+  let cursor = 0;
+  spans.forEach(span => {
+    html += text.slice(cursor, span.start) + '<span class="hl">' + text.slice(span.start, span.end) + '</span>';
+    cursor = span.end;
+  });
+  return html + text.slice(cursor);
+}
+
+function playCard(card, article) {
+  if (window.LastPlace) LastPlace.save(card);
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  document.querySelectorAll('.card.playing').forEach(el => el.classList.remove('playing'));
+  article.classList.add('playing');
+  const a = new Audio(card.audio);
+  currentAudio = a;
+  a.play().catch(()=>{});
+  a.onended = () => article.classList.remove('playing');
+}
+
+function renderLesson() {
+list.innerHTML = '';
+CARDS.forEach(card => {
+  const article = document.createElement('article');
+  article.className = 'card ' + FILLS[(card.n - 1) % FILLS.length];
+  article.id = 'c' + card.n;
+
+  const speaker = document.createElement('button');
+  speaker.type = 'button';
+  speaker.className = 'speaker';
+  speaker.setAttribute('aria-label', 'Play: ' + card.en);
+  speaker.innerHTML = SPEAKER_SVG;
+  speaker.addEventListener('click', e => { e.stopPropagation(); playCard(card, article); });
+  article.appendChild(speaker);
+
+  const top = document.createElement('div');
+  top.className = 'top';
+
+  if (card.img) {
+    const wrap = document.createElement('div');
+    wrap.className = 'illust' + (card.cutout ? ' cutout' : '');
+    const img = document.createElement('img');
+    img.src = card.img; img.alt = card.en; img.loading = 'lazy'; img.decoding = 'async';
+    wrap.appendChild(img);
+    wrap.setAttribute('role', 'button');
+    wrap.setAttribute('tabindex', '0');
+    wrap.setAttribute('aria-label', 'Enlarge: ' + card.en);
+    wrap.addEventListener('click', e => { e.stopPropagation(); openLightbox(card, article); });
+    wrap.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); openLightbox(card, article); }
+    });
+    top.appendChild(wrap);
+  }
+
+  const main = document.createElement('div');
+  main.className = 'main';
+  var gloss = card.pos ? card.zh + '（' + card.pos + '）' : card.zh;
+  var syl = (card.syllables && String(card.syllables).indexOf('-') >= 0)
+    ? '<p class="syllables">' + card.syllables + '</p>' : '';
+  main.innerHTML =
+    '<span class="num">' + card.n + '</span>' +
+    '<p class="headword">' + card.en + '</p>' + syl +
+    '<p class="zh">' + gloss + '</p>';
+  top.appendChild(main);
+  article.appendChild(top);
+  var framed = top.querySelector('.illust img');
+  if (framed && window.ImgFrame) ImgFrame.apply(framed, card.img_frame);
+  if (card.pattern) {
+    var pattern = document.createElement('div');
+    pattern.className = 'teach';
+    pattern.innerHTML = '<span class="ex-label">Pattern</span><p class="pattern">' + card.pattern + '</p>';
+    article.appendChild(pattern);
+  }
+  if (card.note_zh) {
+    var tip = document.createElement('div');
+    tip.className = 'teach teach-tip';
+    tip.innerHTML = '<span class="ex-label">Note</span><p class="tip-en">' + card.note_zh + '</p>';
+    article.appendChild(tip);
+  }
+
+  const ex1 = document.createElement('div');
+  ex1.className = 'ex';
+  ex1.innerHTML = '<span class="ex-label">Example</span><p class="ex-en">' + hl(card.ex_en, card.highlight) + '</p><p class="ex-zh">' + card.ex_zh + '</p>';
+  const ex2 = document.createElement('div');
+  ex2.className = 'ex';
+  ex2.innerHTML = '<span class="ex-label">Advanced example</span><p class="ex-en">' + hl(card.adv_en, card.highlight_adv || card.highlight) + '</p><p class="ex-zh">' + card.adv_zh + '</p>';
+  article.appendChild(ex1);
+  article.appendChild(ex2);
+
+  article.addEventListener('click', e => {
+    if (e.target === speaker || speaker.contains(e.target)) return;
+    playCard(card, article);
+  });
+
+  list.appendChild(article);
+});
+}
+renderLesson();
+window.applyLessonCards = function (cards) {
+  if (!cards || !cards.length) return;
+  CARDS = cards;
+  renderLesson();
+};
+if (window.LastPlace && location.hash) {
+  var hashN = Number(String(location.hash).replace('#c', ''));
+  var hashed = CARDS.filter(function (c) { return c.n === hashN; })[0];
+  if (hashed) LastPlace.save(hashed);
+  LastPlace.focusHash();
+}
+</script>
+<script src="../assets/img-frame.js?v=13"></script>
+<script src="../assets/lesson-live.js?v=6"></script>
+</body>
+</html>

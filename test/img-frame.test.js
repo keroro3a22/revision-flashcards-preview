@@ -119,7 +119,7 @@ test('the preview uses a fixed crop window instead of a zoom slider', () => {
 });
 
 test('vocab picture cards use the square lesson ratio in a white well', () => {
-  const match = fs.readFileSync('practice/match.html', 'utf8');
+  const match = fs.readFileSync('practice/match/index.html', 'utf8');
   const studio = fs.readFileSync('assets/studio.js', 'utf8');
   const frameJs = fs.readFileSync('assets/img-frame.js', 'utf8');
   const css = fs.readFileSync('practice/practice.css', 'utf8');

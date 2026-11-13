@@ -7,7 +7,7 @@ const root = path.join(__dirname, '..');
 
 test('home page keeps badges and does not put Game in the topbar', () => {
   const home = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-  assert.match(home, /class="detective-peek" href="game\/clue-hunt\.html"/);
+  assert.match(home, /class="detective-peek" href="game\/clue-hunt\/"/);
   assert.match(home, />Be a Detective</);
   assert.match(home, /id="place-entries"/);
   assert.match(home, /Unlock your badges/);
@@ -19,9 +19,9 @@ test('home page keeps badges and does not put Game in the topbar', () => {
 
 test('game hub lists Clue Hunt and is not inside Practice', () => {
   const hub = fs.readFileSync(path.join(root, 'game/index.html'), 'utf8');
-  assert.match(hub, /href="clue-hunt\.html"/);
+  assert.match(hub, /href="clue-hunt\/"/);
   assert.match(hub, />School Mystery</);
-  assert.match(hub, /href="\.\.\/index\.html"/);
+  assert.match(hub, /href="\.\.\/"/);
   assert.match(hub, /The raffle prize box went missing at the school fair/);
   assert.doesNotMatch(hub, /Leo did not come back/);
   assert.doesNotMatch(hub, /Tickets were/);
@@ -48,7 +48,7 @@ test('game hub lists Clue Hunt and is not inside Practice', () => {
   assert.doesNotMatch(hub, /where he is/);
   assert.doesNotMatch(hub, /sealed cards/);
   assert.doesNotMatch(hub, /practice-entry\.html/);
-  const hunt = fs.readFileSync(path.join(root, 'game/clue-hunt.html'), 'utf8');
+  const hunt = fs.readFileSync(path.join(root, 'game/clue-hunt/index.html'), 'utf8');
   assert.match(hunt, /id="fair-map"/);
   assert.match(hunt, /id="notebook"/);
   assert.match(hunt, /src="clue-hunt-state\.js"/);

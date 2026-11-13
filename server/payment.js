@@ -232,13 +232,17 @@ async function handle(req, res) {
       return;
     }
     fs.stat(file, function (error, stat) {
-      if (error || !stat.isFile()) {
-        sendJson(res, 404, { error: 'Not found.' });
-        return;
-      }
-      res.writeHead(200, { 'content-type': TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream' });
-      if (req.method === 'HEAD') res.end();
-      else fs.createReadStream(file).pipe(res);
+      var target = file;
+      if (!error && stat.isDirectory()) target = path.join(file, 'index.html');
+      fs.stat(target, function (nestedError, nestedStat) {
+        if (nestedError || !nestedStat.isFile()) {
+          sendJson(res, 404, { error: 'Not found.' });
+          return;
+        }
+        res.writeHead(200, { 'content-type': TYPES[path.extname(target).toLowerCase()] || 'application/octet-stream' });
+        if (req.method === 'HEAD') res.end();
+        else fs.createReadStream(target).pipe(res);
+      });
     });
   } catch (error) {
     sendJson(res, error.status || 500, { error: error.message || 'The payment server failed.' });

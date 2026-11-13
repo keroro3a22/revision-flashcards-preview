@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<base href="../">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>School Mystery · Game</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../practice/grammar/grammar.css?v=49"/>
+<link rel="stylesheet" href="game.css?v=34"/>
+<link rel="stylesheet" href="../assets/account.css?v=6" />
+<script src="../assets/supabase-public.js?v=1"></script>
+<script src="../assets/progress-sync.js?v=3"></script>
+<script src="../assets/account.js?v=13"></script>
+</head>
+<body>
+<header class="prac-header">
+  <a class="back" href="./">← Game</a>
+  <h1>School Mystery</h1>
+  <p class="sub" id="step-label" hidden></p>
+</header>
+<main class="wrap">
+  <div class="hunt-layout">
+    <div class="hunt-stage">
+      <section id="intro">
+        <div class="case-art">
+          <img src="../practice/grammar/illust/u1_09_fair.jpg" alt="" width="640" height="480"/>
+        </div>
+        <article class="story-card story-card-case" id="case-report">
+          <h2 class="block-label">The case</h2>
+          <div class="report-sheet">
+            <div class="report-page">
+              <div class="case-row">
+                <img class="story-icon" src="illust/intro/glass.png" alt="" width="72" height="120"/>
+                <div>
+                  <h3>School Mystery</h3>
+                  <p class="case-lead">The missing raffle box</p>
+                </div>
+              </div>
+            </div>
+            <div class="report-page" hidden>
+              <h3>What happened</h3>
+              <p class="case-lead" id="case-lead">Leo was looking after the raffle box at the school charity fair. The box is gone, and Leo has not come back.</p>
+            </div>
+            <div class="report-page" hidden>
+              <h3>Your job</h3>
+              <p class="case-lead" id="you-intro">You are a Primary 6 student. You are looking into what happened to the raffle box.</p>
+              <p class="case-lead">Talk to people, and search the fair. Write the clues in your notebook.</p>
+            </div>
+          </div>
+          <div class="report-nav">
+            <button type="button" id="report-back" disabled>Back</button>
+            <span id="report-count">1 / 3</span>
+            <div class="report-dots" id="report-dots">
+              <button type="button" data-report="0" aria-label="Page 1" aria-current="true"></button>
+              <button type="button" data-report="1" aria-label="Page 2"></button>
+              <button type="button" data-report="2" aria-label="Page 3"></button>
+            </div>
+            <button type="button" id="report-next">Next</button>
+          </div>
+        </article>
+        <article class="story-card story-card-play">
+          <h2 class="block-label">How to play</h2>
+          <ol class="play-steps">
+            <li><img src="illust/intro/map.png" alt="" width="72" height="56"/><span>Tap a place on the map.</span></li>
+            <li><img src="illust/intro/talk.png" alt="" width="72" height="54"/><span>Talk to a person, or search.</span></li>
+            <li><img src="illust/intro/notebook.png" alt="" width="52" height="72"/><span>Clues are written in the notebook.</span></li>
+            <li><img src="illust/intro/solve.png" alt="" width="54" height="72"/><span>When you have all the notes, tap Solve Case and say who took the box, and why.</span></li>
+          </ol>
+        </article>
+        <!-- Kid detective: いらすとや https://www.irasutoya.com/2016/09/blog-post_974.html -->
+        <button type="button" class="start-look" id="start-map">
+          <img src="illust/intro/detective.png" alt="" width="150" height="200"/>
+          <span>Start looking</span>
+        </button>
+      </section>
+      <section id="fair-map" hidden>
+        <h2 class="hunt-q">School fair</h2>
+        <div class="fair-map">
+          <!-- Door plates: いらすとや https://www.irasutoya.com/2014/12/blog-post_13.html room15 blank, English names. -->
+          <img class="fair-map-base" src="illust/map-school-doorplates.png?v=3" alt="School floor plan" width="1152" height="864"/>
+          <button type="button" class="hotspot pin-stall" data-hotspot="stall"><span>Charity stall</span></button>
+          <button type="button" class="hotspot pin-wheel" data-hotspot="wheel"><span>Prize wheel</span></button>
+          <button type="button" class="hotspot pin-film" data-hotspot="film"><span>Film club</span></button>
+          <button type="button" class="hotspot pin-hall" data-hotspot="hall"><span>School hall</span></button>
+          <button type="button" class="hotspot pin-desk" data-hotspot="desk"><span>Miss Chan's desk</span></button>
+          <button type="button" class="hotspot pin-store" data-hotspot="store"><span>Storeroom</span></button>
+        </div>
+      </section>
+      <section id="scene" hidden>
+        <div class="btn-row">
+          <button type="button" class="btn btn-ghost" id="back-map">Back to the map</button>
+        </div>
+        <p class="hunt-kind" id="scene-kicker"></p>
+        <h2 class="hunt-q" id="scene-title"></h2>
+        <div class="scene-look">
+          <div class="scene-frame">
+            <img id="scene-art" alt=""/>
+            <div id="scene-spots"></div>
+          </div>
+        </div>
+        <p class="case-lead" id="scene-reply"></p>
+        <div class="choices" id="scene-actions"></div>
+        <div class="zoom-pop" id="zoom-pop" hidden>
+          <div class="zoom-card" role="dialog" aria-modal="true" aria-labelledby="zoom-title">
+            <h3 id="zoom-title"></h3>
+            <div class="zoom-frame" id="zoom-frame">
+              <img id="zoom-art" alt=""/>
+            </div>
+            <p id="zoom-reply"></p>
+            <button type="button" class="btn btn-primary" id="zoom-close">Close</button>
+          </div>
+        </div>
+        <div class="zoom-pop" id="ask-pop" hidden>
+          <div class="zoom-card" role="dialog" aria-modal="true" aria-labelledby="ask-title">
+            <h3 id="ask-title"></h3>
+            <div class="ask-thread" id="ask-thread"></div>
+            <button type="button" class="btn btn-primary" id="ask-close">Close</button>
+          </div>
+        </div>
+      </section>
+      <section id="solve" hidden>
+        <div class="btn-row">
+          <button type="button" class="btn btn-ghost" id="solve-back">Back to the map</button>
+        </div>
+        <h2 class="hunt-q">Solve the case</h2>
+        <div id="solve-time">
+          <span class="solve-label">About what time did the box arrive backstage?</span>
+          <div class="choices" id="time-choices"></div>
+        </div>
+        <div id="solve-who" hidden>
+          <span class="solve-label">Who took the box?</span>
+          <div class="choices" id="who-choices"></div>
+        </div>
+        <div id="solve-why" hidden>
+          <span class="solve-label">Why did they take the box?</span>
+          <div class="choices" id="why-choices"></div>
+        </div>
+        <p class="hint" id="solve-feedback" hidden></p>
+      </section>
+      <section class="ending" id="ending" hidden>
+        <h2>Found it</h2>
+        <p id="ending-copy"></p>
+      </section>
+    </div>
+    <!-- Notebook frame: いらすとや clipboard https://www.irasutoya.com/2017/02/blog-post.html -->
+    <aside id="notebook" class="notebook" hidden>
+      <div class="notebook-sheet">
+        <div class="notebook-write">
+          <h2>Notebook</h2>
+          <p class="notebook-purpose" id="notebook-purpose">Clues from talks and searches are written here. Use these notes to solve the case.</p>
+          <div id="notebook-cards"></div>
+          <div class="btn-row">
+            <button type="button" class="btn btn-primary" id="open-solve" disabled>Solve Case</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+<script src="clue-hunt-state.js"></script>
+<script>
+(function () {
+  var hunt = ClueHunt.createHunt();
+  var casePicks = { time: null, who: null, why: null };
+  var solveOrder = ["time", "who", "why"];
+  var solveOn = "time";
+  var ended = false;
+
+  var intro = document.getElementById("intro");
+  var map = document.getElementById("fair-map");
+  var scene = document.getElementById("scene");
+  var notebook = document.getElementById("notebook");
+  var cardsEl = document.getElementById("notebook-cards");
+  var purposeEl = document.getElementById("notebook-purpose");
+  var solve = document.getElementById("solve");
+  var ending = document.getElementById("ending");
+  var openSolve = document.getElementById("open-solve");
+  var replyEl = document.getElementById("scene-reply");
+  var actionsEl = document.getElementById("scene-actions");
+  var spotsEl = document.getElementById("scene-spots");
+  var zoomPop = document.getElementById("zoom-pop");
+  var zoomImg = document.getElementById("zoom-art");
+  var askPop = document.getElementById("ask-pop");
+  var askTitle = document.getElementById("ask-title");
+  var askThread = document.getElementById("ask-thread");
+  var zoomTitle = document.getElementById("zoom-title");
+  var zoomReply = document.getElementById("zoom-reply");
+  var stepLabel = document.getElementById("step-label");
+  var feedback = document.getElementById("solve-feedback");
+
+  function setStep(text) {
+    stepLabel.hidden = false;
+    stepLabel.textContent = text;
+  }
+
+  function hotspotById(id) {
+    return ClueHunt.HOTSPOTS.filter(function (item) { return item.id === id; })[0];
+  }
+
+  function renderNotebook() {
+    var cards = ClueHunt.notebook(hunt);
+    cardsEl.innerHTML = "";
+    purposeEl.hidden = cards.length > 0;
+    cards.forEach(function (card) {
+      var view = ClueHunt.displayCard(card);
+      var article = document.createElement("article");
+      article.className = "clue-card";
+      article.setAttribute("data-card", card.id);
+      var title = document.createElement("strong");
+      title.textContent = view.title;
+      var body = document.createElement("p");
+      body.textContent = view.text;
+      article.appendChild(title);
+      article.appendChild(body);
+      cardsEl.appendChild(article);
+    });
+    openSolve.disabled = ended || !solve.hidden || !ClueHunt.solveUnlocked(hunt);
+    notebook.classList.toggle("is-open", !solve.hidden || !ending.hidden);
+  }
+
+  function closeZoom() {
+    zoomPop.hidden = true;
+  }
+
+  function closeAsk() {
+    askPop.hidden = true;
+  }
+
+  function openZoom(artSrc, title, reply) {
+    zoomTitle.textContent = title;
+    zoomReply.textContent = reply;
+    zoomImg.removeAttribute("style");
+    zoomPop.hidden = false;
+    if (zoomImg.getAttribute("src") !== artSrc) zoomImg.setAttribute("src", artSrc);
+    document.getElementById("zoom-close").focus();
+  }
+
+  function showMap() {
+    if (ended) return;
+    closeZoom();
+    closeAsk();
+    intro.hidden = true;
+    scene.hidden = true;
+    solve.hidden = true;
+    ending.hidden = true;
+    map.hidden = false;
+    notebook.hidden = false;
+    setStep("Walk the school fair");
+    renderNotebook();
+  }
+
+  function magnifierIcon() {
+    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 64 64");
+    svg.setAttribute("width", "20");
+    svg.setAttribute("height", "20");
+    svg.setAttribute("aria-hidden", "true");
+    var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("cx", "26");
+    circle.setAttribute("cy", "26");
+    circle.setAttribute("r", "12");
+    circle.setAttribute("fill", "none");
+    circle.setAttribute("stroke", "currentColor");
+    circle.setAttribute("stroke-width", "5");
+    var handle = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    handle.setAttribute("d", "M35 35 L50 50");
+    handle.setAttribute("stroke", "currentColor");
+    handle.setAttribute("stroke-width", "6");
+    handle.setAttribute("stroke-linecap", "round");
+    svg.appendChild(circle);
+    svg.appendChild(handle);
+    return svg;
+  }
+
+  function talkLine(personId, text, rowClass) {
+    var person = ClueHunt.personById(personId);
+    var row = document.createElement("div");
+    row.className = "talk-line " + rowClass;
+    var img = document.createElement("img");
+    img.className = "person-avatar";
+    img.src = person.head;
+    img.alt = "";
+    var copy = document.createElement("div");
+    var name = document.createElement("span");
+    name.className = "talk-name";
+    name.textContent = person.name;
+    var body = document.createElement("p");
+    body.textContent = text;
+    copy.appendChild(name);
+    copy.appendChild(body);
+    row.appendChild(img);
+    row.appendChild(copy);
+    return row;
+  }
+
+  function openAsk(hotspot, items) {
+    closeZoom();
+    askTitle.textContent = hotspot.name;
+    askThread.innerHTML = "";
+    askPop.hidden = false;
+    var asked = 0;
+    function askNext() {
+      if (asked >= items.length) return;
+      var item = items[asked];
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "choice talk-next";
+      btn.textContent = item.label;
+      btn.addEventListener("click", function () {
+        btn.disabled = true;
+        var said = talkLine("you", item.label, "talk-said");
+        btn.replaceWith(said);
+        var result = ClueHunt.visit(hunt, hotspot.id, item.id);
+        hunt = result.state;
+        renderNotebook();
+        askThread.appendChild(talkLine(ClueHunt.speakerId(hotspot.id), result.reply, "talk-reply"));
+        asked += 1;
+        askNext();
+        askThread.scrollTop = askThread.scrollHeight;
+      });
+      askThread.appendChild(btn);
+      btn.focus();
+    }
+    askNext();
+  }
+
+  function renderActions(hotspot) {
+    actionsEl.innerHTML = "";
+    spotsEl.innerHTML = "";
+    closeZoom();
+    closeAsk();
+    var searching = hotspot.kind === "search";
+    actionsEl.hidden = true;
+    var items = hotspot.kind === "search" ? hotspot.spots : hotspot.prompts;
+    if (!searching) {
+      var mark = document.createElement("button");
+      mark.type = "button";
+      mark.className = "scene-spot scene-ask";
+      mark.textContent = "?";
+      mark.setAttribute("aria-label", "Ask a question");
+      mark.style.left = hotspot.mark.x;
+      mark.style.top = hotspot.mark.y;
+      mark.addEventListener("click", function () { openAsk(hotspot, items); });
+      spotsEl.appendChild(mark);
+      return;
+    }
+    items.forEach(function (item) {
+      var hits = item.hits && item.hits.length ? item.hits : [null];
+      hits.forEach(function (hit) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "scene-spot";
+        btn.appendChild(magnifierIcon());
+        btn.setAttribute("aria-label", hit.title || item.label);
+        btn.style.left = hit.x || hit.left;
+        btn.style.top = hit.y || hit.top;
+        btn.addEventListener("click", function () {
+          var result = ClueHunt.visit(hunt, hotspot.id, item.id);
+          hunt = result.state;
+          renderNotebook();
+          if (hit) openZoom(hit.art, hit.title || item.label, result.reply);
+        });
+        spotsEl.appendChild(btn);
+      });
+    });
+  }
+
+  function openHotspot(id) {
+    if (ended) return;
+    var hotspot = hotspotById(id);
+    map.hidden = true;
+    solve.hidden = true;
+    ending.hidden = true;
+    scene.hidden = false;
+    notebook.hidden = false;
+    document.getElementById("scene-kicker").textContent = hotspot.kind === "search" ? "Search" : "Talk";
+    document.getElementById("scene-title").textContent = hotspot.name;
+    document.getElementById("scene-art").src = hotspot.art;
+    replyEl.textContent = hotspot.intro;
+    renderActions(hotspot);
+    setStep(hotspot.name);
+    renderNotebook();
+  }
+
+  function gradePick(key, value) {
+    var picks = {
+      time: key === "time" ? value : ClueHunt.CASE.time.answer,
+      who: key === "who" ? value : ClueHunt.CASE.who.answer,
+      why: key === "why" ? value : ClueHunt.CASE.why.answer
+    };
+    return ClueHunt.submitSolve(picks);
+  }
+
+  function finishCase(endingText) {
+    ended = true;
+    solve.hidden = true;
+    map.hidden = true;
+    scene.hidden = true;
+    ending.hidden = false;
+    document.getElementById("ending-copy").textContent = endingText;
+    setStep("Case closed");
+    renderNotebook();
+  }
+
+  function renderCaseGroup(container, key, options) {
+    container.innerHTML = "";
+    options.forEach(function (opt) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "choice";
+      btn.textContent = opt;
+      btn.addEventListener("click", function () {
+        if (ended || key !== solveOn) return;
+        Array.prototype.forEach.call(container.children, function (el) { el.classList.remove("selected"); });
+        btn.classList.add("selected");
+        var graded = gradePick(key, opt);
+        if (opt !== ClueHunt.CASE[key].answer) {
+          feedback.hidden = false;
+          feedback.textContent = graded.hint;
+          return;
+        }
+        feedback.hidden = true;
+        feedback.textContent = "";
+        casePicks[key] = opt;
+        Array.prototype.forEach.call(container.children, function (el) { el.disabled = true; });
+        var nextAt = solveOrder.indexOf(key) + 1;
+        if (nextAt >= solveOrder.length) {
+          finishCase(graded.ending);
+          return;
+        }
+        solveOn = solveOrder[nextAt];
+        var nextQuestion = document.getElementById("solve-" + solveOn);
+        nextQuestion.hidden = false;
+        nextQuestion.scrollIntoView({ block: "nearest" });
+      });
+      container.appendChild(btn);
+    });
+  }
+
+  function openSolvePanel() {
+    if (ended || !ClueHunt.solveUnlocked(hunt)) return;
+    closeZoom();
+    closeAsk();
+    map.hidden = true;
+    scene.hidden = true;
+    ending.hidden = true;
+    solve.hidden = false;
+    notebook.hidden = false;
+    casePicks = { time: null, who: null, why: null };
+    solveOn = "time";
+    document.getElementById("solve-time").hidden = false;
+    document.getElementById("solve-who").hidden = true;
+    document.getElementById("solve-why").hidden = true;
+    feedback.hidden = true;
+    feedback.textContent = "";
+    setStep("About what time did the box arrive backstage?");
+    renderCaseGroup(document.getElementById("time-choices"), "time", ClueHunt.CASE.time.options);
+    window.scrollTo(0, 0);
+    renderCaseGroup(document.getElementById("who-choices"), "who", ClueHunt.CASE.who.options);
+    renderCaseGroup(document.getElementById("why-choices"), "why", ClueHunt.CASE.why.options);
+    renderNotebook();
+  }
+
+  document.getElementById("zoom-close").addEventListener("click", closeZoom);
+  zoomPop.addEventListener("click", function (event) {
+    if (event.target === zoomPop) closeZoom();
+  });
+  document.getElementById("ask-close").addEventListener("click", closeAsk);
+  askPop.addEventListener("click", function (event) {
+    if (event.target === askPop) closeAsk();
+  });
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      closeZoom();
+      closeAsk();
+    }
+  });
+
+  var reportPages = document.querySelectorAll("#case-report .report-page");
+  var reportDots = document.querySelectorAll("#report-dots button");
+  var reportBack = document.getElementById("report-back");
+  var reportNext = document.getElementById("report-next");
+  var reportCount = document.getElementById("report-count");
+  var reportAt = 0;
+
+  function showReport(index) {
+    var last = reportPages.length - 1;
+    if (index < 0) index = 0;
+    if (index > last) index = last;
+    reportAt = index;
+    Array.prototype.forEach.call(reportPages, function (page, i) {
+      page.hidden = i !== index;
+    });
+    Array.prototype.forEach.call(reportDots, function (dot, i) {
+      if (i === index) dot.setAttribute("aria-current", "true");
+      else dot.removeAttribute("aria-current");
+    });
+    reportBack.disabled = index === 0;
+    reportNext.disabled = index === last;
+    reportCount.textContent = (index + 1) + " / " + reportPages.length;
+  }
+
+  reportBack.addEventListener("click", function () { showReport(reportAt - 1); });
+  reportNext.addEventListener("click", function () { showReport(reportAt + 1); });
+  Array.prototype.forEach.call(reportDots, function (dot) {
+    dot.addEventListener("click", function () {
+      showReport(Number(dot.getAttribute("data-report")));
+    });
+  });
+
+  document.getElementById("start-map").addEventListener("click", showMap);
+  document.getElementById("back-map").addEventListener("click", showMap);
+  document.getElementById("solve-back").addEventListener("click", showMap);
+  openSolve.addEventListener("click", openSolvePanel);
+
+  Array.prototype.forEach.call(document.querySelectorAll(".hotspot"), function (btn) {
+    btn.addEventListener("click", function () {
+      openHotspot(btn.getAttribute("data-hotspot"));
+    });
+  });
+
+})();
+</script>
+
+</body>
+</html>

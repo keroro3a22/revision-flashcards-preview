@@ -1,107 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Badges · English Revision</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&family=Noto+Sans+TC:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/site.css?v=56" />
-  <style>
-    .badge-section-label {
-      grid-column: 1 / -1;
-      margin: 0.35rem 0 0.15rem;
-      font-family: Fredoka, sans-serif;
-      font-weight: 700;
-      font-size: 0.95rem;
-      color: #1e3a5f;
-    }
-  </style>
-<link rel="stylesheet" href="../../assets/account.css?v=6" />
-<script src="../../assets/supabase-public.js?v=1"></script>
-<script src="../../assets/progress-sync.js?v=3"></script>
-<script src="../../assets/account.js?v=13"></script>
+<meta charset="utf-8">
+<link rel="canonical" href="badges/">
+<script>location.replace("badges/" + location.search + location.hash)</script>
+<meta http-equiv="refresh" content="0;url=badges/">
+<title>Redirect</title>
 </head>
 <body>
-  <header class="topbar">
-    <div class="topbar-inner">
-      <a class="brand" href="#">English Revision</a>
-      <nav class="nav-plain" aria-label="Primary">
-        <a class="nav-jump" href="#">Revision</a>
-        <a class="nav-jump" href="#">Practice</a>
-      </nav>
-    </div>
-  </header>
-  <main class="badge-main">
-    <h1>Badges</h1>
-    <p class="badge-lead">Each badge says what to finish. This page does not keep a score.</p>
-    <p class="badge-count" id="badge-count">2 of 15 earned</p>
-    <div class="badge-grid" id="badge-grid" aria-live="polite"></div>
-  </main>
-  <script>
-  (function () {
-    var vocab = [
-      { title: '起步新手', english: 'First Steps', image: 'assets/badges/first-steps-locked.png', detail: 'Finish any one practice session.', earned: false },
-      { title: '詞組拼寫手', english: 'Phrase Speller', image: 'assets/badges/phrase-speller-locked.png', detail: 'Finish Missing Letters Easy for Unit 1, Unit 2, Unit 3, and Unit 4, with every answer correct.', earned: false },
-      { title: '配對高手', english: 'Match Master', image: 'assets/badges/match-master-locked.png', detail: 'Finish Memory Match once for Unit 1, Unit 2, Unit 3, and Unit 4.', earned: false },
-      { title: '限時勇者', english: 'Timed Hero', image: 'assets/badges/timed-hero-locked.png', detail: 'Finish Timed Challenge once for Unit 1, Unit 2, Unit 3, and Unit 4.', earned: false },
-      { title: 'Hard 挑戰者', english: 'Hard Challenger', image: 'assets/badges/hard-challenger-locked.png', detail: 'Finish Sentence Fill Hard and Missing Letters Hard for Unit 1–4, with at least 90% correct in each session.', earned: false },
-      { title: '全能練習生', english: 'All-rounder', image: 'assets/badges/all-rounder-locked.png', detail: 'In Mixed topic, finish Sentence Fill, Missing Letters, Memory Match, and Timed Challenge once each.', earned: false },
-      { title: 'Unit 完成者', english: 'Unit Completer', image: 'assets/badges/unit-completer-unit1-locked.png', detail: 'Finish Sentence Fill, Missing Letters, and Memory Match for Unit 1.', earned: false },
-      { title: 'Unit 完成者', english: 'Unit Completer', image: 'assets/badges/unit-completer-unit2-locked.png', detail: 'Finish Sentence Fill, Missing Letters, and Memory Match for Unit 2.', earned: false },
-      { title: 'Unit 完成者', english: 'Unit Completer', image: 'assets/badges/unit-completer-unit3-locked.png', detail: 'Finish Sentence Fill, Missing Letters, and Memory Match for Unit 3.', earned: false },
-      { title: 'Unit 完成者', english: 'Unit Completer', image: 'assets/badges/unit-completer-unit4-locked.png', detail: 'Finish Sentence Fill, Missing Letters, and Memory Match for Unit 4.', earned: false },
-      { title: 'Unit 完成者', english: 'Unit Completer', image: 'assets/badges/unit-completer-dictation3-locked.png', detail: 'Finish Sentence Fill, Missing Letters, and Memory Match for Dictation 3.', earned: false }
-    ];
-    var grammar = [
-      { title: '故事閱讀員', english: 'Story Reader', image: 'assets/badges/story-reader.png', detail: 'Finish Story Book in Units 1–4.', earned: true, earnedLabel: '3 Nov' },
-      { title: '推理高手', english: 'Inference Ace', image: 'assets/badges/inference-ace.png', detail: 'Get the Chat Quest mystery right 3 times.', earned: true, earnedLabel: '3 Nov' },
-      { title: '組句高手', english: 'Sentence Linker', image: 'assets/badges/sentence-linker-locked.png', detail: 'Finish Join the sentences in Units 1–4.', earned: false },
-      { title: 'Boss 挑戰者', english: 'Boss Beater', image: 'assets/badges/boss-beater-locked.png', detail: 'Clear Boss Round with at least 1 life left.', earned: false }
-    ];
-    var grid = document.getElementById('badge-grid');
-    function addLabel(text) {
-      var p = document.createElement('p');
-      p.className = 'badge-section-label';
-      p.textContent = text;
-      grid.appendChild(p);
-    }
-    function addCard(b) {
-      var card = document.createElement('article');
-      card.className = 'badge-card ' + (b.earned ? 'is-earned' : 'is-locked');
-      var art = document.createElement('div');
-      art.className = 'badge-art';
-      var img = document.createElement('img');
-      img.src = b.image;
-      img.alt = '';
-      art.appendChild(img);
-      var name = document.createElement('h2');
-      name.className = 'badge-name';
-      name.textContent = b.title;
-      var english = document.createElement('p');
-      english.className = 'badge-english';
-      english.textContent = b.english;
-      var how = document.createElement('p');
-      how.className = 'badge-how';
-      how.textContent = b.detail;
-      card.appendChild(art);
-      card.appendChild(name);
-      card.appendChild(english);
-      card.appendChild(how);
-      if (b.earned) {
-        var date = document.createElement('p');
-        date.className = 'badge-date';
-        date.textContent = 'Earned ' + b.earnedLabel;
-        card.appendChild(date);
-      }
-      grid.appendChild(card);
-    }
-    addLabel('Vocab');
-    vocab.forEach(addCard);
-    addLabel('Grammar');
-    grammar.forEach(addCard);
-  })();
-  </script>
+<p><a href="badges/">Continue</a></p>
 </body>
 </html>

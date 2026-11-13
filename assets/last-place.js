@@ -19,7 +19,7 @@ window.LastPlace = (function () {
         n: card.n,
         en: card.en,
         zh: card.zh || '',
-        href: id + '/index.html#c' + card.n
+        href: id + '/#c' + card.n
       }));
     } catch (e) {}
   }

@@ -76,7 +76,7 @@ test('mixed topic reuses unit phrases and writes new fill sentences', () => {
   });
 
   const root = path.join(__dirname, '..');
-  ['practice/index.html', 'practice/fill.html', 'practice/letters.html', 'practice/match.html', 'practice/timed.html'].forEach(rel => {
+  ['practice/index.html', 'practice/fill/index.html', 'practice/letters/index.html', 'practice/match/index.html', 'practice/timed/index.html'].forEach(rel => {
     const html = fs.readFileSync(path.join(root, rel), 'utf8');
     assert.match(html, /data\/mixed\.js/);
   });

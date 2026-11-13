@@ -8,6 +8,10 @@ const grammar = path.join(root, 'practice', 'grammar');
 const units = ['unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6'];
 
 function read(name) {
+  const nested = name.endsWith('.html')
+    ? path.join(grammar, name.replace(/\.html$/, ''), 'index.html')
+    : '';
+  if (nested && fs.existsSync(nested)) return fs.readFileSync(nested, 'utf8');
   return fs.readFileSync(path.join(grammar, name), 'utf8');
 }
 

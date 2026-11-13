@@ -109,7 +109,7 @@ test('homepage, badges, and practice hub mount the profile chip', () => {
     return fs.readFileSync(path.join(root, rel), 'utf8');
   }
   const home = read('index.html');
-  const badges = read('badges.html');
+  const badges = read('badges/index.html');
   const hub = read('practice/index.html');
   [home, badges].forEach(html => {
     const nav = html.match(/<nav class="nav-plain"[\s\S]*?<\/nav>/)[0];

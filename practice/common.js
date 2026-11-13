@@ -22,7 +22,16 @@ window.PracticeCommon = (function () {
   }
 
   function hubLink(unitId) {
-    return 'index.html?unit=' + encodeURIComponent(unitId || unitParam());
+    var query = '?unit=' + encodeURIComponent(unitId || unitParam());
+    var scripts = (typeof document !== 'undefined' && document.getElementsByTagName)
+      ? document.getElementsByTagName('script')
+      : [];
+    for (var i = 0; i < scripts.length; i++) {
+      var src = scripts[i].src || '';
+      var cut = src.indexOf('practice/common.js');
+      if (cut !== -1) return src.slice(0, cut) + 'practice/' + query;
+    }
+    return './' + query;
   }
 
   function practiceLink(page, unitId) {

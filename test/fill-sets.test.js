@@ -35,10 +35,10 @@ test('sentence fill continues an unfinished set and rotates after it is finished
 });
 
 test('the fill page rotates sets without a picker and letters stay unsplit', () => {
-  const fill = fs.readFileSync(path.join(root, 'practice/fill.html'), 'utf8');
-  const letters = fs.readFileSync(path.join(root, 'practice/letters.html'), 'utf8');
-  const match = fs.readFileSync(path.join(root, 'practice/match.html'), 'utf8');
-  const timed = fs.readFileSync(path.join(root, 'practice/timed.html'), 'utf8');
+  const fill = fs.readFileSync(path.join(root, 'practice/fill/index.html'), 'utf8');
+  const letters = fs.readFileSync(path.join(root, 'practice/letters/index.html'), 'utf8');
+  const match = fs.readFileSync(path.join(root, 'practice/match/index.html'), 'utf8');
+  const timed = fs.readFileSync(path.join(root, 'practice/timed/index.html'), 'utf8');
   const live = fs.readFileSync(path.join(root, 'practice/practice-live.js'), 'utf8');
   assert.match(fill, /fill-sets\.js/);
   assert.match(fill, /PracticeLive\.ready\('fill'\)/);

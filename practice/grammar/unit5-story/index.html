@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<base href="../">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Story Book · Unit 5 Grammar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="grammar.css?v=49"/>
+<link rel="stylesheet" href="../../assets/chrome.css?v=4" />
+<link rel="stylesheet" href="../../assets/profile.css?v=4" />
+<link rel="stylesheet" href="../../assets/account.css?v=1" />
+<script src="../../assets/supabase-public.js?v=1"></script>
+<script src="../../assets/progress-sync.js?v=2"></script>
+<script src="../../assets/place.js?v=8"></script>
+<script src="../../assets/place-ui.js?v=17"></script>
+<script src="../../assets/profile.js?v=5"></script>
+<script src="../../assets/account.js?v=11"></script>
+</head>
+<body>
+<header class="prac-header">
+  <a class="back" href="../../">← Back to packs</a>
+  <h1>Story Book</h1>
+  <p class="sub" id="story-sub">Class 6A spends a day at Hillside Wildlife Park</p>
+</header>
+<main class="wrap">
+  <div class="toolbar">
+    <span class="chip sunny" id="q-num">Scene 1 / 7</span>
+    <div class="progress-dots" id="dots" aria-label="Progress"></div>
+  </div>
+  <div class="panel" id="game">
+    <div class="story-page">
+      <div class="story-beat-label" id="beat-label">Scene 1</div>
+      <div class="story-panel-art" id="art-wrap"><img id="art" alt="" src="illust/u5_s1_q1.jpg"/></div>
+<p class="hint-soft" id="hint">Read the story. Fill each blank, then Check to turn the page.</p>
+      <p class="prompt" id="prompt"></p>
+      <div class="choices" id="choices"></div>
+      <div class="btn-row">
+        <button type="button" class="btn btn-ghost" id="btn-clear">Clear</button>
+        <button type="button" class="btn btn-primary" id="btn-check" disabled>Check</button>
+        <button type="button" class="btn btn-secondary" id="btn-next" hidden>Next page</button>
+      </div>
+      <div class="toast" id="toast" hidden></div>
+    </div>
+  </div>
+  <div class="panel result-card" id="done" hidden>
+    <div class="story-panel-art" style="max-width:280px;margin:0 auto 1rem;aspect-ratio:1.2"><img src="illust/u5_s1_q7.jpg" alt=""/></div>
+    <h2>Story complete!</h2>
+    <p class="big" id="score-big">0</p>
+    <p>correct scenes · The Land of Kangaroos</p>
+    <div class="btn-row" style="justify-content:center">
+      <a class="btn btn-primary" id="btn-again" href="unit5-story/">Read again</a>
+      <a class="btn btn-ghost" href="unit5-hub/">Hub</a>
+    </div>
+  </div>
+</main>
+<script src="../../practice/badges.js"></script>
+<script src="grammar-progress.js"></script>
+<script src="../../assets/img-frame.js?v=13"></script>
+<script src="../../assets/vendor/supabase.js?v=1"></script>
+<script src="grammar-live.js?v=3"></script>
+<script>
+(function () {
+  /* Authors: ?set=1|2|3|4|5 (1-based) forces that authored set; never show set chips on screen.
+     Students (no ?set=): silent rotate via localStorage key u5-story-set-i. */
+  const FB = { ok: "illust/feedback-ok.png", bad: "illust/feedback-bad.png" };
+  function showToast(el, title, explain, kind) {
+    el.className = "toast toast-feedback has-art " + kind;
+    el.innerHTML =
+      '<img class="toast-art" src="' + FB[kind === "ok" ? "ok" : "bad"] + '" alt=""/>' +
+      '<div class="toast-body"><div class="toast-title"></div><div class="toast-explain"></div></div>';
+    el.querySelector(".toast-title").textContent = title;
+    el.querySelector(".toast-explain").textContent = explain || "";
+    el.hidden = false;
+  }
+  const set1Data = {
+    "scenes": [
+      {
+        "img": "illust/u5_s1_q1.jpg",
+        "label": "Scene 1 · The information board",
+        "parts": [
+          "Ben is ",
+          "____",
+          " the park map, because this reserve is ",
+          "____",
+          " its tall red kangaroos."
+        ],
+        "answer": [
+          "interested in",
+          "famous for"
+        ],
+        "blanks": 2,
+        "explain": "Wanting to learn more about something → interested in. Known widely because of something → famous for.",
+        "options": [
+          "interested on · famous in",
+          "interested in · famous for",
+          "successful in · bad for",
+          "interested in · famous in"
+        ],
+        "art_hint": "野生公園入口資訊板畫着高大紅袋鼠，Ben 正認真看公園地圖",
+        "optionPairs": [
+          [
+            "interested on",
+            "famous in"
+          ],
+          [
+            "interested in",
+            "famous for"
+          ],
+          [
+            "successful in",
+            "bad for"
+          ],
+          [
+            "interested in",
+            "famous in"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u5_s1_q2.jpg",
+        "label": "Scene 2 · The feeding tunnel",
+        "parts": [
+          "Lily is ",
+          "____",
+          " the dark feeding tunnel, and her notebook is already ",
+          "____",
+          " quick drawings."
+        ],
+        "answer": [
+          "afraid of",
+          "full of"
+        ],
+        "blanks": 2,
+        "explain": "Feeling fear before a noun → afraid of, not afraid to. Containing a lot of something → full of.",
+        "options": [
+          "angry with · full about",
+          "afraid to · full of",
+          "afraid of · full of",
+          "fond of · full of"
+        ],
+        "art_hint": "昏暗的餵食隧道入口，Lily 往後縮；她的筆記本上已畫滿速寫",
+        "optionPairs": [
+          [
+            "angry with",
+            "full about"
+          ],
+          [
+            "afraid to",
+            "full of"
+          ],
+          [
+            "afraid of",
+            "full of"
+          ],
+          [
+            "fond of",
+            "full of"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u5_s1_q3.jpg",
+        "label": "Scene 3 · The rest shade",
+        "parts": [
+          "This is the shade ",
+          "____",
+          " the kangaroos rest after their morning feed."
+        ],
+        "answer": [
+          "where"
+        ],
+        "blanks": 1,
+        "explain": "A place + extra information about that place → where.",
+        "options": [
+          "where",
+          "which",
+          "when",
+          "that"
+        ],
+        "art_hint": "餵食過後，袋鼠在樹蔭下休息"
+      },
+      {
+        "img": "illust/u5_s1_q4.jpg",
+        "hard": true,
+        "label": "Scene 4 · After the hill",
+        "parts": [
+          "Miss Ho is ",
+          "____",
+          " the quiet class, and a slow walk through the park is ",
+          "____",
+          " tired legs after the hill."
+        ],
+        "answer": [
+          "pleased with",
+          "good for"
+        ],
+        "blanks": 2,
+        "explain": "Satisfied with a person → pleased with, not pleased about. Helpful or healthy for someone → good for.",
+        "options": [
+          "pleased about · good for",
+          "pleased with · good at",
+          "happy about · bad for",
+          "pleased with · good for"
+        ],
+        "art_hint": "Miss Ho 向安靜排隊的同學顯得滿意；同學在小丘後慢慢走",
+        "optionPairs": [
+          [
+            "pleased about",
+            "good for"
+          ],
+          [
+            "pleased with",
+            "good at"
+          ],
+          [
+            "happy about",
+            "bad for"
+          ],
+          [
+            "pleased with",
+            "good for"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u5_s1_q5.jpg",
+        "label": "Scene 5 · The joey talk",
+        "parts": [
+          "Lily is ",
+          "____",
+          " the afternoon joey talk, which is ",
+          "____",
+          " young visitors."
+        ],
+        "answer": [
+          "excited about",
+          "popular with"
+        ],
+        "blanks": 2,
+        "explain": "Looking forward to something with energy → excited about, not excited with. Liked by a group of people → popular with.",
+        "options": [
+          "excited about · popular with",
+          "excited with · popular with",
+          "worried about · popular with",
+          "excited about · popular to"
+        ],
+        "art_hint": "下午小袋鼠解說攤，許多年輕訪客圍着聽，Lily 顯得期待",
+        "optionPairs": [
+          [
+            "excited about",
+            "popular with"
+          ],
+          [
+            "excited with",
+            "popular with"
+          ],
+          [
+            "worried about",
+            "popular with"
+          ],
+          [
+            "excited about",
+            "popular to"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u5_s1_q6.jpg",
+        "hard": true,
+        "label": "Scene 6 · Dark clouds",
+        "parts": [
+          "Miss Ho is ",
+          "____",
+          " the dark clouds, but the ranger has already been ",
+          "____",
+          " the safety check."
+        ],
+        "answer": [
+          "worried about",
+          "successful in"
+        ],
+        "blanks": 2,
+        "explain": "Feeling uneasy about a problem → worried about, not worried of. Doing well in a piece of work → successful in, not successful for.",
+        "options": [
+          "worried of · successful in",
+          "worried about · successful for",
+          "worried about · successful in",
+          "afraid of · successful in"
+        ],
+        "art_hint": "天上有烏雲，Miss Ho 抬頭看天；護管員已完成安全檢查並做記錄",
+        "optionPairs": [
+          [
+            "worried of",
+            "successful in"
+          ],
+          [
+            "worried about",
+            "successful for"
+          ],
+          [
+            "worried about",
+            "successful in"
+          ],
+          [
+            "afraid of",
+            "successful in"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u5_s1_q7.jpg",
+        "label": "Scene 7 · The postcard stall",
+        "parts": [
+          "Ben is ",
+          "____",
+          " the bright postcards at the park shop, so he chooses one with a sleeping joey."
+        ],
+        "answer": [
+          "fond of"
+        ],
+        "blanks": 1,
+        "explain": "Liking something very much → fond of, not fond with.",
+        "options": [
+          "fond with",
+          "fond of",
+          "full of",
+          "interested on"
+        ],
+        "art_hint": "公園小店明信片架，Ben 拿起一張睡着的小袋鼠卡片"
+      }
+    ],
+    "sub": "Class 6A spends a day at Hillside Wildlife Park"
+  };
+
+  const set2Data = {
+    "scenes": [
+      {
+        "img": "illust/u5_s2_q1.jpg",
+        "label": "Scene 1 · Desert photos and boxes",
+        "parts": [
+          "Lily has covered three boards and still wants more desert photos. She is ",
+          "____",
+          " them, but Ben is already ",
+          "____",
+          " the same stacking job."
+        ],
+        "answer": [
+          "crazy about",
+          "bored with"
+        ],
+        "blanks": 2,
+        "explain": "Loving something very much → crazy about. Tired of something and no longer interested → bored with, not bored of.",
+        "options": [
+          "crazy for · bored with",
+          "interested in · bored with",
+          "crazy about · bored with",
+          "crazy about · bored of"
+        ],
+        "art_hint": "Lily 把沙漠照片貼滿三塊展板，還想再貼；Ben 在一旁重複疊箱子，顯得不耐煩",
+        "optionPairs": [
+          [
+            "crazy for",
+            "bored with"
+          ],
+          [
+            "interested in",
+            "bored with"
+          ],
+          [
+            "crazy about",
+            "bored with"
+          ],
+          [
+            "crazy about",
+            "bored of"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u5_s2_q2.jpg",
+        "label": "Scene 2 · A cardboard hut",
+        "parts": [
+          "The back corner, opposite the tuck shop, is the space ",
+          "____",
+          " the class will build a cardboard outback hut."
+        ],
+        "answer": [
+          "where"
+        ],
+        "blanks": 1,
+        "explain": "A place + extra information about that place → where.",
+        "options": [
+          "where",
+          "which",
+          "when",
+          "that"
+        ],
+        "art_hint": "禮堂後角空地，對面是小食部，同學準備用硬紙板搭建內地小屋"
+      },
+      {
+        "img": "illust/u5_s2_q3.jpg",
+        "label": "Scene 3 · The wet mop",
+        "parts": [
+          "Miss Ho is ",
+          "____",
+          " the pupil who dragged a wet mop across the new floor, because dirty water is ",
+          "____",
+          " a freshly painted mural."
+        ],
+        "answer": [
+          "angry with",
+          "bad for"
+        ],
+        "blanks": 2,
+        "explain": "Cross with a person → angry with, not angry about. Harmful to something → bad for.",
+        "options": [
+          "angry about · bad for",
+          "angry with · bad to",
+          "bored with · bad for",
+          "angry with · bad for"
+        ],
+        "art_hint": "有人把濕拖把拖過新地板，髒水濺向剛畫好的壁畫；Miss Ho 正嚴肅看着那位同學",
+        "optionPairs": [
+          [
+            "angry about",
+            "bad for"
+          ],
+          [
+            "angry with",
+            "bad to"
+          ],
+          [
+            "bored with",
+            "bad for"
+          ],
+          [
+            "angry with",
+            "bad for"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u5_s2_q4.jpg",
+        "label": "Scene 4 · An extra table",
+        "parts": [
+          "The class is ",
+          "____",
+          " the change of plan, and the hall is already ",
+          "____",
+          " paper leaves."
+        ],
+        "answer": [
+          "happy about",
+          "full of"
+        ],
+        "blanks": 2,
+        "explain": "Glad about some news or a result → happy about. Containing a lot of something → full of, not full about.",
+        "options": [
+          "happy with · full of",
+          "happy about · full of",
+          "happy about · full about",
+          "worried about · full of"
+        ],
+        "art_hint": "禮堂多了一張展桌，地上與牆上已滿是紙做的葉子",
+        "optionPairs": [
+          [
+            "happy with",
+            "full of"
+          ],
+          [
+            "happy about",
+            "full of"
+          ],
+          [
+            "happy about",
+            "full about"
+          ],
+          [
+            "worried about",
+            "full of"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u5_s2_q5.jpg",
+        "hard": true,
+        "label": "Scene 5 · The lighting test",
+        "parts": [
+          "After three careful tries, Lily has been ",
+          "____",
+          " the lighting test on the desert board."
+        ],
+        "answer": [
+          "successful in"
+        ],
+        "blanks": 1,
+        "explain": "Doing well in a piece of work → successful in, not successful for.",
+        "options": [
+          "successful in",
+          "successful for",
+          "interested in",
+          "famous for"
+        ],
+        "art_hint": "Lily 在沙漠展板前第三次小心地試燈，燈光終獲合適"
+      },
+      {
+        "img": "illust/u5_s2_q6.jpg",
+        "label": "Scene 6 · The boomerang table",
+        "parts": [
+          "The boomerang table is ",
+          "____",
+          " the younger pupils, and Ben is ",
+          "____",
+          " the throwing marks on the floor plan."
+        ],
+        "answer": [
+          "popular with",
+          "interested in"
+        ],
+        "blanks": 2,
+        "explain": "Liked by a group of people → popular with. Wanting to learn more about something → interested in, not interested on.",
+        "options": [
+          "popular with · interested on",
+          "popular to · interested in",
+          "famous for · interested in",
+          "popular with · interested in"
+        ],
+        "art_hint": "回力鏢展桌前圍着較年幼的同學；Ben 低頭看平面圖上的投擲標記",
+        "optionPairs": [
+          [
+            "popular with",
+            "interested on"
+          ],
+          [
+            "popular to",
+            "interested in"
+          ],
+          [
+            "famous for",
+            "interested in"
+          ],
+          [
+            "popular with",
+            "interested in"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u5_s2_q7.jpg",
+        "hard": true,
+        "label": "Scene 7 · A painted rock",
+        "parts": [
+          "Visitors soon learn that this hall is ",
+          "____",
+          " its giant painted Uluru on the back wall."
+        ],
+        "answer": [
+          "famous for"
+        ],
+        "blanks": 1,
+        "explain": "Known widely because of something → famous for, not famous in.",
+        "options": [
+          "famous in",
+          "popular with",
+          "famous for",
+          "full of"
+        ],
+        "art_hint": "禮堂後牆有一幅巨大的烏魯魯畫，訪客駐足觀看"
+      }
+    ],
+    "sub": "Class 6A builds an Australia exhibition in the school hall"
+  };
+
+  const set3Data = {
+    "scenes": [
+      {
+        "img": "illust/u5_s3_q1.jpg",
+        "label": "Scene 1 · Early-morning sport",
+        "parts": [
+          "The Sydney class is ",
+          "____",
+          " early-morning sport, so they wave from the playground before lessons begin."
+        ],
+        "answer": [
+          "fond of"
+        ],
+        "blanks": 1,
+        "explain": "Liking something very much → fond of, not fond with.",
+        "options": [
+          "fond of",
+          "fond with",
+          "full of",
+          "afraid of"
+        ],
+        "art_hint": "悉尼同學在上課前於操場揮手，身上仍是早運動的服裝"
+      },
+      {
+        "img": "illust/u5_s3_q2.jpg",
+        "hard": true,
+        "label": "Scene 2 · Time and a short stretch",
+        "parts": [
+          "Miss Ho is ",
+          "____",
+          " the time difference, but a short stretch before the call is ",
+          "____",
+          " sleepy pupils."
+        ],
+        "answer": [
+          "worried about",
+          "good for"
+        ],
+        "blanks": 2,
+        "explain": "Feeling uneasy about a problem → worried about, not worried of. Helpful or healthy for someone → good for.",
+        "options": [
+          "worried of · good for",
+          "worried about · good at",
+          "afraid of · good for",
+          "worried about · good for"
+        ],
+        "art_hint": "Miss Ho 看着時差說明；鏡頭前有同學在視像通話前做簡單伸展",
+        "optionPairs": [
+          [
+            "worried of",
+            "good for"
+          ],
+          [
+            "worried about",
+            "good at"
+          ],
+          [
+            "afraid of",
+            "good for"
+          ],
+          [
+            "worried about",
+            "good for"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u5_s3_q3.jpg",
+        "label": "Scene 3 · On the screen",
+        "parts": [
+          "The computer room is the place ",
+          "____",
+          " the two classes meet on screen, and Miss Ho is ",
+          "____",
+          " Ben’s clear introduction."
+        ],
+        "answer": [
+          "where",
+          "pleased with"
+        ],
+        "blanks": 2,
+        "explain": "A place + extra information about that place → where. Satisfied with a person or their work → pleased with, not pleased about.",
+        "options": [
+          "which · pleased with",
+          "where · pleased with",
+          "where · pleased about",
+          "when · pleased with"
+        ],
+        "art_hint": "電腦室投影出兩班同學的畫面，Ben 正在做清楚的開場介紹，Miss Ho 顯得很滿意",
+        "optionPairs": [
+          [
+            "which",
+            "pleased with"
+          ],
+          [
+            "where",
+            "pleased with"
+          ],
+          [
+            "where",
+            "pleased about"
+          ],
+          [
+            "when",
+            "pleased with"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u5_s3_q4.jpg",
+        "label": "Scene 4 · A sudden echo",
+        "parts": [
+          "One Sydney pupil is ",
+          "____",
+          " the sudden echo on the speakers and covers her ears for a moment."
+        ],
+        "answer": [
+          "afraid of"
+        ],
+        "blanks": 1,
+        "explain": "Feeling fear before a noun → afraid of, not afraid to.",
+        "options": [
+          "afraid to",
+          "angry with",
+          "afraid of",
+          "bored with"
+        ],
+        "art_hint": "揚聲器忽然發出回音，一位悉尼同學掩着耳朵"
+      },
+      {
+        "img": "illust/u5_s3_q5.jpg",
+        "hard": true,
+        "label": "Scene 5 · Harbour photos and a weak signal",
+        "parts": [
+          "Lily is ",
+          "____",
+          " the Sydney harbour photos, which look a little like Victoria Harbour, but she is already ",
+          "____",
+          " a long list of formal greetings, and a weak wireless signal is ",
+          "____",
+          " a clear conversation."
+        ],
+        "answer": [
+          "excited about",
+          "bored with",
+          "bad for"
+        ],
+        "blanks": 3,
+        "explain": "Looking forward to something with energy → excited about, not excited with. Tired of something → bored with. Harmful to something → bad for.",
+        "options": [
+          "excited with · bored with · bad for",
+          "excited about · bored with · bad for",
+          "excited about · bored of · bad for",
+          "excited about · bored with · bad to"
+        ],
+        "art_hint": "螢幕上是悉尼海港照片，有人覺得有點像維多利亞港；桌上有一長列正式問候語；訊號格顯示微弱",
+        "optionPairs": [
+          [
+            "excited with",
+            "bored with",
+            "bad for"
+          ],
+          [
+            "excited about",
+            "bored with",
+            "bad for"
+          ],
+          [
+            "excited about",
+            "bored of",
+            "bad for"
+          ],
+          [
+            "excited about",
+            "bored with",
+            "bad to"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u5_s3_q6.jpg",
+        "label": "Scene 6 · Extra minutes",
+        "parts": [
+          "The Sydney pupils are ",
+          "____",
+          " the extra ten minutes, and Ben is ",
+          "____",
+          " their school garden on the screen."
+        ],
+        "answer": [
+          "happy about",
+          "interested in"
+        ],
+        "blanks": 2,
+        "explain": "Glad about some news or a result → happy about. Wanting to learn more about something → interested in, not interested on.",
+        "options": [
+          "happy about · interested on",
+          "pleased with · interested in",
+          "happy about · interested in",
+          "happy with · interested in"
+        ],
+        "art_hint": "通話加時十分鐘，Ben 看着螢幕上的校園園圃，顯得很投入",
+        "optionPairs": [
+          [
+            "happy about",
+            "interested on"
+          ],
+          [
+            "pleased with",
+            "interested in"
+          ],
+          [
+            "happy about",
+            "interested in"
+          ],
+          [
+            "happy with",
+            "interested in"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u5_s3_q7.jpg",
+        "label": "Scene 7 · The microphone",
+        "parts": [
+          "The Sydney teacher is ",
+          "____",
+          " a pupil who keeps turning off the microphone, and she asks him to stop."
+        ],
+        "answer": [
+          "angry with"
+        ],
+        "blanks": 1,
+        "explain": "Cross with a person → angry with, not angry about.",
+        "options": [
+          "angry with",
+          "angry about",
+          "bored with",
+          "afraid of"
+        ],
+        "art_hint": "一位同學一再關掉麥克風，悉尼老師正嚴肅地請他停止"
+      }
+    ],
+    "sub": "Class 6A joins a live video call with a class in Sydney"
+  };
+
+  const set4Data = {
+    "scenes": [
+      {
+        "img": "illust/u5_s4_q1.jpg",
+        "label": "Scene 1 · Tide and rock pools",
+        "parts": [
+          "The warden has been ",
+          "____",
+          " the morning tide check, and the rock pools are ",
+          "____",
+          " tiny crabs."
+        ],
+        "answer": [
+          "successful in",
+          "full of"
+        ],
+        "blanks": 2,
+        "explain": "Doing well in a piece of work → successful in, not successful for. Containing a lot of something → full of, not full about.",
+        "options": [
+          "successful for · full of",
+          "successful in · full about",
+          "interested in · full of",
+          "successful in · full of"
+        ],
+        "art_hint": "海邊岩石水窪裏有許多小蟹；護管員剛完成早晨潮汐檢查",
+        "optionPairs": [
+          [
+            "successful for",
+            "full of"
+          ],
+          [
+            "successful in",
+            "full about"
+          ],
+          [
+            "interested in",
+            "full of"
+          ],
+          [
+            "successful in",
+            "full of"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u5_s4_q2.jpg",
+        "label": "Scene 2 · The shore walk",
+        "parts": [
+          "The gentle shore walk is ",
+          "____",
+          " families with young children."
+        ],
+        "answer": [
+          "popular with"
+        ],
+        "blanks": 1,
+        "explain": "Liked by a group of people → popular with.",
+        "options": [
+          "popular to",
+          "popular with",
+          "famous for",
+          "fond of"
+        ],
+        "art_hint": "平緩的岸邊步道上，許多帶着年幼孩子的家庭在走"
+      },
+      {
+        "img": "illust/u5_s4_q3.jpg",
+        "hard": true,
+        "label": "Scene 3 · The wooden jetty",
+        "parts": [
+          "The wooden jetty is the point ",
+          "____",
+          " the class steps into the water, and Lily is ",
+          "____",
+          " calm, clear shallows."
+        ],
+        "answer": [
+          "where",
+          "fond of"
+        ],
+        "blanks": 2,
+        "explain": "A place + extra information about that place → where. Liking something very much → fond of, not fond with.",
+        "options": [
+          "which · fond of",
+          "where · fond with",
+          "where · fond of",
+          "when · fond of"
+        ],
+        "art_hint": "木碼頭是同學下水處；Lily 喜歡平靜清澈的淺水",
+        "optionPairs": [
+          [
+            "which",
+            "fond of"
+          ],
+          [
+            "where",
+            "fond with"
+          ],
+          [
+            "where",
+            "fond of"
+          ],
+          [
+            "when",
+            "fond of"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u5_s4_q4.jpg",
+        "label": "Scene 4 · Sea stars on the sand",
+        "parts": [
+          "A short rest on the sand is ",
+          "____",
+          " tired swimmers, and Ben is ",
+          "____",
+          " sea stars — he has already counted eight."
+        ],
+        "answer": [
+          "good for",
+          "crazy about"
+        ],
+        "blanks": 2,
+        "explain": "Helpful or healthy for someone → good for. Loving something very much → crazy about.",
+        "options": [
+          "good for · crazy about",
+          "good for · crazy for",
+          "good at · crazy about",
+          "bad for · crazy about"
+        ],
+        "art_hint": "泳後同學在沙上休息；Ben 已數到八隻海星，顯得非常着迷",
+        "optionPairs": [
+          [
+            "good for",
+            "crazy about"
+          ],
+          [
+            "good for",
+            "crazy for"
+          ],
+          [
+            "good at",
+            "crazy about"
+          ],
+          [
+            "bad for",
+            "crazy about"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u5_s4_q5.jpg",
+        "label": "Scene 5 · The marked area",
+        "parts": [
+          "Miss Ho is ",
+          "____",
+          " the class for staying in the marked swimming area."
+        ],
+        "answer": [
+          "pleased with"
+        ],
+        "blanks": 1,
+        "explain": "Satisfied with a person → pleased with, not pleased about.",
+        "options": [
+          "pleased about",
+          "happy about",
+          "pleased with",
+          "popular with"
+        ],
+        "art_hint": "同學留在標示的游泳區內，Miss Ho 顯得滿意"
+      },
+      {
+        "img": "illust/u5_s4_q6.jpg",
+        "label": "Scene 6 · Parrotfish and a long wait",
+        "parts": [
+          "This stretch of coast is ",
+          "____",
+          " its bright parrotfish, but Lily is already ",
+          "____",
+          " the long wait on the hot sand."
+        ],
+        "answer": [
+          "famous for",
+          "bored with"
+        ],
+        "blanks": 2,
+        "explain": "Known widely because of something → famous for, not famous in. Tired of something → bored with, not bored of.",
+        "options": [
+          "famous in · bored with",
+          "famous for · bored with",
+          "famous for · bored of",
+          "popular with · bored with"
+        ],
+        "art_hint": "海岸以色彩鮮艷的鸚嘴魚聞名；Lily 在炎熱沙上等候已久，顯得不耐煩",
+        "optionPairs": [
+          [
+            "famous in",
+            "bored with"
+          ],
+          [
+            "famous for",
+            "bored with"
+          ],
+          [
+            "famous for",
+            "bored of"
+          ],
+          [
+            "popular with",
+            "bored with"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u5_s4_q7.jpg",
+        "hard": true,
+        "label": "Scene 7 · Crisp packets and a late session",
+        "parts": [
+          "The warden is ",
+          "____",
+          " a visitor who dropped crisp packets near the nests, but the class is still ",
+          "____",
+          " the late snorkelling session."
+        ],
+        "answer": [
+          "angry with",
+          "excited about"
+        ],
+        "blanks": 2,
+        "explain": "Cross with a person → angry with, not angry about. Looking forward to something with energy → excited about, not excited with.",
+        "options": [
+          "angry about · excited about",
+          "angry with · excited with",
+          "angry with · worried about",
+          "angry with · excited about"
+        ],
+        "art_hint": "有訪客在巢穴附近丟下薯片袋，護管員正嚴肅地看着他；同學仍期待稍後的浮潛",
+        "optionPairs": [
+          [
+            "angry about",
+            "excited about"
+          ],
+          [
+            "angry with",
+            "excited with"
+          ],
+          [
+            "angry with",
+            "worried about"
+          ],
+          [
+            "angry with",
+            "excited about"
+          ]
+        ]
+      }
+    ],
+    "sub": "Class 6A camps at Seabreeze Coastal Reserve"
+  };
+
+  const set5Data = {
+    "scenes": [
+      {
+        "img": "illust/u5_s5_q1.jpg",
+        "label": "Scene 1 · Finished notes",
+        "parts": [
+          "The class is ",
+          "____",
+          " the finished documentary notes, but dim lighting is ",
+          "____",
+          " tired eyes during a long quiz."
+        ],
+        "answer": [
+          "happy about",
+          "bad for"
+        ],
+        "blanks": 2,
+        "explain": "Glad about some news or a result → happy about. Harmful to someone or something → bad for.",
+        "options": [
+          "happy about · bad for",
+          "happy with · bad for",
+          "happy about · bad to",
+          "excited about · bad for"
+        ],
+        "art_hint": "紀錄片筆記已整理好，同學顯得高興；室內燈光偏暗，有人在長測驗中揉眼睛",
+        "optionPairs": [
+          [
+            "happy about",
+            "bad for"
+          ],
+          [
+            "happy with",
+            "bad for"
+          ],
+          [
+            "happy about",
+            "bad to"
+          ],
+          [
+            "excited about",
+            "bad for"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u5_s5_q2.jpg",
+        "label": "Scene 2 · Scores and a short break",
+        "parts": [
+          "Ben is ",
+          "____",
+          " the quiz scores, and Miss Ho is ",
+          "____",
+          " the short lunch break before Open Day begins, because the queue for pineapple buns is already long."
+        ],
+        "answer": [
+          "interested in",
+          "worried about"
+        ],
+        "blanks": 2,
+        "explain": "Wanting to learn more about something → interested in, not interested on. Feeling uneasy about a problem → worried about, not worried of.",
+        "options": [
+          "interested on · worried about",
+          "interested in · worried of",
+          "interested in · worried about",
+          "successful in · worried about"
+        ],
+        "art_hint": "Ben 看着測驗分數；Miss Ho 看着很短的午休時間表，小食部前已有人排隊買菠蘿包，顯得擔心",
+        "optionPairs": [
+          [
+            "interested on",
+            "worried about"
+          ],
+          [
+            "interested in",
+            "worried of"
+          ],
+          [
+            "interested in",
+            "worried about"
+          ],
+          [
+            "successful in",
+            "worried about"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u5_s5_q3.jpg",
+        "label": "Scene 3 · The library corner",
+        "parts": [
+          "The library corner is the spot ",
+          "____",
+          " parents will try the kangaroo quiz."
+        ],
+        "answer": [
+          "where"
+        ],
+        "blanks": 1,
+        "explain": "A place + extra information about that place → where.",
+        "options": [
+          "which",
+          "where",
+          "when",
+          "that"
+        ],
+        "art_hint": "圖書館一角擺好袋鼠問答攤，等候家長來試玩"
+      },
+      {
+        "img": "illust/u5_s5_q4.jpg",
+        "hard": true,
+        "label": "Scene 4 · The practice round",
+        "parts": [
+          "Lily has already been ",
+          "____",
+          " the practice round, and the prize wheel is ",
+          "____",
+          " little brothers and sisters."
+        ],
+        "answer": [
+          "successful in",
+          "popular with"
+        ],
+        "blanks": 2,
+        "explain": "Doing well in a piece of work → successful in, not successful for. Liked by a group of people → popular with.",
+        "options": [
+          "successful for · popular with",
+          "successful in · popular to",
+          "interested in · popular with",
+          "successful in · popular with"
+        ],
+        "art_hint": "Lily 已順利完成練習回合；獎品輪盤前圍着小弟弟小妹妹",
+        "optionPairs": [
+          [
+            "successful for",
+            "popular with"
+          ],
+          [
+            "successful in",
+            "popular to"
+          ],
+          [
+            "interested in",
+            "popular with"
+          ],
+          [
+            "successful in",
+            "popular with"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u5_s5_q5.jpg",
+        "label": "Scene 5 · The quiz buzzer",
+        "parts": [
+          "One parent is ",
+          "____",
+          " the sudden buzzer and gives a little jump."
+        ],
+        "answer": [
+          "afraid of"
+        ],
+        "blanks": 1,
+        "explain": "Feeling fear before a noun → afraid of, not afraid to.",
+        "options": [
+          "afraid to",
+          "afraid of",
+          "angry with",
+          "fond of"
+        ],
+        "art_hint": "問答攤蜂鳴器忽然響起，一位家長嚇得微微一跳"
+      },
+      {
+        "img": "illust/u5_s5_q6.jpg",
+        "label": "Scene 6 · The answer box",
+        "parts": [
+          "The answer box is ",
+          "____",
+          " folded slips, and Miss Ho is ",
+          "____",
+          " Lily for keeping the queue fair."
+        ],
+        "answer": [
+          "full of",
+          "pleased with"
+        ],
+        "blanks": 2,
+        "explain": "Containing a lot of something → full of, not full about. Satisfied with a person → pleased with, not pleased about.",
+        "options": [
+          "full of · pleased with",
+          "full about · pleased with",
+          "full of · pleased about",
+          "full of · angry with"
+        ],
+        "art_hint": "答案箱裏裝滿摺好的紙條；Lily 維持隊伍整齊，Miss Ho 顯得滿意",
+        "optionPairs": [
+          [
+            "full of",
+            "pleased with"
+          ],
+          [
+            "full about",
+            "pleased with"
+          ],
+          [
+            "full of",
+            "pleased about"
+          ],
+          [
+            "full of",
+            "angry with"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u5_s5_q7.jpg",
+        "hard": true,
+        "label": "Scene 7 · Tricky cards",
+        "parts": [
+          "By the afternoon, the booth is ",
+          "____",
+          " its tricky true-or-false cards."
+        ],
+        "answer": [
+          "famous for"
+        ],
+        "blanks": 1,
+        "explain": "Known widely because of something → famous for, not famous in.",
+        "options": [
+          "famous in",
+          "popular with",
+          "full of",
+          "famous for"
+        ],
+        "art_hint": "攤位以較難的是非題卡出名，下午仍有家長圍觀"
+      }
+    ],
+    "sub": "Class 6A runs an Open Day quiz booth after a documentary"
+  };
+
+  function boot(SETS) {
+  const SET_KEY = "u5-story-set-i";
+  function resolveSet() {
+    const q = parseInt(new URLSearchParams(location.search).get("set"), 10);
+    if (q >= 1 && q <= SETS.length) return { index: q - 1, forced: true };
+    let i = parseInt(localStorage.getItem(SET_KEY) || "0", 10);
+    if (isNaN(i) || i < 0) i = 0;
+    return { index: i % SETS.length, forced: false };
+  }
+  const resolved = resolveSet();
+  const setIndex = resolved.index;
+  const forced = resolved.forced;
+  const activeSet = SETS[setIndex];
+  const scenes = activeSet.scenes;
+  document.getElementById("story-sub").textContent = activeSet.sub;
+  if (forced) document.getElementById("btn-again").href="unit5-story/?set=" + (setIndex + 1);
+  let idx = 0, selectedIdx = null, locked = false, correctCount = 0;
+  const qNum = document.getElementById("q-num");
+  const dots = document.getElementById("dots");
+  const beatLabel = document.getElementById("beat-label");
+  const art = document.getElementById("art");
+  const prompt = document.getElementById("prompt");
+  const choices = document.getElementById("choices");
+  const btnCheck = document.getElementById("btn-check");
+  const btnNext = document.getElementById("btn-next");
+  const btnClear = document.getElementById("btn-clear");
+  const toast = document.getElementById("toast");
+  function fillValues() {
+    const s = scenes[idx];
+    if (selectedIdx == null) return null;
+    if (s.optionPairs) return s.optionPairs[selectedIdx];
+    return [s.options[selectedIdx]];
+  }
+  function renderDots() {
+    dots.innerHTML = "";
+    scenes.forEach((_, i) => {
+      const el = document.createElement("span");
+      if (i < idx) el.className = "done";
+      else if (i === idx) el.className = "now";
+      dots.appendChild(el);
+    });
+  }
+  function renderPrompt(values, mode) {
+    const s = scenes[idx];
+    let bi = 0, html = "";
+    s.parts.forEach((p) => {
+      if (p === "____") {
+        const v = values && values[bi] != null ? values[bi] : "____";
+        let cls = "blank";
+        if (values && values[bi] != null) {
+          if (mode === "ok") cls = "blank ok";
+          else if (mode === "soft") cls = "blank soft-answer";
+          else cls = "blank filled";
+        }
+        html += '<span class="' + cls + '">' + v + "</span>";
+        bi++;
+      } else html += p;
+    });
+    if (s.hard) html += '<span class="hard-badge">Harder</span>';
+    prompt.innerHTML = html;
+  }
+  function render() {
+    const s = scenes[idx];
+    locked = false; selectedIdx = null;
+    qNum.textContent = "Scene " + (idx + 1) + " / " + scenes.length;
+    beatLabel.textContent = s.label;
+    art.src = s.img;
+    if (window.ImgFrame) ImgFrame.apply(art, s.frame);
+    art.alt = s.label;
+    renderDots(); renderPrompt(null);
+    toast.hidden = true; btnNext.hidden = true; btnCheck.disabled = true; btnClear.disabled = false;
+    choices.innerHTML = "";
+    s.options.forEach((opt, i) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "choice" + (s.blanks > 1 ? " block" : "");
+      btn.textContent = opt;
+      btn.addEventListener("click", () => {
+        if (locked) return;
+        selectedIdx = i;
+        [...choices.children].forEach((c) => c.classList.remove("selected"));
+        btn.classList.add("selected");
+        renderPrompt(fillValues());
+        btnCheck.disabled = false;
+      });
+      choices.appendChild(btn);
+    });
+  }
+  btnClear.addEventListener("click", () => {
+    if (locked) return;
+    selectedIdx = null;
+    [...choices.children].forEach((c) => c.classList.remove("selected"));
+    renderPrompt(null); btnCheck.disabled = true; toast.hidden = true;
+  });
+  btnCheck.addEventListener("click", () => {
+    if (selectedIdx == null || locked) return;
+    locked = true;
+    const s = scenes[idx];
+    const vals = fillValues();
+    const ok = vals && vals.length === s.answer.length && vals.every((v, i) => v === s.answer[i]);
+    [...choices.children].forEach((c, i) => {
+      c.disabled = true;
+      const pair = s.optionPairs ? s.optionPairs[i] : [s.options[i]];
+      const isAns = pair.every((v, j) => v === s.answer[j]);
+      if (isAns) c.classList.add("correct");
+      else if (i === selectedIdx && !ok) c.classList.add("wrong");
+    });
+    if (ok) { correctCount++; renderPrompt(s.answer, "ok"); showToast(toast, "Nice!", s.explain, "ok"); }
+    else { renderPrompt(s.answer, "soft"); showToast(toast, "Not quite", s.explain, "bad"); }
+    btnCheck.disabled = true; btnClear.disabled = true; btnNext.hidden = false;
+    btnNext.textContent = idx === scenes.length - 1 ? "Finish" : "Next page";
+  });
+  btnNext.addEventListener("click", () => {
+    if (idx >= scenes.length - 1) {
+      if (!forced) {
+        localStorage.setItem(SET_KEY, String((setIndex + 1) % SETS.length));
+        if (window.Badges) {
+          var grammarRewards = Badges.recordGrammarSession('unit5', 'story');
+          if (window.GrammarProgress) GrammarProgress.show(grammarRewards);
+        }
+      }
+      document.getElementById("game").hidden = true;
+      document.getElementById("done").hidden = false;
+      document.getElementById("score-big").textContent = correctCount + " / " + scenes.length;
+      return;
+    }
+    idx++; render();
+  });
+  render();
+
+  }
+  var bakedSets = [set1Data, set2Data, set3Data, set4Data, set5Data];
+  function startPublished(sets) { boot(sets && sets.length ? sets : bakedSets); }
+  if (window.GrammarLive) {
+    GrammarLive.load({ unit: 'unit5', mode: 'story' }).then(startPublished, function () { startPublished(null); });
+  } else {
+    startPublished(null);
+  }
+})();
+</script>
+</body>
+</html>

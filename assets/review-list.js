@@ -10,7 +10,7 @@ window.ReviewList = (function () {
 
   function groups(registry, mastery, options) {
     var opts = options || {};
-    var practicePage = opts.practicePage || 'practice/letters.html';
+    var practicePage = opts.practicePage || 'practice/letters/';
     var cardPrefix = opts.cardPrefix || '';
     if (!registry || !mastery || typeof registry.listUnits !== 'function') return [];
     var data = mastery.load();
@@ -27,7 +27,7 @@ window.ReviewList = (function () {
         var n = index + 1;
         var href = open
           ? (practicePage + '?unit=' + encodeURIComponent(unit.id) + '&focus=' + encodeURIComponent(word.key))
-          : (cardPrefix + unit.id + '/index.html#c' + n);
+          : (cardPrefix + unit.id + '/#c' + n);
         words.push({ key: word.key, en: word.en, zh: word.zh, href: href });
       });
       if (words.length) out.push({ id: unit.id, label: unit.label, words: words });

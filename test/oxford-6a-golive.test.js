@@ -8,6 +8,10 @@ const root = path.join(__dirname, '..');
 const grammar = path.join(root, 'practice', 'grammar');
 
 function read(name) {
+  const nested = name.endsWith('.html')
+    ? path.join(grammar, name.replace(/\.html$/, ''), 'index.html')
+    : '';
+  if (nested && fs.existsSync(nested)) return fs.readFileSync(nested, 'utf8');
   return fs.readFileSync(path.join(grammar, name), 'utf8');
 }
 
@@ -15,8 +19,8 @@ test('grammar hub and practice entry open Units 5 and 6 and Boss covers Units 1�
   const hub = read('grammar-hub.html');
   const entry = read('practice-entry.html');
   const boss = read('boss.html');
-  assert.match(hub, /href="unit5-hub.html"/);
-  assert.match(hub, /href="unit6-hub.html"/);
+  assert.match(hub, /href="unit5-hub\/"/);
+  assert.match(hub, /href="unit6-hub\/"/);
   assert.match(hub, /Units 1–6/);
   assert.match(hub, /5 sets × 12/);
   assert.match(entry, /Units 1–6/);
@@ -51,13 +55,13 @@ test('Unit 5 and 6 chat uses approved names and the same quest chrome', () => {
   });
   ['unit5', 'unit6'].forEach(unit => {
     ['story', 'join', 'hub'].forEach(mode => {
-      assert.equal(fs.existsSync(path.join(grammar, unit + '-' + mode + '.html')), true, unit + ' ' + mode);
+      assert.equal(fs.existsSync(path.join(grammar, unit + '-' + mode, 'index.html')), true, unit + ' ' + mode);
     });
     const hub = read(unit + '-hub.html');
-    assert.match(hub, /href="\.\.\/\.\.\/index\.html">← Back to packs/);
-    assert.match(hub, new RegExp('href="' + unit + '-story\\.html"'));
-    assert.match(hub, new RegExp('href="' + unit + '-chat\\.html"'));
-    assert.match(hub, new RegExp('href="' + unit + '-join\\.html"'));
+    assert.match(hub, /href="\.\.\/\.\.\/">← Back to packs/);
+    assert.match(hub, new RegExp('href="' + unit + '-story/"'));
+    assert.match(hub, new RegExp('href="' + unit + '-chat/"'));
+    assert.match(hub, new RegExp('href="' + unit + '-join/"'));
   });
 });
 

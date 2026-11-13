@@ -1,127 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Edit lessons · English Revision</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/studio.css?v=51" />
-  <script src="assets/supabase-public.js?v=1"></script>
-  <script src="assets/vendor/supabase.js?v=1"></script>
+<meta charset="utf-8">
+<link rel="canonical" href="studio/">
+<script>location.replace("studio/" + location.search + location.hash)</script>
+<meta http-equiv="refresh" content="0;url=studio/">
+<title>Redirect</title>
 </head>
-<body class="studio-page">
-  <main class="studio-wrap">
-    <p><a id="studio-back" class="studio-back" href="index.html">Back to website</a></p>
-    <h1>Edit lessons</h1>
-    <p>New draft adds the next card or question. A person checks the yellow rows and types in the cells. Publish is the only step students see, after a refresh. Select English words in an example and press Highlight this to mark them.</p>
-    <p>To change a photo, press Change photo and choose one from the library. Upload a new photo there if it is not listed yet. Then Publish.</p>
-    <div class="studio-filters">
-      <label>Book <select id="filter-book"></select></label>
-      <label>Series <select id="filter-series"></select></label>
-      <label>Level <select id="filter-level"></select></label>
-      <label>Term <select id="filter-term"></select></label>
-      <label id="filter-unit-label">Unit <select id="filter-unit"></select></label>
-      <label>Open <select id="filter-section">
-        <option value="home">Home</option>
-        <option value="unit">Unit</option>
-        <option value="resources">Resources</option>
-        <option value="site">Site</option>
-      </select></label>
-      <label id="filter-part-label">Part <select id="filter-part">
-        <option value="doors">Doors</option>
-        <option value="revision">Revision</option>
-        <option value="practice">Practice</option>
-      </select></label>
-      <label id="filter-source-label" hidden>Source <select id="filter-source">
-        <option value="unit">This unit</option>
-        <option value="mixed">Mixed topic</option>
-        <option value="boss">Boss round</option>
-      </select></label>
-      <label id="filter-site-label" hidden>Site <select id="filter-site">
-        <option value="badges">Badges</option>
-        <option value="ignore">Ignore words</option>
-      </select></label>
-      <label>Kind <select id="filter-kind">
-        <option value="vocab">Vocab</option>
-        <option value="grammar">Grammar</option>
-      </select></label>
-      <label id="filter-mode-label">Mode <select id="filter-mode"></select></label>
-      <label id="filter-difficulty-label" hidden>Difficulty <select id="filter-difficulty">
-        <option value="easy">Easy</option>
-        <option value="hard">Hard</option>
-      </select></label>
-      <label id="filter-set-label" hidden>Set <select id="filter-set">
-        <option value="1">Set 1</option>
-        <option value="2">Set 2</option>
-        <option value="3">Set 3</option>
-        <option value="4">Set 4</option>
-        <option value="5">Set 5</option>
-      </select></label>
-      <label>Show <select id="filter-review">
-        <option value="all">All rows</option>
-        <option value="draft">Drafts to check</option>
-        <option value="published">Published</option>
-      </select></label>
-      <label class="studio-path-jump">Path
-        <input id="studio-path-jump" type="text" spellcheck="false" autocomplete="off" placeholder="oxford/Livingoxfordenglish/bookA/p6/unit6/revision/vocab/4" aria-label="Open a table from its path">
-      </label>
-      <label class="studio-search">Search
-        <input id="studio-search" type="search" spellcheck="false" autocomplete="off" placeholder="Korea" aria-label="Search all lessons" aria-autocomplete="list" aria-expanded="false" aria-controls="studio-suggest">
-        <div id="studio-suggest" class="studio-suggest" role="listbox" hidden></div>
-      </label>
-      <div class="studio-filter-actions">
-        <button type="button" id="studio-library-open">Library</button>
-        <button type="button" id="studio-copy-path">Copy path</button>
-        <button type="button" id="studio-new" class="studio-new">New draft<svg class="studio-plus" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1.2v9.6M1.2 6h9.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
-      </div>
-    </div>
-    <p id="studio-note" class="studio-note" role="status" hidden></p>
-    <p id="studio-empty" hidden>No cards in this lesson yet.</p>
-    <div id="studio-badges" class="studio-badges" hidden></div>
-    <div id="letter-ignore" class="studio-ignore" hidden>
-      <div class="studio-ignore-field">
-        <span>Ignore words</span>
-        <div id="letter-ignore-words"></div>
-      </div>
-      <button type="button" id="letter-ignore-save">Save ignore words</button>
-      <p>These words stay visible on Easy and Hard. Words of one or two letters stay visible either way. Save applies the list to the practice page.</p>
-    </div>
-    <div class="studio-scroll">
-      <table class="studio-table" id="studio-table">
-        <colgroup>
-          <col class="col-num" />
-          <col class="col-photo" />
-          <col class="col-audio" />
-          <col class="col-text" />
-          <col class="col-text" />
-          <col class="col-text" />
-          <col class="col-text" />
-          <col class="col-pair" />
-          <col class="col-pair" />
-          <col class="col-state" />
-          <col class="col-actions" />
-        </colgroup>
-        <thead id="studio-head">
-          <tr>
-            <th>#</th><th>Photo</th><th>Audio</th><th>English</th><th>中文</th><th>Part of speech</th><th>Syllables</th>
-            <th>Example<br>例句</th><th>Advanced<br>進階例句</th><th>State</th><th></th>
-          </tr>
-        </thead>
-        <tbody id="studio-rows"></tbody>
-      </table>
-    </div>
-  </main>
-  <script src="assets/letter-rules.js?v=2"></script>
-  <script src="assets/img-frame.js?v=13"></script>
-  <script src="assets/site-pages.js?v=4"></script>
-  <script src="practice/badges.js?v=2"></script>
-  <script src="assets/studio-draft.js?v=26"></script>
-  <script src="assets/studio-pages.js?v=9"></script>
-  <script src="assets/studio-resources.js?v=1"></script>
-  <script src="assets/studio-library.js?v=9"></script>
-  <script src="assets/studio-badges.js?v=2"></script>
-  <script src="assets/studio.js?v=60"></script>
+<body>
+<p><a href="studio/">Continue</a></p>
 </body>
 </html>

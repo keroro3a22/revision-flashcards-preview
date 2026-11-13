@@ -1,83 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Profile · English Revision</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&family=Noto+Sans+TC:wght@500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/site.css?v=56" />
-  <link rel="stylesheet" href="assets/profile.css?v=5" />
-  <link rel="stylesheet" href="assets/account.css?v=6" />
-  <script>
-  try {
-    if ((localStorage.getItem('p6-sb-auth') || '').indexOf('access_token') === -1) {
-      location.replace('account.html');
-    }
-  } catch (e) {}
-  </script>
-  <script src="assets/supabase-public.js?v=1"></script>
-  <script src="assets/progress-sync.js?v=3"></script>
-  <script src="practice/badges.js?v=2"></script>
-  <script src="assets/profile.js?v=6"></script>
-  <script src="assets/account.js?v=13"></script>
+<meta charset="utf-8">
+<link rel="canonical" href="profile/">
+<script>location.replace("profile/" + location.search + location.hash)</script>
+<meta http-equiv="refresh" content="0;url=profile/">
+<title>Redirect</title>
 </head>
-<body class="account-page">
-  <header class="topbar">
-    <div class="topbar-inner">
-      <a class="brand" href="index.html">English Revision</a>
-      <div class="topbar-account">
-        <nav class="nav-plain" aria-label="Account">
-          <a class="nav-jump" id="account-link" href="account.html">Sign in / Sign up</a>
-        </nav>
-        <div id="profile-slot" class="profile-slot"></div>
-      </div>
-    </div>
-  </header>
-  <main class="profile-page">
-    <h1>Your account</h1>
-    <div class="profile-tabs" role="tablist" aria-label="Account sections">
-      <button type="button" id="tab-profile" role="tab" aria-selected="true" aria-controls="profile-form">Profile</button>
-      <button type="button" id="tab-account" role="tab" aria-selected="false" aria-controls="account-settings">Account setting</button>
-    </div>
-    <form id="profile-form" class="account-card" data-panel="profile">
-      <p class="account-lead">Choose a picture and the name shown on this device.</p>
-      <div class="settings-avatars" id="settings-avatars"></div>
-      <p class="account-actions"><a class="btn btn-ink" href="badges.html">Badges 徽章</a></p>
-      <label class="account-field" for="settings-name">
-        <span class="account-field-name">Name <span lang="zh-Hant">名字</span></span>
-        <input id="settings-name" name="name" type="text" autocomplete="nickname" maxlength="16" required />
-      </label>
-      <p id="profile-message" class="account-hint" role="status" hidden></p>
-      <div class="account-actions">
-        <button type="submit" class="btn btn-primary">Save profile</button>
-      </div>
-    </form>
-    <form id="account-settings" class="account-card" data-panel="account" hidden>
-      <p class="account-lead">Username is what you type to sign in. Password needs to be entered twice.</p>
-      <label class="account-field" for="settings-username">
-        <span class="account-field-name">Username <span lang="zh-Hant">使用者名稱</span></span>
-        <input id="settings-username" name="username" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20" required />
-      </label>
-      <p class="account-hint">Changing the username changes the name you use to sign in.</p>
-      <label class="account-field" for="settings-password">
-        <span class="account-field-name">New password <span lang="zh-Hant">新密碼</span></span>
-        <input id="settings-password" name="password" type="password" autocomplete="new-password" minlength="6" maxlength="72" />
-      </label>
-      <label class="account-field" for="settings-password-2">
-        <span class="account-field-name">Repeat password <span lang="zh-Hant">再輸入密碼</span></span>
-        <input id="settings-password-2" name="password2" type="password" autocomplete="new-password" minlength="6" maxlength="72" />
-      </label>
-      <p class="account-hint">Leave both password boxes blank to keep the current password.</p>
-      <p id="settings-message" class="account-hint" role="status" hidden></p>
-      <div class="account-actions">
-        <button type="submit" class="btn btn-primary" id="settings-save">Save account</button>
-      </div>
-    </form>
-    <div class="account-actions profile-logout">
-      <button type="button" class="btn btn-ink" id="account-signout">Log out</button>
-    </div>
-  </main>
+<body>
+<p><a href="profile/">Continue</a></p>
 </body>
 </html>

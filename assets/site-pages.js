@@ -167,10 +167,10 @@
 
   function hrefFor(place, unitId, doorId) {
     var term = 'term=' + encodeURIComponent(place.term || 'first');
-    if (doorId === 'revision-vocab') return unitId + '/index.html?' + term;
-    if (doorId === 'revision-grammar') return unitId + '/grammar.html?' + term;
-    if (doorId === 'practice-vocab') return 'practice/index.html?unit=' + encodeURIComponent(unitId) + '&' + term;
-    return 'practice/grammar/' + unitId + '-hub.html?' + term;
+    if (doorId === 'revision-vocab') return unitId + '/?' + term;
+    if (doorId === 'revision-grammar') return unitId + '/grammar/?' + term;
+    if (doorId === 'practice-vocab') return 'practice/?unit=' + encodeURIComponent(unitId) + '&' + term;
+    return 'practice/grammar/' + unitId + '-hub/?' + term;
   }
 
   function resolveUnit(place, unitId, pages, lessons, practices) {
@@ -323,7 +323,7 @@
       var cover = unit.items.filter(function (item) { return item.id === 'revision-vocab'; })[0];
       var src = (cover && cover.image) || imageSrc(unit.id, cardPhoto(cardsFor(catalog.lessons, unit.id, 'vocab'), 'first'));
       var heading = 'Unit ' + n + (unit.title ? ' · ' + unit.title : '');
-      var open = cover && cover.ready ? cover.href : 'index.html';
+      var open = cover && cover.ready ? cover.href : './';
       article.innerHTML = '<div class="pack-cover">' + (src ? '<img src="' + escapeHtml(src) + '" alt="" width="640" height="480" loading="lazy" />' : '') + '</div>'
         + '<div class="pack-body"><h3>' + escapeHtml(heading) + '</h3>'
         + (unit.packNote ? '<p>' + escapeHtml(unit.packNote) + '</p>' : '')
@@ -394,7 +394,8 @@
     var sub = root.document.getElementById('unit-sub');
     if (sub) sub.textContent = 'Unit ' + n + ' · ' + title;
     var practice = root.document.querySelector('.prac-header h1');
-    if (practice && /grammar\/unit\d+-hub\.html$/.test(root.location.pathname || '')) {
+    var practicePath = String(root.location.pathname || '').replace(/\/index\.html$/, '').replace(/\.html$/, '').replace(/\/$/, '');
+    if (practice && /grammar\/unit\d+-hub$/.test(practicePath)) {
       practice.textContent = 'Unit ' + n + ' · ' + title;
     }
   }

@@ -27,7 +27,7 @@ test('page banners scroll away with the page', () => {
 
 test('vocab and grammar revision banners show the play hint', () => {
   ['unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6'].forEach((unit) => {
-    ['index.html', 'grammar.html'].forEach((file) => {
+    ['index.html', 'grammar/index.html'].forEach((file) => {
       const html = fs.readFileSync(path.join(unit, file), 'utf8');
       const header = html.slice(html.indexOf('<header'), html.indexOf('</header>'));
       assert.match(header, new RegExp('<p class="sub">' + HINT.replace(/\./g, '\\.') + '</p>'), unit + '/' + file);

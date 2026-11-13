@@ -254,7 +254,7 @@ function buildLibrary() {
   for (let n = 1; n <= 6; n++) {
     const unit = 'unit' + n;
     extractCards(unit + '/index.html').forEach(function (card) { cards.push(cardRow(unit, 'vocab', card)); });
-    extractCards(unit + '/grammar.html').forEach(function (card) { cards.push(cardRow(unit, 'grammar', card)); });
+    extractCards(unit + '/grammar/index.html').forEach(function (card) { cards.push(cardRow(unit, 'grammar', card)); });
   }
   const practice = [];
   for (let n = 1; n <= 6; n++) {
@@ -264,12 +264,12 @@ function buildLibrary() {
   addVocab(practice, 'mixed', loadPack('practice/data/mixed.js', 'PRACTICE_MIXED'));
   ['unit1', 'unit2', 'unit3', 'unit4'].forEach(function (unit) {
     ['story', 'chat', 'join'].forEach(function (mode) {
-      const sets = grammar.extractSets(read('practice/grammar/' + unit + '-' + mode + '.html'));
+      const sets = grammar.extractSets(read('practice/grammar/' + unit + '-' + mode + '/index.html'));
       if (sets.length !== 5) throw new Error(unit + ' ' + mode + ' has ' + sets.length + ' sets');
       grammarRows(unit, mode, sets).forEach(function (row) { practice.push(row); });
     });
   });
-  grammarRows('mixed', 'boss', grammar.extractSets(read('practice/grammar/boss.html'))).forEach(function (row) {
+  grammarRows('mixed', 'boss', grammar.extractSets(read('practice/grammar/boss/index.html'))).forEach(function (row) {
     practice.push(row);
   });
   const seen = new Set();
