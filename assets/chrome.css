@@ -45,6 +45,7 @@
   width: auto;
   max-width: min(46vw, 11rem);
   object-fit: contain;
+  background: transparent;
 }
 .site-chrome .place-nav {
   display: flex;
