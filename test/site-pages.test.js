@@ -75,9 +75,15 @@ test('Book A keeps its title and the saved cover', () => {
   assert.equal(kept.items[2].image, 'unit1/thumb_08.jpg');
 });
 
-test('grammar practice stays closed when that unit has no game page', () => {
+test('grammar practice opens for Units 5 and 6 and stays closed without a game page', () => {
   const unit = pages.resolveUnit(bookA, 'unit5', [], [], [{ unit_id: 'unit5', track: 'grammar' }]);
-  assert.equal(unit.items.filter((item) => item.id === 'practice-grammar')[0].ready, false);
+  const door = unit.items.filter((item) => item.id === 'practice-grammar')[0];
+  assert.equal(door.ready, true);
+  assert.equal(door.href, 'practice/grammar/unit5-hub.html?term=first');
+  const unit6 = pages.resolveUnit(bookA, 'unit6', [], [], [{ unit_id: 'unit6', track: 'grammar' }]);
+  assert.equal(unit6.items.filter((item) => item.id === 'practice-grammar')[0].ready, true);
+  const closed = pages.resolveUnit(bookA, 'unit7', [], [], [{ unit_id: 'unit7', track: 'grammar' }]);
+  assert.equal(closed.items.filter((item) => item.id === 'practice-grammar')[0].ready, false);
 });
 
 test('a saved crop stays on the automatic photo', () => {

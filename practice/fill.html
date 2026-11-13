@@ -76,38 +76,41 @@
 <script src="mastery.js"></script>
 <script src="badges.js"></script>
 <script src="common.js"></script>
-<script src="practice-live.js?v=4"></script>
+<script src="../assets/vendor/supabase.js?v=1"></script>
+<script src="practice-live.js?v=5"></script>
+<script src="fill-sets.js?v=1"></script>
 <script>
 (function () {
   const C = window.PracticeCommon;
   function start() {
   const M = window.Mastery;
   const B = window.Badges;
+  const F = window.FillSets;
   const { id: unitId, pack } = C.loadUnit();
   document.getElementById('to-hub').href = C.hubLink(unitId);
   document.getElementById('again').href = C.practiceLink('fill.html', unitId);
 
-  function orderItems(list) {
-    const focus = new URLSearchParams(location.search).get('focus');
-    const copy = list.slice();
-    if (!focus) return C.shuffle(copy);
-    copy.sort(function (a, b) {
-      if (a.id === focus) return -1;
-      if (b.id === focus) return 1;
-      return 0;
-    });
-    return copy;
+  function sourceItems(m) {
+    if (m === 'hard') {
+      return (pack && pack.fillInHard && pack.fillInHard.length)
+        ? pack.fillInHard.slice()
+        : ((pack && pack.fillIn) || []).slice();
+    }
+    return ((pack && pack.fillIn) || []).slice();
   }
 
-  function loadItems(m) {
-    if (m === 'hard') {
-      const hard = (pack && pack.fillInHard && pack.fillInHard.length)
-        ? pack.fillInHard
-        : (pack && pack.fillIn) || [];
-      return orderItems(hard);
-    }
-    const easy = (pack && pack.fillIn) || [];
-    return orderItems(easy);
+  function openRound(m) {
+    mode = m;
+    const grouped = F.group(sourceItems(m));
+    const storageKey = F.key(unitId, m);
+    const focus = new URLSearchParams(location.search).get('focus');
+    const place = F.locate(grouped, focus) || F.resume(F.read(localStorage, storageKey), grouped);
+    sets = grouped;
+    setIndex = place.set;
+    items = grouped[setIndex] || [];
+    idx = items.length ? Math.min(place.item, items.length - 1) : 0;
+    if (items.length) F.write(localStorage, storageKey, { set: setIndex, item: idx, finished: false });
+    return storageKey;
   }
 
   function syncHardLock() {
@@ -119,14 +122,17 @@
   }
 
   let mode = 'easy';
-  let items = loadItems(mode);
+  let sets = [];
+  let setIndex = 0;
+  let items = [];
+  let idx = 0;
+  let roundKey = openRound(mode);
   if (!items.length) {
     document.getElementById('game').hidden = true;
     document.getElementById('empty').hidden = false;
     return;
   }
 
-  let idx = 0;
   let placed = null;
   let selectedChip = null;
   let locked = false;
@@ -149,11 +155,9 @@
   });
 
   function setMode(m) {
-    mode = m;
     document.getElementById('diff-easy').classList.toggle('is-on', m === 'easy');
     document.getElementById('diff-hard').classList.toggle('is-on', m === 'hard');
-    items = loadItems(mode);
-    idx = 0;
+    roundKey = openRound(m);
     correctCount = 0;
     document.getElementById('done').hidden = true;
     document.getElementById('game').hidden = false;
@@ -382,6 +386,7 @@
   btnNext.addEventListener('click', function () {
     idx += 1;
     if (idx >= items.length) {
+      F.write(localStorage, roundKey, { set: setIndex, item: 0, finished: true });
       document.getElementById('game').hidden = true;
       document.getElementById('done').hidden = false;
       document.getElementById('score-big').textContent = correctCount + ' / ' + items.length;
@@ -389,6 +394,7 @@
       syncHardLock();
       return;
     }
+    F.write(localStorage, roundKey, { set: setIndex, item: idx, finished: false });
     render();
   });
 

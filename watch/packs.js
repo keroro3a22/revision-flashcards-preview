@@ -111,7 +111,7 @@ window.WATCH_PACKS = {
         "zh": "旱災",
         "pos": "名詞 n.",
         "audio": "../unit2/audio/audio_01.mp3",
-        "img": "../unit2/thumb_01.png"
+        "img": "../unit2/thumb_01.jpg?v=4"
       },
       {
         "n": 2,
@@ -120,7 +120,7 @@ window.WATCH_PACKS = {
         "zh": "地震",
         "pos": "名詞 n.",
         "audio": "../unit2/audio/audio_02.mp3",
-        "img": "../unit2/thumb_02.jpg"
+        "img": "../unit2/thumb_02.jpg?v=4"
       },
       {
         "n": 3,
@@ -138,7 +138,7 @@ window.WATCH_PACKS = {
         "zh": "山泥傾瀉",
         "pos": "名詞 n.",
         "audio": "../unit2/audio/audio_04.mp3",
-        "img": "../unit2/thumb_04.png"
+        "img": "../unit2/thumb_04.jpg?v=4"
       },
       {
         "n": 5,
@@ -147,7 +147,7 @@ window.WATCH_PACKS = {
         "zh": "海嘯",
         "pos": "名詞 n.",
         "audio": "../unit2/audio/audio_05.mp3",
-        "img": "../unit2/thumb_05.jpg"
+        "img": "../unit2/thumb_05.jpg?v=4"
       },
       {
         "n": 6,
@@ -183,7 +183,7 @@ window.WATCH_PACKS = {
         "zh": "摧毀建築物",
         "pos": "動詞短語 v.",
         "audio": "../unit2/audio/audio_09.mp3",
-        "img": "../unit2/thumb_09.jpg"
+        "img": "../unit2/thumb_09.jpg?v=4"
       },
       {
         "n": 10,

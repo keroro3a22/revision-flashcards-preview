@@ -16,9 +16,30 @@
   if (term === 'first' || term === 'second') body.setAttribute('data-term', term);
   if (!book || !series || !term || !level || !unit || !cfg.url || !cfg.key) return;
 
+  function officialLessonImage(url) {
+    if (!url || term !== 'first') return url;
+    var text = String(url);
+    var file = text.split('?')[0].split('/').pop();
+    var vocab = {
+      'u2_vocab_01_drought.jpg': 'thumb_01.jpg?v=4',
+      'u2_vocab_02_earthquake.jpg': 'thumb_02.jpg?v=4',
+      'u2_vocab_04_landslip.jpg': 'thumb_04.jpg?v=4',
+      'u2_vocab_05_tsunami.jpg': 'thumb_05.jpg?v=4',
+      'u2_vocab_09_destroy.jpg': 'thumb_09.jpg?v=4'
+    };
+    if (vocab[file]) return vocab[file];
+    if (file === 'u5-grammar-13-1x1.png') return 'thumb_29.jpg?v=4';
+    return text;
+  }
+
   function show(cards) {
     if (!cards || !cards.length || typeof window.applyLessonCards !== 'function') return;
-    window.applyLessonCards(cards);
+    window.applyLessonCards(cards.map(function (card) {
+      if (!card || !card.img) return card;
+      var next = Object.assign({}, card);
+      next.img = officialLessonImage(card.img);
+      return next;
+    }));
   }
 
   function load() {

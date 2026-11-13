@@ -9,7 +9,7 @@ window.PRACTICE_MIXED = {
   words: [
     { key: 'unit1:elderly', form: 'verb', en: 'visit an elderly home', zh: '探訪安老院', img: '../unit1/thumb_10.png', audio: '../unit1/audio/audio_10.mp3' },
     { key: 'unit1:donate', form: 'verb', en: 'donate money', zh: '捐錢', img: '../unit1/thumb_06.png', audio: '../unit1/audio/audio_06.mp3' },
-    { key: 'unit2:drought', form: 'noun', en: 'a drought', zh: '旱災', img: '../unit2/thumb_01.png', audio: '../unit2/audio/audio_01.mp3' },
+    { key: 'unit2:drought', form: 'noun', en: 'a drought', zh: '旱災', img: '../unit2/thumb_01.jpg?v=4', audio: '../unit2/audio/audio_01.mp3' },
     { key: 'unit2:flood', form: 'noun', en: 'a flood', zh: '水災', img: '../unit2/thumb_03.png', audio: '../unit2/audio/audio_03.mp3' },
     { key: 'unit3:mix', form: 'verb', en: 'mix', zh: '混合', img: '../unit3/thumb_03.png', audio: '../unit3/audio/audio_03.mp3' },
     { key: 'unit3:boil', form: 'verb', en: 'boil', zh: '煮沸', img: '../unit3/thumb_10.png', audio: '../unit3/audio/audio_10.mp3' },
@@ -210,7 +210,7 @@ window.PRACTICE_MIXED = {
   matching: [
     { id: 'mx-k1', wordKey: 'unit1:elderly', en: 'visit an elderly home', zh: '探訪安老院', form: 'verb', img: '../unit1/thumb_10.png' },
     { id: 'mx-k2', wordKey: 'unit1:donate', en: 'donate money', zh: '捐錢', form: 'verb', img: '../unit1/thumb_06.png' },
-    { id: 'mx-k3', wordKey: 'unit2:drought', en: 'a drought', zh: '旱災', form: 'noun', img: '../unit2/thumb_01.png' },
+    { id: 'mx-k3', wordKey: 'unit2:drought', en: 'a drought', zh: '旱災', form: 'noun', img: '../unit2/thumb_01.jpg?v=4' },
     { id: 'mx-k4', wordKey: 'unit2:flood', en: 'a flood', zh: '水災', form: 'noun', img: '../unit2/thumb_03.png' },
     { id: 'mx-k5', wordKey: 'unit3:mix', en: 'mix', zh: '混合', form: 'verb', img: '../unit3/thumb_03.png' },
     { id: 'mx-k6', wordKey: 'unit3:boil', en: 'boil', zh: '煮沸', form: 'verb', img: '../unit3/thumb_10.png' },

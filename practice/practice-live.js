@@ -8,8 +8,11 @@ window.PracticeLive = (function () {
   function question(row) {
     var body = row.published || {};
     var options = String(body.options || '').split('|').map(function (part) { return part.trim(); }).filter(Boolean);
+    var setNo = Number(row.set_no);
+    if (!isFinite(setNo) || setNo < 1) setNo = Number(body.set) || 1;
     return {
-      id: body.id || ('live-' + row.level_name + '-' + row.n),
+      id: body.id || ('live-' + row.level_name + '-' + setNo + '-' + row.n),
+      set: setNo,
       wordKey: body.wordKey || '',
       sentence: body.sentence || body.prompt || '',
       blank: body.blank || '______',
@@ -26,20 +29,31 @@ window.PracticeLive = (function () {
     };
   }
 
+  function bySet(rows) {
+    return (rows || []).slice().sort(function (a, b) {
+      var aSet = Number(a.set_no) || Number(a.published && a.published.set) || 1;
+      var bSet = Number(b.set_no) || Number(b.published && b.published.set) || 1;
+      if (aSet !== bSet) return aSet - bSet;
+      return Number(a.n) - Number(b.n);
+    });
+  }
+
   function apply(unit, mode, rows) {
     var pack = window[packName(unit)];
     if (!pack || !rows || !rows.length) return;
+    var ordered = bySet(rows);
     if (mode === 'fill') {
       pack.fillIn = [];
       pack.fillInHard = [];
-      rows.forEach(function (row) {
+      ordered.forEach(function (row) {
         var item = question(row);
         if (row.level_name === 'hard') pack.fillInHard.push(item);
         else pack.fillIn.push(item);
       });
       return;
     }
-    var items = rows.map(question);
+    var items = ordered.map(question);
+    items.forEach(function (item) { delete item.set; });
     if (mode === 'letters') pack.missingLetters = items;
     else if (mode === 'match') pack.matching = items;
     else if (mode === 'timed') pack.timed = items;
@@ -72,9 +86,10 @@ window.PracticeLive = (function () {
       auth: { persistSession: false, autoRefreshToken: false }
     });
     return client.from('practice_items_live')
-      .select('n,level_name,published')
+      .select('n,level_name,set_no,published')
       .eq('book', here.book).eq('series', here.series).eq('term', here.term).eq('level', here.level)
       .eq('unit_id', here.unit).eq('track', 'vocab').eq('mode', mode)
+      .order('set_no', { ascending: true })
       .order('n', { ascending: true })
       .then(function (result) {
         if (!result.error && result.data && result.data.length) apply(unit, mode, result.data);

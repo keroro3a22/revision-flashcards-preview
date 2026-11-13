@@ -235,7 +235,7 @@ window.PRACTICE_UNIT5 = {
       "en": "famous for",
       "zh": "以……聞名",
       "audio": "../unit5/audio/audio_29.mp3?v=2",
-      "img": "../unit5/thumb_29.jpg?v=2",
+      "img": "../unit5/thumb_29.jpg?v=4",
       "form": "adj. + prep."
     },
     {
@@ -1628,7 +1628,7 @@ window.PRACTICE_UNIT5 = {
       "wordKey": "unit5:famous",
       "en": "famous for",
       "zh": "以……聞名",
-      "img": "../unit5/thumb_29.jpg?v=2",
+      "img": "../unit5/thumb_29.jpg?v=4",
       "form": "adj. + prep."
     },
     {

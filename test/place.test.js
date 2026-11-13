@@ -50,7 +50,10 @@ test('a unit opens revision cards and practice, split into vocab and grammar', (
   });
   assert.equal(groups[0].items[1].href, 'unit1/grammar.html');
   const later = P.entriesFor({ book: 'oxford', level: 'p6', unit: 'unit5' });
-  assert.equal(later[1].items[1].ready, false);
+  assert.equal(later[1].items[1].ready, true);
+  assert.equal(later[1].items[1].href, 'practice/grammar/unit5-hub.html');
+  const bookB = P.entriesFor({ book: 'oxford', series: 'oxford', level: 'p6', term: 'second', unit: 'unit6' });
+  assert.equal(bookB[1].items[1].ready, false);
   const other = P.entriesFor({ book: 'oxford', level: 'p6', unit: 'unit2' });
   assert.notEqual(flat(groups).map((door) => door.image).join('|'), flat(other).map((door) => door.image).join('|'));
 });

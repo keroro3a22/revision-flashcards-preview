@@ -26,6 +26,10 @@
   --bubble-sam: color-mix(in srgb, #7a6bb5 34%, #fff);
   --bubble-mia: color-mix(in srgb, #2aa7b8 36%, #fff);
   --bubble-chef: color-mix(in srgb, #e08a3c 26%, #fff);
+  --bubble-ben: color-mix(in srgb, var(--green) 34%, #fff);
+  --bubble-lily: color-mix(in srgb, var(--sky) 52%, #fff);
+  --bubble-may: color-mix(in srgb, var(--sunny) 58%, #fff);
+  --bubble-mr: color-mix(in srgb, var(--pink) 46%, #fff);
   --white: #ffffff;
   --font-display: "Fredoka", "jf-openhuninn", "Nunito", system-ui, sans-serif;
   --font-text: "Nunito", "jf-openhuninn", "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
@@ -360,6 +364,9 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
 .gc-unit2 h3, .gc-unit2 p { color: var(--navy); }
 .gc-unit3 { background: var(--green); }
 .gc-unit4 { background: var(--pink); }
+.gc-unit5 { background: var(--sunny); }
+.gc-unit5 h3, .gc-unit5 p { color: var(--navy); }
+.gc-unit6 { background: var(--navy); }
 .game-card.coming-soon {
   opacity: 0.52;
   filter: grayscale(0.4);
@@ -675,6 +682,10 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
 .bubble.sam { align-self: flex-end; background: var(--bubble-sam); border-bottom-right-radius: 6px; }
 .bubble.mia { align-self: flex-start; background: var(--bubble-mia); border-bottom-left-radius: 6px; }
 .bubble.chef { align-self: flex-start; background: var(--bubble-chef); border-bottom-left-radius: 6px; }
+.bubble.ben { align-self: flex-end; background: var(--bubble-ben); border-bottom-right-radius: 6px; }
+.bubble.lily { align-self: flex-start; background: var(--bubble-lily); border-bottom-left-radius: 6px; }
+.bubble.may { align-self: flex-end; background: var(--bubble-may); border-bottom-right-radius: 6px; }
+.bubble.mr { align-self: flex-start; background: var(--bubble-mr); border-bottom-left-radius: 6px; }
 
 .bubble .who {
   display: block;

@@ -209,7 +209,7 @@ window.RevisionPlace = (function () {
     var art = cardArt[place.unit] || cardArt.unit1;
     var live = lessonLive(place);
     var unit = place.unit;
-    var grammarPractice = live && /^unit[1-4]$/.test(unit);
+    var grammarPractice = live && /^unit[1-6]$/.test(unit);
     return [
       {
         id: 'revision',
