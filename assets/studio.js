@@ -452,7 +452,7 @@
   }
   var frameDialog = null;
   function shapeRatio(shape) {
-    if (shape === 'match') return 180 / 140;
+    if (shape === 'match') return 1;
     if (shape === 'grammar' || shape === 'chat') return 320 / 220;
     return 1;
   }
@@ -1142,7 +1142,7 @@
     cell.className = 'studio-pair';
     var path = edit('img', row.extra && row.extra.img);
     path.hidden = true;
-    var thumb = thumbButton(photoSrc(row.extra && row.extra.img), row.extra && row.extra.frame, 180 / 140, function () {
+    var thumb = thumbButton(photoSrc(row.extra && row.extra.img), row.extra && row.extra.frame, 1, function () {
       openPhotoFrame({
         src: photoSrc(path.textContent),
         frame: row.extra && row.extra.frame,

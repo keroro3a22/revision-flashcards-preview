@@ -19,7 +19,7 @@ test('each match round is exactly 5 pairs and 10 cards', () => {
   assert.equal(hub.includes('6 cards · 3 pairs'), false);
   assert.match(page, /Ten cards, five pairs/);
   assert.match(page, /board-ten/);
-  assert.match(page, /practice\.css\?v=8/);
+  assert.match(page, /practice\.css\?v=14/);
   assert.match(page, /match-logic\.js\?v=2/);
   assert.match(page, /class="match-fit"/);
   assert.equal(page.includes('board-six'), false);
