@@ -118,7 +118,7 @@ test('the preview uses a fixed crop window instead of a zoom slider', () => {
   assert.match(css, /studio-thumb-btn[\s\S]*background:\s*#1d3358/);
 });
 
-test('vocab picture cards use the square lesson ratio on white', () => {
+test('vocab picture cards use the square lesson ratio in a white well', () => {
   const match = fs.readFileSync('practice/match.html', 'utf8');
   const studio = fs.readFileSync('assets/studio.js', 'utf8');
   const frameJs = fs.readFileSync('assets/img-frame.js', 'utf8');
@@ -130,8 +130,9 @@ test('vocab picture cards use the square lesson ratio on white', () => {
   assert.match(match, /ImgFrame\.apply\([\s\S]*?,\s*1\)/);
   assert.match(studio, /shape === 'match'\) return 1/);
   const face = css.slice(css.indexOf('.mcard-front.face-zh {'), css.indexOf('.mcard-front.face-zh .face-badge'));
-  assert.match(face, /background:\s*#fff/);
-  assert.doesNotMatch(face, /var\(--sky\)/);
+  assert.match(face, /background:\s*var\(--sky\)/);
+  const badge = css.slice(css.indexOf('.mcard-front.face-zh .face-badge {'), css.indexOf('.mcard-front.face-zh .mcard-photo'));
+  assert.match(badge, /color:\s*var\(--sky\)/);
   const photo = css.slice(css.indexOf('.mcard-front.face-zh .mcard-photo {'), css.indexOf('.mcard-front.face-zh .mcard-photo img'));
   assert.match(photo, /aspect-ratio:\s*1/);
   assert.match(photo, /background:\s*#fff/);

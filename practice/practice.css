@@ -852,13 +852,13 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
   hyphens: manual;
 }
 .mcard-front.face-zh {
-  background: #fff;
+  background: var(--sky);
   color: var(--ink);
   container-type: size;
 }
 .mcard-front.face-zh .face-badge {
   background: var(--navy);
-  color: #fff;
+  color: var(--sky);
 }
 .mcard-front.face-zh .mcard-photo {
   position: relative;
