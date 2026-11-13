@@ -60,9 +60,75 @@
       button.disabled = true;
       button.textContent = 'Download locked';
       card.appendChild(button);
+      enableTestPay(button, row);
       list.appendChild(card);
     });
     box.appendChild(list);
+  }
+
+  function paymentBase() {
+    if (typeof root.PAYMENT_API === 'string') return root.PAYMENT_API.replace(/\/$/, '');
+    return '';
+  }
+
+  function enableTestPay(button, row) {
+    fetch(paymentBase() + '/api/payments/health').then(function (response) {
+      if (!response.ok) return null;
+      return response.json();
+    }).then(function (body) {
+      if (!body || !body.ok) return;
+      button.disabled = false;
+      button.textContent = 'Test payment';
+      button.addEventListener('click', function () { startTestPay(button, row); });
+    }).catch(function () {});
+  }
+
+  function startTestPay(button, row) {
+    button.disabled = true;
+    button.textContent = 'Opening test payment…';
+    fetch(paymentBase() + '/api/payments/checkout', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ resourceId: row.id })
+    }).then(function (response) {
+      return response.json().then(function (body) { return { ok: response.ok, body: body }; });
+    }).then(function (result) {
+      if (!result.ok) throw new Error(result.body.error || 'The test payment could not be started.');
+      return openCheckout(result.body);
+    }).catch(function (error) {
+      button.disabled = false;
+      button.textContent = 'Test payment';
+      window.alert(error.message || 'The test payment could not be started.');
+    });
+  }
+
+  function openCheckout(data) {
+    var success = location.origin + '/payment-return.html';
+    function go(payments) {
+      payments.redirectToCheckout({
+        env: 'sandbox',
+        mode: 'payment',
+        intent_id: data.intentId,
+        client_secret: data.clientSecret,
+        currency: data.currency || 'HKD',
+        country_code: data.countryCode || 'HK',
+        successUrl: success
+      });
+    }
+    if (root.AirwallexComponentsSDK) {
+      return root.AirwallexComponentsSDK.init({ env: 'sandbox', enabledElements: ['payments'] }).then(function (pack) {
+        go(pack.payments);
+      });
+    }
+    return new Promise(function (resolve, reject) {
+      var script = document.createElement('script');
+      script.src = 'https://static.airwallex.com/components/sdk/v1/index.js';
+      script.onload = function () { resolve(); };
+      script.onerror = function () { reject(new Error('The payment page did not load.')); };
+      document.head.appendChild(script);
+    }).then(function () {
+      return root.AirwallexComponentsSDK.init({ env: 'sandbox', enabledElements: ['payments'] });
+    }).then(function (pack) { go(pack.payments); });
   }
 
   function mount(place, box) {
