@@ -122,11 +122,21 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   box-sizing: border-box;
 }
 .brand {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 1.1rem;
   color: var(--navy);
   letter-spacing: -0.02em;
+}
+.brand img {
+  display: block;
+  height: 3.4rem;
+  width: auto;
+  max-width: min(46vw, 11rem);
+  object-fit: contain;
 }
 .nav-plain {
   display: flex;

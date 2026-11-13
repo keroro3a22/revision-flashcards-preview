@@ -30,11 +30,21 @@
   box-sizing: border-box;
 }
 .site-chrome .brand {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
   font-family: var(--font-display, "Fredoka", sans-serif);
   font-weight: 600;
   font-size: 1.1rem;
   letter-spacing: -0.02em;
   white-space: nowrap;
+}
+.site-chrome .brand img {
+  display: block;
+  height: 3.4rem;
+  width: auto;
+  max-width: min(46vw, 11rem);
+  object-fit: contain;
 }
 .site-chrome .place-nav {
   display: flex;

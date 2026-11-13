@@ -12,7 +12,7 @@
     { id: 'practice-grammar', group: 'practice', groupLabel: 'Practice', label: 'Grammar', note: 'Open the grammar games.', photo: 'second', track: 'grammar', source: 'practice' }
   ];
   var HOME = [
-    { id: 'hero', label: 'English Revision', note: 'Flashcards, games, quizzes', image: '' },
+    { id: 'hero', label: 'Play and Learn Club', note: 'Flashcards, games, quizzes', image: '' },
     { id: 'hear', label: 'Hear it', note: 'Tap Play on a card. Practise the word aloud with the syllable breaks.', image: 'covers/unit4.jpg' },
     { id: 'see', label: 'See it', note: 'Look at the picture for the word. Tap it to enlarge and notice the scene.', image: 'unit3/thumb_01.jpg' },
     { id: 'read', label: 'Read it', note: 'Read a textbook sentence and a Form 1 sentence. Traditional Chinese is under each one.', image: 'unit1/thumb_01.jpg' }
