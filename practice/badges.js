@@ -1,6 +1,10 @@
 /**
  * Completion badges. localStorage key p6-flash-badges-v1.
- * Earned from finished practice sessions. Cross-unit badges use Units 1–4 only.
+ * Earned from finished practice sessions.
+ * A different set is another unit, or another authored set in the same unit.
+ * Completed set ids are stored on each unit as sets[mode][setKey].
+ * When setId is omitted, the set key is the unit id.
+ * An older save that only has a boolean, and no set list, counts as one set.
  * No points, totals, or streaks.
  */
 window.Badges = (function () {
@@ -68,54 +72,32 @@ window.Badges = (function () {
    * Phrase Speller: https://www.irasutoya.com/2013/01/blog-post_2739.html
    * Match Master: https://www.irasutoya.com/2017/07/blog-post_978.html
    * Timed Hero: https://www.irasutoya.com/2012/12/blog-post_271.html
-   * Hard Challenger: https://www.irasutoya.com/2020/01/blog-post_69.html
+   * Hard Challenger: https://www.irasutoya.com/2013/04/blog-post_6839.html
    * All-rounder: https://www.irasutoya.com/2014/11/blog-post_364.html
-   * Unit 1 completer: https://www.irasutoya.com/2014/09/blog-post_58.html
-   * Unit 2 completer: https://www.irasutoya.com/2012/11/blog-post_6715.html
-   * Unit 3 completer: https://www.irasutoya.com/2013/09/blog-post_3570.html
-   * Unit 4 completer: https://www.irasutoya.com/2013/09/blog-post_4255.html
-   * Dictation 3 completer: https://www.irasutoya.com/2013/02/blog-post_4647.html
+   * Sentence Linker: https://www.irasutoya.com/2016/01/blog-post_14.html
+   * Story Reader, Inference Ace, and Boss Beater use their saved pictures.
+   * Chat Practiser has no picture yet (image is empty until art is added).
    */
   function catalog() {
-    const globals = [
-      { id: 'starter', title: '起步新手', english: 'First Steps', image: 'assets/badges/first-steps.png', detail: 'Finish any one practice session.' },
-      { id: 'letters-phrase', title: '詞組拼寫手', english: 'Phrase Speller', image: 'assets/badges/phrase-speller.png', detail: 'Finish Missing Letters Easy for Unit 1, Unit 2, Unit 3, and Unit 4, with every answer correct.' },
-      { id: 'match-pro', title: '配對高手', english: 'Match Master', image: 'assets/badges/match-master.png', detail: 'Finish Memory Match once for Unit 1, Unit 2, Unit 3, and Unit 4.' },
-      { id: 'timed-brave', title: '限時勇者', english: 'Timed Hero', image: 'assets/badges/timed-hero.png', detail: 'Finish Timed Challenge once for Unit 1, Unit 2, Unit 3, and Unit 4.' },
-      { id: 'hard-challenger', title: 'Hard 挑戰者', english: 'Hard Challenger', image: 'assets/badges/hard-challenger.png', detail: 'Finish Sentence Fill Hard and Missing Letters Hard for Unit 1, Unit 2, Unit 3, and Unit 4, with at least 90% correct in each session.' },
-      { id: 'all-rounder', title: '全能練習生', english: 'All-rounder', image: 'assets/badges/all-rounder.png', detail: 'In Mixed topic, finish Sentence Fill, Missing Letters, Memory Match, and Timed Challenge once each.' }
-    ];
-    const unitArt = {
-      unit1: 'assets/badges/unit-completer-unit1.png',
-      unit2: 'assets/badges/unit-completer-unit2.png',
-      unit3: 'assets/badges/unit-completer-unit3.png',
-      unit4: 'assets/badges/unit-completer-unit4.png',
-      dictation3: 'assets/badges/unit-completer-dictation3.png'
-    };
-    const units = ORDER.map(function (u) {
-      return {
-        id: 'unit-done:' + u.id,
-        title: 'Unit 完成者',
-        english: 'Unit Completer',
-        image: unitArt[u.id],
-        unitLabel: u.label,
-        detail: 'Finish Sentence Fill, Missing Letters, and Memory Match for ' + u.label + '.'
-      };
-    });
-    const grammar = [
-      { id: 'grammar-story', title: '故事閱讀員', english: 'Story Reader', image: 'assets/badges/story-reader.png', detail: 'Finish Story Book in Units 1–4.' },
+    return [
+      { id: 'starter', title: '起步新手', english: 'First Steps', image: 'assets/badges/first-steps.png', detail: 'Finish any one practice, including Grammar.' },
+      { id: 'match-pro', title: '配對高手', english: 'Match Master', image: 'assets/badges/match-master.png', detail: 'Finish 3 different Memory Match sets.' },
+      { id: 'timed-brave', title: '限時勇者', english: 'Timed Hero', image: 'assets/badges/timed-hero.png', detail: 'Finish 3 different Timed Challenge sets.' },
+      { id: 'grammar-story', title: '故事閱讀員', english: 'Story Reader', image: 'assets/badges/story-reader.png', detail: 'Finish 3 different Story Book sets.' },
+      { id: 'grammar-join', title: '組句高手', english: 'Sentence Linker', image: 'assets/badges/sentence-linker.png', detail: 'Finish 3 different Join the sentences sets.' },
+      { id: 'grammar-chat', title: '對話練習生', english: 'Chat Practiser', image: '', detail: 'Finish 3 different Chat Quest sets.' },
       { id: 'grammar-inference', title: '推理高手', english: 'Inference Ace', image: 'assets/badges/inference-ace.png', detail: 'Get the Chat Quest mystery right 3 times.' },
-      { id: 'grammar-join', title: '組句高手', english: 'Sentence Linker', image: 'assets/badges/sentence-linker.png', detail: 'Finish Join the sentences in Units 1–4.' },
-      { id: 'grammar-boss', title: 'Boss 挑戰者', english: 'Boss Beater', image: 'assets/badges/boss-beater.png', detail: 'Clear Boss Round with at least 1 life left.' }
+      { id: 'grammar-boss', title: 'Boss 挑戰者', english: 'Boss Beater', image: 'assets/badges/boss-beater.png', detail: 'Clear Boss Round with at least 1 life left.' },
+      { id: 'all-rounder', title: '全能練習生', english: 'All-rounder', image: 'assets/badges/all-rounder.png', detail: 'Finish Fill, Letters, Match, and Timed once each, in the same book or in Mixed topic.' },
+      { id: 'letters-phrase', title: '詞組拼寫手', english: 'Phrase Speller', image: 'assets/badges/phrase-speller.png', detail: 'Finish 3 different Missing Letters sets, all correct each time.' },
+      { id: 'hard-challenger', title: 'Hard 挑戰者', english: 'Hard Challenger', image: 'assets/badges/hard-challenger.png', detail: 'Finish 3 different Fill Hard sets and 3 different Letters Hard sets, each at least 90% correct.' }
     ];
-    return globals.concat(units).concat(grammar);
   }
 
   function builtinTarget(id) {
     if (id === 'starter' || id === 'grammar-boss') return 1;
-    if (id.indexOf('unit-done:') === 0) return 3;
-    if (id === 'grammar-inference') return 3;
-    return 4;
+    if (id === 'all-rounder') return 4;
+    return 3;
   }
 
   function targetLimit(id) {
@@ -190,57 +172,111 @@ window.Badges = (function () {
     return presented(raw);
   }
 
-  function unitCount(data, pred) {
-    var count = 0;
-    CROSS_UNITS.forEach(function (id) {
-      if (pred((data.units && data.units[id]) || {})) count += 1;
-    });
-    return count;
-  }
-
   function anyPractice(data) {
+    if (data.grammarBossCleared) return true;
+    if (data.earned && data.earned['grammar-boss']) return true;
     var units = data.units || {};
     return Object.keys(units).some(function (id) {
       var st = units[id] || {};
-      return !!(st.fillEasy || st.fillHard || st.lettersEasy || st.lettersHard || st.match || st.timed);
+      return !!(st.fillEasy || st.fillHard || st.lettersEasy || st.lettersHard || st.match || st.timed
+        || st.grammarStory || st.grammarChat || st.grammarJoin);
     });
+  }
+
+  function bookId(unitId) {
+    if (unitId === 'mixed') return 'mixed';
+    if (/^unit\d+$/.test(String(unitId))) return 'course';
+    return String(unitId);
+  }
+
+  function allRounderCount(data) {
+    var books = {};
+    Object.keys(data.units || {}).forEach(function (unitId) {
+      var st = data.units[unitId] || {};
+      var id = bookId(unitId);
+      if (!books[id]) books[id] = { fill: false, letters: false, match: false, timed: false };
+      if (st.fillEasy || st.fillHard) books[id].fill = true;
+      if (st.lettersEasy || st.lettersHard) books[id].letters = true;
+      if (st.match) books[id].match = true;
+      if (st.timed) books[id].timed = true;
+    });
+    var best = 0;
+    Object.keys(books).forEach(function (id) {
+      var book = books[id];
+      var n = (book.fill ? 1 : 0) + (book.letters ? 1 : 0) + (book.match ? 1 : 0) + (book.timed ? 1 : 0);
+      if (n > best) best = n;
+    });
+    return best;
+  }
+
+  function countSets(data, mode, qualify, legacy) {
+    var total = 0;
+    Object.keys(data.units || {}).forEach(function (unitId) {
+      var st = data.units[unitId] || {};
+      var map = st.sets && st.sets[mode];
+      var listed = 0;
+      if (map && typeof map === 'object' && !Array.isArray(map)) {
+        Object.keys(map).forEach(function (key) {
+          if (qualify(map[key])) listed += 1;
+        });
+      }
+      if (listed > 0) total += listed;
+      else if (legacy(st)) total += 1;
+    });
+    return total;
+  }
+
+  function ratioValue(value) {
+    return typeof value === 'number' ? value : null;
+  }
+
+  function doneValue(value) {
+    return value === true || typeof value === 'number';
   }
 
   function measure(data, id) {
     if (id === 'starter') return anyPractice(data) ? 1 : 0;
-    if (id === 'letters-phrase') return unitCount(data, function (unit) { return meets(unit.lettersEasyBest, 1); });
-    if (id === 'match-pro') return unitCount(data, function (unit) { return !!unit.match; });
-    if (id === 'timed-brave') return unitCount(data, function (unit) { return !!unit.timed; });
-    if (id === 'hard-challenger') {
-      return unitCount(data, function (unit) {
-        return meets(unit.fillHardBest, 0.9) && meets(unit.lettersHardBest, 0.9);
+    if (id === 'letters-phrase') {
+      return countSets(data, 'letters', function (value) {
+        return meets(ratioValue(value), 1);
+      }, function (st) {
+        return meets(st.lettersEasyBest, 1) || meets(st.lettersHardBest, 1);
       });
     }
-    if (id === 'all-rounder') {
-      var mixed = (data.units && data.units.mixed) || {};
-      var count = 0;
-      if (mixed.fillEasy || mixed.fillHard) count += 1;
-      if (mixed.lettersEasy || mixed.lettersHard) count += 1;
-      if (mixed.match) count += 1;
-      if (mixed.timed) count += 1;
-      return count;
+    if (id === 'match-pro') {
+      return countSets(data, 'match', doneValue, function (st) { return !!st.match; });
     }
-    if (id.indexOf('unit-done:') === 0) {
-      var st = (data.units && data.units[id.slice('unit-done:'.length)]) || {};
-      var done = 0;
-      if (st.fillEasy || st.fillHard) done += 1;
-      if (st.lettersEasy || st.lettersHard) done += 1;
-      if (st.match) done += 1;
-      return done;
+    if (id === 'timed-brave') {
+      return countSets(data, 'timed', doneValue, function (st) { return !!st.timed; });
     }
-    if (id === 'grammar-story') return unitCount(data, function (unit) { return !!unit.grammarStory; });
-    if (id === 'grammar-join') return unitCount(data, function (unit) { return !!unit.grammarJoin; });
+    if (id === 'hard-challenger') {
+      var fill = countSets(data, 'fillHard', function (value) {
+        return meets(ratioValue(value), 0.9);
+      }, function (st) { return meets(st.fillHardBest, 0.9); });
+      var letters = countSets(data, 'lettersHard', function (value) {
+        return meets(ratioValue(value), 0.9);
+      }, function (st) { return meets(st.lettersHardBest, 0.9); });
+      return Math.min(fill, letters);
+    }
+    if (id === 'all-rounder') return allRounderCount(data);
+    if (id === 'grammar-story') {
+      return countSets(data, 'grammarStory', doneValue, function (st) { return !!st.grammarStory; });
+    }
+    if (id === 'grammar-join') {
+      return countSets(data, 'grammarJoin', doneValue, function (st) { return !!st.grammarJoin; });
+    }
+    if (id === 'grammar-chat') {
+      return countSets(data, 'grammarChat', doneValue, function (st) { return !!st.grammarChat; });
+    }
     if (id === 'grammar-inference') {
       var wins = Number(data.grammarInferenceWins);
       if (!isFinite(wins) || wins < 0) return 0;
       return Math.floor(wins);
     }
-    if (id === 'grammar-boss') return data.earned && data.earned[id] ? 1 : 0;
+    if (id === 'grammar-boss') {
+      if (data.grammarBossCleared) return 1;
+      return data.earned && data.earned[id] ? 1 : 0;
+    }
     return 0;
   }
 
@@ -406,6 +442,7 @@ window.Badges = (function () {
     return !!((st.fillEasy || st.fillHard) && (st.lettersEasy || st.lettersHard) && st.match);
   }
 
+  /* Grammar modes in the practice-percent meter for Units 1–4. Badge scoring is separate and counts every unit. */
   var CROSS_UNITS = ['unit1', 'unit2', 'unit3', 'unit4'];
 
   function sessionRatio(stats) {
@@ -427,83 +464,93 @@ window.Badges = (function () {
     if (typeof st[key] !== 'number' || ratio > st[key]) st[key] = ratio;
   }
 
-  function recordSession(unitId, activity, difficulty, stats) {
+  function setKey(unitId, setId) {
+    if (setId == null || setId === '') return String(unitId);
+    return String(setId);
+  }
+
+  function rememberSet(st, mode, key, ratio) {
+    if (!st.sets || typeof st.sets !== 'object' || Array.isArray(st.sets)) st.sets = {};
+    if (!st.sets[mode] || typeof st.sets[mode] !== 'object' || Array.isArray(st.sets[mode])) st.sets[mode] = {};
+    var map = st.sets[mode];
+    if (typeof ratio === 'number') {
+      if (typeof map[key] !== 'number' || ratio > map[key]) map[key] = ratio;
+    } else if (map[key] == null) {
+      map[key] = true;
+    }
+  }
+
+  function awardReady(data) {
+    var fresh = [];
+    catalog().forEach(function (raw) {
+      var view = presented(raw);
+      if (measure(data, raw.id) >= view.target) {
+        var badge = award(data, raw.id);
+        if (badge) fresh.push(badge);
+      }
+    });
+    return fresh;
+  }
+
+  function recordSession(unitId, activity, difficulty, stats, setId) {
     const data = load();
     const before = snapshot(data);
     const st = unitState(data, unitId);
     const hard = difficulty === 'hard';
     const ratio = sessionRatio(stats);
+    const key = setKey(unitId, setId);
     if (activity === 'fill') {
       if (hard) {
         st.fillHard = true;
         rememberBest(st, 'fillHardBest', ratio);
+        rememberSet(st, 'fillHard', key, ratio);
       } else {
         st.fillEasy = true;
         rememberBest(st, 'fillEasyBest', ratio);
+        rememberSet(st, 'fillEasy', key, ratio);
       }
     } else if (activity === 'letters') {
       if (hard) {
         st.lettersHard = true;
         rememberBest(st, 'lettersHardBest', ratio);
+        rememberSet(st, 'lettersHard', key, ratio);
       } else {
         st.lettersEasy = true;
         rememberBest(st, 'lettersEasyBest', ratio);
       }
+      rememberSet(st, 'letters', key, ratio);
     } else if (activity === 'match') {
       st.match = true;
       rememberBest(st, 'matchBest', ratio);
+      rememberSet(st, 'match', key, true);
     } else if (activity === 'timed') {
       st.timed = true;
       rememberBest(st, 'timedBest', ratio);
+      rememberSet(st, 'timed', key, true);
     }
-
-    const fresh = [];
-    function take(badge) {
-      if (badge) fresh.push(badge);
-    }
-    function qualifies(id) {
-      return measure(data, id) >= viewById(id).target;
-    }
-    if (qualifies('starter')) take(award(data, 'starter'));
-    if (qualifies('letters-phrase')) take(award(data, 'letters-phrase'));
-    if (qualifies('match-pro')) take(award(data, 'match-pro'));
-    if (qualifies('timed-brave')) take(award(data, 'timed-brave'));
-    if (qualifies('hard-challenger')) take(award(data, 'hard-challenger'));
-    if (unitId === 'mixed' && qualifies('all-rounder')) take(award(data, 'all-rounder'));
-    if (ORDER.some(function (u) { return u.id === unitId; }) && qualifies('unit-done:' + unitId)) {
-      take(award(data, 'unit-done:' + unitId));
-    }
-    return finish(data, before, fresh);
+    return finish(data, before, awardReady(data));
   }
 
   function grantGrammarBadges(data) {
-    const fresh = [];
-    function take(badge) {
-      if (badge) fresh.push(badge);
-    }
-    if (measure(data, 'grammar-story') >= viewById('grammar-story').target) {
-      take(award(data, 'grammar-story'));
-    }
-    if (measure(data, 'grammar-join') >= viewById('grammar-join').target) {
-      take(award(data, 'grammar-join'));
-    }
-    if (measure(data, 'grammar-inference') >= viewById('grammar-inference').target) {
-      take(award(data, 'grammar-inference'));
-    }
-    return fresh;
+    return awardReady(data);
   }
 
-  function recordGrammarSession(unitId, mode) {
+  function recordGrammarSession(unitId, mode, setId) {
     const data = load();
     const before = snapshot(data);
-    if (CROSS_UNITS.indexOf(unitId) !== -1) {
-      const st = unitState(data, unitId);
-      if (mode === 'story') st.grammarStory = true;
-      else if (mode === 'chat') st.grammarChat = true;
-      else if (mode === 'join') st.grammarJoin = true;
+    const st = unitState(data, unitId);
+    const key = setKey(unitId, setId);
+    if (mode === 'story') {
+      st.grammarStory = true;
+      rememberSet(st, 'grammarStory', key, true);
+    } else if (mode === 'chat') {
+      st.grammarChat = true;
+      rememberSet(st, 'grammarChat', key, true);
+    } else if (mode === 'join') {
+      st.grammarJoin = true;
+      rememberSet(st, 'grammarJoin', key, true);
     }
-    const fresh = grantGrammarBadges(data);
-    return finish(data, before, fresh);
+    return finish(data, before, grantGrammarBadges(data));
   }
 
   function recordGrammarInference() {
@@ -512,19 +559,14 @@ window.Badges = (function () {
     var wins = Number(data.grammarInferenceWins);
     if (!isFinite(wins) || wins < 0) wins = 0;
     data.grammarInferenceWins = wins + 1;
-    const fresh = grantGrammarBadges(data);
-    return finish(data, before, fresh);
+    return finish(data, before, grantGrammarBadges(data));
   }
 
   function recordGrammarBoss(livesLeft) {
     const data = load();
     const before = snapshot(data);
-    const fresh = [];
-    if (Number(livesLeft) >= 1) {
-      const badge = award(data, 'grammar-boss');
-      if (badge) fresh.push(badge);
-    }
-    return finish(data, before, fresh);
+    if (Number(livesLeft) >= 1) data.grammarBossCleared = true;
+    return finish(data, before, grantGrammarBadges(data));
   }
 
   function isEarned(id) {

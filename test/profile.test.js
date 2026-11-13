@@ -87,21 +87,26 @@ test('each badge maps to one avatar', () => {
   const badgeIds = window.Badges.catalog().map(badge => badge.id);
   badgeIds.forEach(id => {
     const matches = window.Profile.AVATARS.filter(avatar => avatar.badgeId === id);
+    if (id === 'grammar-chat') {
+      assert.equal(matches.length, 0, id);
+      return;
+    }
     assert.equal(matches.length, 1, id);
   });
-  const expected = [
+  [
     'starter',
     'letters-phrase',
     'match-pro',
     'timed-brave',
     'hard-challenger',
-    'unit-done:unit1',
-    'unit-done:unit2',
-    'unit-done:unit3',
-    'unit-done:unit4',
-    'unit-done:dictation3'
-  ];
-  expected.forEach(id => assert.ok(badgeIds.includes(id), id));
+    'all-rounder',
+    'grammar-story',
+    'grammar-inference',
+    'grammar-join',
+    'grammar-boss',
+    'grammar-chat'
+  ].forEach(id => assert.ok(badgeIds.includes(id), id));
+  assert.equal(badgeIds.some(id => id.indexOf('unit-done:') === 0), false);
 });
 
 test('homepage, badges, and practice hub mount the profile chip', () => {

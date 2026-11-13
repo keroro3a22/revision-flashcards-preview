@@ -55,19 +55,19 @@ test('every badge states exactly how to unlock it', () => {
   const { window } = setup();
   const byId = {};
   window.Badges.catalog().forEach(b => { byId[b.id] = b.detail; });
-  assert.equal(byId.starter, 'Finish any one practice session.');
-  assert.equal(byId['letters-phrase'], 'Finish Missing Letters Easy for Unit 1, Unit 2, Unit 3, and Unit 4, with every answer correct.');
-  assert.equal(byId['match-pro'], 'Finish Memory Match once for Unit 1, Unit 2, Unit 3, and Unit 4.');
-  assert.equal(byId['timed-brave'], 'Finish Timed Challenge once for Unit 1, Unit 2, Unit 3, and Unit 4.');
-  assert.equal(byId['hard-challenger'], 'Finish Sentence Fill Hard and Missing Letters Hard for Unit 1, Unit 2, Unit 3, and Unit 4, with at least 90% correct in each session.');
+  assert.equal(byId.starter, 'Finish any one practice, including Grammar.');
+  assert.equal(byId['letters-phrase'], 'Finish 3 different Missing Letters sets, all correct each time.');
+  assert.equal(byId['match-pro'], 'Finish 3 different Memory Match sets.');
+  assert.equal(byId['timed-brave'], 'Finish 3 different Timed Challenge sets.');
+  assert.equal(byId['hard-challenger'], 'Finish 3 different Fill Hard sets and 3 different Letters Hard sets, each at least 90% correct.');
+  assert.equal(byId['all-rounder'], 'Finish Fill, Letters, Match, and Timed once each, in the same book or in Mixed topic.');
+  assert.equal(byId['grammar-story'], 'Finish 3 different Story Book sets.');
+  assert.equal(byId['grammar-join'], 'Finish 3 different Join the sentences sets.');
+  assert.equal(byId['grammar-chat'], 'Finish 3 different Chat Quest sets.');
+  assert.equal(byId['grammar-inference'], 'Get the Chat Quest mystery right 3 times.');
+  assert.equal(byId['grammar-boss'], 'Clear Boss Round with at least 1 life left.');
   assert.equal(byId['review-clear'], undefined);
-  ['unit1', 'unit2', 'unit3', 'unit4'].forEach(id => {
-    const label = 'Unit ' + id.slice(-1);
-    assert.equal(
-      byId['unit-done:' + id],
-      'Finish Sentence Fill, Missing Letters, and Memory Match for ' + label + '.'
-    );
-  });
+  assert.equal(byId['unit-done:unit1'], undefined);
 });
 
 test('homepage hides the review progress block and the needs-review word list', () => {
