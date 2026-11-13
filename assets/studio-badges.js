@@ -18,9 +18,8 @@
   function builtinTarget(id) {
     if (window.Badges && window.Badges.builtinTarget) return window.Badges.builtinTarget(id);
     if (id === 'starter' || id === 'grammar-boss') return 1;
-    if (String(id).indexOf('unit-done:') === 0) return 3;
-    if (id === 'grammar-inference') return 3;
-    return 4;
+    if (id === 'all-rounder') return 4;
+    return 3;
   }
 
   function targetLimit(id) {

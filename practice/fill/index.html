@@ -75,7 +75,7 @@
 <script src="data/mixed.js"></script>
 <script src="data/registry.js"></script>
 <script src="mastery.js"></script>
-<script src="badges.js?v=4"></script>
+<script src="badges.js?v=5"></script>
 <script src="common.js"></script>
 <script src="../assets/vendor/supabase.js?v=1"></script>
 <script src="practice-live.js?v=5"></script>
@@ -391,7 +391,7 @@
       document.getElementById('game').hidden = true;
       document.getElementById('done').hidden = false;
       document.getElementById('score-big').textContent = correctCount + ' / ' + items.length;
-      if (B) B.writeResult(document.getElementById('badge-note'), B.recordSession(unitId, 'fill', mode, { correct: correctCount, total: items.length }));
+      if (B) B.writeResult(document.getElementById('badge-note'), B.recordSession(unitId, 'fill', mode, { correct: correctCount, total: items.length }, setIndex + 1));
       syncHardLock();
       return;
     }

@@ -55,7 +55,7 @@
     </div>
   </div>
 </main>
-<script src="../../practice/badges.js?v=4"></script>
+<script src="../../practice/badges.js?v=5"></script>
 <script src="grammar-progress.js"></script>
 <script src="../../assets/vendor/supabase.js?v=1"></script>
 <script src="grammar-live.js?v=3"></script>
@@ -579,7 +579,7 @@ const set3Data = {
       if (!forced) {
         localStorage.setItem(SET_KEY, String((setIndex + 1) % SETS.length));
         if (window.Badges) {
-          var grammarRewards = Badges.recordGrammarSession('unit2', 'join');
+          var grammarRewards = Badges.recordGrammarSession('unit2', 'join', setIndex + 1);
           if (window.GrammarProgress) GrammarProgress.show(grammarRewards);
         }
       }

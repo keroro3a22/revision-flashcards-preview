@@ -100,14 +100,10 @@ test('mixed practice stays open and does not unlock unit badges', () => {
   const badge = window.Badges.catalog().find(b => b.id === 'all-rounder');
   assert.equal(badge.english, 'All-rounder');
   assert.equal(badge.title, '全能練習生');
-  assert.match(badge.detail, /Mixed topic/);
-  assert.match(badge.detail, /Sentence Fill/);
-  assert.match(badge.detail, /Missing Letters/);
-  assert.match(badge.detail, /Memory Match/);
-  assert.match(badge.detail, /Timed Challenge/);
+  assert.equal(badge.detail, 'Finish Fill, Letters, Match, and Timed once each, in the same book or in Mixed topic.');
 });
 
-test('unit practice does not earn All-rounder', () => {
+test('the same book earns all-rounder across its units', () => {
   const { window } = loadScripts(['practice/badges.js']);
   ['unit1', 'unit2', 'unit3', 'unit4'].forEach(id => {
     window.Badges.recordSession(id, 'fill', 'easy');
@@ -115,6 +111,7 @@ test('unit practice does not earn All-rounder', () => {
     window.Badges.recordSession(id, 'match');
     window.Badges.recordSession(id, 'timed');
   });
-  assert.equal(window.Badges.isEarned('all-rounder'), false);
+  assert.equal(window.Badges.isEarned('all-rounder'), true);
   assert.equal(window.Badges.isEarned('match-pro'), true);
+  assert.equal(window.Badges.unitUnlocked('unit2'), true);
 });
