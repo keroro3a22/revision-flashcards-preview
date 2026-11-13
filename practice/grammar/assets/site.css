@@ -137,6 +137,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   width: auto;
   max-width: min(46vw, 11rem);
   object-fit: contain;
+  background: transparent;
 }
 .nav-plain {
   display: flex;
