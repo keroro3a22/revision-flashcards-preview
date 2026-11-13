@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="grammar.css?v=47"/>
+<link rel="stylesheet" href="grammar.css?v=48"/>
 <link rel="stylesheet" href="../../assets/chrome.css?v=4" />
 <link rel="stylesheet" href="../../assets/profile.css?v=5" />
 <link rel="stylesheet" href="../../assets/account.css?v=6" />
@@ -1022,7 +1022,7 @@ function boot(SETS) {
   const toast = document.getElementById("toast");
   const qLabel = document.getElementById("q-label");
 
-  function buildBubbleHtml(parts, value, mode) {
+  function buildBubbleHtml(parts, value, mode, hard) {
     let html = "";
     let bi = 0;
     parts.forEach((p) => {
@@ -1039,6 +1039,7 @@ function boot(SETS) {
         bi++;
       } else html += p;
     });
+    if (hard) html += '<span class="hard-badge">Harder</span>';
     return html;
   }
 
@@ -1060,7 +1061,7 @@ function boot(SETS) {
       d.className = "bubble " + b.speaker;
       d.innerHTML =
         '<span class="who">' + names[b.speaker] + "</span>" +
-        buildBubbleHtml(b.parts, filled[i] || b.answer, "done");
+        buildBubbleHtml(b.parts, filled[i] || b.answer, "done", b.hard);
       thread.appendChild(d);
     }
     if (idx < bubbles.length) {
@@ -1069,7 +1070,7 @@ function boot(SETS) {
       d.className = "bubble " + b.speaker + " active-bubble";
       d.innerHTML =
         '<span class="who">' + names[b.speaker] + "</span>" +
-        buildBubbleHtml(b.parts, activeValue, activeMode);
+        buildBubbleHtml(b.parts, activeValue, activeMode, b.hard);
       thread.appendChild(d);
     }
     thread.scrollTop = thread.scrollHeight;
@@ -1106,7 +1107,7 @@ function boot(SETS) {
     if (idx < bubbles.length) {
       phaseChip.textContent = (idx + 1) + " / " + bubbles.length;
       phaseChip.className = "chip sky";
-      qLabel.innerHTML = "Fill the blank in " + names[bubbles[idx].speaker] + "’s message" + (bubbles[idx].hard ? ' <span class="hard-badge">Harder</span>' : "");
+      qLabel.textContent = "Fill the blank in " + names[bubbles[idx].speaker] + "’s message";
       renderThread(null);
       renderChoices(bubbles[idx].options);
     } else {
@@ -1119,7 +1120,7 @@ function boot(SETS) {
         d.className = "bubble " + b.speaker;
         d.innerHTML =
           '<span class="who">' + names[b.speaker] + "</span>" +
-          buildBubbleHtml(b.parts, filled[i] || b.answer, "done");
+          buildBubbleHtml(b.parts, filled[i] || b.answer, "done", b.hard);
         thread.appendChild(d);
       });
       renderChoices(endQ.options);

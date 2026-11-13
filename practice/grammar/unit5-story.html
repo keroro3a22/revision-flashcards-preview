@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="grammar.css?v=47"/>
+<link rel="stylesheet" href="grammar.css?v=48"/>
 <link rel="stylesheet" href="../../assets/chrome.css?v=4" />
 <link rel="stylesheet" href="../../assets/profile.css?v=4" />
 <link rel="stylesheet" href="../../assets/account.css?v=1" />
@@ -1376,13 +1376,14 @@
         bi++;
       } else html += p;
     });
+    if (s.hard) html += '<span class="hard-badge">Harder</span>';
     prompt.innerHTML = html;
   }
   function render() {
     const s = scenes[idx];
     locked = false; selectedIdx = null;
     qNum.textContent = "Scene " + (idx + 1) + " / " + scenes.length;
-    beatLabel.innerHTML = s.label + (s.hard ? ' <span class="hard-badge">Harder</span>' : "");
+    beatLabel.textContent = s.label;
     art.src = s.img;
     if (window.ImgFrame) ImgFrame.apply(art, s.frame);
     art.alt = s.label;

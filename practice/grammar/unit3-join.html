@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="grammar.css?v=47"/>
+<link rel="stylesheet" href="grammar.css?v=48"/>
 <link rel="stylesheet" href="../../assets/chrome.css?v=4" />
 <link rel="stylesheet" href="../../assets/profile.css?v=5" />
 <link rel="stylesheet" href="../../assets/account.css?v=6" />
@@ -483,6 +483,7 @@ const set3Data = {
         html += '<span class="' + cls + '">' + shown + "</span>";
       } else html += p;
     });
+    if (item.hard) html += '<span class="hard-badge">Harder</span>';
     el.innerHTML = html;
   }
   function showSoftJoin(val) { renderStem(val); }
@@ -491,7 +492,7 @@ const set3Data = {
   function render() {
     const item = items[idx];
     locked = false; selected = null;
-    qNum.innerHTML = (idx + 1) + " / " + items.length + (item.hard ? ' <span class="hard-badge">Harder</span>' : "");
+    qNum.textContent = (idx + 1) + " / " + items.length;
     toast.hidden = true; btnNext.hidden = true; btnCheck.disabled = true; btnClear.disabled = false;
     renderDots();
     renderStem(null); choices.innerHTML = "";

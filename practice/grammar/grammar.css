@@ -994,7 +994,7 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
   margin-bottom: 0.55rem;
 }
 .hard-badge {
-  /* いらすとや ひらめいた電球漫符; sit on prompt text midline/baseline; “Harder” for SR */
+  /* いらすとや ひらめいた電球漫符; inline after the prompt, mid-line; “Harder” for SR */
   display: inline-block;
   margin-left: 0.25rem;
   width: 1.55rem;
@@ -1005,9 +1005,7 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
   color: transparent;
   font-size: 0;
   line-height: 0;
-  vertical-align: baseline;
-  position: relative;
-  top: -1.28rem; /* rem (not em): font-size:0 would zero em offsets */
+  vertical-align: middle;
 }
 
 /* —— Mode set rotation chip (authoring only; not shown to students) —— */
