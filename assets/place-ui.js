@@ -435,7 +435,7 @@
 
 (function () {
   var style = document.createElement('style');
-  style.textContent = '.back-to-top{position:fixed;right:1rem;bottom:1rem;z-index:60;font:700 .95rem/1 Nunito,"Noto Sans TC",sans-serif;color:#16324f;background:#fff;border:1px solid #8ea4ba;border-radius:999px;padding:.55rem .9rem;box-shadow:0 8px 20px rgba(22,50,79,.16);cursor:pointer}.back-to-top[hidden]{display:none}';
+  style.textContent = '.back-to-top{position:fixed;top:max(1rem,env(safe-area-inset-top));right:max(1rem,env(safe-area-inset-right));z-index:60;width:2.75rem;height:2.75rem;display:grid;place-items:center;padding:0;border:0;border-radius:50%;background:#fff;color:#243c6c;box-shadow:0 10px 24px rgba(36,60,108,.22);cursor:pointer;opacity:0;transform:scale(.45);pointer-events:none;transition:opacity .22s ease,transform .28s cubic-bezier(.4,0,1,1)}.back-to-top svg{width:1.15rem;height:1.15rem;display:block}.back-to-top.is-in{opacity:1;transform:scale(1);pointer-events:auto;animation:back-to-top-pop .52s linear both}@keyframes back-to-top-pop{0%{opacity:0;transform:scale(.4)}46%{opacity:1;transform:scale(1.16)}72%{transform:scale(.93)}88%{transform:scale(1.04)}100%{transform:scale(1)}}@media (prefers-reduced-motion:reduce){.back-to-top,.back-to-top.is-in{animation:none;transition:opacity .15s linear;transform:none}}';
   document.head.appendChild(style);
 
   function scrollY() {
@@ -448,9 +448,8 @@
     button.type = 'button';
     button.id = 'back-to-top';
     button.className = 'back-to-top';
-    button.textContent = 'Top';
     button.setAttribute('aria-label', 'Back to top');
-    button.hidden = true;
+    button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V6"/><path d="m6.5 11.5 5.5-5.5 5.5 5.5"/></svg>';
     button.addEventListener('click', function () {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
@@ -463,7 +462,7 @@
       if (doc <= height + 48) shown = false;
       else if (!shown && y > height) shown = true;
       else if (shown && y < height * 0.6) shown = false;
-      button.hidden = !shown;
+      button.classList.toggle('is-in', shown);
     }
     window.addEventListener('scroll', paint, { passive: true });
     window.addEventListener('resize', paint);

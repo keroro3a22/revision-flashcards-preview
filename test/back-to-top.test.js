@@ -11,6 +11,11 @@ test('the public site shows back to top after one screen of scrolling', () => {
   assert.match(js, /y > height/);
   assert.match(js, /y < height \* 0\.6/);
   assert.match(js, /doc <= height \+ 48/);
-  assert.match(home, /place-ui\.js\?v=15/);
+  assert.match(js, /back-to-top-pop/);
+  assert.match(js, /border-radius:50%/);
+  assert.match(js, /top:max\(1rem/);
+  assert.match(js, /<path d="M12 19V6"/);
+  assert.doesNotMatch(js, /textContent = 'Top'/);
+  assert.match(home, /place-ui\.js\?v=16/);
   assert.doesNotMatch(fs.readFileSync('studio.html', 'utf8'), /place-ui\.js/);
 });
