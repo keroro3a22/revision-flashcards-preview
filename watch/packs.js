@@ -245,7 +245,7 @@ window.WATCH_PACKS = {
         "zh": "塗抹",
         "pos": "動詞 v.",
         "audio": "../unit3/audio/audio_05.mp3",
-        "img": "../unit3/thumb_05.jpg"
+        "img": "../unit3/thumb_05.jpg?v=2"
       },
       {
         "n": 6,
