@@ -19,7 +19,7 @@ const root = path.join(__dirname, '..');
 test('a published grammar list rebuilds the sets students play', () => {
   const pages = ['unit1-story', 'unit1-chat', 'unit1-join', 'unit2-story', 'unit4-chat'];
   pages.forEach((page) => {
-    const source = fs.readFileSync(path.join(root, 'practice/grammar', page + '.html'), 'utf8');
+    const source = fs.readFileSync(path.join(root, 'practice/grammar', page, 'index.html'), 'utf8');
     const sets = grammar.extractSets(source);
     assert.equal(sets.length, 5, page);
     const rows = grammar.flatten(sets).map((body) => ({ published: body }));
@@ -71,10 +71,10 @@ test('the page can ask for published grammar without crashing before the sentenc
 });
 
 test('grammar pages wait for the published list before they start', () => {
-  const pages = fs.readdirSync(path.join(root, 'practice/grammar')).filter((name) => /^(unit\d-(story|chat|join)|boss)\.html$/.test(name));
+  const pages = fs.readdirSync(path.join(root, 'practice/grammar')).filter((name) => /^(unit\d-(story|chat|join)|boss)$/.test(name));
   assert.equal(pages.length, 19);
   pages.forEach((page) => {
-    const html = fs.readFileSync(path.join(root, 'practice/grammar', page), 'utf8');
+    const html = fs.readFileSync(path.join(root, 'practice/grammar', page, 'index.html'), 'utf8');
     assert.match(html, /grammar-live\.js\?v=3/);
     assert.match(html, /function boot\(SETS\)/);
     assert.match(html, /GrammarLive\.load/);

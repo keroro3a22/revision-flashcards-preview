@@ -172,7 +172,7 @@ test('missing letters render wraps between words, not inside them', () => {
   const fs = require('node:fs');
   const path = require('node:path');
   const root = path.join(__dirname, '..');
-  const html = fs.readFileSync(path.join(root, 'practice/letters.html'), 'utf8');
+  const html = fs.readFileSync(path.join(root, 'practice/letters/index.html'), 'utf8');
   const css = fs.readFileSync(path.join(root, 'practice/practice.css'), 'utf8');
   assert.match(html, /groupLetterSlots/);
   assert.match(html, /letter-word/);

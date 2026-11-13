@@ -203,7 +203,7 @@ window.RevisionPlace = (function () {
       return [{
         id: 'game',
         label: 'Game',
-        items: [door('game', 'School Mystery', sameGame ? 'game/index.html' : '', 'game/illust/intro/detective.png', sameGame)]
+        items: [door('game', 'School Mystery', sameGame ? 'game/' : '', 'game/illust/intro/detective.png', sameGame)]
       }];
     }
     var art = cardArt[place.unit] || cardArt.unit1;
@@ -215,16 +215,16 @@ window.RevisionPlace = (function () {
         id: 'revision',
         label: 'Revision card',
         items: [
-          door('revision-vocab', 'Vocab', unit + '/index.html', art.revision, live),
-          door('revision-grammar', 'Grammar', unit + '/grammar.html', art.grammar, live)
+          door('revision-vocab', 'Vocab', unit + '/', art.revision, live),
+          door('revision-grammar', 'Grammar', unit + '/grammar/', art.grammar, live)
         ]
       },
       {
         id: 'practice',
         label: 'Practice',
         items: [
-          door('practice-vocab', 'Vocab', 'practice/index.html?unit=' + encodeURIComponent(unit), art.practice, live),
-          door('practice-grammar', 'Grammar', 'practice/grammar/' + unit + '-hub.html', art.grammar, grammarPractice)
+          door('practice-vocab', 'Vocab', 'practice/?unit=' + encodeURIComponent(unit), art.practice, live),
+          door('practice-grammar', 'Grammar', 'practice/grammar/' + unit + '-hub/', art.grammar, grammarPractice)
         ]
       }
     ];

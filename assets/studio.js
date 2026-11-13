@@ -1683,18 +1683,28 @@
     });
   }
 
+  function studioRoot() {
+    var scripts = document.getElementsByTagName('script');
+    for (var i = scripts.length - 1; i >= 0; i--) {
+      var src = scripts[i].src || '';
+      var cut = src.indexOf('assets/studio.js');
+      if (cut !== -1) return src.slice(0, cut);
+    }
+    return '';
+  }
   function safeReturn(value) {
     var from = String(value || '');
-    if (!from || from.indexOf('studio') !== -1) return 'index.html';
-    if (from.indexOf('..') !== -1 || from.indexOf('//') !== -1 || from.indexOf('\\') !== -1) return 'index.html';
-    if (!/^[a-z0-9./_?#&=%-]+$/i.test(from)) return 'index.html';
-    return from;
+    if (!from || from.indexOf('studio') !== -1) return '';
+    if (from.indexOf('..') !== -1 || from.indexOf('//') !== -1 || from.indexOf('\\') !== -1) return '';
+    if (!/^[a-z0-9./_?#&=%-]+$/i.test(from)) return '';
+    from = from.replace(/(^|\/)index\.html(?=[#?]|$)/, '$1').replace(/\.html(?=[#?]|$)/, '/');
+    return from === './' ? '' : from;
   }
   function wireBack() {
     var from = '';
     try { from = sessionStorage.getItem('revision-studio-from') || ''; } catch (e) {}
     var link = $('studio-back');
-    if (link) link.setAttribute('href', safeReturn(from));
+    if (link) link.setAttribute('href', (studioRoot() || '../') + safeReturn(from));
   }
 
   function bindEditor() {
@@ -1907,7 +1917,7 @@
     });
     client.auth.getSession().then(function (result) {
       if (!result.data.session) {
-        window.location.replace('account.html?next=' + encodeURIComponent('studio.html'));
+        window.location.replace((studioRoot() || '../') + 'account/?next=' + encodeURIComponent('studio/'));
         return;
       }
       client.rpc('is_content_editor').then(function (check) {

@@ -122,11 +122,12 @@
   }
 
   function pageKind() {
-    var path = location.pathname || '';
-    if (/\/unit\d+\/grammar\.html$/.test(path)) return 'revision-grammar';
-    if (/\/unit\d+\/index\.html$/.test(path)) return 'revision-vocab';
-    if (/\/practice\/grammar\/(?:unit\d+-|boss\.html$)/.test(path)) return 'practice-grammar';
-    if (/\/practice\/(?:index|fill|letters|match|timed)\.html$/.test(path)) return 'practice-vocab';
+    var path = String(location.pathname || '');
+    path = path.replace(/\/index\.html$/, '').replace(/\.html$/, '').replace(/\/$/, '');
+    if (/\/unit\d+\/grammar$/.test(path)) return 'revision-grammar';
+    if (/\/unit\d+$/.test(path)) return 'revision-vocab';
+    if (/\/practice\/grammar\/(?:unit\d+-|boss$)/.test(path)) return 'practice-grammar';
+    if (/\/practice$/.test(path) || /\/practice\/(?:fill|letters|match|timed)$/.test(path)) return 'practice-vocab';
     return '';
   }
 
@@ -149,12 +150,12 @@
 
   function lessonHref(place, kind) {
     var root = scriptRoot();
-    if (!samePlace(place) || place.unit === P.HOME || place.unit === P.GAME) return root + 'index.html';
-    if (kind === 'revision-vocab') return root + place.unit + '/index.html';
-    if (kind === 'revision-grammar') return root + place.unit + '/grammar.html';
-    if (kind === 'practice-vocab') return root + 'practice/index.html?unit=' + encodeURIComponent(place.unit);
-    if (kind === 'practice-grammar' && /^unit[1-6]$/.test(place.unit)) return root + 'practice/grammar/' + place.unit + '-hub.html';
-    return root + 'index.html';
+    if (!samePlace(place) || place.unit === P.HOME || place.unit === P.GAME) return root || './';
+    if (kind === 'revision-vocab') return root + place.unit + '/';
+    if (kind === 'revision-grammar') return root + place.unit + '/grammar/';
+    if (kind === 'practice-vocab') return root + 'practice/?unit=' + encodeURIComponent(place.unit);
+    if (kind === 'practice-grammar' && /^unit[1-6]$/.test(place.unit)) return root + 'practice/grammar/' + place.unit + '-hub/';
+    return root || './';
   }
 
   function follow(place, kind) {
@@ -179,7 +180,7 @@
     inner.className = 'topbar-inner';
     var brand = document.createElement('a');
     brand.className = 'brand';
-    brand.href = scriptRoot() + 'index.html';
+    brand.href = scriptRoot() || './';
     brand.textContent = 'English Revision';
     inner.appendChild(brand);
     var nav = document.createElement('nav');
@@ -220,7 +221,7 @@
     var sign = document.createElement('a');
     sign.className = 'nav-jump';
     sign.id = 'account-link';
-    sign.href = scriptRoot() + 'account.html';
+    sign.href = (scriptRoot() || '') + 'account/';
     sign.textContent = 'Sign in / Sign up';
     accountNav.appendChild(sign);
     var slot = document.getElementById('profile-slot');
@@ -285,7 +286,7 @@
       var next = P.withChange(place, { unit: unitId });
       if (kind) {
         if (!P.write(window.localStorage, next)) return;
-        location.href = scriptRoot() + 'index.html';
+        location.href = scriptRoot() || './';
         return;
       }
       save(next);

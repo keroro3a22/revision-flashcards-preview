@@ -274,12 +274,12 @@ window.Profile = (function () {
   function accountHref() {
     try {
       var path = (typeof location !== 'undefined' && location.pathname) || '';
-      if (path.indexOf('/practice/grammar/') !== -1) return '../../profile.html';
-      if (path.indexOf('/practice/') !== -1 || path.indexOf('/game/') !== -1 || path.indexOf('/dictation') !== -1 || /\/unit[1-4]\//.test(path)) {
-        return '../profile.html';
+      if (path.indexOf('/practice/grammar/') !== -1) return '../../profile/';
+      if (path.indexOf('/practice/') !== -1 || path.indexOf('/game/') !== -1 || path.indexOf('/dictation') !== -1 || /\/unit[1-6]\//.test(path)) {
+        return '../profile/';
       }
     } catch (e) {}
-    return 'profile.html';
+    return 'profile/';
   }
 
   function buildChip() {

@@ -15,7 +15,7 @@ function nav(file) {
 
 test('homepage topbar is the account link, with book, level, and unit navigation', () => {
   const { html, nav: bar } = nav('index.html');
-  assert.match(bar, /href="account\.html"/);
+  assert.match(bar, /href="account\/"/);
   assert.match(bar, />Sign in \/ Sign up</);
   assert.equal(bar.match(/<a\b/g).length, 1);
   assert.doesNotMatch(bar, />Revision</);
@@ -123,12 +123,12 @@ print('ok')
 test('vocab, grammar, and practice keep the top bar and a single back link', () => {
   [
     'unit1/index.html',
-    'unit1/grammar.html',
+    'unit1/grammar/index.html',
     'unit5/index.html',
     'practice/index.html',
-    'practice/fill.html',
-    'practice/grammar/unit1-hub.html',
-    'practice/grammar/unit2-story.html'
+    'practice/fill/index.html',
+    'practice/grammar/unit1-hub/index.html',
+    'practice/grammar/unit2-story/index.html'
   ].forEach((file) => {
     const html = fs.readFileSync(path.join(root, file), 'utf8');
     assert.match(html, /place-ui\.js\?v=6/, file);
@@ -139,12 +139,12 @@ test('vocab, grammar, and practice keep the top bar and a single back link', () 
 });
 
 test('badges page has no illustration caption and links Sign in / Sign up', () => {
-  const { html, nav: bar } = nav('badges.html');
+  const { html, nav: bar } = nav('badges/index.html');
   assert.equal(html.includes('Illustrations of people'), false);
   assert.equal(html.includes('badge-credit'), false);
   assert.equal(html.includes('schoolboy'), false);
   assert.doesNotMatch(html, /index\.html#packs/);
-  assert.match(bar, /href="account\.html"/);
+  assert.match(bar, /href="account\/"/);
   assert.match(bar, />Sign in \/ Sign up</);
   assert.equal(bar.match(/<a\b/g).length, 1);
 });

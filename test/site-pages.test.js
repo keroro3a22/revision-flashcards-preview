@@ -11,7 +11,7 @@ test('a published vocab card opens only that revision door', () => {
   const vocab = unit.items.filter((item) => item.id === 'revision-vocab')[0];
   const rest = unit.items.filter((item) => item.id !== 'revision-vocab');
   assert.equal(vocab.ready, true);
-  assert.equal(vocab.href, 'unit1/index.html?term=second');
+  assert.equal(vocab.href, 'unit1/?term=second');
   assert.equal(vocab.image, 'https://cdn.example/pick.png');
   assert.equal(vocab.note, 'Open the word cards.');
   rest.forEach((item) => {
@@ -36,7 +36,7 @@ test('practice uses the second photo and its own questions', () => {
   const door = open.items.filter((item) => item.id === 'practice-vocab')[0];
   assert.equal(door.ready, true);
   assert.equal(door.image, 'unit1/two.png');
-  assert.equal(door.href, 'practice/index.html?unit=unit1&term=second');
+  assert.equal(door.href, 'practice/?unit=unit1&term=second');
 });
 
 test('one card is reused when practice has no second photo', () => {
@@ -79,7 +79,7 @@ test('grammar practice opens for Units 5 and 6 and stays closed without a game p
   const unit = pages.resolveUnit(bookA, 'unit5', [], [], [{ unit_id: 'unit5', track: 'grammar' }]);
   const door = unit.items.filter((item) => item.id === 'practice-grammar')[0];
   assert.equal(door.ready, true);
-  assert.equal(door.href, 'practice/grammar/unit5-hub.html?term=first');
+  assert.equal(door.href, 'practice/grammar/unit5-hub/?term=first');
   const unit6 = pages.resolveUnit(bookA, 'unit6', [], [], [{ unit_id: 'unit6', track: 'grammar' }]);
   assert.equal(unit6.items.filter((item) => item.id === 'practice-grammar')[0].ready, true);
   const closed = pages.resolveUnit(bookA, 'unit7', [], [], [{ unit_id: 'unit7', track: 'grammar' }]);

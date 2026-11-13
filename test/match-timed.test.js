@@ -14,7 +14,7 @@ test('each match round is exactly 5 pairs and 10 cards', () => {
   assert.deepEqual(picked.map(p => p.id), ['p1', 'p2', 'p3', 'p4', 'p5']);
   const root = path.join(__dirname, '..');
   const hub = fs.readFileSync(path.join(root, 'practice/index.html'), 'utf8');
-  const page = fs.readFileSync(path.join(root, 'practice/match.html'), 'utf8');
+  const page = fs.readFileSync(path.join(root, 'practice/match/index.html'), 'utf8');
   assert.match(hub, /10 cards · 5 pairs · word form shown/);
   assert.equal(hub.includes('6 cards · 3 pairs'), false);
   assert.match(page, /Ten cards, five pairs/);
@@ -87,7 +87,7 @@ test('correct and wrong feedback uses the irasutoya cats', () => {
     assert.equal(buf[2], 0x4e);
     assert.equal(buf[3], 0x47);
   });
-  const pages = ['practice/fill.html', 'practice/letters.html', 'practice/timed.html', 'practice/common.js'];
+  const pages = ['practice/fill/index.html', 'practice/letters/index.html', 'practice/timed/index.html', 'practice/common.js'];
   const joined = pages.map(rel => fs.readFileSync(path.join(root, rel), 'utf8')).join('\n');
   assert.match(joined, /icons\/feedback-ok\.png/);
   assert.match(joined, /icons\/feedback-bad\.png/);
@@ -96,7 +96,7 @@ test('correct and wrong feedback uses the irasutoya cats', () => {
 });
 
 test('timed page has no penalty control', () => {
-  const html = fs.readFileSync(path.join(__dirname, '..', 'practice/timed.html'), 'utf8');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'practice/timed/index.html'), 'utf8');
   assert.equal(/time penalty/i.test(html), false);
   assert.equal(html.includes('- 3'), false);
   assert.equal(html.includes('−3'), false);

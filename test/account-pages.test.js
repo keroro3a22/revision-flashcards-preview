@@ -10,8 +10,8 @@ function read(rel) {
 }
 
 test('sign in and profile are different pages', () => {
-  const sign = read('account.html');
-  const profile = read('profile.html');
+  const sign = read('account/index.html');
+  const profile = read('profile/index.html');
   assert.match(sign, /id="account-form"/);
   assert.match(sign, /id="account-toggle"/);
   assert.doesNotMatch(sign, /id="account-settings"/);
@@ -25,12 +25,12 @@ test('sign in and profile are different pages', () => {
   assert.match(profile, />Log out</);
   assert.doesNotMatch(profile, /id="account-form"/);
   assert.doesNotMatch(profile, /id="account-toggle"/);
-  assert.match(read('assets/profile.js'), /return 'profile\.html'/);
+  assert.match(read('assets/profile.js'), /return 'profile\/'/);
 });
 
 test('lesson editors stay signed in on more than one device', () => {
   const sql = read('supabase/migrations/20261111200000_editor_multi_device.sql');
-  const signIn = read('account.html');
+  const signIn = read('account/index.html');
   const account = read('assets/account.js');
   assert.match(sql, /username = 'keroroa22'/);
   assert.match(sql, /delete from private\.content_editors/);

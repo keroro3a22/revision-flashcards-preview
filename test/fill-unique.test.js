@@ -115,7 +115,7 @@ test('every fill item accepts one phrase and one clue', () => {
 });
 
 test('sentence fill hides Meaning on Easy and Hard and has no tip', () => {
-  const html = fs.readFileSync(path.join(__dirname, '..', 'practice/fill.html'), 'utf8');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'practice/fill/index.html'), 'utf8');
   assert.doesNotMatch(html, /Meaning:/);
   assert.doesNotMatch(html, /hard-meaning/);
   assert.doesNotMatch(html, /think-tip|think-panel|FillThink|>Tip</);

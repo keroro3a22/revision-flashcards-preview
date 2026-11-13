@@ -95,7 +95,8 @@
   }
 
   function practiceMode(file) {
-    var name = (file.split('/').pop() || '').replace(/\.html.*/, '');
+    var trimmed = String(file || '').split('?')[0].replace(/\/+$/, '').replace(/\/index\.html$/, '').replace(/\.html$/, '');
+    var name = trimmed.split('/').pop() || '';
     if (name === 'boss') return { unit: 'mixed', kind: 'grammar', mode: 'boss' };
     var grammar = name.match(/^unit(\d+)-(story|chat|join)$/);
     if (grammar) return { unit: 'unit' + grammar[1], kind: 'grammar', mode: grammar[2] };

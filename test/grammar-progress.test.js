@@ -7,6 +7,10 @@ const root = path.join(__dirname, '..');
 const grammar = path.join(root, 'practice', 'grammar');
 
 function read(name) {
+  const nested = name.endsWith('.html')
+    ? path.join(grammar, name.replace(/\.html$/, ''), 'index.html')
+    : '';
+  if (nested && fs.existsSync(nested)) return fs.readFileSync(nested, 'utf8');
   return fs.readFileSync(path.join(grammar, name), 'utf8');
 }
 
@@ -220,11 +224,11 @@ test('join pages use one blank stem and lowercase choices', () => {
 
 test('grammar banners only go back to packs', () => {
   const html = read('grammar-hub.html');
-  assert.match(html, /class="back" href="\.\.\/\.\.\/index\.html">← Back to packs</);
+  assert.match(html, /class="back" href="\.\.\/\.\.\/">← Back to packs</);
   assert.doesNotMatch(html, /header-pills/);
   ['unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6'].forEach(unit => {
     const hub = read(unit + '-hub.html');
-    assert.match(hub, /class="back" href="\.\.\/\.\.\/index\.html">← Back to packs</, unit);
+    assert.match(hub, /class="back" href="\.\.\/\.\.\/">← Back to packs</, unit);
     assert.doesNotMatch(hub, /header-home/, unit);
     assert.doesNotMatch(hub, /header-practice/, unit);
   });

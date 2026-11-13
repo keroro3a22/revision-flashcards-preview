@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<base href="../">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Badges · English Revision</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&family=Noto+Sans+TC:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/site.css?v=55" />
+  <link rel="stylesheet" href="assets/profile.css?v=4" />
+<link rel="stylesheet" href="assets/account.css?v=1" />
+<script src="assets/supabase-public.js?v=1"></script>
+<script src="assets/progress-sync.js?v=2"></script>
+<script src="assets/profile.js?v=4"></script>
+<script src="assets/account.js?v=11"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="./">English Revision</a>
+      <div class="topbar-account">
+        <nav class="nav-plain" aria-label="Account">
+          <a class="nav-jump" id="account-link" href="account/">Sign in / Sign up</a>
+        </nav>
+        <div id="profile-slot" class="profile-slot"></div>
+      </div>
+    </div>
+  </header>
+  <main class="badge-main">
+    <h1>Badges</h1>
+    <p class="badge-lead">Each badge says what to finish. This page does not keep a score.</p>
+    <p class="badge-count" id="badge-count">0 earned</p>
+    <div class="badge-grid" id="badge-grid" aria-live="polite"></div>
+  </main>
+  <script src="practice/badges.js"></script>
+  <script>
+  (function () {
+    var B = window.Badges;
+    var list = B.listWithStatus();
+    var earned = list.filter(function (b) { return b.earned; }).length;
+    document.getElementById('badge-count').textContent = earned + ' of ' + list.length + ' earned';
+    var grid = document.getElementById('badge-grid');
+    list.forEach(function (b) {
+      var card = document.createElement('article');
+      card.className = 'badge-card ' + (b.earned ? 'is-earned' : 'is-locked');
+      card.title = b.detail;
+      var art = document.createElement('div');
+      art.className = 'badge-art';
+      var img = document.createElement('img');
+      img.src = b.earned ? b.image : b.image.replace(/\.png$/, '-locked.png');
+      img.alt = '';
+      art.appendChild(img);
+      var name = document.createElement('h2');
+      name.className = 'badge-name';
+      name.textContent = b.title;
+      var english = document.createElement('p');
+      english.className = 'badge-english';
+      english.textContent = b.english;
+      card.appendChild(art);
+      card.appendChild(name);
+      card.appendChild(english);
+      var how = document.createElement('p');
+      how.className = 'badge-how';
+      how.textContent = b.detail;
+      card.appendChild(how);
+      if (b.earned) {
+        var date = document.createElement('p');
+        date.className = 'badge-date';
+        date.textContent = 'Earned ' + b.earnedLabel;
+        card.appendChild(date);
+      }
+      grid.appendChild(card);
+    });
+  })();
+  </script>
+</body>
+</html>

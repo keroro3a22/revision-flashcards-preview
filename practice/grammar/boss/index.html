@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<base href="../">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Boss Round · Grammar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="grammar.css?v=47"/>
+<link rel="stylesheet" href="../../assets/chrome.css?v=4" />
+<link rel="stylesheet" href="../../assets/profile.css?v=4" />
+<link rel="stylesheet" href="../../assets/account.css?v=1" />
+<script src="../../assets/supabase-public.js?v=1"></script>
+<script src="../../assets/progress-sync.js?v=2"></script>
+<script src="../../assets/place.js?v=8"></script>
+<script src="../../assets/place-ui.js?v=17"></script>
+<script src="../../assets/profile.js?v=5"></script>
+<script src="../../assets/account.js?v=11"></script>
+</head>
+<body>
+<header class="prac-header">
+  <a class="back" href="../../">← Back to packs</a>
+  <h1>Boss Round</h1>
+  <p class="sub">Mixed Units 1–6 · 5 sets × 12 · 3 lives</p>
+</header>
+<main class="wrap">
+  <div class="toolbar">
+    <span class="chip boss" id="q-num">1 / 12</span>
+    <div class="lives-row" id="lives" aria-label="Lives">
+      <span class="heart" aria-hidden="true"><svg viewBox="0 0 40 36" focusable="false"><path fill="currentColor" d="M20 31.2C14.2 26.4 7.2 21.2 7.2 14.6c0-4.2 3.2-7.4 7.2-7.4c2.2 0 4.1 1.05 5.6 2.85C21.5 8.25 23.4 7.2 25.6 7.2c4 0 7.2 3.2 7.2 7.4 0 6.6-7 11.8-12.8 16.6z"/></svg></span>
+      <span class="heart" aria-hidden="true"><svg viewBox="0 0 40 36" focusable="false"><path fill="currentColor" d="M20 31.2C14.2 26.4 7.2 21.2 7.2 14.6c0-4.2 3.2-7.4 7.2-7.4c2.2 0 4.1 1.05 5.6 2.85C21.5 8.25 23.4 7.2 25.6 7.2c4 0 7.2 3.2 7.2 7.4 0 6.6-7 11.8-12.8 16.6z"/></svg></span>
+      <span class="heart" aria-hidden="true"><svg viewBox="0 0 40 36" focusable="false"><path fill="currentColor" d="M20 31.2C14.2 26.4 7.2 21.2 7.2 14.6c0-4.2 3.2-7.4 7.2-7.4c2.2 0 4.1 1.05 5.6 2.85C21.5 8.25 23.4 7.2 25.6 7.2c4 0 7.2 3.2 7.2 7.4 0 6.6-7 11.8-12.8 16.6z"/></svg></span>
+    </div>
+    <div class="progress-dots" id="dots" aria-label="Progress"></div>
+  </div>
+
+  <div class="panel" id="game">
+    <div class="illust" id="art-wrap" style="max-width:200px;aspect-ratio:1.2">
+      <img id="art" src="illust/u1_09_fair.jpg" alt=""/>
+    </div>
+    <p class="prompt" id="prompt"></p>
+    <div class="join-plain" id="pair" hidden></div>
+    <div class="choices" id="choices"></div>
+    <div class="btn-row">
+      <button type="button" class="btn btn-ghost" id="btn-clear">Clear</button>
+      <button type="button" class="btn btn-primary" id="btn-check" disabled>Check</button>
+      <button type="button" class="btn btn-secondary" id="btn-next" hidden>Next</button>
+    </div>
+    <div class="toast" id="toast" hidden></div>
+  </div>
+
+  <div class="panel result-card" id="done" hidden>
+    <div class="illust" style="max-width:180px;aspect-ratio:1;margin:0 auto 1rem">
+      <img id="done-art" src="illust/feedback-ok.png" alt=""/>
+    </div>
+    <h2 id="done-title">Boss cleared!</h2>
+    <p class="big" id="score-big">0</p>
+    <p id="done-sub">correct · lives left</p>
+    <div class="btn-row" style="justify-content:center">
+      <a class="btn btn-primary" href="boss/">Try again</a>
+      <a class="btn btn-ghost" href="grammar-hub/">Hub</a>
+    </div>
+  </div>
+</main>
+<script src="../../practice/badges.js"></script>
+<script src="grammar-progress.js"></script>
+<script src="../../assets/img-frame.js?v=12"></script>
+<script src="../../assets/vendor/supabase.js?v=1"></script>
+<script src="grammar-live.js?v=3"></script>
+<script>
+(function () {
+  /* Authors: ?set=1|2|3|4|5 (1-based) forces that authored set; never show set chips on screen.
+     Students (no ?set=): silent rotate via localStorage key boss-set-i — index starts at 0,
+     advances +1 when a run finishes (clear or out of lives) so the next visit uses the next authored set. */
+  const FB = { ok: "illust/feedback-ok.png", bad: "illust/feedback-bad.png" };
+  const HEART_SVG =
+    '<svg viewBox="0 0 40 36" focusable="false" aria-hidden="true">' +
+    '<path fill="currentColor" d="M20 31.2C14.2 26.4 7.2 21.2 7.2 14.6c0-4.2 3.2-7.4 7.2-7.4c2.2 0 4.1 1.05 5.6 2.85C21.5 8.25 23.4 7.2 25.6 7.2c4 0 7.2 3.2 7.2 7.4 0 6.6-7 11.8-12.8 16.6z"/>' +
+    "</svg>";
+
+  function showToast(el, title, explain, kind) {
+    el.className = "toast toast-feedback has-art " + kind;
+    el.innerHTML =
+      '<img class="toast-art" src="' + FB[kind === "ok" ? "ok" : "bad"] + '" alt=""/>' +
+      '<div class="toast-body"><div class="toast-title"></div><div class="toast-explain"></div></div>';
+    el.querySelector(".toast-title").textContent = title;
+    el.querySelector(".toast-explain").textContent = explain || "";
+    el.hidden = false;
+  }
+
+  // Set 1 — 12 mixed Units 1–4 (kept intact)
+  const set1Data = {
+    items: [
+      {
+        kind: "fill", tag: "U1 · so many", img: "illust/u1_07_books.jpg",
+        parts: ["During the book drive our class collected ", "____", " old story books from every classroom, and the caretaker wheeled out two extra bins before lunch."],
+        options: ["so many", "so much", "although", "so that"],
+        answer: "so many",
+        explain: "Books are plural countable → so many."
+      },
+      {
+        kind: "fill", tag: "U2 · if…will", img: "illust/u1_02_volunteer.jpg",
+        parts: ["If we finish painting the signs before three o’clock, Miss Wong ", "____", " let us help at the community centre this afternoon."],
+        options: ["will", "would", "so that", "although"],
+        answer: "will",
+        explain: "First conditional: If + present, … will + verb."
+      },
+      {
+        kind: "join", tag: "U1 · who", img: "illust/u1_10_elderly.png",
+        a: "This is the nurse.",
+        b: "She visits Sunny Elderly Home every Tuesday after school assembly.",
+        options: ["who", "which"],
+        answer: "who",
+        full: "This is the nurse who visits Sunny Elderly Home every Tuesday after school assembly.",
+        explain: "Nurse = person → who."
+      },
+      {
+        kind: "fill", tag: "U3 · although", img: "illust/u1_08_walkathon.jpg",
+        parts: ["", "____", " the sky looked grey and windy, the walkathon helpers kept smiling and cheering every runner."],
+        options: ["Although", "After", "So that", "If"],
+        answer: "Although",
+        explain: "Although introduces a contrast."
+      },
+      {
+        kind: "fill", tag: "U4 · as…as", img: "illust/u1_09_fair.jpg",
+        parts: ["Our class film about the school fair is ", "____", " funny ", "____", " the one Class 5B made last year."],
+        options: ["as · as", "so · that", "as · than", "more · as"],
+        answer: "as · as",
+        answers: ["as", "as"],
+        explain: "as + adjective + as → equal comparison."
+      },
+      {
+        kind: "fill", tag: "U2 · so that", img: "illust/u1_03_flags.jpg",
+        parts: ["We spoke clearly into the microphone ", "____", " every parent in the hall could hear our Flag Day message."],
+        options: ["so that", "although", "before", "as"],
+        answer: "so that",
+        explain: "so that shows purpose — we want them to hear."
+      },
+      {
+        kind: "fill", tag: "U3 · after", img: "illust/u1_05_voluntary.jpg",
+        parts: ["", "____", " we finished our voluntary work at the elderly home, Miss Chan showed us how to pack the leftover fruit carefully."],
+        options: ["After", "Although", "So that", "If"],
+        answer: "After",
+        explain: "After + the action that finished first."
+      },
+      {
+        kind: "fill", tag: "U4 · if…would", img: "illust/u1_04_raffle.jpg", hard: true,
+        parts: ["I would invite our whole class to sell tickets for the school movie night if I ", "____", " in charge of the raffle stall."],
+        options: ["were", "am", "will be", "was being"],
+        answer: "were",
+        explain: "Imaginary / second conditional: If I were…, I would…"
+      },
+      {
+        kind: "fill", tag: "U2 · mixed harder", img: "illust/u1_06_donate.png", hard: true,
+        parts: ["We ", "____", " set up the donation table outside if the rain stops soon, ", "____", " more neighbours can drop by after work."],
+        options: ["will · so that", "would · although", "will · although", "would · so that"],
+        answer: "will · so that",
+        answers: ["will", "so that"],
+        explain: "Real future plan → will. Purpose → so that. (Unit 2)"
+      },
+      {
+        kind: "join", tag: "U1 · which", img: "illust/u1_donate_money.png",
+        a: "These are the donation boxes.",
+        b: "Parents filled them during Flag Day.",
+        options: ["who", "which"],
+        answer: "which",
+        full: "These are the donation boxes which parents filled during Flag Day.",
+        explain: "Donation boxes = things → which."
+      },
+      {
+        kind: "fill", tag: "U1 · so much", img: "illust/u1_01_adopt_pet.jpg",
+        parts: ["After the charity film night our class felt proud because we had raised ", "____", " money for the animal shelter in just two busy hours."],
+        options: ["so much", "so many", "although", "so that"],
+        answer: "so much",
+        explain: "Money is uncountable → so much."
+      },
+      {
+        kind: "fill", tag: "U3 · before", img: "illust/u1_09_fair.jpg",
+        parts: ["", "____", " the tasting guests walked into the hall, we wiped every table and set fresh flowers by the Junior Super Chef door."],
+        options: ["Before", "Although", "So that", "If"],
+        answer: "Before",
+        explain: "Before + the later event — cleaning finished first."
+      }
+    ]
+  };
+
+  // Set 2 — 12 NEW mixed stems (not recycled from Unit Story/Chat/Join Set1/Set2 or Boss Set 1)
+  const set2Data = {
+    items: [
+      {
+        kind: "fill", tag: "U1 · so many", img: "illust/u2_04_landslip.png",
+        parts: ["After the landslip tore through the hillside path, neighbours stacked ", "____", " sandbags beside the cracked wall, and the fire team checked every house before sunset."],
+        options: ["so many", "so much", "although", "so that"],
+        answer: "so many",
+        explain: "Sandbags are plural countable → so many."
+      },
+      {
+        kind: "fill", tag: "U2 · if…will", img: "illust/u2_06_typhoon.jpg",
+        parts: ["If the typhoon signal rises before dawn, the morning assembly ", "____", " move into the covered playground instead of the open courtyard."],
+        options: ["will", "would", "so that", "although"],
+        answer: "will",
+        explain: "First conditional: If + present, … will + verb."
+      },
+      {
+        kind: "join", tag: "U1 · who", img: "illust/u3_01_beat.jpg",
+        a: "This is the cook.",
+        b: "He beat the eggs for the tasting trays before the guests arrived.",
+        options: ["who", "which"],
+        answer: "who",
+        full: "This is the cook who beat the eggs for the tasting trays before the guests arrived.",
+        explain: "Cook = person → who."
+      },
+      {
+        kind: "fill", tag: "U3 · although", img: "illust/u3_07_stir.jpg",
+        parts: ["", "____", " the vegetable stew looked a little thin at first, the tasting judges asked for a second spoonful and wrote kind notes."],
+        options: ["Although", "After", "So that", "If"],
+        answer: "Although",
+        explain: "Although introduces a contrast."
+      },
+      {
+        kind: "fill", tag: "U4 · as…as", img: "illust/u4_horror.png",
+        parts: ["Our short horror film is ", "____", " scary ", "____", " the one Class 5A showed at last year’s film night."],
+        options: ["as · as", "so · that", "as · than", "more · as"],
+        answer: "as · as",
+        answers: ["as", "as"],
+        explain: "as + adjective + as → equal comparison."
+      },
+      {
+        kind: "fill", tag: "U2 · so that", img: "illust/u2_05_tsunami.jpg",
+        parts: ["We practised the stair route twice ", "____", " every classmate could reach higher ground quickly during a coastal warning."],
+        options: ["so that", "although", "before", "as"],
+        answer: "so that",
+        explain: "so that shows purpose — we want them to reach safety."
+      },
+      {
+        kind: "fill", tag: "U3 · after", img: "illust/u3_06_sprinkle.jpg",
+        parts: ["", "____", " we sprinkled salt on the thick steak, Miss Lee let us photograph it for the tasting card on the wall."],
+        options: ["After", "Although", "So that", "If"],
+        answer: "After",
+        explain: "After + the action that finished first."
+      },
+      {
+        kind: "fill", tag: "U4 · if…would", img: "illust/u4_fantasy.png", hard: true,
+        parts: ["I would climb the long golden hair carefully if I ", "____", " the prince under the tall stone tower."],
+        options: ["were", "am", "will be", "was being"],
+        answer: "were",
+        explain: "Imaginary / second conditional: If I were…, I would…"
+      },
+      {
+        kind: "fill", tag: "U2 · mixed harder", img: "illust/u2_aftershock_drill.jpg", hard: true,
+        parts: ["We ", "____", " crouch under the park shelter if the aftershock drill starts during break, ", "____", " falling branches cannot hurt anyone."],
+        options: ["will · so that", "would · although", "will · although", "would · so that"],
+        answer: "will · so that",
+        answers: ["will", "so that"],
+        explain: "Real future plan → will. Purpose → so that. (Unit 2)"
+      },
+      {
+        kind: "join", tag: "U1 · which", img: "illust/u4_action_tokusatsu.png",
+        a: "These are the tiny model buildings.",
+        b: "The film club placed them in front of the roaring monster.",
+        options: ["who", "which"],
+        answer: "which",
+        full: "These are the tiny model buildings which the film club placed in front of the roaring monster.",
+        explain: "Model buildings = things → which."
+      },
+      {
+        kind: "fill", tag: "U1 · so much", img: "illust/u2_07_floodroad.png",
+        parts: ["When the school taps finally ran clear again, families collected ", "____", " clean drinking water in spare bottles, and Miss Wong labelled each crate for the night shelters."],
+        options: ["so much", "so many", "although", "so that"],
+        answer: "so much",
+        explain: "Water is uncountable → so much."
+      },
+      {
+        kind: "fill", tag: "U3 · before", img: "illust/u3_09_bake.jpg",
+        parts: ["", "____", " we slid the cookie tray into the hot oven, we wiped the wooden counter and set the timer for twelve minutes."],
+        options: ["Before", "Although", "So that", "If"],
+        answer: "Before",
+        explain: "Before + the later event — cleaning finished first."
+      }
+    ]
+  };
+
+
+  // Set 3 — 12 NEW mixed stems (not recycled from Unit Story/Chat/Join Sets 1–3 or Boss Sets 1–2)
+  const set3Data = {
+    items: [
+      {
+        kind: "fill", tag: "U1 · so many", img: "illust/u2_shelter_kits.jpg",
+        parts: ["When Class 6A packed the typhoon shelter tables, volunteers counted ", "____", " spare radios beside the orange life jackets, and Miss Wong labelled every cardboard box before the night queue began."],
+        options: ["so many", "so much", "although", "so that"],
+        answer: "so many",
+        explain: "Radios are plural countable → so many."
+      },
+      {
+        kind: "fill", tag: "U2 · if…will", img: "illust/u2_shelter_mud.jpg",
+        parts: ["If mud covers the gate path before supper, the night helpers ", "____", " guide families through the bright side door of the shelter hall."],
+        options: ["will", "would", "so that", "although"],
+        answer: "will",
+        explain: "First conditional: If + present, … will + verb."
+      },
+      {
+        kind: "join", tag: "U1 · who", img: "illust/u4_prop_master.jpg",
+        a: "This is the prop master.",
+        b: "She checked every sparkly cape before the fantasy short play began.",
+        options: ["who", "which"],
+        answer: "who",
+        full: "This is the prop master who checked every sparkly cape before the fantasy short play began.",
+        explain: "Prop master = person → who."
+      },
+      {
+        kind: "fill", tag: "U3 · although", img: "illust/u3_chop_fruit.jpg",
+        parts: ["", "____", " the Open Day fruit cups looked a little uneven after chopping, the bake-sale helpers still sold every cup before the lunch bell."],
+        options: ["Although", "After", "So that", "If"],
+        answer: "Although",
+        explain: "Although introduces a contrast."
+      },
+      {
+        kind: "fill", tag: "U4 · as…as", img: "illust/u4_wizard_cast.jpg",
+        parts: ["Our wizard’s shield spell looked ", "____", " bright ", "____", " the stage spotlights above the red curtains."],
+        options: ["as · as", "so · that", "as · than", "more · as"],
+        answer: "as · as",
+        answers: ["as", "as"],
+        explain: "as + adjective + as → equal comparison."
+      },
+      {
+        kind: "fill", tag: "U2 · so that", img: "illust/u2_shelter_firstaid.jpg",
+        parts: ["Helpers drew a red cross on every white box ", "____", " visitors could find the first-aid corner without asking twice."],
+        options: ["so that", "although", "before", "as"],
+        answer: "so that",
+        explain: "so that shows purpose — we want them to find the corner."
+      },
+      {
+        kind: "fill", tag: "U3 · after", img: "illust/u3_stir_batter.jpg",
+        parts: ["", "____", " Class 6A stirred the thick birthday batter for five steady minutes, Mia poured it into the round tin for the Open Day cake."],
+        options: ["After", "Although", "So that", "If"],
+        answer: "After",
+        explain: "After + the action that finished first."
+      },
+      {
+        kind: "fill", tag: "U4 · if…would", img: "illust/u4_monster_set.jpg", hard: true,
+        parts: ["I would wait for the hero’s cue before I stomped once if I ", "____", " the roaring monster beside the flame prop."],
+        options: ["were", "am", "will be", "was being"],
+        answer: "were",
+        explain: "Imaginary / second conditional: If I were…, I would…"
+      },
+      {
+        kind: "fill", tag: "U2 · mixed harder", img: "illust/u2_shelter_debris.jpg", hard: true,
+        parts: ["We ", "____", " carry the first-aid kits upstairs if wet debris blocks the lower corridor during shelter hours, ", "____", " families can still reach clean bandages."],
+        options: ["will · so that", "would · although", "will · although", "would · so that"],
+        answer: "will · so that",
+        answers: ["will", "so that"],
+        explain: "Real future plan → will. Purpose → so that. (Unit 2)"
+      },
+      {
+        kind: "join", tag: "U1 · which", img: "illust/u4_tower_scene.jpg",
+        a: "These are the cardboard towers.",
+        b: "Sam and Rita built them for the Rapunzel scene on the lit stage.",
+        options: ["who", "which"],
+        answer: "which",
+        full: "These are the cardboard towers which Sam and Rita built for the Rapunzel scene on the lit stage.",
+        explain: "Cardboard towers = things → which."
+      },
+      {
+        kind: "fill", tag: "U1 · so much", img: "illust/u3_pour_glaze.jpg",
+        parts: ["Before the bake-sale opened, Mia mixed ", "____", " sweet white glaze for the cupcakes, and parents still asked for more icing after the first tray sold out."],
+        options: ["so much", "so many", "although", "so that"],
+        answer: "so much",
+        explain: "Glaze is uncountable → so much."
+      },
+      {
+        kind: "fill", tag: "U3 · before", img: "illust/u3_steam_veg.jpg",
+        parts: ["", "____", " the children filled their pastel plates from the steamer, we wiped every spoon and put up the healthy snack sign."],
+        options: ["Before", "Although", "So that", "If"],
+        answer: "Before",
+        explain: "Before + the later event — wiping finished first."
+      }
+    ]
+  };
+
+
+  // Set 4 — 12 NEW mixed stems (carnival / hillside practice / Sports Day picnic / school musical)
+  // Themes draw on Unit Set 4 worlds but stems are not recycled from Unit Story/Chat/Join or Boss Sets 1–3
+  const set4Data = {
+    items: [
+      {
+        kind: "fill", tag: "U1 · so many", img: "illust/u1_s4_prizes_cheer.jpg",
+        parts: ["When the Bright Kids Hospital carnival opened after morning assembly, helpers counted ", "____", " bright prize tokens beside the ring-toss table, and parents still queued for more games before lunch."],
+        options: ["so many", "so much", "although", "so that"],
+        answer: "so many",
+        explain: "Prize tokens are plural countable → so many."
+      },
+      {
+        kind: "fill", tag: "U2 · if…will", img: "illust/u2_s4_whistle_drill.jpg",
+        parts: ["If the yellow whistle sounds three sharp times during the hillside practice, every classmate ", "____", " freeze beside the sandbag wall until Miss Wong waves them on."],
+        options: ["will", "would", "so that", "although"],
+        answer: "will",
+        explain: "First conditional: If + present, … will + verb."
+      },
+      {
+        kind: "join", tag: "U1 · who", img: "illust/u1_s4_soup_helpers.jpg",
+        a: "This is the volunteer.",
+        b: "She ladles warm vegetable soup for visitors at the carnival charity stall.",
+        options: ["who", "which"],
+        answer: "who",
+        full: "This is the volunteer who ladles warm vegetable soup for visitors at the carnival charity stall.",
+        explain: "Volunteer = person → who."
+      },
+      {
+        kind: "fill", tag: "U3 · although", img: "illust/u3_s4_juice_table.jpg",
+        parts: ["", "____", " the Sports Day picnic juice looked a little cloudy in the plastic cups, the runners still drank every drop after the final race."],
+        options: ["Although", "After", "So that", "If"],
+        answer: "Although",
+        explain: "Although introduces a contrast."
+      },
+      {
+        kind: "fill", tag: "U4 · as…as", img: "illust/u4_s4_lead_singer.jpg",
+        parts: ["Our silver-mic solo sounded ", "____", " clear ", "____", " the rehearsal track Miss Chan played through the hall speakers."],
+        options: ["as · as", "so · that", "as · than", "more · as"],
+        answer: "as · as",
+        answers: ["as", "as"],
+        explain: "as + adjective + as → equal comparison."
+      },
+      {
+        kind: "fill", tag: "U2 · so that", img: "illust/u2_s4_helmets.jpg",
+        parts: ["Class 6A tightened every yellow helmet strap ", "____", " loose soil cannot hit anyone during the slope-safety drills on the hillside path."],
+        options: ["so that", "although", "before", "as"],
+        answer: "so that",
+        explain: "so that shows purpose — we want them to stay safe."
+      },
+      {
+        kind: "fill", tag: "U3 · after", img: "illust/u3_s4_wrap_sandwich.jpg",
+        parts: ["", "____", " we wrapped every jam sandwich in clear film, Leo stacked them carefully on the purple Sports Day trays."],
+        options: ["After", "Although", "So that", "If"],
+        answer: "After",
+        explain: "After + the action that finished first."
+      },
+      {
+        kind: "fill", tag: "U4 · if…would", img: "illust/u4_s4_dance_star.jpg", hard: true,
+        parts: ["I would spin twice before the chorus lights flashed behind me if I ", "____", " the dancing star on the cardboard stage."],
+        options: ["were", "am", "will be", "was being"],
+        answer: "were",
+        explain: "Imaginary / second conditional: If I were…, I would…"
+      },
+      {
+        kind: "fill", tag: "U2 · mixed harder", img: "illust/u2_s4_sandbags.jpg", hard: true,
+        parts: ["We ", "____", " pile fresh sandbags along the crack if weekend rain softens the upper slope again, ", "____", " families can still use the garden path safely."],
+        options: ["will · so that", "would · although", "will · although", "would · so that"],
+        answer: "will · so that",
+        answers: ["will", "so that"],
+        explain: "Real future plan → will. Purpose → so that. (Unit 2)"
+      },
+      {
+        kind: "join", tag: "U1 · which", img: "illust/u1_s4_lucky_draw.jpg",
+        a: "These are the lucky-draw tickets.",
+        b: "Parents bought them before the prize wheel spun at the carnival.",
+        options: ["who", "which"],
+        answer: "which",
+        full: "These are the lucky-draw tickets which parents bought before the prize wheel spun at the carnival.",
+        explain: "Tickets = things → which."
+      },
+      {
+        kind: "fill", tag: "U1 · so much", img: "illust/u1_s4_coin_jars.jpg",
+        parts: ["By closing time the carnival helpers had poured ", "____", " spare change into the blue donation box, and Miss Wong still thanked every visitor at the ticket gate."],
+        options: ["so much", "so many", "although", "so that"],
+        answer: "so much",
+        explain: "Change / money is uncountable → so much."
+      },
+      {
+        kind: "fill", tag: "U3 · before", img: "illust/u4_s4_prop_check.jpg",
+        parts: ["", "____", " the musical finale began under the bright lights, the prop team checked every silver mic cable behind the cardboard curtains."],
+        options: ["Before", "Although", "So that", "If"],
+        answer: "Before",
+        explain: "Before + the later event — checking finished first."
+      }
+    ]
+  };
+
+
+  // Set 5 — 12 NEW mixed stems (toy bazaar / power-cut help / Breakfast Club / newsroom weather)
+  // Themes draw on Unit Set 5 worlds but stems are not recycled from Unit Story/Chat/Join or Boss Sets 1–4
+  const set5Data = {
+    items: [
+      {
+        kind: "fill", tag: "U1 · so many", img: "illust/u1_s5_sorting_toys.jpg",
+        parts: ["When the Warm Hearts helpers unlocked the sorting room after assembly, Class 6A stacked ", "____", " board-game boxes along the blue shelf, and Miss Chan still wheeled in another crate before the bazaar gate opened."],
+        options: ["so many", "so much", "although", "so that"],
+        answer: "so many",
+        explain: "Board-game boxes are plural countable → so many."
+      },
+      {
+        kind: "fill", tag: "U2 · if…will", img: "illust/u2_s5_stuck_lift.jpg",
+        parts: ["If the lift doors freeze halfway during the blackout drill, the night helpers ", "____", " guide every neighbour down the cool stairwell with a spare torch."],
+        options: ["will", "would", "so that", "although"],
+        answer: "will",
+        explain: "First conditional: If + present, … will + verb."
+      },
+      {
+        kind: "join", tag: "U1 · who", img: "illust/u1_s5_lemonade_teachers.jpg",
+        a: "This is the teacher.",
+        b: "She pours cold lemonade for tired helpers beside the charity toy tables.",
+        options: ["who", "which"],
+        answer: "who",
+        full: "This is the teacher who pours cold lemonade for tired helpers beside the charity toy tables.",
+        explain: "Teacher = person → who."
+      },
+      {
+        kind: "fill", tag: "U3 · although", img: "illust/u3_s5_honey_drizzle.jpg",
+        parts: ["", "____", " the golden honey looked sticky on the tasting spoons, the Breakfast Club parents still asked for a second drizzle on every pancake."],
+        options: ["Although", "After", "So that", "If"],
+        answer: "Although",
+        explain: "Although introduces a contrast."
+      },
+      {
+        kind: "fill", tag: "U4 · as…as", img: "illust/u4_s5_studio_lights.jpg",
+        parts: ["Our weather-report short looked ", "____", " bright ", "____", " the studio lights behind the cardboard news desk."],
+        options: ["as · as", "so · that", "as · than", "more · as"],
+        answer: "as · as",
+        answers: ["as", "as"],
+        explain: "as + adjective + as → equal comparison."
+      },
+      {
+        kind: "fill", tag: "U2 · so that", img: "illust/u2_s5_hall_torches.jpg",
+        parts: ["Class 6A taped bright arrows on every stair corner ", "____", " late families could find the hall help station without asking twice."],
+        options: ["so that", "although", "before", "as"],
+        answer: "so that",
+        explain: "so that shows purpose — we want them to find the station."
+      },
+      {
+        kind: "fill", tag: "U3 · after", img: "illust/u3_s5_chop_bananas.jpg",
+        parts: ["", "____", " we chopped the bananas for the yoghurt cups, Leo lined the tasting spoons beside the Breakfast Club sign."],
+        options: ["After", "Although", "So that", "If"],
+        answer: "After",
+        explain: "After + the action that finished first."
+      },
+      {
+        kind: "fill", tag: "U4 · if…would", img: "illust/u4_s5_field_reporter.jpg", hard: true,
+        parts: ["I would hold the toy camera steady until the weather cue music started if I ", "____", " the orange-badge field reporter on the cardboard street."],
+        options: ["were", "am", "will be", "was being"],
+        answer: "were",
+        explain: "Imaginary / second conditional: If I were…, I would…"
+      },
+      {
+        kind: "fill", tag: "U2 · mixed harder", img: "illust/u2_s5_battery_kits.jpg", hard: true,
+        parts: ["We ", "____", " hand out spare battery kits if the hall radio crackles during the blackout, ", "____", " every family can keep a small torch working until morning."],
+        options: ["will · so that", "would · although", "will · although", "would · so that"],
+        answer: "will · so that",
+        answers: ["will", "so that"],
+        explain: "Real future plan → will. Purpose → so that. (Unit 2)"
+      },
+      {
+        kind: "join", tag: "U1 · which", img: "illust/u1_s5_toy_tables.jpg",
+        a: "These are the long toy tables.",
+        b: "Parents wiped them twice before the first Warm Hearts visitor arrived.",
+        options: ["who", "which"],
+        answer: "which",
+        full: "These are the long toy tables which parents wiped twice before the first Warm Hearts visitor arrived.",
+        explain: "Toy tables = things → which."
+      },
+      {
+        kind: "fill", tag: "U1 · so much", img: "illust/u1_s5_coin_envelopes.jpg",
+        parts: ["After the last raffle spin, Class 6A had counted ", "____", " spare change into the sealed envelopes, and the Warm Hearts driver still waited cheerfully at the gate."],
+        options: ["so much", "so many", "although", "so that"],
+        answer: "so much",
+        explain: "Change / money is uncountable → so much."
+      },
+      {
+        kind: "fill", tag: "U3 · before", img: "illust/u3_s5_label_cups.jpg",
+        parts: ["", "____", " the Breakfast Club tasting began, Mia wiped every yoghurt cup and stuck a name sticker on each clear lid."],
+        options: ["Before", "Although", "So that", "If"],
+        answer: "Before",
+        explain: "Before + the later event — wiping finished first."
+      }
+    ]
+  };
+
+  function boot(SETS) {
+  const SET_KEY = "boss-set-i";
+
+  function resolveSet() {
+    const q = parseInt(new URLSearchParams(location.search).get("set"), 10);
+    if (q >= 1 && q <= SETS.length) return { index: q - 1, forced: true };
+    let i = parseInt(localStorage.getItem(SET_KEY) || "0", 10);
+    if (isNaN(i) || i < 0) i = 0;
+    return { index: i % SETS.length, forced: false };
+  }
+
+  const resolved = resolveSet();
+  const setIndex = resolved.index;
+  const forced = resolved.forced;
+  const items = SETS[setIndex].items;
+
+  let idx = 0, selected = null, locked = false, correctCount = 0, lives = 3;
+
+  const qNum = document.getElementById("q-num");
+  const livesEl = document.getElementById("lives");
+  const dots = document.getElementById("dots");
+  const art = document.getElementById("art");
+  const prompt = document.getElementById("prompt");
+  const pair = document.getElementById("pair");
+  const choices = document.getElementById("choices");
+  const btnCheck = document.getElementById("btn-check");
+  const btnNext = document.getElementById("btn-next");
+  const btnClear = document.getElementById("btn-clear");
+  const toast = document.getElementById("toast");
+
+  function renderLives() {
+    let html = "";
+    for (let i = 0; i < 3; i++) {
+      html += '<span class="heart' + (i >= lives ? " lost" : "") + '" aria-hidden="true">' + HEART_SVG + "</span>";
+    }
+    livesEl.innerHTML = html;
+  }
+
+  function renderDots() {
+    dots.innerHTML = "";
+    items.forEach((_, i) => {
+      const s = document.createElement("span");
+      if (i < idx) s.className = "done";
+      else if (i === idx) s.className = "now";
+      dots.appendChild(s);
+    });
+  }
+
+  function joinParts(it) {
+    const token = " " + it.answer + " ";
+    const full = it.full || "";
+    const at = full.indexOf(token);
+    if (at < 0) return [full];
+    return [full.slice(0, at + 1), "REL", full.slice(at + token.length - 1)];
+  }
+
+  function renderJoinStem(val, mode) {
+    const it = items[idx];
+    let html = "";
+    joinParts(it).forEach((p) => {
+      if (p === "REL") {
+        const shown = val || "________";
+        let cls = "blank";
+        if (val) {
+          if (mode === "ok") cls = "blank ok";
+          else if (mode === "soft") cls = "blank soft-answer";
+          else cls = "blank filled";
+        }
+        html += '<span class="' + cls + '">' + shown + "</span>";
+      } else html += p;
+    });
+    prompt.innerHTML = html;
+  }
+
+  function renderPrompt(val, mode) {
+    const it = items[idx];
+    if (it.kind === "join") {
+      renderJoinStem(val, mode);
+      return;
+    }
+    let html = "", bi = 0;
+    const vals = it.answers
+      ? (val ? String(val).split(" · ") : null)
+      : (val != null ? [val] : null);
+    it.parts.forEach((p) => {
+      if (p === "____") {
+        const v = vals && vals[bi] != null ? vals[bi] : "____";
+        let cls = "blank";
+        if (vals && vals[bi] != null) {
+          if (mode === "ok") cls = "blank ok";
+          else if (mode === "soft") cls = "blank soft-answer";
+          else cls = "blank filled";
+        }
+        html += '<span class="' + cls + '">' + v + "</span>";
+        bi++;
+      } else html += p;
+    });
+    if (it.hard) html += '<span class="hard-badge">Harder</span>';
+    prompt.innerHTML = html;
+  }
+
+  function render() {
+    const it = items[idx];
+    locked = false;
+    selected = null;
+    qNum.textContent = (idx + 1) + " / " + items.length;
+    art.src = it.img;
+    if (window.ImgFrame) ImgFrame.apply(art, it.frame);
+    toast.hidden = true;
+    btnNext.hidden = true;
+    btnCheck.disabled = true;
+    btnClear.disabled = false;
+    renderDots();
+    renderLives();
+
+    if (it.kind === "join") {
+      pair.hidden = true;
+      pair.innerHTML = "";
+      renderJoinStem(null);
+    } else {
+      pair.hidden = true;
+      pair.innerHTML = "";
+      renderPrompt(null);
+    }
+
+    choices.innerHTML = "";
+    it.options.forEach((opt) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "choice";
+      if (it.answers || (it.kind === "join" && opt.length > 8)) btn.classList.add("block");
+      if (it.answers) btn.classList.add("block");
+      btn.textContent = opt;
+      btn.addEventListener("click", () => {
+        if (locked) return;
+        selected = opt;
+        [...choices.children].forEach((c) => c.classList.remove("selected"));
+        btn.classList.add("selected");
+        if (it.kind === "join") renderJoinStem(opt);
+        else renderPrompt(opt);
+        btnCheck.disabled = false;
+      });
+      choices.appendChild(btn);
+    });
+  }
+
+  function advanceSetIfNeeded() {
+    if (!forced) {
+      localStorage.setItem(SET_KEY, String((setIndex + 1) % SETS.length));
+    }
+  }
+
+  function finish(won) {
+    advanceSetIfNeeded();
+    if (won && lives >= 1 && !forced && window.Badges) {
+      var grammarRewards = Badges.recordGrammarBoss(lives);
+      if (window.GrammarProgress) GrammarProgress.show(grammarRewards);
+    }
+    document.getElementById("game").hidden = true;
+    document.getElementById("done").hidden = false;
+    document.getElementById("done-title").textContent = won ? "Boss cleared!" : "Out of lives";
+    document.getElementById("done-art").src = won ? FB.ok : FB.bad;
+    document.getElementById("score-big").textContent = correctCount + " / " + items.length;
+    document.getElementById("done-sub").textContent =
+      won
+        ? ("correct · " + lives + " life" + (lives === 1 ? "" : "s") + " left")
+        : ("correct before the round ended · try again!");
+  }
+
+  btnClear.addEventListener("click", () => {
+    if (locked) return;
+    selected = null;
+    [...choices.children].forEach((c) => c.classList.remove("selected"));
+    if (items[idx].kind === "join") renderJoinStem(null);
+    else renderPrompt(null);
+    btnCheck.disabled = true;
+    toast.hidden = true;
+  });
+
+  btnCheck.addEventListener("click", () => {
+    if (!selected || locked) return;
+    locked = true;
+    const it = items[idx];
+    const ok = selected === it.answer;
+    [...choices.children].forEach((c) => {
+      c.disabled = true;
+      if (c.textContent === it.answer) c.classList.add("correct");
+      else if (c.textContent === selected && !ok) c.classList.add("wrong");
+    });
+    if (it.kind === "join") renderJoinStem(it.answer, ok ? "ok" : "soft");
+    else renderPrompt(it.answer, ok ? "ok" : "soft");
+    if (ok) {
+      correctCount++;
+      showToast(toast, "Nice!", it.explain + (it.full ? " → " + it.full : ""), "ok");
+    } else {
+      lives--;
+      renderLives();
+      showToast(
+        toast,
+        "Not quite",
+        (it.full ? it.full + " — " : "Answer: " + it.answer + " — ") + it.explain,
+        "bad"
+      );
+    }
+    btnCheck.disabled = true;
+    btnClear.disabled = true;
+    if (lives <= 0) {
+      btnNext.hidden = false;
+      btnNext.textContent = "See result";
+      btnNext.dataset.end = "lose";
+    } else {
+      btnNext.hidden = false;
+      btnNext.textContent = idx === items.length - 1 ? "Finish" : "Next";
+      btnNext.dataset.end = "";
+    }
+  });
+
+  btnNext.addEventListener("click", () => {
+    if (btnNext.dataset.end === "lose") {
+      finish(false);
+      return;
+    }
+    if (idx >= items.length - 1) {
+      finish(true);
+      return;
+    }
+    idx++;
+    render();
+  });
+
+  render();
+  }
+  var bakedSets = [set1Data, set2Data, set3Data, set4Data, set5Data];
+  function startPublished(sets) { boot(sets && sets.length ? sets : bakedSets); }
+  if (window.GrammarLive) {
+    GrammarLive.load({ unit: 'mixed', mode: 'boss' }).then(startPublished, function () { startPublished(null); });
+  } else {
+    startPublished(null);
+  }
+})();
+</script>
+</body>
+</html>

@@ -20,7 +20,7 @@
 </head>
 <body>
 <header class="prac-header">
-  <a class="back" href="../index.html">← Back to packs</a>
+  <a class="back" href="../">← Back to packs</a>
   <h1>Practice hub</h1>
   <p class="sub" id="unit-sub">Pick a unit and a game</p>
 </header>
@@ -51,10 +51,10 @@
 
   const ready = !!(pack && ((pack.fillIn && pack.fillIn.length) || (pack.matching && pack.matching.length)));
   const games = [
-    { id: 'fill', cls: 'gc-fill', icon: 'icons/fill.svg', title: 'Sentence fill-in', desc: 'Easy: drag words · Hard: type the phrase', href: 'fill.html' },
-    { id: 'letters', cls: 'gc-letters', icon: 'icons/letters.svg', title: 'Missing letters', desc: 'Spell the full phrase · Easy or Hard', href: 'letters.html' },
-    { id: 'match', cls: 'gc-match', icon: 'icons/match.svg', title: 'Memory match', desc: '10 cards · 5 pairs · word form shown', href: 'match.html' },
-    { id: 'timed', cls: 'gc-timed', icon: 'icons/timed.svg', title: 'Timed challenge', desc: '60 seconds · wrong answers keep the clock', href: 'timed.html' }
+    { id: 'fill', cls: 'gc-fill', icon: 'icons/fill.svg', title: 'Sentence fill-in', desc: 'Easy: drag words · Hard: type the phrase', href: 'fill/' },
+    { id: 'letters', cls: 'gc-letters', icon: 'icons/letters.svg', title: 'Missing letters', desc: 'Spell the full phrase · Easy or Hard', href: 'letters/' },
+    { id: 'match', cls: 'gc-match', icon: 'icons/match.svg', title: 'Memory match', desc: '10 cards · 5 pairs · word form shown', href: 'match/' },
+    { id: 'timed', cls: 'gc-timed', icon: 'icons/timed.svg', title: 'Timed challenge', desc: '60 seconds · wrong answers keep the clock', href: 'timed/' }
   ];
   const grid = document.getElementById('game-grid');
   games.forEach(g => {

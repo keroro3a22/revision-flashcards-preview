@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<base href="../">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Test payment · English Revision</title>
+  <link rel="stylesheet" href="assets/site.css?v=55" />
+</head>
+<body>
+  <main class="wrap" style="max-width: 40rem; margin: 3rem auto; padding: 0 1rem;">
+    <p><a href="./">Back to website</a></p>
+    <h1>Test payment</h1>
+    <p id="payment-status">Checking the test payment…</p>
+  </main>
+  <script>
+    (function () {
+      var status = document.getElementById('payment-status');
+      var id = '';
+      try { id = new URLSearchParams(location.search).get('id') || ''; } catch (e) {}
+      if (!id) {
+        status.textContent = 'This test payment has no id. The download stays locked.';
+        return;
+      }
+      fetch('/api/payments/status?id=' + encodeURIComponent(id))
+        .then(function (response) { return response.json(); })
+        .then(function (body) {
+          status.textContent = body.message || body.error || 'The download stays locked.';
+        })
+        .catch(function () {
+          status.textContent = 'The payment server is not running. The download stays locked.';
+        });
+    })();
+  </script>
+</body>
+</html>

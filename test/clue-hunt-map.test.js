@@ -6,7 +6,7 @@ const path = require('node:path');
 const root = path.join(__dirname, '..');
 
 function huntHtml() {
-  return fs.readFileSync(path.join(root, 'game/clue-hunt.html'), 'utf8');
+  return fs.readFileSync(path.join(root, 'game/clue-hunt/index.html'), 'utf8');
 }
 
 test('intro leads to a six-stop paper map before any quiz', () => {
@@ -109,7 +109,7 @@ test('notebook and solve page are present, without a missing-person picker', () 
   assert.match(solve, /id="solve-back"/);
   assert.doesNotMatch(solve, /id="what-choices"/);
   assert.doesNotMatch(solve, /Who is missing/);
-  assert.match(html, /href="index\.html">← Game</);
+  assert.match(html, /href="\.\/">← Game</);
   assert.match(html, /id="back-map"/);
   assert.match(html, /id="scene-actions"/);
   assert.match(html, /id="scene-spots"/);

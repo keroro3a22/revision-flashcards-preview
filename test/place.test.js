@@ -43,15 +43,15 @@ test('a unit opens revision cards and practice, split into vocab and grammar', (
   assert.equal(groups.map((group) => group.label).join(','), 'Revision card,Practice');
   const revision = Object.fromEntries(groups[0].items.map((door) => [door.label, door.href]));
   const practice = Object.fromEntries(groups[1].items.map((door) => [door.label, door.href]));
-  assert.deepEqual(revision, { Vocab: 'unit1/index.html', Grammar: 'unit1/grammar.html' });
+  assert.deepEqual(revision, { Vocab: 'unit1/', Grammar: 'unit1/grammar/' });
   assert.deepEqual(practice, {
-    Vocab: 'practice/index.html?unit=unit1',
-    Grammar: 'practice/grammar/unit1-hub.html'
+    Vocab: 'practice/?unit=unit1',
+    Grammar: 'practice/grammar/unit1-hub/'
   });
-  assert.equal(groups[0].items[1].href, 'unit1/grammar.html');
+  assert.equal(groups[0].items[1].href, 'unit1/grammar/');
   const later = P.entriesFor({ book: 'oxford', level: 'p6', unit: 'unit5' });
   assert.equal(later[1].items[1].ready, true);
-  assert.equal(later[1].items[1].href, 'practice/grammar/unit5-hub.html');
+  assert.equal(later[1].items[1].href, 'practice/grammar/unit5-hub/');
   const bookB = P.entriesFor({ book: 'oxford', series: 'oxford', level: 'p6', term: 'second', unit: 'unit6' });
   assert.equal(bookB[1].items[1].ready, false);
   const other = P.entriesFor({ book: 'oxford', level: 'p6', unit: 'unit2' });
@@ -75,7 +75,7 @@ test('the same grade shares one game across books and terms', () => {
   const P = place();
   const oxford = flat(P.entriesFor({ book: 'oxford', level: 'p6', term: 'first', unit: 'game' }))[0];
   const elect = flat(P.entriesFor({ book: 'longman', series: 'elect', level: 'p6', term: 'second', unit: 'game' }))[0];
-  assert.equal(oxford.href, 'game/index.html');
+  assert.equal(oxford.href, 'game/');
   assert.equal(elect.href, oxford.href);
   assert.equal(flat(P.entriesFor({ book: 'oxford', level: 'p1', unit: 'game' }))[0].ready, false);
   const stayed = P.withChange({ book: 'oxford', level: 'p6', term: 'first', unit: 'game' }, { book: 'longman', term: 'second' });

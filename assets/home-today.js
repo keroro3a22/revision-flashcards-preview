@@ -42,7 +42,7 @@ window.HomeToday = (function () {
           zh: w.zh,
           audio: publicPath(w.audio),
           img: publicPath(w.img),
-          href: u.id + '/index.html#c' + n
+          href: u.id + '/#c' + n
         });
       });
     });
@@ -60,7 +60,9 @@ window.HomeToday = (function () {
       if (!raw) return null;
       var data = JSON.parse(raw);
       if (!data || typeof data.href !== 'string' || typeof data.en !== 'string') return null;
-      if (!/^(unit[1-4]|dictation3)\/index\.html#c[1-9]\d*$/.test(data.href)) return null;
+      var href = data.href.replace(/\/index\.html(?=[#?]|$)/, '/').replace(/\.html(?=[#?]|$)/, '/');
+      if (!/^(unit[1-4]|dictation3)\/#c[1-9]\d*$/.test(href)) return null;
+      data.href = href;
       return data;
     } catch (e) {
       return null;

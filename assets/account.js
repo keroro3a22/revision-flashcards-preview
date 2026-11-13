@@ -117,31 +117,39 @@
     return (root || '') + file;
   }
 
+  function cleanPlace(rel) {
+    rel = String(rel || '').replace(/^\//, '');
+    rel = rel.replace(/(^|\/)index\.html(?=[#?]|$)/, '$1');
+    rel = rel.replace(/\.html(?=[#?]|$)/, '/');
+    return rel;
+  }
+
   function currentPlace() {
     try {
       var root = siteRoot();
       var rootPath = new URL(root || window.location.href).pathname;
       var path = window.location.pathname || '';
       var rel = path.indexOf(rootPath) === 0 ? path.slice(rootPath.length) : '';
-      rel = rel.replace(/^\//, '') || 'index.html';
-      return rel + (window.location.search || '') + (window.location.hash || '');
+      rel = cleanPlace(rel);
+      var tail = (window.location.search || '') + (window.location.hash || '');
+      return (rel || './') + tail;
     } catch (e) {
-      return 'index.html';
+      return './';
     }
   }
 
   function accountHref() {
     var root = siteRoot();
-    var account = (root || '') + 'account.html';
-    if (!root) return 'account.html';
+    var account = (root || '') + 'account/';
+    if (!root) return 'account/';
     try {
       var rootPath = new URL(root).pathname;
       var rel = window.location.pathname.indexOf(rootPath) === 0
         ? window.location.pathname.slice(rootPath.length)
         : '';
       if (window.location.hash) rel += window.location.hash;
-      rel = rel.replace(/^\//, '');
-      if (!rel || rel === 'account.html') return account;
+      rel = cleanPlace(rel);
+      if (!rel || rel === './' || rel === 'account' || rel === 'account/' || rel.indexOf('account/') === 0) return account;
       var safe = P.safeNext(rel);
       return safe ? account + '?next=' + encodeURIComponent(safe) : account;
     } catch (e) {
@@ -154,7 +162,8 @@
     if (!root) root = new URL('./', window.location.href).href;
     var safe = '';
     try { safe = P.safeNext(new URLSearchParams(window.location.search).get('next') || ''); } catch (e) {}
-    if (!safe) return root + 'index.html';
+    safe = cleanPlace(safe);
+    if (!safe || safe === './') return root;
     return new URL(safe, root).href;
   }
 
@@ -258,7 +267,7 @@
           try { sessionStorage.setItem('revision-studio-from', currentPlace()); } catch (e) {}
         });
       }
-      link.href = pageHref('studio.html');
+      link.href = pageHref('studio/');
       slot.insertBefore(link, slot.firstChild);
     });
   }
@@ -533,13 +542,13 @@
         }
         paintLink();
         unhide();
-        if (document.getElementById('account-settings')) window.location.replace(pageHref('account.html'));
+        if (document.getElementById('account-settings')) window.location.replace(pageHref('account/'));
         return null;
       }
       userId = session.user.id;
       displayName = labelFromUser(session.user);
       if (!opts.afterLogin && document.getElementById('account-form') && !document.getElementById('account-settings')) {
-        window.location.replace(pageHref('profile.html'));
+        window.location.replace(pageHref('profile/'));
         return null;
       }
       return sessionIsCurrent().then(function (ok) {

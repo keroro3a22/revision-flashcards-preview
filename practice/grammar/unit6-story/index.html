@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<base href="../">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Story Book · Unit 6 Grammar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="grammar.css?v=47"/>
+<link rel="stylesheet" href="../../assets/chrome.css?v=4" />
+<link rel="stylesheet" href="../../assets/profile.css?v=4" />
+<link rel="stylesheet" href="../../assets/account.css?v=1" />
+<script src="../../assets/supabase-public.js?v=1"></script>
+<script src="../../assets/progress-sync.js?v=2"></script>
+<script src="../../assets/place.js?v=8"></script>
+<script src="../../assets/place-ui.js?v=17"></script>
+<script src="../../assets/profile.js?v=5"></script>
+<script src="../../assets/account.js?v=11"></script>
+</head>
+<body>
+<header class="prac-header">
+  <a class="back" href="../../">← Back to packs</a>
+  <h1>Story Book</h1>
+  <p class="sub" id="story-sub">Class 6A holds a morning food-stall tasting in the covered playground</p>
+</header>
+<main class="wrap">
+  <div class="toolbar">
+    <span class="chip sunny" id="q-num">Scene 1 / 7</span>
+    <div class="progress-dots" id="dots" aria-label="Progress"></div>
+  </div>
+  <div class="panel" id="game">
+    <div class="story-page">
+      <div class="story-beat-label" id="beat-label">Scene 1</div>
+      <div class="story-panel-art" id="art-wrap"><img id="art" alt="" src="illust/u6_s1_q1.jpg"/></div>
+<p class="hint-soft" id="hint">Read the story. Fill each blank, then Check to turn the page.</p>
+      <p class="prompt" id="prompt"></p>
+      <div class="choices" id="choices"></div>
+      <div class="btn-row">
+        <button type="button" class="btn btn-ghost" id="btn-clear">Clear</button>
+        <button type="button" class="btn btn-primary" id="btn-check" disabled>Check</button>
+        <button type="button" class="btn btn-secondary" id="btn-next" hidden>Next page</button>
+      </div>
+      <div class="toast" id="toast" hidden></div>
+    </div>
+  </div>
+  <div class="panel result-card" id="done" hidden>
+    <div class="story-panel-art" style="max-width:280px;margin:0 auto 1rem;aspect-ratio:1.2"><img src="illust/u6_s1_q7.jpg" alt=""/></div>
+    <h2>Story complete!</h2>
+    <p class="big" id="score-big">0</p>
+    <p>correct scenes · International Week</p>
+    <div class="btn-row" style="justify-content:center">
+      <a class="btn btn-primary" id="btn-again" href="unit6-story/">Read again</a>
+      <a class="btn btn-ghost" href="unit6-hub/">Hub</a>
+    </div>
+  </div>
+</main>
+<script src="../../practice/badges.js"></script>
+<script src="grammar-progress.js"></script>
+<script src="../../assets/img-frame.js?v=12"></script>
+<script src="../../assets/vendor/supabase.js?v=1"></script>
+<script src="grammar-live.js?v=3"></script>
+<script>
+(function () {
+  /* Authors: ?set=1|2|3|4|5 (1-based) forces that authored set; never show set chips on screen.
+     Students (no ?set=): silent rotate via localStorage key u6-story-set-i. */
+  const FB = { ok: "illust/feedback-ok.png", bad: "illust/feedback-bad.png" };
+  function showToast(el, title, explain, kind) {
+    el.className = "toast toast-feedback has-art " + kind;
+    el.innerHTML =
+      '<img class="toast-art" src="' + FB[kind === "ok" ? "ok" : "bad"] + '" alt=""/>' +
+      '<div class="toast-body"><div class="toast-title"></div><div class="toast-explain"></div></div>';
+    el.querySelector(".toast-title").textContent = title;
+    el.querySelector(".toast-explain").textContent = explain || "";
+    el.hidden = false;
+  }
+  const set1Data = {
+    "scenes": [
+      {
+        "img": "illust/u6_s1_q1.jpg",
+        "label": "Scene 1 · The Korea stall clock",
+        "parts": [
+          "The Korea stall stays open ",
+          "____",
+          " twelve o’clock."
+        ],
+        "answer": [
+          "until"
+        ],
+        "blanks": 1,
+        "explain": "The stall stops serving at that time → until.",
+        "options": [
+          "each",
+          "both",
+          "until",
+          "several"
+        ],
+        "art_hint": "有蓋操場的韓國攤位，桌上有泡菜小碟，附近時鐘接近十二時，學生正在試味"
+      },
+      {
+        "img": "illust/u6_s1_q2.jpg",
+        "label": "Scene 2 · Aprons and soup bowls",
+        "parts": [
+          "",
+          "____",
+          " helper at the China stall wears a clean apron, and ",
+          "____",
+          " bowls of wonton soup, noodle soup and egg-drop soup along the front rail are already empty."
+        ],
+        "answer": [
+          "Each",
+          "several"
+        ],
+        "blanks": 2,
+        "explain": "Helper is singular → each + singular noun. Three kinds of bowls → several + plural noun.",
+        "options": [
+          "Both · several",
+          "Each · several",
+          "Several · each",
+          "Until · both"
+        ],
+        "art_hint": "中國攤位的幫手穿著乾淨圍裙；前欄上有雲吞湯、麵湯和蛋花湯碗，若干已空",
+        "optionPairs": [
+          [
+            "Both",
+            "several"
+          ],
+          [
+            "Each",
+            "several"
+          ],
+          [
+            "Several",
+            "each"
+          ],
+          [
+            "Until",
+            "both"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u6_s1_q3.jpg",
+        "hard": true,
+        "label": "Scene 3 · Tea and soya milk",
+        "parts": [
+          "",
+          "____",
+          " drinks on the side table, the tea and the sweet soya milk, stay warm, and the Japan stall keeps serving ",
+          "____",
+          " the last visitor leaves."
+        ],
+        "answer": [
+          "Both",
+          "until"
+        ],
+        "blanks": 2,
+        "explain": "The tea and the sweet soya milk are two drinks → both + plural noun. Serving ends when the last visitor leaves → until.",
+        "options": [
+          "Both · until",
+          "Several · until",
+          "Each · each",
+          "Until · both"
+        ],
+        "art_hint": "旁桌放著熱茶與甜豆漿；日本攤位仍在招呼最後一位訪客",
+        "optionPairs": [
+          [
+            "Both",
+            "until"
+          ],
+          [
+            "Several",
+            "until"
+          ],
+          [
+            "Each",
+            "each"
+          ],
+          [
+            "Until",
+            "both"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u6_s1_q4.jpg",
+        "label": "Scene 4 · Cups and trays",
+        "parts": [
+          "",
+          "____",
+          " tasting cup is washed after use, and ",
+          "____",
+          " dirty trays from the China, Japan, Korea and Italy stalls stand beside the washing tub."
+        ],
+        "answer": [
+          "Each",
+          "several"
+        ],
+        "blanks": 2,
+        "explain": "Cup is singular → each + singular noun. Trays from four stalls → several + plural noun.",
+        "options": [
+          "Both · several",
+          "Several · each",
+          "Until · both",
+          "Each · several"
+        ],
+        "art_hint": "學生洗試味杯；洗滌盆旁放著來自不同攤位的多個髒托盤",
+        "optionPairs": [
+          [
+            "Both",
+            "several"
+          ],
+          [
+            "Several",
+            "each"
+          ],
+          [
+            "Until",
+            "both"
+          ],
+          [
+            "Each",
+            "several"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u6_s1_q5.jpg",
+        "label": "Scene 5 · Two soup spoons",
+        "parts": [
+          "",
+          "____",
+          " spoons for the soup, the large one and the small one, stay in the same jar."
+        ],
+        "answer": [
+          "Both"
+        ],
+        "blanks": 1,
+        "explain": "The large spoon and the small spoon are two things → both + plural noun.",
+        "options": [
+          "Each",
+          "Both",
+          "Several",
+          "Until"
+        ],
+        "art_hint": "同一個瓶子裏放著一大一小兩把湯匙"
+      },
+      {
+        "img": "illust/u6_s1_q6.jpg",
+        "hard": true,
+        "label": "Scene 6 · The Italy stall packs away",
+        "parts": [
+          "The Italy stall does not pack away ",
+          "____",
+          " Mr Tam rings the small bell, ",
+          "____",
+          " leftover slice of pizza is wrapped, and ",
+          "____",
+          " bottles of olive oil, the green one and the gold one, go back into the box."
+        ],
+        "answer": [
+          "until",
+          "each",
+          "both"
+        ],
+        "blanks": 3,
+        "explain": "Packing begins when the bell rings → until. Slice is singular → each + singular noun. Two bottles → both + plural noun.",
+        "options": [
+          "until · each · both",
+          "until · both · each",
+          "each · until · several",
+          "several · each · until"
+        ],
+        "art_hint": "意大利攤位仍開著；Mr Tam 搖著小鈴；剩下的披薩片被包起；盒中有綠、金兩瓶橄欖油",
+        "optionPairs": [
+          [
+            "until",
+            "each",
+            "both"
+          ],
+          [
+            "until",
+            "both",
+            "each"
+          ],
+          [
+            "each",
+            "until",
+            "several"
+          ],
+          [
+            "several",
+            "each",
+            "until"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u6_s1_q7.jpg",
+        "label": "Scene 7 · Maple sweets",
+        "parts": [
+          "",
+          "____",
+          " parents from Class 6A, Class 6B and Class 5A are still waiting for a second taste of the maple sweets from Canada."
+        ],
+        "answer": [
+          "Several"
+        ],
+        "blanks": 1,
+        "explain": "Parents from three classes → several + plural noun.",
+        "options": [
+          "Both",
+          "Each",
+          "Several",
+          "Until"
+        ],
+        "art_hint": "多個班級的家長仍在加拿大攤位前排隊，等候再嘗楓糖甜點"
+      }
+    ],
+    "sub": "Class 6A holds a morning food-stall tasting in the covered playground"
+  };
+
+  const set2Data = {
+    "scenes": [
+      {
+        "img": "illust/u6_s2_q1.jpg",
+        "label": "Scene 1 · A slow step",
+        "parts": [
+          "",
+          "____",
+          " flag bearer practises a slow step around the playground."
+        ],
+        "answer": [
+          "Each"
+        ],
+        "blanks": 1,
+        "explain": "Flag bearer is singular → each + singular noun.",
+        "options": [
+          "Both",
+          "Each",
+          "Several",
+          "Until"
+        ],
+        "art_hint": "操場上一位持旗同學沿場地練習慢步"
+      },
+      {
+        "img": "illust/u6_s2_q2.jpg",
+        "hard": true,
+        "label": "Scene 2 · Costumes on the benches",
+        "parts": [
+          "",
+          "____",
+          " costumes, the cheongsam and the kimono, stay on the benches ",
+          "____",
+          " the rehearsal begins."
+        ],
+        "answer": [
+          "Both",
+          "until"
+        ],
+        "blanks": 2,
+        "explain": "The cheongsam and the kimono are two costumes → both + plural noun. They stay there up to the start of the rehearsal → until.",
+        "options": [
+          "Several · until",
+          "Each · until",
+          "Both · each",
+          "Both · until"
+        ],
+        "art_hint": "長凳上放著旗袍與和服；隊伍尚未起步",
+        "optionPairs": [
+          [
+            "Several",
+            "until"
+          ],
+          [
+            "Each",
+            "until"
+          ],
+          [
+            "Both",
+            "each"
+          ],
+          [
+            "Both",
+            "until"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u6_s2_q3.jpg",
+        "label": "Scene 3 · A line of flags",
+        "parts": [
+          "",
+          "____",
+          " country flags, China, Canada, Japan and Korea, already stand in a straight line."
+        ],
+        "answer": [
+          "Several"
+        ],
+        "blanks": 1,
+        "explain": "Four country flags → several + plural noun.",
+        "options": [
+          "Several",
+          "Both",
+          "Each",
+          "Until"
+        ],
+        "art_hint": "中國、加拿大、日本和韓國四面國旗已排成一直線"
+      },
+      {
+        "img": "illust/u6_s2_q4.jpg",
+        "label": "Scene 4 · Marchers and leaders",
+        "parts": [
+          "",
+          "____",
+          " marcher holds one small flag, and ",
+          "____",
+          " leaders, Tom and May, stand at the front."
+        ],
+        "answer": [
+          "Each",
+          "both"
+        ],
+        "blanks": 2,
+        "explain": "Marcher is singular → each + singular noun. Tom and May are two leaders → both + plural noun.",
+        "options": [
+          "Both · each",
+          "Several · both",
+          "Each · both",
+          "Until · several"
+        ],
+        "art_hint": "每位行進的同學握著一面小旗；Tom 和 May 站在隊伍前方",
+        "optionPairs": [
+          [
+            "Both",
+            "each"
+          ],
+          [
+            "Several",
+            "both"
+          ],
+          [
+            "Each",
+            "both"
+          ],
+          [
+            "Until",
+            "several"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u6_s2_q5.jpg",
+        "hard": true,
+        "label": "Scene 5 · The Scotland row",
+        "parts": [
+          "",
+          "____",
+          " kilts, sashes and knee socks for the Scotland row still need a check, so the line does not move off ",
+          "____",
+          " every pin is fixed."
+        ],
+        "answer": [
+          "Several",
+          "until"
+        ],
+        "blanks": 2,
+        "explain": "Kilts, sashes and knee socks are three or more things → several + plural noun. The line stays still up to the time every pin is fixed → until.",
+        "options": [
+          "Several · until",
+          "Both · until",
+          "Several · each",
+          "Each · until"
+        ],
+        "art_hint": "蘇格蘭行列上的短裙、飾帶和及膝襪仍待檢查；隊伍尚未起步",
+        "optionPairs": [
+          [
+            "Several",
+            "until"
+          ],
+          [
+            "Both",
+            "until"
+          ],
+          [
+            "Several",
+            "each"
+          ],
+          [
+            "Each",
+            "until"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u6_s2_q6.jpg",
+        "label": "Scene 6 · Two drums",
+        "parts": [
+          "",
+          "____",
+          " drums, the large one and the small one, keep the beat, and ",
+          "____",
+          " player watches Mr Tam’s hand."
+        ],
+        "answer": [
+          "Both",
+          "each"
+        ],
+        "blanks": 2,
+        "explain": "Two drums → both + plural noun. Player is singular → each + singular noun.",
+        "options": [
+          "Each · both",
+          "Several · each",
+          "Until · both",
+          "Both · each"
+        ],
+        "art_hint": "一大一小兩面鼓在打拍子；每位鼓手看著 Mr Tam 的手勢",
+        "optionPairs": [
+          [
+            "Each",
+            "both"
+          ],
+          [
+            "Several",
+            "each"
+          ],
+          [
+            "Until",
+            "both"
+          ],
+          [
+            "Both",
+            "each"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u6_s2_q7.jpg",
+        "label": "Scene 7 · Parents at the gate",
+        "parts": [
+          "",
+          "____",
+          " parents from Class 6A, Class 5A and Class 4B wait by the gate, and the rehearsal does not finish ",
+          "____",
+          " the last flag is lowered."
+        ],
+        "answer": [
+          "Several",
+          "until"
+        ],
+        "blanks": 2,
+        "explain": "Parents from three classes → several + plural noun. The rehearsal ends when the last flag is lowered → until.",
+        "options": [
+          "Both · until",
+          "Several · until",
+          "Several · each",
+          "Each · until"
+        ],
+        "art_hint": "多個班級的家長在校門旁觀看；最後一面旗仍未放下",
+        "optionPairs": [
+          [
+            "Both",
+            "until"
+          ],
+          [
+            "Several",
+            "until"
+          ],
+          [
+            "Several",
+            "each"
+          ],
+          [
+            "Each",
+            "until"
+          ]
+        ]
+      }
+    ],
+    "sub": "Class 6A rehearses a flag-and-costume parade in the playground"
+  };
+
+  const set3Data = {
+    "scenes": [
+      {
+        "img": "illust/u6_s3_q1.jpg",
+        "label": "Scene 1 · Two speakers on stage",
+        "parts": [
+          "",
+          "____",
+          " guest speakers, the writer from Italy and the cook from Korea, sit on the hall stage."
+        ],
+        "answer": [
+          "Both"
+        ],
+        "blanks": 1,
+        "explain": "The writer and the cook are two speakers → both + plural noun.",
+        "options": [
+          "Both",
+          "Each",
+          "Several",
+          "Until"
+        ],
+        "art_hint": "禮堂舞台上坐著兩位講者：一位來自意大利的作家，一位來自韓國的廚師"
+      },
+      {
+        "img": "illust/u6_s3_q2.jpg",
+        "label": "Scene 2 · Reserved chairs",
+        "parts": [
+          "",
+          "____",
+          " chairs in the first, second and third rows are reserved for parents, and ",
+          "____",
+          " student in Class 6A has a question card."
+        ],
+        "answer": [
+          "Several",
+          "each"
+        ],
+        "blanks": 2,
+        "explain": "Chairs in three rows → several + plural noun. Student is singular → each + singular noun.",
+        "options": [
+          "Both · each",
+          "Each · several",
+          "Several · each",
+          "Until · both"
+        ],
+        "art_hint": "禮堂前三排椅子貼上給家長的預留標示；6A 學生手上各有一張提問卡",
+        "optionPairs": [
+          [
+            "Both",
+            "each"
+          ],
+          [
+            "Each",
+            "several"
+          ],
+          [
+            "Several",
+            "each"
+          ],
+          [
+            "Until",
+            "both"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u6_s3_q3.jpg",
+        "label": "Scene 3 · The hall clock",
+        "parts": [
+          "The first speaker keeps talking ",
+          "____",
+          " the hall clock shows ten o’clock."
+        ],
+        "answer": [
+          "until"
+        ],
+        "blanks": 1,
+        "explain": "The talk stops at that time → until.",
+        "options": [
+          "each",
+          "until",
+          "both",
+          "several"
+        ],
+        "art_hint": "第一位講者仍在說話，禮堂時鐘指向十時"
+      },
+      {
+        "img": "illust/u6_s3_q4.jpg",
+        "hard": true,
+        "label": "Scene 4 · Microphones and slides",
+        "parts": [
+          "",
+          "____",
+          " microphones, the tall one and the short one, stay on the table, and ",
+          "____",
+          " slides about festivals in China, Japan and Canada already wait on the screen."
+        ],
+        "answer": [
+          "Both",
+          "several"
+        ],
+        "blanks": 2,
+        "explain": "Two microphones → both + plural noun. Slides about three countries → several + plural noun.",
+        "options": [
+          "Several · both",
+          "Each · several",
+          "Both · each",
+          "Both · several"
+        ],
+        "art_hint": "桌上有一高一短兩支麥克風；屏幕上已有中國、日本和加拿大節日的投影片",
+        "optionPairs": [
+          [
+            "Several",
+            "both"
+          ],
+          [
+            "Each",
+            "several"
+          ],
+          [
+            "Both",
+            "each"
+          ],
+          [
+            "Both",
+            "several"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u6_s3_q5.jpg",
+        "label": "Scene 5 · Recipe cards",
+        "parts": [
+          "The cook from Korea does not take questions ",
+          "____",
+          " the tasting video ends, and ",
+          "____",
+          " visitor then receives a small recipe card."
+        ],
+        "answer": [
+          "until",
+          "each"
+        ],
+        "blanks": 2,
+        "explain": "Questions start when the video ends → until. Visitor is singular → each + singular noun.",
+        "options": [
+          "until · both",
+          "until · each",
+          "each · until",
+          "several · each"
+        ],
+        "art_hint": "試味短片結束後，工作人員把小食譜卡交給每一位訪客",
+        "optionPairs": [
+          [
+            "until",
+            "both"
+          ],
+          [
+            "until",
+            "each"
+          ],
+          [
+            "each",
+            "until"
+          ],
+          [
+            "several",
+            "each"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u6_s3_q6.jpg",
+        "label": "Scene 6 · Questions from the back",
+        "parts": [
+          "",
+          "____",
+          " questions, one about Italy, one about Korea and one about a Hong Kong wet market, come from the back rows."
+        ],
+        "answer": [
+          "Several"
+        ],
+        "blanks": 1,
+        "explain": "Questions about three topics → several + plural noun.",
+        "options": [
+          "Both",
+          "Each",
+          "Several",
+          "Until"
+        ],
+        "art_hint": "後排學生舉手，提問有關意大利、韓國和香港街市"
+      },
+      {
+        "img": "illust/u6_s3_q7.jpg",
+        "hard": true,
+        "label": "Scene 7 · The back doors",
+        "parts": [
+          "",
+          "____",
+          " doors at the back of the hall, the left one and the right one, stay shut ",
+          "____",
+          " the talk ends, and ",
+          "____",
+          " helper then opens one side for the parents."
+        ],
+        "answer": [
+          "Both",
+          "until",
+          "each"
+        ],
+        "blanks": 3,
+        "explain": "Two doors → both + plural noun. They stay shut up to the end of the talk → until. Helper is singular → each + singular noun.",
+        "options": [
+          "Both · until · each",
+          "Several · until · both",
+          "Both · each · until",
+          "Each · until · several"
+        ],
+        "art_hint": "禮堂後方左右兩道門仍關著；講談結束後一位幫手為家長打開其中一側",
+        "optionPairs": [
+          [
+            "Both",
+            "until",
+            "each"
+          ],
+          [
+            "Several",
+            "until",
+            "both"
+          ],
+          [
+            "Both",
+            "each",
+            "until"
+          ],
+          [
+            "Each",
+            "until",
+            "several"
+          ]
+        ]
+      }
+    ],
+    "sub": "Class 6A listens to a guest-speaker talk in the school hall"
+  };
+
+  const set4Data = {
+    "scenes": [
+      {
+        "img": "illust/u6_s4_q1.jpg",
+        "label": "Scene 1 · Colour pads",
+        "parts": [
+          "",
+          "____",
+          " colour pads, red, blue and green, already sit in the middle of the desk."
+        ],
+        "answer": [
+          "Several"
+        ],
+        "blanks": 1,
+        "explain": "Three colour pads → several + plural noun.",
+        "options": [
+          "Both",
+          "Each",
+          "Until",
+          "Several"
+        ],
+        "art_hint": "課室桌中央放著紅、藍、綠三色印泥"
+      },
+      {
+        "img": "illust/u6_s4_q2.jpg",
+        "label": "Scene 2 · Wet ink",
+        "parts": [
+          "The class does not start stamping ",
+          "____",
+          " Mr Tam checks the wet ink, and ",
+          "____",
+          " booklet then gets a name on the cover."
+        ],
+        "answer": [
+          "until",
+          "each"
+        ],
+        "blanks": 2,
+        "explain": "Stamping starts after that check is finished → until. Booklet is singular → each + singular noun.",
+        "options": [
+          "until · each",
+          "until · both",
+          "each · until",
+          "several · each"
+        ],
+        "art_hint": "Mr Tam 檢查未乾的印墨；每本小冊子封面寫上名字後才開始蓋印",
+        "optionPairs": [
+          [
+            "until",
+            "each"
+          ],
+          [
+            "until",
+            "both"
+          ],
+          [
+            "each",
+            "until"
+          ],
+          [
+            "several",
+            "each"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u6_s4_q3.jpg",
+        "hard": true,
+        "label": "Scene 3 · Shared scissors",
+        "parts": [
+          "",
+          "____",
+          " pairs of scissors, the long pair and the short pair, stay in the shared tray while the pages are cut."
+        ],
+        "answer": [
+          "Both"
+        ],
+        "blanks": 1,
+        "explain": "The long pair and the short pair are two pairs → both + plural noun.",
+        "options": [
+          "Several",
+          "Each",
+          "Both",
+          "Until"
+        ],
+        "art_hint": "共用托盤裏放著一長一短兩把剪刀，學生正在裁頁"
+      },
+      {
+        "img": "illust/u6_s4_q4.jpg",
+        "label": "Scene 4 · Empty pages",
+        "parts": [
+          "",
+          "____",
+          " pages in May’s booklet, the ones for China, Japan, Korea and the Star Ferry, still have no stamp, so she keeps working ",
+          "____",
+          " the cover is full."
+        ],
+        "answer": [
+          "Several",
+          "until"
+        ],
+        "blanks": 2,
+        "explain": "Pages for four stamps → several + plural noun. She stops when the cover is full → until.",
+        "options": [
+          "Both · until",
+          "Several · until",
+          "Several · each",
+          "Each · until"
+        ],
+        "art_hint": "May 的小冊子裏，中國、日本、韓國和天星碼頭幾頁仍未蓋印",
+        "optionPairs": [
+          [
+            "Both",
+            "until"
+          ],
+          [
+            "Several",
+            "until"
+          ],
+          [
+            "Several",
+            "each"
+          ],
+          [
+            "Each",
+            "until"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u6_s4_q5.jpg",
+        "hard": true,
+        "label": "Scene 5 · Tight staples",
+        "parts": [
+          "",
+          "____",
+          " covers, Tom’s and May’s, need a tighter staple, and ",
+          "____",
+          " staple must go through every page."
+        ],
+        "answer": [
+          "Both",
+          "each"
+        ],
+        "blanks": 2,
+        "explain": "Tom’s cover and May’s cover are two covers → both + plural noun. Staple is singular → each + singular noun.",
+        "options": [
+          "Both · each",
+          "Several · each",
+          "Both · several",
+          "Each · both"
+        ],
+        "art_hint": "Tom 與 May 的封面需要再釘緊；每個釘書釘都要穿過所有頁",
+        "optionPairs": [
+          [
+            "Both",
+            "each"
+          ],
+          [
+            "Several",
+            "each"
+          ],
+          [
+            "Both",
+            "several"
+          ],
+          [
+            "Each",
+            "both"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u6_s4_q6.jpg",
+        "label": "Scene 6 · Paper cranes",
+        "parts": [
+          "",
+          "____",
+          " paper cranes on the windowsill, the shelf and the front desk decorate the finished booklets."
+        ],
+        "answer": [
+          "Several"
+        ],
+        "blanks": 1,
+        "explain": "Paper cranes in three places → several + plural noun.",
+        "options": [
+          "Both",
+          "Each",
+          "Until",
+          "Several"
+        ],
+        "art_hint": "窗台、架子和前桌的摺紙鶴裝飾已完成的小冊子"
+      },
+      {
+        "img": "illust/u6_s4_q7.jpg",
+        "label": "Scene 7 · Drying the ink",
+        "parts": [
+          "The class does not tidy the desks ",
+          "____",
+          " the last booklet is stapled, ",
+          "____",
+          " windows, the one by the door and the one by the board, stay open to dry the ink, and ",
+          "____",
+          " student then packs his or her own bag."
+        ],
+        "answer": [
+          "until",
+          "both",
+          "each"
+        ],
+        "blanks": 3,
+        "explain": "Tidying starts when the last booklet is stapled → until. Two windows → both + plural noun. Student is singular → each + singular noun.",
+        "options": [
+          "until · several · each",
+          "until · both · each",
+          "both · until · each",
+          "until · both · several"
+        ],
+        "art_hint": "最後一本小冊子釘好；門旁與黑板旁的窗户開著以晾乾印墨；學生收拾書包",
+        "optionPairs": [
+          [
+            "until",
+            "several",
+            "each"
+          ],
+          [
+            "until",
+            "both",
+            "each"
+          ],
+          [
+            "both",
+            "until",
+            "each"
+          ],
+          [
+            "until",
+            "both",
+            "several"
+          ]
+        ]
+      }
+    ],
+    "sub": "Class 6A makes passport-stamp booklets in the classroom"
+  };
+
+  const set5Data = {
+    "scenes": [
+      {
+        "img": "illust/u6_s5_q1.jpg",
+        "label": "Scene 1 · Closed hall doors",
+        "parts": [
+          "The hall doors stay shut ",
+          "____",
+          " the first song begins."
+        ],
+        "answer": [
+          "until"
+        ],
+        "blanks": 1,
+        "explain": "The doors stay shut up to the moment the first song begins → until.",
+        "options": [
+          "each",
+          "until",
+          "both",
+          "several"
+        ],
+        "art_hint": "禮堂門仍關著，第一首歌尚未開始"
+      },
+      {
+        "img": "illust/u6_s5_q2.jpg",
+        "hard": true,
+        "label": "Scene 2 · Pianos and water bottles",
+        "parts": [
+          "",
+          "____",
+          " pianos, the one on the left and the one on the right, stay on stage, and ",
+          "____",
+          " singer has a water bottle at the side."
+        ],
+        "answer": [
+          "Both",
+          "each"
+        ],
+        "blanks": 2,
+        "explain": "Two pianos → both + plural noun. Singer is singular → each + singular noun.",
+        "options": [
+          "Several · each",
+          "Both · several",
+          "Both · each",
+          "Each · both"
+        ],
+        "art_hint": "舞台左右各有一架鋼琴；每位歌手旁邊有一瓶水",
+        "optionPairs": [
+          [
+            "Several",
+            "each"
+          ],
+          [
+            "Both",
+            "several"
+          ],
+          [
+            "Both",
+            "each"
+          ],
+          [
+            "Each",
+            "both"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u6_s5_q3.jpg",
+        "label": "Scene 3 · Drums at the back",
+        "parts": [
+          "",
+          "____",
+          " African drums of three different sizes stand in a row at the back of the stage."
+        ],
+        "answer": [
+          "Several"
+        ],
+        "blanks": 1,
+        "explain": "Drums of three sizes → several + plural noun.",
+        "options": [
+          "Several",
+          "Both",
+          "Each",
+          "Until"
+        ],
+        "art_hint": "舞台後方一排不同大小的非洲鼓"
+      },
+      {
+        "img": "illust/u6_s5_q4.jpg",
+        "label": "Scene 4 · Samba and coin scarves",
+        "parts": [
+          "The samba group keeps dancing ",
+          "____",
+          " the music fades, and ",
+          "____",
+          " coin scarves, May’s and the spare one, stay on the chair."
+        ],
+        "answer": [
+          "until",
+          "both"
+        ],
+        "blanks": 2,
+        "explain": "The dancing ends when the music fades → until. May’s scarf and the spare scarf are two scarves → both + plural noun.",
+        "options": [
+          "until · several",
+          "each · both",
+          "until · each",
+          "until · both"
+        ],
+        "art_hint": "森巴舞者仍在跳，音樂漸弱；椅上放著 May 的錢幣圍巾和一條備用圍巾",
+        "optionPairs": [
+          [
+            "until",
+            "several"
+          ],
+          [
+            "each",
+            "both"
+          ],
+          [
+            "until",
+            "each"
+          ],
+          [
+            "until",
+            "both"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u6_s5_q5.jpg",
+        "label": "Scene 5 · Empty seats and ushers",
+        "parts": [
+          "",
+          "____",
+          " seats in the back three rows are still empty, and ",
+          "____",
+          " usher holds a programme."
+        ],
+        "answer": [
+          "Several",
+          "each"
+        ],
+        "blanks": 2,
+        "explain": "Seats in three rows → several + plural noun. Usher is singular → each + singular noun.",
+        "options": [
+          "Several · each",
+          "Both · each",
+          "Several · both",
+          "Each · several"
+        ],
+        "art_hint": "後三排仍有空位；每位帶位同學拿著一份節目單",
+        "optionPairs": [
+          [
+            "Several",
+            "each"
+          ],
+          [
+            "Both",
+            "each"
+          ],
+          [
+            "Several",
+            "both"
+          ],
+          [
+            "Each",
+            "several"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u6_s5_q6.jpg",
+        "hard": true,
+        "label": "Scene 6 · Spotlights on the choir",
+        "parts": [
+          "",
+          "____",
+          " spotlights, the white one and the blue one, stay on the choir ",
+          "____",
+          " the last note ends."
+        ],
+        "answer": [
+          "Both",
+          "until"
+        ],
+        "blanks": 2,
+        "explain": "Two spotlights → both + plural noun. The lights stay on up to the last note → until.",
+        "options": [
+          "Several · until",
+          "Both · each",
+          "Both · until",
+          "Each · until"
+        ],
+        "art_hint": "白、藍兩盞聚光燈照著合唱團，直到最後一個音結束",
+        "optionPairs": [
+          [
+            "Several",
+            "until"
+          ],
+          [
+            "Both",
+            "each"
+          ],
+          [
+            "Both",
+            "until"
+          ],
+          [
+            "Each",
+            "until"
+          ]
+        ]
+      },
+      {
+        "img": "illust/u6_s5_q7.jpg",
+        "label": "Scene 7 · Thank-you cards",
+        "parts": [
+          "",
+          "____",
+          " parents from Class 6A, Class 5A and Class 4B wait at the stage door afterwards, and ",
+          "____",
+          " performer then receives a small thank-you card from Mr Tam."
+        ],
+        "answer": [
+          "Several",
+          "each"
+        ],
+        "blanks": 2,
+        "explain": "Parents from three classes → several + plural noun. Performer is singular → each + singular noun.",
+        "options": [
+          "Both · each",
+          "Several · both",
+          "Each · several",
+          "Several · each"
+        ],
+        "art_hint": "多個班級的家長在後台門等候；Mr Tam 把感謝卡交給每一位表演者",
+        "optionPairs": [
+          [
+            "Both",
+            "each"
+          ],
+          [
+            "Several",
+            "both"
+          ],
+          [
+            "Each",
+            "several"
+          ],
+          [
+            "Several",
+            "each"
+          ]
+        ]
+      }
+    ],
+    "sub": "Class 6A presents an evening concert of songs and dances in the hall"
+  };
+
+  function boot(SETS) {
+  const SET_KEY = "u6-story-set-i";
+  function resolveSet() {
+    const q = parseInt(new URLSearchParams(location.search).get("set"), 10);
+    if (q >= 1 && q <= SETS.length) return { index: q - 1, forced: true };
+    let i = parseInt(localStorage.getItem(SET_KEY) || "0", 10);
+    if (isNaN(i) || i < 0) i = 0;
+    return { index: i % SETS.length, forced: false };
+  }
+  const resolved = resolveSet();
+  const setIndex = resolved.index;
+  const forced = resolved.forced;
+  const activeSet = SETS[setIndex];
+  const scenes = activeSet.scenes;
+  document.getElementById("story-sub").textContent = activeSet.sub;
+  if (forced) document.getElementById("btn-again").href = "unit6-story/?set=" + (setIndex + 1);
+  let idx = 0, selectedIdx = null, locked = false, correctCount = 0;
+  const qNum = document.getElementById("q-num");
+  const dots = document.getElementById("dots");
+  const beatLabel = document.getElementById("beat-label");
+  const art = document.getElementById("art");
+  const prompt = document.getElementById("prompt");
+  const choices = document.getElementById("choices");
+  const btnCheck = document.getElementById("btn-check");
+  const btnNext = document.getElementById("btn-next");
+  const btnClear = document.getElementById("btn-clear");
+  const toast = document.getElementById("toast");
+  function fillValues() {
+    const s = scenes[idx];
+    if (selectedIdx == null) return null;
+    if (s.optionPairs) return s.optionPairs[selectedIdx];
+    return [s.options[selectedIdx]];
+  }
+  function renderDots() {
+    dots.innerHTML = "";
+    scenes.forEach((_, i) => {
+      const el = document.createElement("span");
+      if (i < idx) el.className = "done";
+      else if (i === idx) el.className = "now";
+      dots.appendChild(el);
+    });
+  }
+  function renderPrompt(values, mode) {
+    const s = scenes[idx];
+    let bi = 0, html = "";
+    s.parts.forEach((p) => {
+      if (p === "____") {
+        const v = values && values[bi] != null ? values[bi] : "____";
+        let cls = "blank";
+        if (values && values[bi] != null) {
+          if (mode === "ok") cls = "blank ok";
+          else if (mode === "soft") cls = "blank soft-answer";
+          else cls = "blank filled";
+        }
+        html += '<span class="' + cls + '">' + v + "</span>";
+        bi++;
+      } else html += p;
+    });
+    prompt.innerHTML = html;
+  }
+  function render() {
+    const s = scenes[idx];
+    locked = false; selectedIdx = null;
+    qNum.textContent = "Scene " + (idx + 1) + " / " + scenes.length;
+    beatLabel.innerHTML = s.label + (s.hard ? ' <span class="hard-badge">Harder</span>' : "");
+    art.src = s.img;
+    if (window.ImgFrame) ImgFrame.apply(art, s.frame);
+    art.alt = s.label;
+    renderDots(); renderPrompt(null);
+    toast.hidden = true; btnNext.hidden = true; btnCheck.disabled = true; btnClear.disabled = false;
+    choices.innerHTML = "";
+    s.options.forEach((opt, i) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "choice" + (s.blanks > 1 ? " block" : "");
+      btn.textContent = opt;
+      btn.addEventListener("click", () => {
+        if (locked) return;
+        selectedIdx = i;
+        [...choices.children].forEach((c) => c.classList.remove("selected"));
+        btn.classList.add("selected");
+        renderPrompt(fillValues());
+        btnCheck.disabled = false;
+      });
+      choices.appendChild(btn);
+    });
+  }
+  btnClear.addEventListener("click", () => {
+    if (locked) return;
+    selectedIdx = null;
+    [...choices.children].forEach((c) => c.classList.remove("selected"));
+    renderPrompt(null); btnCheck.disabled = true; toast.hidden = true;
+  });
+  btnCheck.addEventListener("click", () => {
+    if (selectedIdx == null || locked) return;
+    locked = true;
+    const s = scenes[idx];
+    const vals = fillValues();
+    const ok = vals && vals.length === s.answer.length && vals.every((v, i) => v === s.answer[i]);
+    [...choices.children].forEach((c, i) => {
+      c.disabled = true;
+      const pair = s.optionPairs ? s.optionPairs[i] : [s.options[i]];
+      const isAns = pair.every((v, j) => v === s.answer[j]);
+      if (isAns) c.classList.add("correct");
+      else if (i === selectedIdx && !ok) c.classList.add("wrong");
+    });
+    if (ok) { correctCount++; renderPrompt(s.answer, "ok"); showToast(toast, "Nice!", s.explain, "ok"); }
+    else { renderPrompt(s.answer, "soft"); showToast(toast, "Not quite", s.explain, "bad"); }
+    btnCheck.disabled = true; btnClear.disabled = true; btnNext.hidden = false;
+    btnNext.textContent = idx === scenes.length - 1 ? "Finish" : "Next page";
+  });
+  btnNext.addEventListener("click", () => {
+    if (idx >= scenes.length - 1) {
+      if (!forced) {
+        localStorage.setItem(SET_KEY, String((setIndex + 1) % SETS.length));
+        if (window.Badges) {
+          var grammarRewards = Badges.recordGrammarSession('unit6', 'story');
+          if (window.GrammarProgress) GrammarProgress.show(grammarRewards);
+        }
+      }
+      document.getElementById("game").hidden = true;
+      document.getElementById("done").hidden = false;
+      document.getElementById("score-big").textContent = correctCount + " / " + scenes.length;
+      return;
+    }
+    idx++; render();
+  });
+  render();
+
+  }
+  var bakedSets = [set1Data, set2Data, set3Data, set4Data, set5Data];
+  function startPublished(sets) { boot(sets && sets.length ? sets : bakedSets); }
+  if (window.GrammarLive) {
+    GrammarLive.load({ unit: 'unit6', mode: 'story' }).then(startPublished, function () { startPublished(null); });
+  } else {
+    startPublished(null);
+  }
+})();
+</script>
+</body>
+</html>

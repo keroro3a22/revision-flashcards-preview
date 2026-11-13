@@ -67,7 +67,7 @@ test('the studio edits the same place and publishes a snapshot', () => {
   assert.match(studio, /SUPABASE_PUBLIC/);
   assert.match(studio, /is_content_editor/);
   assert.match(studio, /Back to website|revision-studio-from/);
-  const page = fs.readFileSync('studio.html', 'utf8');
+  const page = fs.readFileSync('studio/index.html', 'utf8');
   assert.match(page, />Back to website</);
   assert.doesNotMatch(page, /<th>Highlight<\/th>/);
   assert.match(studio, /Highlight this/);

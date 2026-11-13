@@ -68,7 +68,7 @@ test('each pack card number matches the syllabus order', () => {
     pack.forEach((w, i) => {
       assert.equal(w.en, cards[i].en, id + ' card ' + (i + 1));
       assert.equal(w.zh, cards[i].zh);
-      assert.equal(w.href, id + '/index.html#c' + cards[i].n);
+      assert.equal(w.href, id + '/#c' + cards[i].n);
     });
   });
 });
@@ -85,7 +85,7 @@ test('continue last reads a saved card and ignores a bad link', () => {
     href: 'unit2/index.html#c4'
   }));
   assert.equal(H.loadLast().en, 'flood');
-  assert.equal(H.loadLast().href, 'unit2/index.html#c4');
+  assert.equal(H.loadLast().href, 'unit2/#c4');
   localStorage.setItem(H.LAST_KEY, JSON.stringify({ en: 'nope', href: 'https://example.com/phish' }));
   assert.equal(H.loadLast(), null);
 });
@@ -96,7 +96,7 @@ test('opening a unit card stores a homepage resume link', () => {
   });
   window.LastPlace.save({ n: 2, en: 'beat', zh: '攪打' });
   const saved = JSON.parse(localStorage.getItem('p6-flash-last-v1'));
-  assert.equal(saved.href, 'unit3/index.html#c2');
+  assert.equal(saved.href, 'unit3/#c2');
   assert.equal(saved.en, 'beat');
   assert.equal(saved.unitId, 'unit3');
 });

@@ -31,7 +31,7 @@ test('needs review lists only words in the review state, grouped by unit', () =>
   M.markCorrect('unit1:donate');
   M.markWrong('unit2:earthquake');
   const groups = window.ReviewList.groups(R, M, {
-    practicePage: 'practice/letters.html',
+    practicePage: 'practice/letters/',
     cardPrefix: ''
   });
   const unit1 = groups.find(g => g.id === 'unit1');
@@ -40,9 +40,9 @@ test('needs review lists only words in the review state, grouped by unit', () =>
   assert.equal([...unit1.words].map(w => w.key).join(','), 'unit1:adopt');
   assert.equal(unit1.words[0].en, 'adopt a pet');
   assert.equal(unit1.words[0].zh, '領養寵物');
-  assert.match(unit1.words[0].href, /practice\/letters\.html\?unit=unit1&focus=unit1%3Aadopt/);
+  assert.match(unit1.words[0].href, /practice\/letters\/\?unit=unit1&focus=unit1%3Aadopt/);
   assert.equal(groups.some(g => g.words.some(w => w.key === 'unit1:donate')), false);
-  assert.match(unit2.words[0].href, /practice\/letters\.html\?unit=unit2&focus=unit2%3Aearthquake/);
+  assert.match(unit2.words[0].href, /practice\/letters\/\?unit=unit2&focus=unit2%3Aearthquake/);
   assert.equal(unit2.words[0].zh.length > 0, true);
 });
 
@@ -73,7 +73,7 @@ test('every badge states exactly how to unlock it', () => {
 test('homepage hides the review progress block and the needs-review word list', () => {
   const home = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   const hub = fs.readFileSync(path.join(root, 'practice/index.html'), 'utf8');
-  const badges = fs.readFileSync(path.join(root, 'badges.html'), 'utf8');
+  const badges = fs.readFileSync(path.join(root, 'badges/index.html'), 'utf8');
   const css = fs.readFileSync(path.join(root, 'assets/site.css'), 'utf8');
   assert.doesNotMatch(home, /id="review-progress"/);
   assert.doesNotMatch(home, /Review progress/);

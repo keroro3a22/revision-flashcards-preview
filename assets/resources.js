@@ -103,7 +103,7 @@
   }
 
   function openCheckout(data) {
-    var success = location.origin + '/payment-return.html';
+    var success = location.origin + '/payment-return/';
     function go(payments) {
       payments.redirectToCheckout({
         env: 'sandbox',
