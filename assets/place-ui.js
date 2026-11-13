@@ -153,7 +153,7 @@
     if (kind === 'revision-vocab') return root + place.unit + '/index.html';
     if (kind === 'revision-grammar') return root + place.unit + '/grammar.html';
     if (kind === 'practice-vocab') return root + 'practice/index.html?unit=' + encodeURIComponent(place.unit);
-    if (kind === 'practice-grammar' && /^unit[1-4]$/.test(place.unit)) return root + 'practice/grammar/' + place.unit + '-hub.html';
+    if (kind === 'practice-grammar' && /^unit[1-6]$/.test(place.unit)) return root + 'practice/grammar/' + place.unit + '-hub.html';
     return root + 'index.html';
   }
 

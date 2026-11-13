@@ -6,15 +6,15 @@ window.PRACTICE_UNIT2 = {
   id: "unit2",
   title: "Unit 2 · Lend a helping hand",
   words: [
-    { key: "unit2:drought", form: "noun", en: "a drought", zh: "旱災", audio: "../unit2/audio/audio_01.mp3", img: "../unit2/thumb_01.png" },
-    { key: "unit2:earthquake", form: "noun", en: "an earthquake", zh: "地震", audio: "../unit2/audio/audio_02.mp3", img: "../unit2/thumb_02.jpg" },
+    { key: "unit2:drought", form: "noun", en: "a drought", zh: "旱災", audio: "../unit2/audio/audio_01.mp3", img: "../unit2/thumb_01.jpg?v=4" },
+    { key: "unit2:earthquake", form: "noun", en: "an earthquake", zh: "地震", audio: "../unit2/audio/audio_02.mp3", img: "../unit2/thumb_02.jpg?v=4" },
     { key: "unit2:flood", form: "noun", en: "a flood", zh: "水災", audio: "../unit2/audio/audio_03.mp3", img: "../unit2/thumb_03.png" },
-    { key: "unit2:landslip", form: "noun", en: "a landslip", zh: "山泥傾瀉", audio: "../unit2/audio/audio_04.mp3", img: "../unit2/thumb_04.png" },
-    { key: "unit2:tsunami", form: "noun", en: "a tsunami", zh: "海嘯", audio: "../unit2/audio/audio_05.mp3", img: "../unit2/thumb_05.jpg" },
+    { key: "unit2:landslip", form: "noun", en: "a landslip", zh: "山泥傾瀉", audio: "../unit2/audio/audio_04.mp3", img: "../unit2/thumb_04.jpg?v=4" },
+    { key: "unit2:tsunami", form: "noun", en: "a tsunami", zh: "海嘯", audio: "../unit2/audio/audio_05.mp3", img: "../unit2/thumb_05.jpg?v=4" },
     { key: "unit2:typhoon", form: "noun", en: "a typhoon", zh: "颱風", audio: "../unit2/audio/audio_06.mp3", img: "../unit2/thumb_06.jpg" },
     { key: "unit2:block", form: "verb", en: "block roads", zh: "堵塞道路", audio: "../unit2/audio/audio_07.mp3", img: "../unit2/thumb_07.png" },
     { key: "unit2:damage", form: "verb", en: "damage crops", zh: "損毀農作物", audio: "../unit2/audio/audio_08.mp3", img: "../unit2/thumb_08.png" },
-    { key: "unit2:destroy", form: "verb", en: "destroy buildings", zh: "摧毀建築物", audio: "../unit2/audio/audio_09.mp3", img: "../unit2/thumb_09.jpg" },
+    { key: "unit2:destroy", form: "verb", en: "destroy buildings", zh: "摧毀建築物", audio: "../unit2/audio/audio_09.mp3", img: "../unit2/thumb_09.jpg?v=4" },
     { key: "unit2:injure", form: "verb", en: "injure people", zh: "使人受傷", audio: "../unit2/audio/audio_10.mp3", img: "../unit2/thumb_10.png" },
   ],
 
@@ -228,15 +228,15 @@ window.PRACTICE_UNIT2 = {
   ],
 
   matching: [
-    { id: "u2-k1", wordKey: "unit2:drought", en: "a drought", zh: "旱災", img: "../unit2/thumb_01.png" },
-    { id: "u2-k2", wordKey: "unit2:earthquake", en: "an earthquake", zh: "地震", img: "../unit2/thumb_02.jpg" },
+    { id: "u2-k1", wordKey: "unit2:drought", en: "a drought", zh: "旱災", img: "../unit2/thumb_01.jpg?v=4" },
+    { id: "u2-k2", wordKey: "unit2:earthquake", en: "an earthquake", zh: "地震", img: "../unit2/thumb_02.jpg?v=4" },
     { id: "u2-k3", wordKey: "unit2:flood", en: "a flood", zh: "水災", img: "../unit2/thumb_03.png" },
-    { id: "u2-k4", wordKey: "unit2:landslip", en: "a landslip", zh: "山泥傾瀉", img: "../unit2/thumb_04.png" },
-    { id: "u2-k5", wordKey: "unit2:tsunami", en: "a tsunami", zh: "海嘯", img: "../unit2/thumb_05.jpg" },
+    { id: "u2-k4", wordKey: "unit2:landslip", en: "a landslip", zh: "山泥傾瀉", img: "../unit2/thumb_04.jpg?v=4" },
+    { id: "u2-k5", wordKey: "unit2:tsunami", en: "a tsunami", zh: "海嘯", img: "../unit2/thumb_05.jpg?v=4" },
     { id: "u2-k6", wordKey: "unit2:typhoon", en: "a typhoon", zh: "颱風", img: "../unit2/thumb_06.jpg" },
     { id: "u2-k7", wordKey: "unit2:block", en: "block roads", zh: "堵塞道路", img: "../unit2/thumb_07.png" },
     { id: "u2-k8", wordKey: "unit2:damage", en: "damage crops", zh: "損毀農作物", img: "../unit2/thumb_08.png" },
-    { id: "u2-k9", wordKey: "unit2:destroy", en: "destroy buildings", zh: "摧毀建築物", img: "../unit2/thumb_09.jpg" },
+    { id: "u2-k9", wordKey: "unit2:destroy", en: "destroy buildings", zh: "摧毀建築物", img: "../unit2/thumb_09.jpg?v=4" },
     { id: "u2-k10", wordKey: "unit2:injure", en: "injure people", zh: "使人受傷", img: "../unit2/thumb_10.png" },
   ]
 };

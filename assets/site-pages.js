@@ -183,7 +183,7 @@
       var base = defaults(place, unitId, door.id, lessons);
       var count = door.source === 'lesson' ? lessonRows(lessons, unitId, door.track).length : countOf(practices, unitId, door.track);
       var ready = count > 0;
-      if (door.id === 'practice-grammar' && !/^unit[1-4]$/.test(unitId)) ready = false;
+      if (door.id === 'practice-grammar' && !/^unit[1-6]$/.test(unitId)) ready = false;
       var ownImage = savedValue(row, 'image');
       var image = imageSrc(unitId, ownImage || (ready ? base.image : ''));
       return {

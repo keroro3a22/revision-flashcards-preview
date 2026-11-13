@@ -91,8 +91,37 @@
       if (!out.scenes.length) delete out.scenes;
       if (!out.bubbles.length) delete out.bubbles;
       if (!out.items.length) delete out.items;
-      return out;
+      return rewriteSet(out);
     });
+  }
+
+  function officialArt(url) {
+    if (!url) return url;
+    var text = String(url);
+    var file = text.split('?')[0].split('/').pop();
+    if (file === 'u1_s2_chat_hero.jpg') return 'illust/u1_08_walkathon.jpg';
+    if (/^https?:\/\//i.test(text) || text.indexOf('draft-20261113/') !== -1 || text.indexOf('processed/') !== -1) {
+      return 'illust/' + file;
+    }
+    return text;
+  }
+
+  function rewriteItem(item) {
+    if (!item || typeof item !== 'object') return item;
+    var next = Object.assign({}, item);
+    if (next.img) next.img = officialArt(next.img);
+    return next;
+  }
+
+  function rewriteSet(set) {
+    var out = Object.assign({}, set);
+    delete out.art_hint;
+    if (out.hero) out.hero = officialArt(out.hero);
+    ['scenes', 'bubbles', 'items'].forEach(function (key) {
+      if (Array.isArray(out[key])) out[key] = out[key].map(rewriteItem);
+    });
+    if (out.endQ) out.endQ = rewriteItem(out.endQ);
+    return out;
   }
 
   function load(opts) {
@@ -133,6 +162,7 @@
     extractSets: extractSets,
     flatten: flatten,
     rebuild: rebuild,
-    load: load
+    load: load,
+    officialArt: officialArt
   };
 });

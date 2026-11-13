@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Join the sentences · Unit 5 Grammar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="grammar.css?v=47"/>
+<link rel="stylesheet" href="../../assets/chrome.css?v=4" />
+<link rel="stylesheet" href="../../assets/profile.css?v=4" />
+<link rel="stylesheet" href="../../assets/account.css?v=1" />
+<script src="../../assets/supabase-public.js?v=1"></script>
+<script src="../../assets/progress-sync.js?v=2"></script>
+<script src="../../assets/place.js?v=8"></script>
+<script src="../../assets/place-ui.js?v=17"></script>
+<script src="../../assets/profile.js?v=5"></script>
+<script src="../../assets/account.js?v=11"></script>
+</head>
+<body>
+<header class="prac-header">
+  <a class="back" href="../../index.html">← Back to packs</a>
+  <h1>Join the sentences</h1>
+  <p class="sub">Tap the phrase that joins the two lines — no typing.</p>
+</header>
+<main class="wrap">
+  <div class="toolbar">
+    <span class="chip pink" id="q-num">1 / 6</span>
+    <div class="progress-dots" id="dots" aria-label="Progress"></div>
+  </div>
+  <div class="panel" id="game">
+    <div class="illust pink" style="max-width:180px;aspect-ratio:1.2"><img src="illust/u5_s1_q1.jpg" alt=""/></div>
+    <p class="prompt join-stem" id="stem"></p>
+    <div class="choices join-choices" id="choices"></div>
+    <div class="btn-row join-actions">
+      <button type="button" class="btn btn-ghost" id="btn-clear">Clear</button>
+      <button type="button" class="btn btn-primary" id="btn-check" disabled>Check</button>
+      <button type="button" class="btn btn-secondary" id="btn-next" hidden>Next</button>
+    </div>
+    <div class="toast" id="toast" hidden></div>
+  </div>
+  <div class="panel result-card" id="done" hidden>
+    <h2>Join complete</h2>
+    <p class="big" id="score-big">0</p>
+    <p>correct sentences</p>
+    <div class="btn-row" style="justify-content:center">
+      <a class="btn btn-primary" id="btn-again" href="unit5-join.html">Play again</a>
+      <a class="btn btn-ghost" href="unit5-hub.html">Hub</a>
+    </div>
+  </div>
+</main>
+<script src="../../practice/badges.js"></script>
+<script src="grammar-progress.js"></script>
+<script src="../../assets/vendor/supabase.js?v=1"></script>
+<script src="grammar-live.js?v=3"></script>
+<script>
+(function () {
+  /* Authors: ?set=1|2|3|4|5 (1-based) forces that authored set; never show set chips on screen. */
+  const FB = { ok: "illust/feedback-ok.png", bad: "illust/feedback-bad.png" };
+  function showToast(el, title, explain, kind) {
+    el.className = "toast toast-feedback has-art " + kind;
+    el.innerHTML =
+      '<img class="toast-art" src="' + FB[kind === "ok" ? "ok" : "bad"] + '" alt=""/>' +
+      '<div class="toast-body"><div class="toast-title"></div><div class="toast-explain"></div></div>';
+    el.querySelector(".toast-title").textContent = title;
+    el.querySelector(".toast-explain").textContent = explain || "";
+    el.hidden = false;
+  }
+  const choiceOpts = ["afraid of","fond of","full of","angry with","bored with","pleased with","popular with","crazy about","excited about","happy about","worried about","bad for","famous for","good for","interested in","successful in","where"];
+  function setChoices(list) {
+    var seen = [];
+    (list || []).forEach(function (it) {
+      if (it && seen.indexOf(it.answer) < 0) seen.push(it.answer);
+    });
+    return seen.length ? seen : choiceOpts;
+  }
+  const set1Data = {
+    "items": [
+      {
+        "a": "Ben asks many questions about coral reefs.",
+        "b": "He wants to learn more about them.",
+        "full": "Ben is interested in coral reefs, so he asks many questions.",
+        "answer": "interested in",
+        "explain": "Wanting to learn more about something → interested in.",
+        "preview": [
+          "Ben is ",
+          "REL",
+          " coral reefs, so he asks many questions."
+        ]
+      },
+      {
+        "a": "The little island has snow-white beaches.",
+        "b": "Travellers know the island because of those beaches.",
+        "full": "The little island is famous for its snow-white beaches.",
+        "answer": "famous for",
+        "explain": "Known widely because of something → famous for.",
+        "preview": [
+          "The little island is ",
+          "REL",
+          " its snow-white beaches."
+        ]
+      },
+      {
+        "a": "Miss Ho speaks firmly to a boy.",
+        "b": "The boy threw sand at a sign.",
+        "full": "Miss Ho is angry with the boy who threw sand at a sign.",
+        "answer": "angry with",
+        "explain": "Cross with a person → angry with.",
+        "preview": [
+          "Miss Ho is ",
+          "REL",
+          " the boy who threw sand at a sign."
+        ]
+      },
+      {
+        "a": "This is the workshop.",
+        "b": "The class made wooden boats there.",
+        "full": "This is the workshop where the class made wooden boats.",
+        "hard": true,
+        "answer": "where",
+        "explain": "A place + extra information about that place → where.",
+        "preview": [
+          "This is the workshop ",
+          "REL",
+          " the class made wooden boats."
+        ]
+      },
+      {
+        "a": "Cool drinking water helps hot hikers.",
+        "b": "It is helpful to them.",
+        "full": "Cool drinking water is good for hot hikers.",
+        "answer": "good for",
+        "explain": "Helpful or healthy for someone → good for.",
+        "preview": [
+          "Cool drinking water is ",
+          "REL",
+          " hot hikers."
+        ]
+      },
+      {
+        "a": "Lily has already filled two pages with drawings of lorikeets.",
+        "b": "She loves lorikeets very much.",
+        "full": "Lily is crazy about lorikeets and has already filled two pages with drawings.",
+        "hard": true,
+        "answer": "crazy about",
+        "explain": "Loving something very much → crazy about.",
+        "preview": [
+          "Lily is ",
+          "REL",
+          " lorikeets and has already filled two pages with drawings."
+        ]
+      }
+    ]
+  };
+
+  const set2Data = {
+    "items": [
+      {
+        "a": "The picnic basket has many sandwiches.",
+        "b": "There is little space left inside.",
+        "full": "The picnic basket is full of sandwiches.",
+        "answer": "full of",
+        "explain": "Containing a lot of something → full of.",
+        "preview": [
+          "The picnic basket is ",
+          "REL",
+          " sandwiches."
+        ]
+      },
+      {
+        "a": "Ben steps back from the steep cliff path.",
+        "b": "The path makes him feel unsafe.",
+        "full": "Ben is afraid of the steep cliff path and steps back.",
+        "answer": "afraid of",
+        "explain": "Feeling fear before a noun → afraid of.",
+        "preview": [
+          "Ben is ",
+          "REL",
+          " the steep cliff path and steps back."
+        ]
+      },
+      {
+        "a": "Lily tried the knot three times.",
+        "b": "She finally tied it well.",
+        "full": "After three careful tries, Lily was successful in the knot-tying test.",
+        "hard": true,
+        "answer": "successful in",
+        "explain": "Doing well in a piece of work → successful in.",
+        "preview": [
+          "After three careful tries, Lily was ",
+          "REL",
+          " the knot-tying test."
+        ]
+      },
+      {
+        "a": "The gentle canoe trip has many young paddlers.",
+        "b": "They all like that trip.",
+        "full": "The gentle canoe trip is popular with young paddlers.",
+        "answer": "popular with",
+        "explain": "Liked by a group of people → popular with.",
+        "preview": [
+          "The gentle canoe trip is ",
+          "REL",
+          " young paddlers."
+        ]
+      },
+      {
+        "a": "Miss Ho keeps checking the sky.",
+        "b": "The grey clouds may bring rain.",
+        "full": "Miss Ho is worried about the grey clouds and keeps checking the sky.",
+        "hard": true,
+        "answer": "worried about",
+        "explain": "Feeling uneasy about a problem → worried about.",
+        "preview": [
+          "Miss Ho is ",
+          "REL",
+          " the grey clouds and keeps checking the sky."
+        ]
+      },
+      {
+        "a": "Ben often buys an egg tart after lessons.",
+        "b": "He likes egg tarts very much.",
+        "full": "Ben is fond of egg tarts, so he often buys one after lessons.",
+        "answer": "fond of",
+        "explain": "Liking something very much → fond of.",
+        "preview": [
+          "Ben is ",
+          "REL",
+          " egg tarts, so he often buys one after lessons."
+        ]
+      }
+    ]
+  };
+
+  const set3Data = {
+    "items": [
+      {
+        "a": "The class hears the news.",
+        "b": "The rain has stopped in time for the picnic.",
+        "full": "The class is happy about the news that the rain has stopped in time.",
+        "answer": "happy about",
+        "explain": "Glad about some news or a result → happy about.",
+        "preview": [
+          "The class is ",
+          "REL",
+          " the news that the rain has stopped in time."
+        ]
+      },
+      {
+        "a": "That hut is our meeting point.",
+        "b": "We leave our rucksacks there.",
+        "full": "That hut is the meeting point where we leave our rucksacks.",
+        "hard": true,
+        "answer": "where",
+        "explain": "A place + extra information about that place → where.",
+        "preview": [
+          "That hut is the meeting point ",
+          "REL",
+          " we leave our rucksacks."
+        ]
+      },
+      {
+        "a": "Lily looks out at the MTR station.",
+        "b": "She has already sat through the long indoor slide show twice.",
+        "full": "Lily is bored with the long indoor slide show and looks out at the MTR station.",
+        "answer": "bored with",
+        "explain": "Tired of something and no longer interested → bored with.",
+        "preview": [
+          "Lily is ",
+          "REL",
+          " the long indoor slide show and looks out at the MTR station."
+        ]
+      },
+      {
+        "a": "Loud headphone music can hurt a person’s ears.",
+        "b": "It is harmful to them.",
+        "full": "Loud headphone music is bad for a person’s ears.",
+        "answer": "bad for",
+        "explain": "Harmful to someone or something → bad for.",
+        "preview": [
+          "Loud headphone music is ",
+          "REL",
+          " a person’s ears."
+        ]
+      },
+      {
+        "a": "Miss Ho looks at the tidy rucksacks.",
+        "b": "She is satisfied with the class.",
+        "full": "Miss Ho is pleased with the class for lining up the rucksacks so tidily.",
+        "answer": "pleased with",
+        "explain": "Satisfied with a person → pleased with.",
+        "preview": [
+          "Miss Ho is ",
+          "REL",
+          " the class for lining up the rucksacks so tidily."
+        ]
+      },
+      {
+        "a": "Ben can hardly sit still.",
+        "b": "Tomorrow’s harbour cruise is coming.",
+        "full": "Ben can hardly sit still, because he is excited about tomorrow’s harbour cruise.",
+        "hard": true,
+        "answer": "excited about",
+        "explain": "Looking forward to something with energy → excited about.",
+        "preview": [
+          "Ben can hardly sit still, because he is ",
+          "REL",
+          " tomorrow’s harbour cruise."
+        ]
+      }
+    ]
+  };
+
+  const set4Data = {
+    "items": [
+      {
+        "a": "The warden thanks Ben for packing the binoculars properly.",
+        "b": "He is satisfied with Ben.",
+        "full": "The warden is pleased with Ben for packing the binoculars properly.",
+        "answer": "pleased with",
+        "explain": "Satisfied with a person → pleased with.",
+        "preview": [
+          "The warden is ",
+          "REL",
+          " Ben for packing the binoculars properly."
+        ]
+      },
+      {
+        "a": "A light stretch helps stiff shoulders.",
+        "b": "It is helpful to them.",
+        "full": "A light stretch is good for stiff shoulders.",
+        "answer": "good for",
+        "explain": "Helpful or healthy for someone → good for.",
+        "preview": [
+          "A light stretch is ",
+          "REL",
+          " stiff shoulders."
+        ]
+      },
+      {
+        "a": "Ben has already watched the same surf film twice today.",
+        "b": "He loves surf films very much.",
+        "full": "Ben is crazy about surf films and has already watched the same one twice today.",
+        "answer": "crazy about",
+        "explain": "Loving something very much → crazy about.",
+        "preview": [
+          "Ben is ",
+          "REL",
+          " surf films and has already watched the same one twice today."
+        ]
+      },
+      {
+        "a": "Lily will not walk into the dark equipment shed alone.",
+        "b": "The dark shed makes her feel unsafe.",
+        "full": "Lily is afraid of the dark equipment shed and will not walk in alone.",
+        "answer": "afraid of",
+        "explain": "Feeling fear before a noun → afraid of.",
+        "preview": [
+          "Lily is ",
+          "REL",
+          " the dark equipment shed and will not walk in alone."
+        ]
+      },
+      {
+        "a": "This is the lookout.",
+        "b": "The class counted passing ferries there.",
+        "full": "This is the lookout where the class counted passing ferries.",
+        "hard": true,
+        "answer": "where",
+        "explain": "A place + extra information about that place → where.",
+        "preview": [
+          "This is the lookout ",
+          "REL",
+          " the class counted passing ferries."
+        ]
+      },
+      {
+        "a": "Lily keeps asking about Aboriginal art.",
+        "b": "She wants to learn more about it.",
+        "full": "Lily is interested in Aboriginal art and keeps asking questions.",
+        "hard": true,
+        "answer": "interested in",
+        "explain": "Wanting to learn more about something → interested in.",
+        "preview": [
+          "Lily is ",
+          "REL",
+          " Aboriginal art and keeps asking questions."
+        ]
+      }
+    ]
+  };
+
+  const set5Data = {
+    "items": [
+      {
+        "a": "The night sky talk attracts many parents.",
+        "b": "They all enjoy that talk.",
+        "full": "The night sky talk is popular with parents.",
+        "answer": "popular with",
+        "explain": "Liked by a group of people → popular with.",
+        "preview": [
+          "The night sky talk is ",
+          "REL",
+          " parents."
+        ]
+      },
+      {
+        "a": "Lily packs her torch early.",
+        "b": "She is looking forward to the night sky talk.",
+        "full": "Lily is excited about the night sky talk and packs her torch early.",
+        "answer": "excited about",
+        "explain": "Looking forward to something with energy → excited about.",
+        "preview": [
+          "Lily is ",
+          "REL",
+          " the night sky talk and packs her torch early."
+        ]
+      },
+      {
+        "a": "Bright torches can disturb nesting turtles.",
+        "b": "They are harmful to the turtles.",
+        "full": "Bright torches are bad for nesting turtles, so the warden asks the class to cover the lamps.",
+        "hard": true,
+        "answer": "bad for",
+        "explain": "Harmful to someone or something → bad for.",
+        "preview": [
+          "Bright torches are ",
+          "REL",
+          " nesting turtles, so the warden asks the class to cover the lamps."
+        ]
+      },
+      {
+        "a": "Miss Ho often chooses milk tea at rest time.",
+        "b": "She likes milk tea very much.",
+        "full": "Miss Ho is fond of milk tea and often chooses it at rest time.",
+        "answer": "fond of",
+        "explain": "Liking something very much → fond of.",
+        "preview": [
+          "Miss Ho is ",
+          "REL",
+          " milk tea and often chooses it at rest time."
+        ]
+      },
+      {
+        "a": "The warden speaks firmly to a visitor.",
+        "b": "The visitor left a gate open.",
+        "full": "The warden is angry with the visitor who left a gate open.",
+        "answer": "angry with",
+        "explain": "Cross with a person → angry with.",
+        "preview": [
+          "The warden is ",
+          "REL",
+          " the visitor who left a gate open."
+        ]
+      },
+      {
+        "a": "This is the hide.",
+        "b": "The class watched the herons there.",
+        "full": "This is the hide where the class watched the herons.",
+        "hard": true,
+        "answer": "where",
+        "explain": "A place + extra information about that place → where.",
+        "preview": [
+          "This is the hide ",
+          "REL",
+          " the class watched the herons."
+        ]
+      }
+    ]
+  };
+
+  function boot(SETS) {
+  const SET_KEY = "u5-join-set-i";
+  function resolveSet() {
+    const q = parseInt(new URLSearchParams(location.search).get("set"), 10);
+    if (q >= 1 && q <= SETS.length) return { index: q - 1, forced: true };
+    let i = parseInt(localStorage.getItem(SET_KEY) || "0", 10);
+    if (isNaN(i) || i < 0) i = 0;
+    return { index: i % SETS.length, forced: false };
+  }
+  const resolved = resolveSet();
+  const setIndex = resolved.index;
+  const forced = resolved.forced;
+  const items = SETS[setIndex].items;
+  if (forced) document.getElementById("btn-again").href = "unit5-join.html?set=" + (setIndex + 1);
+  let idx = 0, selected = null, locked = false, correctCount = 0;
+  const qNum = document.getElementById("q-num");
+  const dots = document.getElementById("dots");
+  const choices = document.getElementById("choices");
+  const btnCheck = document.getElementById("btn-check");
+  const btnNext = document.getElementById("btn-next");
+  const btnClear = document.getElementById("btn-clear");
+  const toast = document.getElementById("toast");
+  function renderDots() {
+    dots.innerHTML = "";
+    items.forEach((_, i) => {
+      const s = document.createElement("span");
+      if (i < idx) s.className = "done";
+      else if (i === idx) s.className = "now";
+      dots.appendChild(s);
+    });
+  }
+  function renderStem(val, mode) {
+    const item = items[idx];
+    const el = document.getElementById("stem");
+    let html = "";
+    const shownRaw = val || null;
+    item.preview.forEach((p) => {
+      if (p === "REL") {
+        let shown = "________";
+        if (shownRaw) {
+          if (item.fillMap && item.fillMap[shownRaw]) shown = item.fillMap[shownRaw];
+          else shown = shownRaw;
+        }
+        let cls = "blank";
+        if (shownRaw) {
+          if (mode === "ok") cls = "blank ok";
+          else if (mode === "soft") cls = "blank soft-answer";
+          else cls = "blank filled";
+        }
+        html += '<span class="' + cls + '">' + shown + "</span>";
+      } else html += p;
+    });
+    el.innerHTML = html;
+  }
+  function showSoftJoin(val) { renderStem(val); }
+  function showFullJoin(val, mode) { renderStem(val, mode); }
+  function hideJoin() { renderStem(null); }
+  function render() {
+    const item = items[idx];
+    locked = false; selected = null;
+    qNum.innerHTML = (idx + 1) + " / " + items.length + (item.hard ? ' <span class="hard-badge">Harder</span>' : "");
+    toast.hidden = true; btnNext.hidden = true; btnCheck.disabled = true; btnClear.disabled = false;
+    renderDots();
+    renderStem(null); choices.innerHTML = "";
+    setChoices(items).forEach((opt) => {
+      const btn = document.createElement("button");
+      btn.type = "button"; btn.className = "choice"; btn.textContent = opt;
+      btn.addEventListener("click", () => {
+        if (locked) return;
+        selected = opt;
+        [...choices.children].forEach((c) => c.classList.remove("selected"));
+        btn.classList.add("selected");
+        showSoftJoin(opt); btnCheck.disabled = false;
+      });
+      choices.appendChild(btn);
+    });
+  }
+  btnClear.addEventListener("click", () => {
+    if (locked) return;
+    selected = null;
+    [...choices.children].forEach((c) => c.classList.remove("selected"));
+    hideJoin(); btnCheck.disabled = true; toast.hidden = true;
+  });
+  btnCheck.addEventListener("click", () => {
+    if (!selected || locked) return;
+    locked = true;
+    const item = items[idx];
+    const ok = selected === item.answer;
+    [...choices.children].forEach((c) => {
+      c.disabled = true;
+      if (c.textContent === item.answer) c.classList.add("correct");
+      else if (c.textContent === selected && !ok) c.classList.add("wrong");
+    });
+    if (ok) { correctCount++; showFullJoin(item.answer, "ok"); showToast(toast, "Perfect!", item.full, "ok"); }
+    else { showFullJoin(item.answer, "soft"); showToast(toast, "Try this", item.full, "bad"); }
+    btnCheck.disabled = true; btnClear.disabled = true; btnNext.hidden = false;
+    btnNext.textContent = idx === items.length - 1 ? "Finish" : "Next";
+  });
+  btnNext.addEventListener("click", () => {
+    if (idx >= items.length - 1) {
+      if (!forced) {
+        localStorage.setItem(SET_KEY, String((setIndex + 1) % SETS.length));
+        if (window.Badges) {
+          var grammarRewards = Badges.recordGrammarSession('unit5', 'join');
+          if (window.GrammarProgress) GrammarProgress.show(grammarRewards);
+        }
+      }
+      document.getElementById("game").hidden = true;
+      document.getElementById("done").hidden = false;
+      document.getElementById("score-big").textContent = correctCount + " / " + items.length;
+      return;
+    }
+    idx++; render();
+  });
+  render();
+
+  }
+  var bakedSets = [set1Data, set2Data, set3Data, set4Data, set5Data];
+  function startPublished(sets) { boot(sets && sets.length ? sets : bakedSets); }
+  if (window.GrammarLive) {
+    GrammarLive.load({ unit: 'unit5', mode: 'join' }).then(startPublished, function () { startPublished(null); });
+  } else {
+    startPublished(null);
+  }
+})();
+</script>
+</body>
+</html>

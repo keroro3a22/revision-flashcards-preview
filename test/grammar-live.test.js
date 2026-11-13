@@ -72,10 +72,10 @@ test('the page can ask for published grammar without crashing before the sentenc
 
 test('grammar pages wait for the published list before they start', () => {
   const pages = fs.readdirSync(path.join(root, 'practice/grammar')).filter((name) => /^(unit\d-(story|chat|join)|boss)\.html$/.test(name));
-  assert.equal(pages.length, 13);
+  assert.equal(pages.length, 19);
   pages.forEach((page) => {
     const html = fs.readFileSync(path.join(root, 'practice/grammar', page), 'utf8');
-    assert.match(html, /grammar-live\.js\?v=2/);
+    assert.match(html, /grammar-live\.js\?v=3/);
     assert.match(html, /function boot\(SETS\)/);
     assert.match(html, /GrammarLive\.load/);
     const script = html.slice(html.lastIndexOf('<script>'), html.lastIndexOf('</script>'));
