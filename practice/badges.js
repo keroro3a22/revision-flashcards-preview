@@ -896,25 +896,50 @@ window.Badges = (function () {
 })();
 
 if (typeof document !== 'undefined' && document.getElementById) {
+  function supabaseScript() {
+    var scripts = document.getElementsByTagName('script');
+    var i;
+    for (i = scripts.length - 1; i >= 0; i--) {
+      var src = scripts[i].src || '';
+      var cut = src.indexOf('practice/badges.js');
+      if (cut !== -1) return src.slice(0, cut) + 'assets/vendor/supabase.js?v=1';
+    }
+    return 'assets/vendor/supabase.js?v=1';
+  }
+
+  function whenSupabase() {
+    return new Promise(function (resolve) {
+      if (window.supabase && window.supabase.createClient) { resolve(); return; }
+      var tag = document.createElement('script');
+      tag.src = supabaseScript();
+      tag.onload = function () { resolve(); };
+      tag.onerror = function () { resolve(); };
+      document.head.appendChild(tag);
+    });
+  }
+
   function bootBadgePopups() {
     if (!window.Badges) return;
     window.Badges.showPending();
     var cfg = window.SUPABASE_PUBLIC;
-    if (!cfg || !cfg.url || !cfg.key || !window.supabase || !window.supabase.createClient) return;
-    try {
-      var client = window.supabase.createClient(cfg.url, cfg.key, {
-        auth: { persistSession: false, autoRefreshToken: false }
-      });
-      client.from('badge_settings_live').select('id,title,english,detail,image,target,milestones').then(function (result) {
-        if (!result || result.error || !result.data) return;
-        window.Badges.applyOverlay(result.data);
-        window.Badges.catchUp();
-        window.Badges.showPending();
-        var grid = document.getElementById('badge-grid');
-        if (grid) window.Badges.renderGrid(grid);
-        window.Badges.renderCount(document.getElementById('badge-count'));
-      }, function () {});
-    } catch (e) { /* built-in copy remains */ }
+    if (!cfg || !cfg.url || !cfg.key) return;
+    whenSupabase().then(function () {
+      if (!window.supabase || !window.supabase.createClient) return;
+      try {
+        var client = window.supabase.createClient(cfg.url, cfg.key, {
+          auth: { persistSession: false, autoRefreshToken: false }
+        });
+        client.from('badge_settings_live').select('id,title,english,detail,image,target,milestones').then(function (result) {
+          if (!result || result.error || !result.data) return;
+          window.Badges.applyOverlay(result.data);
+          window.Badges.catchUp();
+          window.Badges.showPending();
+          var grid = document.getElementById('badge-grid');
+          if (grid) window.Badges.renderGrid(grid);
+          window.Badges.renderCount(document.getElementById('badge-count'));
+        }, function () {});
+      } catch (e) { /* built-in copy remains */ }
+    });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootBadgePopups);
   else bootBadgePopups();
