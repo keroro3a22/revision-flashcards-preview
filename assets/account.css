@@ -1,6 +1,7 @@
 /* Sign-in chip and account page. Uses the site's cream / navy / coral. */
 
-html.account-booting body { visibility: hidden; }
+html.account-booting body,
+html.site-locked body { visibility: hidden; }
 
 .profile-page {
   width: min(40rem, calc(100% - 2 * var(--margin, 1.25rem)));

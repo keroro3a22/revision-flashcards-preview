@@ -9,6 +9,19 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/studio.css?v=54" />
+  <script>
+  (function () {
+    var raw = '';
+    try { raw = localStorage.getItem('p6-sb-auth') || ''; } catch (e) {}
+    if (raw.indexOf('access_token') === -1) {
+      document.documentElement.classList.add('site-locked');
+      var style = document.createElement('style');
+      style.textContent = 'html.site-locked body{visibility:hidden}';
+      document.head.appendChild(style);
+      location.replace('account/?next=' + encodeURIComponent('studio/'));
+    }
+  })();
+  </script>
   <script src="assets/supabase-public.js?v=1"></script>
   <script src="assets/vendor/supabase.js?v=1"></script>
 </head>

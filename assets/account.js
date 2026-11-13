@@ -1,5 +1,5 @@
 /* Username sign-in for the static site.
-   Logged-out practice stays in localStorage.
+   The site stays closed until someone signs in.
    After sign-in, badges and progress save to that account.
    A new sign-in closes a learner account on the other device.
    Lesson editors can stay signed in on more than one device. */
@@ -24,6 +24,30 @@
   var pushing = false;
   var pushAgain = false;
   var watching = false;
+  var leaving = false;
+
+  function isSignInPage() {
+    var path = String(window.location.pathname || '').replace(/\/index\.html$/, '');
+    return /\/account\/?$/.test(path);
+  }
+
+  function goSignIn() {
+    if (leaving || isSignInPage()) return;
+    leaving = true;
+    var href = 'account/';
+    try { if (P) href = accountHref(); } catch (e) {}
+    window.location.replace(href);
+  }
+
+  if (!isSignInPage()) {
+    document.documentElement.classList.add('site-locked');
+    if (!document.getElementById('site-lock-style')) {
+      var lockStyle = document.createElement('style');
+      lockStyle.id = 'site-lock-style';
+      lockStyle.textContent = 'html.site-locked body{visibility:hidden}';
+      (document.head || document.documentElement).appendChild(lockStyle);
+    }
+  }
 
   try {
     var savedSession = localStorage.getItem(AUTH_KEY) || '';
@@ -35,7 +59,10 @@
 
   setTimeout(function () {
     document.documentElement.classList.remove('account-booting');
-  }, 5000);
+    if (!document.documentElement.classList.contains('site-locked')) return;
+    if (userId) unhide();
+    else goSignIn();
+  }, 8000);
 
   var watched = {};
   if (P) {
@@ -60,6 +87,7 @@
 
   function unhide() {
     document.documentElement.classList.remove('account-booting');
+    document.documentElement.classList.remove('site-locked');
   }
 
   function siteRoot() {
@@ -546,8 +574,9 @@
     var hadToken = false;
     try { hadToken = !!localStorage.getItem(AUTH_KEY); } catch (e) {}
     if (!hadToken && !opts.afterLogin) {
-      unhide();
       paintLink();
+      if (!isSignInPage()) goSignIn();
+      else unhide();
       return Promise.resolve();
     }
     return ensureClient().then(function () {
@@ -562,11 +591,14 @@
           try {
             sessionStorage.setItem(NOTICE_KEY, 'You were signed out. If this account was opened on another device, sign in again here.');
           } catch (e) {}
-          showNotice();
         }
         paintLink();
+        if (!isSignInPage()) {
+          goSignIn();
+          return null;
+        }
+        showNotice();
         unhide();
-        if (document.getElementById('account-settings')) window.location.replace(pageHref('account/'));
         return null;
       }
       userId = session.user.id;
@@ -623,7 +655,9 @@
       });
     }).catch(function () {
       paintLink();
-      unhide();
+      if (userId) unhide();
+      else if (!isSignInPage()) goSignIn();
+      else unhide();
     });
   }
 
@@ -741,12 +775,12 @@
       if (lead) {
         lead.textContent = signingUp
           ? 'Choose a username and a password. No email, and nothing to confirm.'
-          : 'Units work with no account. Sign in to save progress and badges.';
+          : 'Sign in to use the website.';
       }
       if (zh) {
         zh.textContent = signingUp
           ? '用使用者名稱和密碼註冊。不用電郵，也不用確認。'
-          : '單元和默書不用登入。登入後，進度和徽章會存在這個帳號。';
+          : '請先登入才可以使用這個網站。';
       }
       if (note) {
         note.textContent = signingUp
@@ -919,16 +953,18 @@
 
   function boot() {
     if (!P) {
-      unhide();
+      if (!isSignInPage()) goSignIn();
+      else unhide();
       return;
     }
     mountLink();
-    showNotice();
+    if (isSignInPage()) showNotice();
     wireForm();
     var hasToken = false;
     try { hasToken = !!localStorage.getItem(AUTH_KEY); } catch (e) {}
     if (!hasToken) {
-      unhide();
+      if (!isSignInPage()) goSignIn();
+      else unhide();
       return;
     }
     hydrate({ afterLogin: false });
