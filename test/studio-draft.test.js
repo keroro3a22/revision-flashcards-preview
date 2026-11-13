@@ -1,5 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const { loadScripts } = require('./helpers');
 const draft = require('../assets/studio-draft.js');
 
 const oxford = { book: 'oxford', series: 'oxford', term: 'first', level: 'p6', unit: 'unit1', section: 'revision', kind: 'vocab' };
@@ -109,12 +110,20 @@ test('a blank studio opens on the Oxford P6 revision table', () => {
     term: 'first',
     level: 'p6',
     unit: 'unit1',
+    open: 'unit',
+    part: 'revision',
+    site: 'badges',
+    source: 'unit',
     section: 'revision',
     kind: 'vocab',
     mode: 'fill',
     difficulty: 'easy',
     set: '1',
-    review: 'all'
+    review: 'all',
+    badgeId: '',
+    slot: '',
+    n: '',
+    levelRow: ''
   });
 });
 
@@ -185,9 +194,14 @@ test('the pages table can stay on Get started', () => {
   assert.equal(saved.section, 'pages');
   assert.equal(saved.unit, 'home');
   assert.equal(draft.readStudioPlace(store).unit, 'home');
-  assert.equal(draft.studioPath(saved), 'oxford/Livingoxfordenglish/bookB/p6/home/pages');
+  assert.equal(saved.open, 'home');
+  assert.equal(draft.studioPath(saved), 'oxford/Livingoxfordenglish/bookB/p6/home');
   const row = draft.studioPath(saved, { slot: 'hear' });
-  assert.equal(row, 'oxford/Livingoxfordenglish/bookB/p6/home/pages/hear');
+  assert.equal(row, 'oxford/Livingoxfordenglish/bookB/p6/home/hear');
+  const oldHome = draft.parseStudioPath('oxford/Livingoxfordenglish/bookB/p6/home/pages/hear');
+  assert.equal(oldHome.open, 'home');
+  assert.equal(oldHome.slot, 'hear');
+  assert.equal(oldHome.term, 'second');
   assert.equal(draft.parseStudioPath(row).slot, 'hear');
   assert.equal(draft.parseStudioPath(row).term, 'second');
   assert.equal(draft.parseStudioPath(row).unit, 'home');
@@ -391,6 +405,55 @@ test('search suggestions quote nearby words and put a starting match first', () 
   }, 'Hear');
   assert.equal(pages[0].row.slot, 'hear');
   assert.match(pages[0].snippet.after, /Tap Play/);
+});
+
+test('studio paths open home, a unit, resources, practice sources, and site', () => {
+  const home = draft.parseStudioPath('oxford/Livingoxfordenglish/bookA/p6/home/hear');
+  assert.equal(home.open, 'home');
+  assert.equal(home.slot, 'hear');
+  assert.equal(draft.studioPath(home), 'oxford/Livingoxfordenglish/bookA/p6/home/hear');
+  const doors = draft.parseStudioPath('oxford/Livingoxfordenglish/bookA/p6/unit1/doors/revision-vocab');
+  assert.equal(doors.part, 'doors');
+  assert.equal(doors.section, 'pages');
+  assert.equal(doors.slot, 'revision-vocab');
+  const oldDoor = draft.parseStudioPath('oxford/Livingoxfordenglish/bookA/p6/unit1/pages/revision-grammar');
+  assert.equal(oldDoor.part, 'doors');
+  assert.equal(oldDoor.slot, 'revision-grammar');
+  const resources = draft.parseStudioPath('oxford/Livingoxfordenglish/bookA/p6/resources');
+  assert.equal(resources.open, 'resources');
+  assert.equal(resources.section, 'resources');
+  const oldResources = draft.parseStudioPath('oxford/Livingoxfordenglish/bookA/p6/unit2/resources');
+  assert.equal(oldResources.open, 'resources');
+  const mixed = draft.parseStudioPath('oxford/Livingoxfordenglish/bookA/p6/practice/vocab/mixed/letters');
+  assert.equal(mixed.source, 'mixed');
+  assert.equal(mixed.mode, 'letters');
+  assert.equal(mixed.unit, 'mixed');
+  const oldMixed = draft.parseStudioPath('oxford/Livingoxfordenglish/bookA/p6/mixed/practice/vocab/letters');
+  assert.equal(oldMixed.source, 'mixed');
+  assert.equal(oldMixed.mode, 'letters');
+  const boss = draft.parseStudioPath('oxford/Livingoxfordenglish/bookA/p6/practice/grammar/boss');
+  assert.equal(boss.source, 'boss');
+  assert.equal(boss.mode, 'boss');
+  assert.equal(boss.unit, 'mixed');
+  const oldBoss = draft.parseStudioPath('oxford/Livingoxfordenglish/bookA/p6/unit3/practice/grammar/boss');
+  assert.equal(oldBoss.source, 'boss');
+  assert.equal(oldBoss.mode, 'boss');
+  assert.equal(draft.parseStudioPath('site/badges').site, 'badges');
+  assert.equal(draft.parseStudioPath('site/badges/starter').badgeId, 'starter');
+  assert.equal(draft.studioPath({ open: 'site', site: 'badges' }, { id: 'starter' }), 'site/badges/starter');
+  assert.equal(draft.parseStudioPath('site/letter-ignore').site, 'ignore');
+  assert.equal(draft.studioPath({ open: 'site', site: 'ignore' }), 'site/letter-ignore');
+});
+
+test('a badge picture is a library file or the built-in art', () => {
+  const { window } = loadScripts(['assets/studio-badges.js']);
+  const ok = window.RevisionStudioBadges.imageOk;
+  assert.equal(ok(''), true);
+  assert.equal(ok('assets/badges/first-steps.png'), true);
+  assert.equal(ok('covers/unit1.jpg'), true);
+  assert.equal(ok('https://example.supabase.co/storage/v1/object/public/lesson-media/badge.png'), true);
+  assert.equal(ok('https://evil.example/badge.png'), false);
+  assert.equal(ok('../secret.png'), false);
 });
 
 test('option tags split on bars and keep a dotted pair together', () => {

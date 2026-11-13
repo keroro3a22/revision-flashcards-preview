@@ -454,29 +454,59 @@
     var raw = input || {};
     var book = oneOf(STUDIO_BOOKS, raw.book, 'oxford');
     var series = oneOf(STUDIO_SERIES[book], raw.series, STUDIO_SERIES[book][0]);
-    var section = raw.section === 'practice' || raw.section === 'pages' || raw.section === 'resources'
-      ? raw.section
-      : 'revision';
-    var kind = raw.kind === 'grammar' ? 'grammar' : 'vocab';
-    var unit = raw.unit;
-    if (section === 'pages' && unit === 'home') unit = 'home';
-    else if (!(section === 'practice' && kind === 'vocab' && unit === 'mixed')) {
-      unit = oneOf(STUDIO_UNITS, unit, 'unit1');
+    var open = oneOf(['home', 'unit', 'resources', 'site'], raw.open, '');
+    var part = oneOf(['doors', 'revision', 'practice'], raw.part, '');
+    var siteItem = oneOf(['badges', 'ignore'], raw.site, '');
+    var source = oneOf(['unit', 'mixed', 'boss'], raw.source, '');
+    var legacy = raw.section;
+    if (!open) {
+      if (legacy === 'resources') open = 'resources';
+      else if (legacy === 'site') open = 'site';
+      else if (legacy === 'pages' && raw.unit === 'home') open = 'home';
+      else if (legacy === 'pages') { open = 'unit'; part = 'doors'; }
+      else if (legacy === 'practice') { open = 'unit'; part = 'practice'; }
+      else { open = 'unit'; part = 'revision'; }
     }
-    var set = oneOf(['1', '2', '3', '4', '5'], String(raw.set || ''), '1');
-    var review = raw.review === 'draft' || raw.review === 'published' ? raw.review : 'all';
+    if (open === 'unit' && !part) part = 'revision';
+    if (open === 'site' && !siteItem) siteItem = raw.site === 'ignore' ? 'ignore' : 'badges';
+    if (open === 'unit' && part === 'practice' && !source) {
+      if (raw.mode === 'boss') source = 'boss';
+      else if (raw.unit === 'mixed') source = 'mixed';
+      else source = 'unit';
+    }
+    if (!(open === 'unit' && part === 'practice')) source = 'unit';
+    var kind = raw.kind === 'grammar' ? 'grammar' : 'vocab';
+    if (source === 'boss') kind = 'grammar';
+    if (source === 'mixed') kind = 'vocab';
+    var mode = oneOf(STUDIO_MODES[kind], raw.mode, STUDIO_MODES[kind][0]);
+    if (source === 'boss') mode = 'boss';
+    var unit = raw.unit;
+    if (open === 'home') unit = 'home';
+    else if (source === 'mixed' || source === 'boss') unit = 'mixed';
+    else if (open === 'unit') unit = oneOf(STUDIO_UNITS, unit, 'unit1');
+    else unit = oneOf(STUDIO_UNITS, unit === 'home' || unit === 'mixed' ? '' : unit, 'unit1');
+    var section = open === 'home' || part === 'doors' ? 'pages'
+      : (open === 'resources' ? 'resources' : (open === 'site' ? 'site' : (part === 'practice' ? 'practice' : 'revision')));
     return {
       book: book,
       series: series,
       term: oneOf(STUDIO_TERMS, raw.term, 'first'),
       level: oneOf(STUDIO_LEVELS, raw.level, 'p6'),
       unit: unit,
+      open: open,
+      part: open === 'unit' ? part : 'revision',
+      site: open === 'site' ? siteItem : 'badges',
+      source: source,
       section: section,
       kind: kind,
-      mode: oneOf(STUDIO_MODES[kind], raw.mode, STUDIO_MODES[kind][0]),
+      mode: mode,
       difficulty: raw.difficulty === 'hard' ? 'hard' : 'easy',
-      set: set,
-      review: review
+      set: oneOf(['1', '2', '3', '4', '5'], String(raw.set || ''), '1'),
+      review: raw.review === 'draft' || raw.review === 'published' ? raw.review : 'all',
+      badgeId: raw.badgeId || '',
+      slot: raw.slot || '',
+      n: raw.n || '',
+      levelRow: raw.levelRow || ''
     };
   }
 
@@ -541,16 +571,40 @@
     return term || '';
   }
 
-  function studioPath(place, row) {
-    var here = place || {};
-    var bits = [here.book, seriesSlug(here.series), termSlug(here.term), here.level, here.unit, here.section];
-    if (here.section !== 'pages') bits.push(here.kind || 'vocab');
-    if (here.section === 'practice' && here.mode) bits.push(here.mode);
+  function pathTail(here, row) {
+    var bits = [];
     if (here.section === 'practice' && (here.kind === 'grammar' || here.mode === 'fill') && String(here.set || '1') !== '1') bits.push('set' + here.set);
-    if (here.section === 'pages' && row && PAGE_SLOTS[row.slot]) bits.push(row.slot);
     if (row && row.n) bits.push(String(row.n));
     if (row && (row.level === 'easy' || row.level === 'hard')) bits.push(row.level);
-    return bits.filter(Boolean).join('/');
+    return bits;
+  }
+
+  function studioPath(place, row) {
+    var here = studioPlace(place || {});
+    if (here.open === 'site') {
+      if (here.site === 'ignore') return 'site/letter-ignore';
+      var badge = (row && row.id) || here.badgeId;
+      return badge ? 'site/badges/' + badge : 'site/badges';
+    }
+    var bits = [here.book, seriesSlug(here.series), termSlug(here.term), here.level];
+    if (here.open === 'resources') return bits.concat(['resources']).join('/');
+    if (here.open === 'home') {
+      bits.push('home');
+      var homeSlot = row && row.slot ? row.slot : here.slot;
+      if (PAGE_SLOTS[homeSlot]) bits.push(homeSlot);
+      return bits.filter(Boolean).join('/');
+    }
+    if (here.source === 'mixed') return bits.concat(['practice', 'vocab', 'mixed', here.mode]).concat(pathTail(here, row)).filter(Boolean).join('/');
+    if (here.source === 'boss') return bits.concat(['practice', 'grammar', 'boss']).join('/');
+    if (here.part === 'doors') {
+      bits.push(here.unit, 'doors');
+      var door = row && row.slot ? row.slot : here.slot;
+      if (PAGE_SLOTS[door]) bits.push(door);
+      return bits.filter(Boolean).join('/');
+    }
+    bits.push(here.unit, here.section, here.kind || 'vocab');
+    if (here.section === 'practice' && here.mode) bits.push(here.mode);
+    return bits.concat(pathTail(here, row)).filter(Boolean).join('/');
   }
 
   function parseStudioPath(text) {
@@ -559,7 +613,12 @@
     var lines = raw.split(/\n/).map(function (line) { return line.trim(); }).filter(Boolean);
     var line = lines.filter(function (part) { return /^(oxford|longman)\//i.test(part); })[0] || raw;
     var parts = line.replace(/^\/+|\/+$/g, '').split('/').filter(Boolean);
-    if (parts.length < 6) return null;
+    if (parts[0] && parts[0].toLowerCase() === 'site') {
+      if (parts[1] === 'letter-ignore') return studioPlace({ open: 'site', site: 'ignore' });
+      if (parts[1] === 'badges') return studioPlace({ open: 'site', site: 'badges', badgeId: parts[2] || '' });
+      return null;
+    }
+    if (parts.length < 5) return null;
     var book = parts[0].toLowerCase();
     if (book !== 'oxford' && book !== 'longman') return null;
     var series = SERIES_FROM_SLUG[parts[1].toLowerCase()];
@@ -571,13 +630,49 @@
     var levelName = parts[3].toLowerCase();
     var level = /^p[1-6]$/.test(levelName) ? levelName : (/^[1-6]$/.test(levelName) ? 'p' + levelName : '');
     if (!level) return null;
+    if (parts[4] && parts[4].toLowerCase() === 'resources') {
+      if (parts.length !== 5) return null;
+      return studioPlace({ book: book, series: series, term: term, level: level, open: 'resources' });
+    }
+    if (parts[4] && parts[4].toLowerCase() === 'home' && parts[5] !== 'pages' && parts[5] !== 'revision' && parts[5] !== 'practice') {
+      var homeSlot = parts[5] || '';
+      if (homeSlot && !PAGE_SLOTS[homeSlot]) return null;
+      if (parts.length > (homeSlot ? 6 : 5)) return null;
+      return studioPlace({
+        book: book, series: series, term: term, level: level,
+        unit: 'home', section: 'pages', slot: homeSlot
+      });
+    }
+    if (parts.length < 6) return null;
+    if (parts[4] && parts[4].toLowerCase() === 'practice') {
+      var practiceKind = parts[5];
+      if (practiceKind === 'vocab' && parts[6] === 'mixed' && MODES[parts[7]]) {
+        return studioPlace({
+          book: book, series: series, term: term, level: level,
+          open: 'unit', part: 'practice', source: 'mixed', kind: 'vocab', mode: parts[7]
+        });
+      }
+      if (practiceKind === 'grammar' && parts[6] === 'boss') {
+        return studioPlace({
+          book: book, series: series, term: term, level: level,
+          open: 'unit', part: 'practice', source: 'boss', kind: 'grammar', mode: 'boss'
+        });
+      }
+      return null;
+    }
     var unitName = parts[4].toLowerCase();
     var unit = unitName === 'home' || unitName === 'mixed' ? unitName
       : (/^unit[1-6]$/.test(unitName) ? unitName : (/^[1-6]$/.test(unitName) ? 'unit' + unitName : ''));
     if (!unit) return null;
     var sectionName = parts[5].toLowerCase();
-    var section = sectionName === 'revision' || sectionName === 'practice' || sectionName === 'pages' ? sectionName : '';
+    var section = sectionName === 'revision' || sectionName === 'practice' || sectionName === 'pages' || sectionName === 'doors'
+      ? sectionName
+      : '';
+    if (sectionName === 'resources') {
+      return studioPlace({ book: book, series: series, term: term, level: level, open: 'resources' });
+    }
     if (!section) return null;
+    if (section === 'doors') section = 'pages';
     var kind = 'vocab';
     var mode = section === 'practice' ? (kind === 'grammar' ? 'story' : 'fill') : (kind === 'grammar' ? 'story' : 'fill');
     var set = '1';
@@ -607,7 +702,7 @@
       if (/^\d+$/.test(part)) { n = part; index += 1; continue; }
       return null;
     }
-    return {
+    return studioPlace({
       book: book,
       series: series,
       term: term,
@@ -622,7 +717,7 @@
       n: n,
       levelRow: levelRow,
       slot: slot
-    };
+    });
   }
 
   function practicePatch(data, extra, status) {
@@ -782,6 +877,7 @@
     mountStudioColumns: mountStudioColumns,
     readStudioPlace: readStudioPlace,
     writeStudioPlace: writeStudioPlace,
+    studioPlace: studioPlace,
     studioPath: studioPath,
     parseStudioPath: parseStudioPath,
     searchSuggestions: searchSuggestions,

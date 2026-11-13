@@ -83,8 +83,10 @@ test('homepage hides the review progress block and the needs-review word list', 
   assert.doesNotMatch(home, /appendWords/);
   assert.doesNotMatch(home, /id="needs-review"/);
   assert.doesNotMatch(hub, /id="needs-review"/);
-  assert.match(badges, /badge-how/);
-  assert.match(badges, /b\.detail/);
+  const badgeScript = fs.readFileSync(path.join(root, 'practice/badges.js'), 'utf8');
+  assert.match(badges, /renderGrid/);
+  assert.match(badgeScript, /badge-how/);
+  assert.match(badgeScript, /badge\.detail/);
   assert.doesNotMatch(badges, /index\.html#needs-review/);
   assert.doesNotMatch(badges, /review-clear/);
   assert.doesNotMatch(badges, /badge-unit/);

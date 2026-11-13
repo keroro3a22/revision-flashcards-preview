@@ -73,10 +73,24 @@ window.Profile = (function () {
     return !!(earned && avatar.badgeId && earned[avatar.badgeId]);
   }
 
+  function badgeArt(badgeId) {
+    if (!badgeId || !window.Badges || typeof window.Badges.listWithStatus !== 'function') return null;
+    var rows = window.Badges.listWithStatus();
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].id === badgeId) return rows[i];
+    }
+    return null;
+  }
+
   function list(earned) {
     var map = earned || earnedMap();
     return AVATARS.map(function (avatar) {
       var unlocked = isUnlocked(avatar, map);
+      var badge = badgeArt(avatar.badgeId);
+      var filtered = !!(!unlocked && badge && badge.custom);
+      var src = avatar.src;
+      if (badge && (unlocked || badge.custom)) src = unlocked ? badge.image : badge.lockedImage;
+      else if (!unlocked) src = avatar.lockedSrc || avatar.src;
       var lockLabel = unlocked ? '' : ('Unlocks with ' + avatar.label + (avatar.zh ? ' · ' + avatar.zh : ''));
       return {
         id: avatar.id,
@@ -85,7 +99,8 @@ window.Profile = (function () {
         free: !!avatar.free,
         badgeId: avatar.badgeId || '',
         unlocked: unlocked,
-        src: unlocked ? avatar.src : (avatar.lockedSrc || avatar.src),
+        filtered: filtered,
+        src: src,
         lockLabel: lockLabel
       };
     });
@@ -133,7 +148,8 @@ window.Profile = (function () {
     var earned = earnedMap();
     var id = usableAvatar(current.avatar, earned, DEFAULT_AVATAR);
     var avatar = findAvatar(id) || findAvatar(DEFAULT_AVATAR);
-    return { id: avatar.id, label: avatar.label, zh: avatar.zh, src: avatar.src };
+    var shown = list(earned).filter(function (row) { return row.id === id; })[0];
+    return { id: avatar.id, label: avatar.label, zh: avatar.zh, src: shown ? shown.src : avatar.src };
   }
 
   function resolve(path) {
@@ -171,7 +187,7 @@ window.Profile = (function () {
       list().forEach(function (item) {
         var btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'profile-choice' + (item.unlocked ? '' : ' is-locked') + (item.id === selected ? ' is-on' : '');
+        btn.className = 'profile-choice' + (item.unlocked ? '' : ' is-locked') + (item.filtered ? ' is-filtered' : '') + (item.id === selected ? ' is-on' : '');
         btn.disabled = !item.unlocked;
         btn.dataset.id = item.id;
         btn.setAttribute('aria-pressed', item.id === selected ? 'true' : 'false');

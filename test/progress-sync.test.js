@@ -67,6 +67,14 @@ test('merge keeps both badges and the earlier date', () => {
   assert.equal(merged.badges.units.unit1.match, true);
   assert.equal(merged.badges.units.unit1.fillEasyBest, 1);
   assert.equal(merged.badges.grammarInferenceWins, 2);
+  const seen = P.merge({
+    badges: { earned: {}, units: {}, nudgesSeen: { 'match-pro': [1] } }
+  }, {
+    badges: { earned: {}, units: {}, nudgesSeen: { 'match-pro': [1, 2], 'grammar-story': [1] } }
+  }, { remoteAt: 1, profileAt: 1, lastAt: 1 });
+  assert.equal(seen.badges.nudgesSeen['match-pro'].indexOf(1) !== -1, true);
+  assert.equal(seen.badges.nudgesSeen['match-pro'].indexOf(2) !== -1, true);
+  assert.equal(seen.badges.nudgesSeen['grammar-story'][0], 1);
   assert.equal(merged.mastery.words['unit1:adopt'].state, 'mastered');
   assert.equal(merged.mastery.words['unit1:adopt'].wrong, 1);
   assert.equal(merged.matchBest.unit1.flips, 8);

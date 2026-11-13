@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="assets/studio.css?v=50" />
+  <link rel="stylesheet" href="assets/studio.css?v=51" />
   <script src="assets/supabase-public.js?v=1"></script>
   <script src="assets/vendor/supabase.js?v=1"></script>
 </head>
@@ -23,11 +23,25 @@
       <label>Level <select id="filter-level"></select></label>
       <label>Term <select id="filter-term"></select></label>
       <label id="filter-unit-label">Unit <select id="filter-unit"></select></label>
-      <label>Section <select id="filter-section">
-        <option value="revision">Revision card</option>
-        <option value="practice">Practice</option>
-        <option value="pages">Pages</option>
+      <label>Open <select id="filter-section">
+        <option value="home">Home</option>
+        <option value="unit">Unit</option>
         <option value="resources">Resources</option>
+        <option value="site">Site</option>
+      </select></label>
+      <label id="filter-part-label">Part <select id="filter-part">
+        <option value="doors">Doors</option>
+        <option value="revision">Revision</option>
+        <option value="practice">Practice</option>
+      </select></label>
+      <label id="filter-source-label" hidden>Source <select id="filter-source">
+        <option value="unit">This unit</option>
+        <option value="mixed">Mixed topic</option>
+        <option value="boss">Boss round</option>
+      </select></label>
+      <label id="filter-site-label" hidden>Site <select id="filter-site">
+        <option value="badges">Badges</option>
+        <option value="ignore">Ignore words</option>
       </select></label>
       <label>Kind <select id="filter-kind">
         <option value="vocab">Vocab</option>
@@ -65,6 +79,7 @@
     </div>
     <p id="studio-note" class="studio-note" role="status" hidden></p>
     <p id="studio-empty" hidden>No cards in this lesson yet.</p>
+    <div id="studio-badges" class="studio-badges" hidden></div>
     <div id="letter-ignore" class="studio-ignore" hidden>
       <div class="studio-ignore-field">
         <span>Ignore words</span>
@@ -101,10 +116,12 @@
   <script src="assets/letter-rules.js?v=2"></script>
   <script src="assets/img-frame.js?v=12"></script>
   <script src="assets/site-pages.js?v=4"></script>
-  <script src="assets/studio-draft.js?v=25"></script>
+  <script src="practice/badges.js?v=2"></script>
+  <script src="assets/studio-draft.js?v=26"></script>
   <script src="assets/studio-pages.js?v=9"></script>
   <script src="assets/studio-resources.js?v=1"></script>
   <script src="assets/studio-library.js?v=9"></script>
-  <script src="assets/studio.js?v=58"></script>
+  <script src="assets/studio-badges.js?v=2"></script>
+  <script src="assets/studio.js?v=59"></script>
 </body>
 </html>
