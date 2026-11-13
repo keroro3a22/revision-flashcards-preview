@@ -676,6 +676,38 @@
     error.hidden = false;
   }
 
+  function showSignupPause() {
+    if (document.getElementById('signup-pause')) return;
+    var wrap = document.createElement('div');
+    wrap.id = 'signup-pause';
+    wrap.className = 'account-ask';
+    var panel = document.createElement('div');
+    panel.className = 'account-ask-panel';
+    panel.setAttribute('role', 'dialog');
+    panel.setAttribute('aria-modal', 'true');
+    panel.setAttribute('aria-labelledby', 'signup-pause-copy');
+    var copy = document.createElement('p');
+    copy.id = 'signup-pause-copy';
+    copy.textContent = 'Sign-up is closed for now. The website is still under development.';
+    var actions = document.createElement('div');
+    actions.className = 'account-ask-actions';
+    var ok = document.createElement('button');
+    ok.type = 'button';
+    ok.className = 'btn btn-primary';
+    ok.textContent = 'OK';
+    function close() { wrap.remove(); }
+    ok.addEventListener('click', close);
+    wrap.addEventListener('click', function (event) {
+      if (event.target === wrap) close();
+    });
+    actions.appendChild(ok);
+    panel.appendChild(copy);
+    panel.appendChild(actions);
+    wrap.appendChild(panel);
+    document.body.appendChild(wrap);
+    ok.focus();
+  }
+
   function wireForm() {
     wireSettings();
     var form = document.getElementById('account-form');
@@ -732,9 +764,7 @@
     }
     if (toggle) {
       toggle.addEventListener('click', function () {
-        setMode(mode === 'signup' ? 'signin' : 'signup');
-        var error = document.getElementById('account-error');
-        if (error) error.hidden = true;
+        showSignupPause();
       });
     }
   function wireSettings() {
@@ -854,6 +884,10 @@
 
     form.addEventListener('submit', function (event) {
       event.preventDefault();
+      if (mode === 'signup') {
+        showSignupPause();
+        return;
+      }
       var name = P.normalizeUsername(username.value);
       var pass = password.value;
       if (!P.usernameOk(name)) {
