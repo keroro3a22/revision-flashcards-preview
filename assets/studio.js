@@ -80,7 +80,7 @@
     $('filter-mode-label').hidden = pages || !practice;
     $('filter-difficulty-label').hidden = true;
     $('filter-set-label').hidden = pages || !(practice && kind === 'grammar');
-    $('filter-unit-label').hidden = pages || (practice && $('filter-mode').value === 'boss');
+    $('filter-unit-label').hidden = section === 'resources' || (practice && $('filter-mode').value === 'boss');
     if ($('studio-new')) $('studio-new').hidden = section === 'pages';
     syncUnits(preferredUnit);
   }
