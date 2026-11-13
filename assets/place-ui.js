@@ -181,7 +181,7 @@
     var brand = document.createElement('a');
     brand.className = 'brand';
     brand.href = scriptRoot() || './';
-    brand.textContent = 'English Revision';
+    brand.textContent = 'Play and Learn Club';
     inner.appendChild(brand);
     var nav = document.createElement('nav');
     nav.className = 'place-nav';

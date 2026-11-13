@@ -115,6 +115,6 @@ test('Get started packs follow titles and open doors', () => {
   assert.equal(packs[0].items[0].ready, true);
   assert.equal(packs[1].title, 'Helping');
   const home = pages.homeCopy(bookB, []);
-  assert.equal(home.hero.label, 'English Revision');
+  assert.equal(home.hero.label, 'Play and Learn Club');
   assert.equal(home.see.label, 'See it');
 });
