@@ -1,11 +1,13 @@
 ---
-description: The user tests. Read enough to change every place that needs it.
+description: The user tests. Reply in everyday language, without explaining the code.
 alwaysApply: true
 ---
 
 The user tests every change. Do not run tests, open a browser, take screenshots, or click through the site.
 
 Read the code that the change touches, then update every place that must change with it.
+
+When you reply, use everyday language. Say what the person using the site will notice. Do not explain how the code was changed.
 
 When the user asks to publish, commit, push, and merge to the branch that deploys. Reply with the live URL. The user will check it.
 
