@@ -181,7 +181,13 @@
     var brand = document.createElement('a');
     brand.className = 'brand';
     brand.href = scriptRoot() || './';
-    brand.textContent = 'Play and Learn Club';
+    brand.setAttribute('aria-label', 'Play and Learn Club');
+    var mark = document.createElement('img');
+    mark.src = scriptRoot() + 'assets/logo.png?v=1';
+    mark.alt = '';
+    mark.width = 720;
+    mark.height = 342;
+    brand.appendChild(mark);
     inner.appendChild(brand);
     var nav = document.createElement('nav');
     nav.className = 'place-nav';
@@ -375,6 +381,13 @@
   }
 
   function boot() {
+    if (!document.querySelector('link[rel="icon"]')) {
+      var icon = document.createElement('link');
+      icon.rel = 'icon';
+      icon.type = 'image/png';
+      icon.href = scriptRoot() + 'assets/favicon.png';
+      document.head.appendChild(icon);
+    }
     var kind = pageKind();
     if (kind) ensureChrome();
     var bookButton = document.getElementById('book-button');
