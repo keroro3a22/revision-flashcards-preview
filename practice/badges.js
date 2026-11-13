@@ -72,9 +72,10 @@ window.Badges = (function () {
    * Phrase Speller: https://www.irasutoya.com/2013/01/blog-post_2739.html
    * Match Master: https://www.irasutoya.com/2017/07/blog-post_978.html
    * Timed Hero: https://www.irasutoya.com/2012/12/blog-post_271.html
-   * Hard Challenger: https://www.irasutoya.com/2020/01/blog-post_69.html
+   * Hard Challenger: https://www.irasutoya.com/2013/04/blog-post_6839.html
    * All-rounder: https://www.irasutoya.com/2014/11/blog-post_364.html
-   * Story Reader, Inference Ace, Sentence Linker, and Boss Beater use their saved pictures.
+   * Sentence Linker: https://www.irasutoya.com/2016/01/blog-post_14.html
+   * Story Reader, Inference Ace, and Boss Beater use their saved pictures.
    * Chat Practiser has no picture yet (image is empty until art is added).
    */
   function catalog() {
