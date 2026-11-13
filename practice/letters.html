@@ -225,7 +225,7 @@
     if (ok) {
       correctCount += 1;
       M.markCorrect(item.wordKey);
-      C.toast(toast, 'Correct! ▶', 'ok');
+      C.toast(toast, 'Correct!', 'ok');
       C.playAudio(item.audio);
       blankInputs.forEach(inp => {
         const wrap = inp.parentElement;
