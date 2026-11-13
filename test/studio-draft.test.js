@@ -445,6 +445,164 @@ test('studio paths open home, a unit, resources, practice sources, and site', ()
   assert.equal(draft.studioPath({ open: 'site', site: 'ignore' }), 'site/letter-ignore');
 });
 
+function studioNode(tag) {
+  const node = {
+    tag,
+    children: [],
+    className: '',
+    textContent: '',
+    value: '',
+    dataset: {},
+    attributes: {},
+    appendChild(child) {
+      this.children.push(child);
+      return child;
+    },
+    replaceChildren() {
+      this.children = [];
+    },
+    setAttribute(name, value) {
+      this.attributes[name] = String(value);
+    },
+    addEventListener(type, fn) {
+      this.listeners = this.listeners || {};
+      this.listeners[type] = fn;
+    },
+    remove() {},
+    querySelector(selector) {
+      return this.querySelectorAll(selector)[0] || null;
+    },
+    querySelectorAll(selector) {
+      const found = [];
+      const wanted = selector.charAt(0) === '.' ? selector.slice(1) : '';
+      const dataId = selector.startsWith('[data-id="') ? selector.slice(10, -2) : '';
+      const walk = (el) => {
+        const classes = String(el.className || '').split(/\s+/);
+        const hit = dataId
+          ? el.dataset && el.dataset.id === dataId
+          : wanted
+            ? classes.includes(wanted)
+            : el.tag === selector;
+        if (hit) found.push(el);
+        el.children.forEach(walk);
+      };
+      this.children.forEach(walk);
+      return found;
+    }
+  };
+  node.classList = {
+    add(name) {
+      node.className = `${node.className} ${name}`.trim();
+    }
+  };
+  return node;
+}
+
+function labeledInput(card, label) {
+  const match = card.querySelectorAll('label').find((item) => (
+    item.children.some((child) => child.tag === 'span' && child.textContent === label)
+  ));
+  assert.ok(match, label);
+  return match.children.find((child) => child.tag === 'input' || child.tag === 'textarea');
+}
+
+function labeledValue(card, label) {
+  return labeledInput(card, label).value;
+}
+
+function badgeClient(rows, writes) {
+  const result = (data) => ({ then(fn) { fn({ data, error: null }); } });
+  return {
+    from() {
+      return {
+        select() {
+          return result(rows);
+        },
+        insert(patch) {
+          writes.push(patch);
+          return { select() { return result([{ id: patch.id, status: patch.status }]); } };
+        },
+        update(patch) {
+          writes.push(patch);
+          return { eq() { return { select() { return result([{ id: patch.id, status: patch.status }]); } }; } };
+        }
+      };
+    }
+  };
+}
+
+test('the badge editor shows the built-in name and how to earn it', () => {
+  const host = studioNode('div');
+  const document = {
+    createElement: studioNode,
+    readyState: 'complete'
+  };
+  const { window } = loadScripts(
+    ['practice/badges.js', 'assets/studio-badges.js'],
+    { document }
+  );
+  document.getElementById = (id) => (id === 'studio-badges' ? host : null);
+  const writes = [];
+  window.RevisionStudioBadges.load(badgeClient([], writes), {}, { say() {} });
+  const starter = host.querySelector('[data-id="starter"]');
+  assert.equal(labeledValue(starter, 'Chinese name'), '起步新手');
+  assert.equal(labeledValue(starter, 'English name'), 'First Steps');
+  assert.equal(labeledValue(starter, 'How to earn it'), 'Finish any one practice session.');
+  const unit = host.querySelector('[data-id="unit-done:unit1"]');
+  assert.equal(unit.querySelector('.studio-badge-unit').textContent, 'Unit 1');
+  assert.equal(labeledValue(unit, 'Chinese name'), 'Unit 完成者');
+  const starterTarget = labeledInput(starter, 'Target total');
+  assert.equal(starterTarget.value, '1');
+  assert.equal(starterTarget.max, '1');
+  const match = host.querySelector('[data-id="match-pro"]');
+  const matchTarget = labeledInput(match, 'Target total');
+  assert.equal(matchTarget.value, '4');
+  assert.equal(matchTarget.max, '4');
+  starter.querySelectorAll('button').find((button) => button.textContent === 'Save draft').listeners.click();
+  assert.equal(writes[0].title, '');
+  assert.equal(writes[0].english, '');
+  assert.equal(writes[0].detail, '');
+  assert.equal(writes[0].target, null);
+  matchTarget.value = '2';
+  match.querySelectorAll('button').find((button) => button.textContent === 'Save draft').listeners.click();
+  assert.equal(writes[1].target, 2);
+  matchTarget.value = '4';
+  match.querySelectorAll('button').find((button) => button.textContent === 'Save draft').listeners.click();
+  assert.equal(writes[2].target, null);
+  matchTarget.value = '9';
+  match.querySelectorAll('button').find((button) => button.textContent === 'Save draft').listeners.click();
+  assert.equal(writes.length, 3);
+  const title = starter.querySelectorAll('label')
+    .find((item) => item.children.some((child) => child.textContent === 'Chinese name'))
+    .children.find((child) => child.tag === 'input');
+  title.value = '開步';
+  starter.querySelectorAll('button').find((button) => button.textContent === 'Save draft').listeners.click();
+  assert.equal(writes[3].title, '開步');
+  assert.equal(writes[3].english, '');
+
+  const customHost = studioNode('div');
+  document.getElementById = () => customHost;
+  window.RevisionStudioBadges.load(badgeClient([{
+    id: 'starter',
+    title: '新名字',
+    english: '',
+    detail: 'Finish one timed practice.',
+    image: '',
+    target: null,
+    milestones: [],
+    status: 'draft'
+  }], []), {}, { say() {} });
+  const custom = customHost.querySelector('[data-id="starter"]');
+  assert.equal(labeledValue(custom, 'Chinese name'), '新名字');
+  assert.equal(labeledValue(custom, 'English name'), 'First Steps');
+  assert.equal(labeledValue(custom, 'How to earn it'), 'Finish one timed practice.');
+});
+
+test('badge cards sit in a grid', () => {
+  const css = require('node:fs').readFileSync('assets/studio.css', 'utf8');
+  assert.match(css, /\.studio-badges\s*\{[^}]*grid-template-columns:\s*repeat\(auto-fill,\s*minmax\(min\(100%,\s*22rem\),\s*1fr\)\)/);
+});
+
 test('a badge picture is a library file or the built-in art', () => {
   const { window } = loadScripts(['assets/studio-badges.js']);
   const ok = window.RevisionStudioBadges.imageOk;

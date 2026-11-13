@@ -4,11 +4,47 @@
     return String(value || '').replace(/\s+/g, ' ').trim().slice(0, max);
   }
 
+  function shownCopy(saved, builtin, max) {
+    var text = clip(saved, max);
+    return text || clip(builtin, max);
+  }
+
+  function savedCopy(value, builtin, max) {
+    var text = clip(value, max);
+    if (!text || text === clip(builtin, max)) return '';
+    return text;
+  }
+
   function builtinTarget(id) {
+    if (window.Badges && window.Badges.builtinTarget) return window.Badges.builtinTarget(id);
     if (id === 'starter' || id === 'grammar-boss') return 1;
     if (String(id).indexOf('unit-done:') === 0) return 3;
     if (id === 'grammar-inference') return 3;
     return 4;
+  }
+
+  function targetLimit(id) {
+    if (window.Badges && window.Badges.targetLimit) return window.Badges.targetLimit(id);
+    if (id === 'grammar-inference') return 99;
+    return builtinTarget(id);
+  }
+
+  function shownTarget(saved, id) {
+    var base = builtinTarget(id);
+    var next = Number(saved);
+    var max = targetLimit(id);
+    if (isFinite(next) && next >= 1 && next <= max && Math.floor(next) === next) return next;
+    return base;
+  }
+
+  function readTarget(value, id) {
+    var max = targetLimit(id);
+    var base = builtinTarget(id);
+    var text = String(value == null ? '' : value).trim();
+    if (!text) return { ok: true, target: null, goal: base };
+    var next = Number(text);
+    if (!isFinite(next) || next < 1 || next > max || Math.floor(next) !== next) return { ok: false, max: max };
+    return { ok: true, target: next === base ? null : next, goal: next };
   }
 
   function imageOk(value) {
@@ -26,7 +62,8 @@
     var name = document.createElement('span');
     name.textContent = label;
     var input = multiline ? document.createElement('textarea') : document.createElement('input');
-    if (!multiline) input.type = 'text';
+    if (multiline) input.rows = 4;
+    else input.type = 'text';
     input.maxLength = max;
     input.value = value || '';
     wrap.appendChild(name);
@@ -72,15 +109,15 @@
 
   function card(client, badge, saved, say, focus) {
     var row = saved || null;
-    var editable = badge.id === 'grammar-inference';
-    var target = editable && row && row.target ? row.target : builtinTarget(badge.id);
+    var target = shownTarget(row && row.target, badge.id);
     var article = document.createElement('article');
     article.className = 'studio-badge';
     article.dataset.id = badge.id;
     if (focus && focus === badge.id) article.classList.add('is-path');
-    var heading = document.createElement('h2');
-    heading.textContent = badge.title + ' · ' + badge.english;
-    article.appendChild(heading);
+    var top = document.createElement('div');
+    top.className = 'studio-badge-top';
+    var artWrap = document.createElement('div');
+    artWrap.className = 'studio-badge-art';
     var art = document.createElement('img');
     art.alt = '';
     art.width = 96;
@@ -90,7 +127,6 @@
       art.src = imageValue || badge.image;
     }
     paint();
-    article.appendChild(art);
     var photo = document.createElement('button');
     photo.type = 'button';
     photo.textContent = 'Change photo';
@@ -112,34 +148,41 @@
       imageValue = '';
       paint();
     });
-    article.appendChild(photo);
-    article.appendChild(clear);
-    var title = field('Chinese name', row && row.title ? row.title : '', 40, false);
-    var english = field('English name', row && row.english ? row.english : '', 40, false);
-    var detail = field('How to earn it', row && row.detail ? row.detail : '', 280, true);
-    article.appendChild(title.wrap);
-    article.appendChild(english.wrap);
-    article.appendChild(detail.wrap);
-    var targetInput = null;
-    if (editable) {
-      var targetWrap = document.createElement('label');
-      targetWrap.className = 'studio-badge-field';
-      var targetName = document.createElement('span');
-      targetName.textContent = 'Target total';
-      targetInput = document.createElement('input');
-      targetInput.type = 'number';
-      targetInput.min = '1';
-      targetInput.max = '99';
-      targetInput.value = String(target);
-      targetWrap.appendChild(targetName);
-      targetWrap.appendChild(targetInput);
-      article.appendChild(targetWrap);
-    } else {
-      var fixed = document.createElement('p');
-      fixed.className = 'studio-badge-target';
-      fixed.textContent = 'Target total ' + target;
-      article.appendChild(fixed);
+    artWrap.appendChild(art);
+    artWrap.appendChild(photo);
+    artWrap.appendChild(clear);
+    var names = document.createElement('div');
+    names.className = 'studio-badge-names';
+    if (badge.unitLabel) {
+      var unit = document.createElement('p');
+      unit.className = 'studio-badge-unit';
+      unit.textContent = badge.unitLabel;
+      names.appendChild(unit);
     }
+    var title = field('Chinese name', shownCopy(row && row.title, badge.title, 40), 40, false);
+    var english = field('English name', shownCopy(row && row.english, badge.english, 40), 40, false);
+    var detail = field('How to earn it', shownCopy(row && row.detail, badge.detail, 280), 280, true);
+    title.wrap.classList.add('studio-badge-title');
+    english.wrap.classList.add('studio-badge-english');
+    detail.wrap.classList.add('studio-badge-detail');
+    names.appendChild(title.wrap);
+    names.appendChild(english.wrap);
+    top.appendChild(artWrap);
+    top.appendChild(names);
+    article.appendChild(top);
+    article.appendChild(detail.wrap);
+    var targetWrap = document.createElement('label');
+    targetWrap.className = 'studio-badge-field studio-badge-target';
+    var targetName = document.createElement('span');
+    targetName.textContent = 'Target total';
+    var targetInput = document.createElement('input');
+    targetInput.type = 'number';
+    targetInput.min = '1';
+    targetInput.max = String(targetLimit(badge.id));
+    targetInput.value = String(target);
+    targetWrap.appendChild(targetName);
+    targetWrap.appendChild(targetInput);
+    article.appendChild(targetWrap);
     var steps = document.createElement('div');
     steps.className = 'studio-badge-steps';
     var storedSteps = row && Array.isArray(row.milestones) ? row.milestones : [];
@@ -147,6 +190,7 @@
     article.appendChild(steps);
     var add = document.createElement('button');
     add.type = 'button';
+    add.className = 'studio-badge-add';
     add.textContent = 'Add a pep line';
     add.addEventListener('click', function () { steps.appendChild(stepRow(null)); });
     article.appendChild(add);
@@ -155,26 +199,26 @@
     state.textContent = row && row.status === 'published' ? 'Published' : (row ? 'Draft' : 'Built-in');
     article.appendChild(state);
     function payload(status) {
-      var nextTarget = editable ? Number(targetInput.value) : null;
-      if (editable && (!isFinite(nextTarget) || nextTarget < 1 || nextTarget > 99 || Math.floor(nextTarget) !== nextTarget)) {
-        say('The inference target is a whole number from 1 to 99.');
+      var chosen = readTarget(targetInput.value, badge.id);
+      if (!chosen.ok) {
+        say('Target total is a whole number from 1 to ' + chosen.max + '.');
         return null;
       }
       if (!imageOk(imageValue)) {
         say('Choose a library photo, or leave the picture empty to use the built-in one.');
         return null;
       }
-      var goal = editable ? nextTarget : builtinTarget(badge.id);
+      var goal = chosen.goal;
       var milestones = window.Badges && window.Badges.cleanMilestones
         ? window.Badges.cleanMilestones(readSteps(steps), goal)
         : [];
       var patch = {
         id: badge.id,
-        title: clip(title.input.value, 40),
-        english: clip(english.input.value, 40),
-        detail: clip(detail.input.value, 280),
+        title: savedCopy(title.input.value, badge.title, 40),
+        english: savedCopy(english.input.value, badge.english, 40),
+        detail: savedCopy(detail.input.value, badge.detail, 280),
         image: imageOk(imageValue) ? String(imageValue || '').trim() : '',
-        target: editable ? nextTarget : null,
+        target: chosen.target,
         milestones: milestones,
         status: status
       };
@@ -184,7 +228,7 @@
           english: patch.english,
           detail: patch.detail,
           image: patch.image,
-          target: editable ? nextTarget : null,
+          target: chosen.target,
           milestones: milestones
         };
       }
@@ -204,6 +248,8 @@
         say(status === 'published' ? 'Published. Students see it after a refresh.' : 'Draft saved. Students do not see it yet.');
       });
     }
+    var actions = document.createElement('div');
+    actions.className = 'studio-badge-actions';
     var save = document.createElement('button');
     save.type = 'button';
     save.textContent = 'Save draft';
@@ -215,8 +261,8 @@
       if (!window.confirm('Publish this badge? Students see it after a refresh.')) return;
       store('published');
     });
-    article.appendChild(save);
-    article.appendChild(publish);
+    actions.appendChild(save);
+    actions.appendChild(publish);
     if (row && row.status === 'published') {
       var retract = document.createElement('button');
       retract.type = 'button';
@@ -231,8 +277,9 @@
           say('Taken off the site. Students see the built-in badge after a refresh.');
         });
       });
-      article.appendChild(retract);
+      actions.appendChild(retract);
     }
+    article.appendChild(actions);
     return article;
   }
 
@@ -253,7 +300,7 @@
       var hit = hooks && hooks.focus ? host.querySelector('[data-id="' + hooks.focus + '"]') : null;
       if (hit && hit.scrollIntoView) hit.scrollIntoView({ block: 'center' });
       if (hooks && hooks.focused) hooks.focused();
-      say('Empty fields keep the built-in badge. Publish is what students see.');
+      say('Names, how-to, and the target start from the built-in badge. Publish is what students see.');
     });
   }
 

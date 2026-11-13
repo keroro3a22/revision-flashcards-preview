@@ -594,25 +594,96 @@ body.studio-col-dragging * {
   margin: 0 0 0.8rem;
 }
 .studio-ignore[hidden] { display: none; }
-.studio-badges { display: grid; gap: 1rem; margin: 1rem 0 2rem; }
+.studio-badges {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+  gap: 0.85rem;
+  align-items: start;
+  margin: 0.4rem 0 2rem;
+}
 .studio-badges[hidden] { display: none; }
 .studio-badge {
   display: grid;
   gap: 0.55rem;
-  padding: 1rem;
-  border-radius: 18px;
+  min-width: 0;
+  padding: 0.85rem;
+  border: 1px solid #d5e0ea;
+  border-radius: 16px;
   background: #fff;
+  box-shadow: 0 8px 18px rgba(22, 50, 79, 0.06);
 }
 .studio-badge.is-path { outline: 3px solid #fc903c; }
-.studio-badge h2 { margin: 0; font-size: 1.15rem; }
-.studio-badge img { width: 6rem; height: 6rem; object-fit: contain; }
-.studio-badge-field { display: grid; gap: 0.2rem; }
+.studio-badge-top { display: grid; gap: 0.65rem; }
+.studio-badge-art {
+  display: grid;
+  grid-template-columns: 6.4rem minmax(0, 1fr);
+  gap: 0.35rem 0.7rem;
+  align-items: center;
+}
+.studio-badge-art img {
+  grid-row: span 2;
+  width: 6.4rem;
+  height: 6.4rem;
+  object-fit: contain;
+  background: #f4f7fb;
+  border-radius: 12px;
+}
+.studio-badge-names { display: grid; gap: 0.4rem; min-width: 0; }
+.studio-badge-unit {
+  margin: 0;
+  font-family: Fredoka, Nunito, sans-serif;
+  font-weight: 700;
+  color: #2f6fad;
+}
+.studio-badge-field { display: grid; gap: 0.15rem; min-width: 0; }
+.studio-badge-field span {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #5d7190;
+}
 .studio-badge-field input,
-.studio-badge-field textarea { width: min(100%, 36rem); font: inherit; }
+.studio-badge-field textarea,
+.studio-badge-step input {
+  width: 100%;
+  font: inherit;
+  color: #16324f;
+  background: #fff;
+  border: 1px solid #8ea4ba;
+  border-radius: 0.4rem;
+  padding: 0.35rem 0.45rem;
+}
+.studio-badge-title input {
+  font-family: "Noto Sans TC", Nunito, sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+.studio-badge-english input {
+  font-family: Fredoka, Nunito, sans-serif;
+  font-weight: 700;
+}
+.studio-badge-field textarea { min-height: 4.8rem; resize: vertical; }
+.studio-badge-target input { width: 5.5rem; }
+.studio-badge-state { margin: 0; font-weight: 700; }
+.studio-badge-state { color: #5d7190; font-size: 0.82rem; }
 .studio-badge-steps { display: grid; gap: 0.4rem; }
 .studio-badge-step { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
-.studio-badge-at { width: 5rem; }
-.studio-badge-message { width: min(100%, 24rem); }
+.studio-badge-at { width: 4.5rem; }
+.studio-badge-message { flex: 1 1 8rem; min-width: 0; }
+.studio-badge button {
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.78rem;
+  line-height: 1.25;
+  color: #16324f;
+  background: #fff;
+  border: 1px solid #8ea4ba;
+  border-radius: 0.4rem;
+  padding: 0.28rem 0.45rem;
+  cursor: pointer;
+}
+.studio-badge-art button { justify-self: start; white-space: normal; }
+.studio-badge-add { justify-self: start; }
+.studio-badge-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .studio-ignore-field {
   display: grid;
   gap: 0.2rem;
