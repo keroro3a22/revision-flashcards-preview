@@ -75,8 +75,8 @@ window.Badges = (function () {
    * Hard Challenger: https://www.irasutoya.com/2013/04/blog-post_6839.html
    * All-rounder: https://www.irasutoya.com/2014/11/blog-post_364.html
    * Sentence Linker: https://www.irasutoya.com/2016/01/blog-post_14.html
+   * Chat Practiser: https://www.irasutoya.com/2014/05/blog-post_8640.html
    * Story Reader, Inference Ace, and Boss Beater use their saved pictures.
-   * Chat Practiser has no picture yet (image is empty until art is added).
    */
   function catalog() {
     return [
@@ -85,7 +85,7 @@ window.Badges = (function () {
       { id: 'timed-brave', title: '限時勇者', english: 'Timed Hero', image: 'assets/badges/timed-hero.png', detail: 'Finish 3 different Timed Challenge sets.' },
       { id: 'grammar-story', title: '故事閱讀員', english: 'Story Reader', image: 'assets/badges/story-reader.png', detail: 'Finish 3 different Story Book sets.' },
       { id: 'grammar-join', title: '組句高手', english: 'Sentence Linker', image: 'assets/badges/sentence-linker.png', detail: 'Finish 3 different Join the sentences sets.' },
-      { id: 'grammar-chat', title: '對話練習生', english: 'Chat Practiser', image: '', detail: 'Finish 3 different Chat Quest sets.' },
+      { id: 'grammar-chat', title: '對話練習生', english: 'Chat Practiser', image: 'assets/badges/chat-practiser.png', detail: 'Finish 3 different Chat Quest sets.' },
       { id: 'grammar-inference', title: '推理高手', english: 'Inference Ace', image: 'assets/badges/inference-ace.png', detail: 'Get the Chat Quest mystery right 3 times.' },
       { id: 'grammar-boss', title: 'Boss 挑戰者', english: 'Boss Beater', image: 'assets/badges/boss-beater.png', detail: 'Clear Boss Round with at least 1 life left.' },
       { id: 'all-rounder', title: '全能練習生', english: 'All-rounder', image: 'assets/badges/all-rounder.png', detail: 'Finish Fill, Letters, Match, and Timed once each, in the same book or in Mixed topic.' },
