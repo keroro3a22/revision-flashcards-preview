@@ -253,7 +253,7 @@ test('catalog lists the eleven practice badges and no unit completer', () => {
     assert.equal(window.Badges.listWithStatus().find(row => row.id === b.id).countEditable, b.id === 'grammar-inference');
     if (b.id === 'grammar-inference') assert.equal(window.Badges.targetLimit(b.id), 99);
     else assert.equal(window.Badges.targetLimit(b.id), window.Badges.builtinTarget(b.id));
-    if (b.id === 'grammar-chat') assert.equal(b.image, '');
+    if (b.id === 'grammar-chat') assert.equal(b.image, 'assets/badges/chat-practiser.png');
     else assert.match(b.image, /^assets\/badges\/[a-z0-9-]+\.png$/);
   });
   assert.equal(window.Badges.builtinTarget('starter'), 1);
@@ -280,10 +280,6 @@ test('a newly earned badge carries its English title and medal path', () => {
   const fs = require('fs');
   const path = require('path');
   window.Badges.catalog().forEach(b => {
-    if (!b.image) {
-      assert.equal(b.id, 'grammar-chat');
-      return;
-    }
     const color = path.join(__dirname, '..', b.image);
     const gray = color.replace(/\.png$/, '-locked.png');
     assert.equal(fs.existsSync(color), true, b.id);
@@ -377,7 +373,7 @@ test('grammar catalog copy is listed for the shared badges page', () => {
   assert.equal(byId['grammar-chat'].title, '對話練習生');
   assert.equal(byId['grammar-chat'].english, 'Chat Practiser');
   assert.equal(byId['grammar-chat'].detail, 'Finish 3 different Chat Quest sets.');
-  assert.equal(byId['grammar-chat'].image, '');
+  assert.equal(byId['grammar-chat'].image, 'assets/badges/chat-practiser.png');
   assert.equal(byId['grammar-inference'].title, '推理高手');
   assert.equal(byId['grammar-inference'].detail, 'Get the Chat Quest mystery right 3 times.');
   assert.equal(byId['grammar-inference'].image, 'assets/badges/inference-ace.png');
