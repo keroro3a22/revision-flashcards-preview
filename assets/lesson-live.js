@@ -32,12 +32,32 @@
     return text;
   }
 
+  function mediaRoot() {
+    var scripts = document.getElementsByTagName('script');
+    var i;
+    for (i = scripts.length - 1; i >= 0; i--) {
+      var src = scripts[i].src || '';
+      var cut = src.indexOf('assets/lesson-live.js');
+      if (cut !== -1) return src.slice(0, cut);
+    }
+    return '';
+  }
+
+  function livePath(url) {
+    if (!url) return url;
+    var text = String(url);
+    if (/^https?:\/\//i.test(text)) return text;
+    if (text.indexOf('oxford-6b/') === 0) return mediaRoot() + text;
+    return text;
+  }
+
   function show(cards) {
     if (!cards || !cards.length || typeof window.applyLessonCards !== 'function') return;
     window.applyLessonCards(cards.map(function (card) {
-      if (!card || !card.img) return card;
+      if (!card) return card;
       var next = Object.assign({}, card);
-      next.img = officialLessonImage(card.img);
+      if (next.img) next.img = livePath(officialLessonImage(next.img));
+      if (next.audio) next.audio = livePath(next.audio);
       return next;
     }));
   }
@@ -50,7 +70,14 @@
     client.from('lesson_cards_live').select('n,en,syllables,zh,pos,ex_en,ex_zh,adv_en,adv_zh,highlight,highlight_adv,audio,img,img_frame,video,pattern,note_zh,cutout')
       .eq('book', book).eq('series', series).eq('term', term).eq('level', level).eq('unit_id', unit).eq('track', track)
       .order('n', { ascending: true })
-      .then(function (result) { if (!result.error) show(result.data); });
+      .then(function (result) {
+        if (result.error) return;
+        if (result.data && result.data.length) show(result.data);
+        else if (term === 'second') {
+          var list = document.getElementById('list');
+          if (list) list.textContent = '';
+        }
+      });
     client.from('site_pages_live').select('label')
       .eq('book', book).eq('series', series).eq('term', term).eq('level', level)
       .eq('unit_id', unit).eq('slot', 'title')

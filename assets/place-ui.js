@@ -87,11 +87,11 @@
         if (item.ready) el.href = item.href;
         var copy = document.createElement('div');
         copy.className = 'place-entry-copy';
-        if (item.ready && item.image) {
+        if (item.ready && (item.image || bookBRevision(place, item))) {
           var frame = document.createElement('div');
           frame.className = 'place-entry-media';
           var img = document.createElement('img');
-          img.src = item.image;
+          img.src = doorImage(place, item);
           img.alt = '';
           frame.appendChild(img);
           if (window.ImgFrame && item.frame) window.ImgFrame.apply(img, item.frame, 4 / 3);
@@ -144,18 +144,49 @@
     return 'unit1';
   }
 
-  function samePlace(place) {
-    return place.book === 'oxford' && place.series === 'oxford' && place.level === 'p6' && place.term === 'first';
+  function oxfordP6(place) {
+    return place.book === 'oxford' && place.series === 'oxford' && place.level === 'p6';
+  }
+
+  function bookBThumb(unit, doorId) {
+    var n = String(unit || '').replace(/^unit/, '');
+    var track = doorId === 'revision-grammar' ? 'grammar' : 'vocab';
+    var v2 = track === 'grammar' && (n === '4' || n === '6');
+    return 'oxford-6b/u' + n + '-' + track + '-01-1x1' + (v2 ? '-v2' : '') + '.png';
+  }
+
+  function bookBRevision(place, item) {
+    return oxfordP6(place) && place.term === 'second' && (item.id === 'revision-vocab' || item.id === 'revision-grammar');
+  }
+
+  function doorImage(place, item) {
+    var src = item.image || '';
+    if (bookBRevision(place, item)) {
+      var draft = String(src).match(/\/drafts\/oxford-6b\/([^/?#]+)/i);
+      if (draft) src = 'oxford-6b/' + draft[1];
+      else if (!src || /^unit\d+\//.test(src)) src = bookBThumb(place.unit, item.id);
+    }
+    if (src.indexOf('oxford-6b/') === 0) return scriptRoot() + src;
+    return src;
   }
 
   function lessonHref(place, kind) {
     var root = scriptRoot();
-    if (!samePlace(place) || place.unit === P.HOME || place.unit === P.GAME) return root || './';
-    if (kind === 'revision-vocab') return root + place.unit + '/';
-    if (kind === 'revision-grammar') return root + place.unit + '/grammar/';
-    if (kind === 'practice-vocab') return root + 'practice/?unit=' + encodeURIComponent(place.unit);
-    if (kind === 'practice-grammar' && /^unit[1-6]$/.test(place.unit)) return root + 'practice/grammar/' + place.unit + '-hub/';
-    return root || './';
+    var home = root || './';
+    if (!place || place.unit === P.HOME || place.unit === P.GAME || place.unit === P.RESOURCES) return home;
+    if (kind === 'revision-vocab' || kind === 'revision-grammar') {
+      if (!oxfordP6(place) || (place.term !== 'first' && place.term !== 'second')) return home;
+      var query = place.term === 'second' ? '?term=second' : '';
+      if (kind === 'revision-vocab') return root + place.unit + '/' + query;
+      return root + place.unit + '/grammar/' + query;
+    }
+    if (kind === 'practice-vocab' || kind === 'practice-grammar') {
+      if (!oxfordP6(place) || place.term !== 'first') return home;
+      if (kind === 'practice-vocab') return root + 'practice/?unit=' + encodeURIComponent(place.unit);
+      if (/^unit[1-6]$/.test(place.unit)) return root + 'practice/grammar/' + place.unit + '-hub/';
+      return home;
+    }
+    return home;
   }
 
   function follow(place, kind) {
@@ -251,7 +282,7 @@
 
   function renderShell(place) {
     document.documentElement.setAttribute('data-view', place.unit === P.HOME ? 'home' : 'unit');
-    document.documentElement.setAttribute('data-level-live', place.book === 'oxford' && place.series === 'oxford' && place.level === 'p6' && place.term === 'first' ? 'yes' : 'no');
+    document.documentElement.setAttribute('data-level-live', oxfordP6(place) && (place.term === 'first' || place.term === 'second') ? 'yes' : 'no');
     var bookLabel = P.books.filter(function (item) { return item.id === place.book; })[0].label;
     var seriesLabel = P.seriesFor(place.book).filter(function (item) { return item.id === place.series; })[0].label;
     var levelLabel = P.levels.filter(function (item) { return item.id === place.level; })[0].label;

@@ -18,6 +18,6 @@ test('the public site shows back to top after one screen of scrolling', () => {
   assert.match(js, /top:max\(1rem/);
   assert.match(js, /<path d="M12 19V6"/);
   assert.doesNotMatch(js, /textContent = 'Top'/);
-  assert.match(home, /place-ui\.js\?v=17/);
+  assert.match(home, /place-ui\.js\?v=21/);
   assert.doesNotMatch(fs.readFileSync('studio/index.html', 'utf8'), /place-ui\.js/);
 });
