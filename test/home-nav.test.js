@@ -40,8 +40,8 @@ test('homepage topbar is the account link, with book, level, and unit navigation
   assert.doesNotMatch(html, /id="grade-covers"/);
   assert.doesNotMatch(html, />Account</);
   assert.doesNotMatch(html, /<select/);
-  assert.match(html, /assets\/place\.js\?v=8/);
-  assert.match(html, /assets\/place-ui\.js\?v=20/);
+  assert.match(html, /assets\/place\.js\?v=9/);
+  assert.match(html, /assets\/place-ui\.js\?v=21/);
   assert.equal(html.includes('site.css?v=58'), true);
   assert.match(html, /<header class="topbar">[\s\S]*id="unit-tabs" role="tablist"[\s\S]*<\/header>/);
   assert.doesNotMatch(html, /Open Dictation/);
@@ -135,7 +135,7 @@ test('vocab, grammar, and practice keep the top bar and a single back link', () 
     'practice/grammar/unit2-story/index.html'
   ].forEach((file) => {
     const html = fs.readFileSync(path.join(root, file), 'utf8');
-    assert.match(html, /place-ui\.js\?v=20/, file);
+    assert.match(html, /place-ui\.js\?v=21/, file);
     assert.match(html, /chrome\.css\?v=6/, file);
     assert.match(html, />← Back to packs</, file);
     assert.doesNotMatch(html, /header-pills/, file);

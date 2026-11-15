@@ -34,7 +34,25 @@ test('Oxford P6 keeps four units and there is no dictation tab', () => {
   assert.equal(P.normalize({ book: 'oxford', level: 'p6', unit: 'dictation3' }).unit, 'home');
   assert.equal(P.normalize({ book: 'oxford', level: 'p6', unit: 'resources' }).unit, 'resources');
   assert.equal(P.tabsFor({ book: 'oxford', series: 'oxford', level: 'p6', term: 'first' }).slice(-2).map((tab) => tab.label).join(','), 'Game,Resources');
-  assert.equal(flat(P.entriesFor({ book: 'oxford', series: 'oxford', level: 'p6', term: 'second', unit: 'unit1' }))[0].ready, false);
+  const bookBUnits = P.unitsFor('oxford', 'p6', 'oxford', 'second');
+  assert.equal(bookBUnits.map((unit) => unit.title).join('|'), [
+    'Going green',
+    'Protect them',
+    'Get well soon!',
+    'When an accident happens',
+    'Be considerate',
+    'Friends for life'
+  ].join('|'));
+  const bookBDoors = flat(P.entriesFor({ book: 'oxford', series: 'oxford', level: 'p6', term: 'second', unit: 'unit1' }));
+  assert.equal(bookBDoors[0].ready, true);
+  assert.equal(bookBDoors[0].href, 'unit1/?term=second');
+  assert.equal(bookBDoors[0].image, 'oxford-6b/u1-vocab-01-1x1.png');
+  assert.equal(bookBDoors[1].ready, true);
+  assert.equal(bookBDoors[1].href, 'unit1/grammar/?term=second');
+  assert.equal(bookBDoors[1].image, 'oxford-6b/u1-grammar-01-1x1.png');
+  assert.equal(bookBDoors[2].ready, false);
+  assert.equal(bookBDoors[3].ready, false);
+  assert.equal(P.unitsFor('longman', 'p6', 'elect', 'second').map((unit) => unit.id).join(','), 'unit1,unit2,unit3,unit4');
 });
 
 test('a unit opens revision cards and practice, split into vocab and grammar', () => {
@@ -53,7 +71,13 @@ test('a unit opens revision cards and practice, split into vocab and grammar', (
   assert.equal(later[1].items[1].ready, true);
   assert.equal(later[1].items[1].href, 'practice/grammar/unit5-hub/');
   const bookB = P.entriesFor({ book: 'oxford', series: 'oxford', level: 'p6', term: 'second', unit: 'unit6' });
+  assert.equal(bookB[0].items[0].href, 'unit6/?term=second');
+  assert.equal(bookB[0].items[1].href, 'unit6/grammar/?term=second');
+  assert.equal(bookB[0].items[1].image, 'oxford-6b/u6-grammar-01-1x1-v2.png');
+  assert.equal(bookB[1].items[0].ready, false);
   assert.equal(bookB[1].items[1].ready, false);
+  const unit4 = P.entriesFor({ book: 'oxford', series: 'oxford', level: 'p6', term: 'second', unit: 'unit4' });
+  assert.equal(unit4[0].items[1].image, 'oxford-6b/u4-grammar-01-1x1-v2.png');
   const other = P.entriesFor({ book: 'oxford', level: 'p6', unit: 'unit2' });
   assert.notEqual(flat(groups).map((door) => door.image).join('|'), flat(other).map((door) => door.image).join('|'));
 });

@@ -77,6 +77,17 @@
     return !!place && place.book === 'oxford' && place.series === 'oxford' && place.level === 'p6' && place.term === 'first';
   }
 
+  function bookB(place) {
+    return !!place && place.book === 'oxford' && place.series === 'oxford' && place.level === 'p6' && place.term === 'second';
+  }
+
+  function bookBThumb(unitId, slot) {
+    var n = String(unitId || '').replace(/^unit/, '');
+    var track = slot === 'revision-grammar' ? 'grammar' : 'vocab';
+    var v2 = track === 'grammar' && (n === '4' || n === '6');
+    return 'oxford-6b/u' + n + '-' + track + '-01-1x1' + (v2 ? '-v2' : '') + '.png';
+  }
+
   function text(value) {
     return String(value || '').trim();
   }
@@ -141,6 +152,7 @@
     var cards = cardsFor(lessons, unitId, door.track);
     var photo = cardPhoto(cards, door.photo);
     if (!photo && bookA(place) && BOOK_A_IMAGES[unitId]) photo = BOOK_A_IMAGES[unitId][slot] || '';
+    if (!photo && bookB(place) && (slot === 'revision-vocab' || slot === 'revision-grammar')) photo = bookBThumb(unitId, slot);
     return { label: door.label, note: door.note, image: photo };
   }
 
@@ -184,6 +196,8 @@
       var count = door.source === 'lesson' ? lessonRows(lessons, unitId, door.track).length : countOf(practices, unitId, door.track);
       var ready = count > 0;
       if (door.id === 'practice-grammar' && !/^unit[1-6]$/.test(unitId)) ready = false;
+      if (bookB(place) && door.group === 'revision') ready = true;
+      if (bookB(place) && door.group === 'practice') ready = false;
       var ownImage = savedValue(row, 'image');
       var image = imageSrc(unitId, ownImage || (ready ? base.image : ''));
       return {
@@ -288,6 +302,29 @@
     return ['unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6'];
   }
 
+  function pageRoot() {
+    if (!root.document) return '';
+    var scripts = root.document.getElementsByTagName('script');
+    var i;
+    for (i = scripts.length - 1; i >= 0; i--) {
+      var src = scripts[i].src || '';
+      var cut = src.indexOf('assets/site-pages.js');
+      if (cut !== -1) return src.slice(0, cut);
+    }
+    return '';
+  }
+
+  function coverSrc(place, unitId, src) {
+    var value = text(src);
+    if (bookB(place)) {
+      var draft = value.match(/\/drafts\/oxford-6b\/([^/?#]+)/i);
+      if (draft) value = 'oxford-6b/' + draft[1];
+      else if (!value || /^unit\d+\//.test(value)) value = bookBThumb(unitId, 'revision-vocab');
+    }
+    if (value.indexOf('oxford-6b/') === 0) return pageRoot() + value;
+    return value;
+  }
+
   function paintHome(place, catalog) {
     if (!root.document) return;
     var hero = root.document.getElementById('hero-title');
@@ -321,7 +358,7 @@
       article.className = 'pack-card tone-' + tones[index % tones.length];
       article.setAttribute('aria-roledescription', 'slide');
       var cover = unit.items.filter(function (item) { return item.id === 'revision-vocab'; })[0];
-      var src = (cover && cover.image) || imageSrc(unit.id, cardPhoto(cardsFor(catalog.lessons, unit.id, 'vocab'), 'first'));
+      var src = coverSrc(place, unit.id, (cover && cover.image) || imageSrc(unit.id, cardPhoto(cardsFor(catalog.lessons, unit.id, 'vocab'), 'first')));
       var heading = 'Unit ' + n + (unit.title ? ' · ' + unit.title : '');
       var open = cover && cover.ready ? cover.href : './';
       article.innerHTML = '<div class="pack-cover">' + (src ? '<img src="' + escapeHtml(src) + '" alt="" width="640" height="480" loading="lazy" />' : '') + '</div>'

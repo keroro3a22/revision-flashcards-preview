@@ -98,23 +98,44 @@ window.RevisionPlace = (function () {
     return term === 'second' ? 'second' : 'first';
   }
 
+  var soonUnits = [
+    ['unit1', 'Unit 1', ''],
+    ['unit2', 'Unit 2', ''],
+    ['unit3', 'Unit 3', ''],
+    ['unit4', 'Unit 4', '']
+  ];
+  var bookAUnits = [
+    ['unit1', 'Unit 1', 'For a good cause'],
+    ['unit2', 'Unit 2', 'Lend a helping hand'],
+    ['unit3', 'Unit 3', 'Junior Super Chef'],
+    ['unit4', 'Unit 4', 'Film magic'],
+    ['unit5', 'Unit 5', 'The Land of Kangaroos'],
+    ['unit6', 'Unit 6', 'International Week']
+  ];
+  var bookBUnits = [
+    ['unit1', 'Unit 1', 'Going green'],
+    ['unit2', 'Unit 2', 'Protect them'],
+    ['unit3', 'Unit 3', 'Get well soon!'],
+    ['unit4', 'Unit 4', 'When an accident happens'],
+    ['unit5', 'Unit 5', 'Be considerate'],
+    ['unit6', 'Unit 6', 'Friends for life']
+  ];
+
+  function oxfordP6(book, series, level) {
+    return book === 'oxford' && chosenSeries(book, series) === 'oxford' && level === 'p6';
+  }
+
+  function bookBThumb(unit, track) {
+    var n = String(unit || '').replace(/^unit/, '');
+    var v2 = track === 'grammar' && (n === '4' || n === '6');
+    return 'oxford-6b/u' + n + '-' + track + '-01-1x1' + (v2 ? '-v2' : '') + '.png';
+  }
+
   function unitsFor(book, level, series, term) {
-    var live = book === 'oxford' && chosenSeries(book, series) === 'oxford' && level === 'p6' && chosenTerm(term) === 'first';
-    var titles = live
-      ? [
-          ['unit1', 'Unit 1', 'For a good cause'],
-          ['unit2', 'Unit 2', 'Lend a helping hand'],
-          ['unit3', 'Unit 3', 'Junior Super Chef'],
-          ['unit4', 'Unit 4', 'Film magic'],
-          ['unit5', 'Unit 5', 'The Land of Kangaroos'],
-          ['unit6', 'Unit 6', 'International Week']
-        ]
-      : [
-          ['unit1', 'Unit 1', ''],
-          ['unit2', 'Unit 2', ''],
-          ['unit3', 'Unit 3', ''],
-          ['unit4', 'Unit 4', '']
-        ];
+    var termId = chosenTerm(term);
+    var titles = soonUnits;
+    if (oxfordP6(book, series, level) && termId === 'first') titles = bookAUnits;
+    if (oxfordP6(book, series, level) && termId === 'second') titles = bookBUnits;
     return titles.map(function (row) {
       return { id: row[0], label: row[1], title: row[2], cover: covers[row[0]] };
     });
@@ -183,11 +204,13 @@ window.RevisionPlace = (function () {
     return { id: id, label: label, href: '', ready: false, note: SOON, image: '' };
   }
 
-  function lessonLive(place) {
-    return place.book === 'oxford'
-      && chosenSeries(place.book, place.series) === 'oxford'
-      && place.level === 'p6'
-      && chosenTerm(place.term) === 'first';
+  function revisionLive(place) {
+    var term = chosenTerm(place.term);
+    return oxfordP6(place.book, place.series, place.level) && (term === 'first' || term === 'second');
+  }
+
+  function practiceLive(place) {
+    return oxfordP6(place.book, place.series, place.level) && chosenTerm(place.term) === 'first';
   }
 
   function tabsFor(place) {
@@ -207,24 +230,29 @@ window.RevisionPlace = (function () {
       }];
     }
     var art = cardArt[place.unit] || cardArt.unit1;
-    var live = lessonLive(place);
     var unit = place.unit;
-    var grammarPractice = live && /^unit[1-6]$/.test(unit);
+    var term = chosenTerm(place.term);
+    var revision = revisionLive(place);
+    var practice = practiceLive(place);
+    var bookB = revision && term === 'second';
+    var query = bookB ? '?term=second' : '';
+    var words = bookB ? bookBThumb(unit, 'vocab') : art.revision;
+    var grammar = bookB ? bookBThumb(unit, 'grammar') : art.grammar;
     return [
       {
         id: 'revision',
         label: 'Revision card',
         items: [
-          door('revision-vocab', 'Vocab', unit + '/', art.revision, live),
-          door('revision-grammar', 'Grammar', unit + '/grammar/', art.grammar, live)
+          door('revision-vocab', 'Vocab', unit + '/' + query, words, revision),
+          door('revision-grammar', 'Grammar', unit + '/grammar/' + query, grammar, revision)
         ]
       },
       {
         id: 'practice',
         label: 'Practice',
         items: [
-          door('practice-vocab', 'Vocab', 'practice/?unit=' + encodeURIComponent(unit), art.practice, live),
-          door('practice-grammar', 'Grammar', 'practice/grammar/' + unit + '-hub/', art.grammar, grammarPractice)
+          door('practice-vocab', 'Vocab', 'practice/?unit=' + encodeURIComponent(unit), art.practice, practice),
+          door('practice-grammar', 'Grammar', 'practice/grammar/' + unit + '-hub/', art.grammar, practice && /^unit[1-6]$/.test(unit))
         ]
       }
     ];
