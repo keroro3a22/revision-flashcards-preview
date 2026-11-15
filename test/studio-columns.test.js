@@ -107,6 +107,9 @@ test('the library button opens website folders and stored files', () => {
   assert.match(browser, /textContent = 'Move here'/);
   assert.match(browser, /destinationBucket/);
   assert.match(browser, /slice\.call\(picker\.files/);
+  assert.match(browser, /Adding it to this unit/);
+  assert.match(browser, /files in this unit/);
+  assert.match(browser, /units\//);
   assert.match(browser, /studio-files-picker/);
   assert.doesNotMatch(browser, /picker\.hidden/);
   assert.match(browser, /studio-preview/);

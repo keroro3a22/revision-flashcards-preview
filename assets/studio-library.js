@@ -230,9 +230,32 @@
     event.returnValue = '';
   }
 
+  function unitPrefix(lesson) {
+    if (!lesson) return '';
+    var book = lesson.book === 'longman' ? 'longman' : (lesson.book === 'oxford' ? 'oxford' : '');
+    if (!book) return '';
+    var seriesOk = book === 'oxford'
+      ? lesson.series === 'oxford'
+      : (lesson.series === 'mypearson-express' || lesson.series === 'elect');
+    if (!seriesOk) return '';
+    if (lesson.term !== 'first' && lesson.term !== 'second') return '';
+    if (!/^p[1-6]$/.test(lesson.level || '')) return '';
+    if (!/^unit[1-6]$/.test(lesson.unit || '')) return '';
+    return 'units/' + book + '/' + lesson.series + '/' + lesson.term + '/' + lesson.level + '/' + lesson.unit;
+  }
+
+  function lessonFromFolder(folder) {
+    var parts = String(folder || '').split('/');
+    if (parts[0] !== 'units' || parts.length !== 6) return null;
+    var lesson = { book: parts[1], series: parts[2], term: parts[3], level: parts[4], unit: parts[5] };
+    if (unitPrefix(lesson) !== parts.join('/')) return null;
+    return lesson;
+  }
+
   function landed(folder) {
     if (folder == null) return 'the private inbox';
     var parts = String(folder).split('/').filter(Boolean);
+    if (parts[0] === 'units' && /^unit[1-6]$/.test(parts[5] || '')) return 'Unit ' + parts[5].replace('unit', '');
     if (!parts.length) return 'the private inbox';
     return parts[parts.length - 1];
   }
@@ -411,6 +434,7 @@
     var dragDepth = 0;
     uploadFolder = function () {
       if (view.kind === 'store' && view.bucket === 'lesson-inbox') return view.parts.join('/');
+      if (view.area === 'lessons' && view.lesson && view.lesson.unit) return unitPrefix(view.lesson) || 'inbox';
       return 'inbox';
     };
     function status(text) {
@@ -427,6 +451,10 @@
         note.textContent = 'Drop files here to add them to this folder. They stay off the live site. Drag a stored file onto a folder to move it.';
         return;
       }
+      if (view.area === 'lessons' && view.lesson && view.lesson.unit) {
+        note.textContent = 'Drop files here to add them to this unit. They stay off the live site until you publish.';
+        return;
+      }
       note.textContent = picking
         ? 'Choose a photo. Drop a new one here and it goes to the private inbox, off the live site.'
         : 'Website folders are the photos already on the site. Drop new files here to put them in the private inbox. They stay off the live site.';
@@ -435,6 +463,38 @@
     function clearMoveOver() {
       var overs = root.querySelectorAll('.is-move-over');
       Array.prototype.forEach.call(overs, function (node) { node.classList.remove('is-move-over'); });
+    }
+
+    function keepInUnit(item, done) {
+      var prefix = unitPrefix(hooks && hooks.place);
+      if (!prefix || !item || !item.storagePath || !item.bucket || !client || !client.storage) {
+        done();
+        return;
+      }
+      var dest = prefix + '/' + item.name;
+      if (item.bucket === 'lesson-inbox' && (item.storagePath === dest || item.storagePath.indexOf(prefix + '/') === 0)) {
+        done();
+        return;
+      }
+      say('Adding it to this unit…');
+      var options = item.bucket === 'lesson-inbox' ? undefined : { destinationBucket: 'lesson-inbox' };
+      client.storage.from(item.bucket).copy(item.storagePath, dest, options).then(function (result) {
+        if (!result || !result.error) {
+          done();
+          return;
+        }
+        return client.storage.from(item.bucket).download(item.storagePath).then(function (downloaded) {
+          if (downloaded.error || !downloaded.data) {
+            done();
+            return;
+          }
+          return client.storage.from('lesson-inbox').upload(dest, downloaded.data, { upsert: false }).then(function () {
+            done();
+          });
+        });
+      }).catch(function () {
+        done();
+      });
     }
 
     function placeFile(item, bucket, prefix) {
@@ -641,9 +701,13 @@
               }, 3));
               if (!openLevel) return;
               UNITS.forEach(function (unitId) {
-                nav.appendChild(navButton('Unit ' + unitId.replace('unit', ''), view.lesson.unit === unitId, function () {
-                  chooseLesson({ book: bookId, series: seriesId, term: term.id, level: levelId, unit: unitId });
-                }, 4));
+                var unitLesson = { book: bookId, series: seriesId, term: term.id, level: levelId, unit: unitId };
+                var unitButton = navButton('Unit ' + unitId.replace('unit', ''), view.lesson.unit === unitId, function () {
+                  chooseLesson(unitLesson);
+                }, 4);
+                var prefix = unitPrefix(unitLesson);
+                if (prefix) watchFolder(unitButton, 'lesson-inbox', prefix, true);
+                nav.appendChild(unitButton);
               });
             });
           });
@@ -762,23 +826,25 @@
         use.type = 'button';
         use.textContent = 'Use this photo';
         use.addEventListener('click', function () {
-          if (isPdf(item.name)) {
-            usePdfThumb(client, item, say, hooks.onPick);
-            return;
-          }
-          if (item.privateImage) {
-            copyPublic(client, item.storagePath, item.name, say, function (url) {
-              if (!url) return;
-              var pick = hooks.onPick;
-              close();
-              pick(url);
-            });
-            return;
-          }
-          var chosen = item.path;
-          var pick = hooks.onPick;
-          close();
-          pick(chosen);
+          keepInUnit(item, function () {
+            if (isPdf(item.name)) {
+              usePdfThumb(client, item, say, hooks.onPick);
+              return;
+            }
+            if (item.privateImage) {
+              copyPublic(client, item.storagePath, item.name, say, function (url) {
+                if (!url) return;
+                var pick = hooks.onPick;
+                close();
+                pick(url);
+              });
+              return;
+            }
+            var chosen = item.path;
+            var pick = hooks.onPick;
+            close();
+            pick(chosen);
+          });
         });
         box.appendChild(use);
       } else if (item.privateImage) {
@@ -899,6 +965,7 @@
         button.className = 'studio-files-folder';
         button.textContent = item.label;
         button.addEventListener('click', item.go);
+        if (item.drop) watchFolder(button, 'lesson-inbox', item.drop, true);
         grid.appendChild(button);
       });
       return grid;
@@ -914,6 +981,70 @@
       status(folder.files.length + (folder.files.length === 1 ? ' file in ' : ' files in ') + folder.name + '.');
     }
 
+    function paintUnit(lesson) {
+      var stamp = {};
+      view.unitStamp = stamp;
+      var folder = lessonFiles(lesson);
+      var prefix = unitPrefix(lesson);
+      var grid = document.createElement('div');
+      grid.className = 'studio-files-grid';
+      var count = 0;
+      if (folder && folder.files) {
+        folder.files.forEach(function (file) {
+          grid.appendChild(fileBox({ name: file.name, path: file.path, src: file.path }));
+          count += 1;
+        });
+      }
+      if (count) main.appendChild(grid);
+      var keep = pinned;
+      function report() {
+        if (!count) {
+          var empty = document.createElement('p');
+          empty.textContent = 'This folder is empty.';
+          main.appendChild(empty);
+          if (keep) say(keep);
+          else status('This folder is empty.');
+          return;
+        }
+        if (!grid.parentNode) main.appendChild(grid);
+        if (keep) say(keep);
+        else status(count + (count === 1 ? ' file in this unit.' : ' files in this unit.'));
+      }
+      if (!prefix || !client || !client.storage) {
+        report();
+        return;
+      }
+      if (keep) say(keep);
+      else status('Loading files…');
+      client.storage.from('lesson-inbox').list(prefix, { limit: 100, sortBy: { column: 'name', order: 'asc' } }).then(function (result) {
+        if (view.unitStamp !== stamp || !dialog || view.area !== 'lessons' || !view.lesson || unitPrefix(view.lesson) !== prefix) {
+          return;
+        }
+        if (result.error) { say(result.error.message); return; }
+        (result.data || []).forEach(function (item) {
+          if (!item.id) return;
+          var path = prefix + '/' + item.name;
+          grid.appendChild(fileBox({
+            name: item.name,
+            path: path,
+            bucket: 'lesson-inbox',
+            storagePath: path,
+            privateImage: isImage(item.name),
+            signed: function (done) {
+              client.storage.from('lesson-inbox').createSignedUrl(path, 120).then(function (signed) {
+                done(signed.data && signed.data.signedUrl);
+              });
+            }
+          }));
+          count += 1;
+        });
+        report();
+      }).catch(function () {
+        if (view.unitStamp !== stamp) return;
+        report();
+      });
+    }
+
     function paintSite() {
       paintNav();
       main.replaceChildren();
@@ -924,15 +1055,7 @@
         var steps = lessonSteps(lesson);
         main.appendChild(crumbBar(steps, !!(lesson.book || lesson.series || lesson.term || lesson.level || lesson.unit)));
         if (lesson.unit) {
-          var folder = lessonFiles(lesson);
-          if (!folder) {
-            var empty = document.createElement('p');
-            empty.textContent = 'This folder is empty.';
-            main.appendChild(empty);
-            status('This folder is empty.');
-            return;
-          }
-          paintFiles(folder);
+          paintUnit(lesson);
           return;
         }
         var book = BOOKS[lesson.book];
@@ -955,7 +1078,12 @@
           });
         } else {
           UNITS.forEach(function (unitId) {
-            items.push({ label: 'Unit ' + unitId.replace('unit', ''), go: function () { chooseLesson({ book: lesson.book, series: lesson.series, term: lesson.term, level: lesson.level, unit: unitId }); } });
+            var unitLesson = { book: lesson.book, series: lesson.series, term: lesson.term, level: lesson.level, unit: unitId };
+            items.push({
+              label: 'Unit ' + unitId.replace('unit', ''),
+              drop: unitPrefix(unitLesson),
+              go: function () { chooseLesson(unitLesson); }
+            });
           });
         }
         main.appendChild(choiceGrid(items));
@@ -1112,8 +1240,14 @@
         pinned = '';
         return;
       }
-      var parts = String(folder == null ? 'inbox' : folder).split('/').filter(Boolean);
-      view = { kind: 'store', area: 'store', lesson: null, folder: '', bucket: 'lesson-inbox', parts: parts };
+      var lesson = lessonFromFolder(folder);
+      if (lesson) {
+        chosen = true;
+        view = { kind: 'site', area: 'lessons', lesson: lesson, folder: '', bucket: '', parts: [] };
+      } else {
+        var parts = String(folder == null ? 'inbox' : folder).split('/').filter(Boolean);
+        view = { kind: 'store', area: 'store', lesson: null, folder: '', bucket: 'lesson-inbox', parts: parts };
+      }
       paint();
       pinned = '';
     };
