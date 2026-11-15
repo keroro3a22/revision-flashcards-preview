@@ -149,6 +149,52 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
 .studio-files-head button,
 .studio-files-crumbs button { margin: 0.25rem 0.25rem 0 0; padding: 0.3rem 0.55rem; cursor: pointer; }
 .studio-files-folder { min-height: 7rem; background: #f4f7fb; }
+.studio-files-upload,
+.studio-files-move button {
+  font: inherit;
+  color: #16324f;
+  background: #fff;
+  border: 1px solid #8ea4ba;
+  border-radius: 0.4rem;
+  padding: 0.3rem 0.55rem;
+  cursor: pointer;
+}
+.studio-files-upload {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin: 0.25rem 0.25rem 0 0;
+  overflow: hidden;
+}
+.studio-files-picker {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  font-size: 0;
+}
+.studio-files-move {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  margin: 0 0 0.7rem;
+  padding: 0.45rem 0.6rem;
+  background: #e7f1fb;
+  border-radius: 0.5rem;
+}
+.studio-files-move p { margin: 0; }
+.studio-files-item[draggable="true"] { cursor: grab; }
+.studio-files-nav.is-move-over,
+.studio-files-folder.is-move-over,
+.studio-files-crumbs button.is-move-over {
+  background: #e7f1fb;
+  border-color: #2f6fad;
+  box-shadow: inset 0 0 0 2px #2f6fad;
+}
 @media (max-width: 720px) {
   .studio-files-body { grid-template-columns: 1fr; grid-template-rows: 8rem minmax(0, 1fr); }
   .studio-files-folders { border-right: 0; border-bottom: 1px solid #d5e0ea; }

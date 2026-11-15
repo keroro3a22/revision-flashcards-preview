@@ -103,6 +103,12 @@ test('the library button opens website folders and stored files', () => {
   assert.match(browser, /beforeunload/);
   assert.match(browser, /Upload stopped because the page was left/);
   assert.match(browser, /textContent = 'Remove'/);
+  assert.match(browser, /textContent = 'Move'/);
+  assert.match(browser, /textContent = 'Move here'/);
+  assert.match(browser, /destinationBucket/);
+  assert.match(browser, /slice\.call\(picker\.files/);
+  assert.match(browser, /studio-files-picker/);
+  assert.doesNotMatch(browser, /picker\.hidden/);
   assert.match(browser, /studio-preview/);
   assert.match(browser, /pdf\.worker\.min\.js/);
   assert.match(browser, /Making the PDF preview/);

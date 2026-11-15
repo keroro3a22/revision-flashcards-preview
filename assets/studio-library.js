@@ -8,6 +8,9 @@
   var uploadJob = null;
   var refreshAfterUpload = null;
   var activeSay = function () {};
+  var uploadFolder = function () { return 'inbox'; };
+  var draggingFile = null;
+  var movingFile = null;
 
   function isImage(name) {
     return /\.(png|jpe?g|gif|webp|svg)$/i.test(name);
@@ -212,6 +215,9 @@
   function close() {
     closePreview();
     refreshAfterUpload = null;
+    uploadFolder = function () { return 'inbox'; };
+    draggingFile = null;
+    movingFile = null;
     if (onKey) document.removeEventListener('keydown', onKey);
     onKey = null;
     if (dialog) dialog.remove();
@@ -224,25 +230,46 @@
     event.returnValue = '';
   }
 
-  function uploadFiles(client, list, say) {
+  function landed(folder) {
+    if (folder == null) return 'the private inbox';
+    var parts = String(folder).split('/').filter(Boolean);
+    if (!parts.length) return 'the private inbox';
+    return parts[parts.length - 1];
+  }
+
+  function jobFolder(job) {
+    if (!job || !job.items || !job.items.length) return 'inbox';
+    var folder = job.items[0].folder;
+    for (var i = 1; i < job.items.length; i++) {
+      if (job.items[i].folder !== folder) return null;
+    }
+    return folder;
+  }
+
+  function uploadFiles(client, list, say, folder) {
     var files = Array.prototype.slice.call(list || []).filter(Boolean);
     if (!files.length) return;
     if (!client || !client.storage) { say('Sign in before uploading.'); return; }
+    var dest = folder == null ? uploadFolder() : folder;
+    var items = files.map(function (file) { return { file: file, folder: dest }; });
     if (uploadJob) {
-      uploadJob.files = uploadJob.files.concat(files);
+      uploadJob.items = uploadJob.items.concat(items);
       uploadJob.say = say || uploadJob.say;
       return;
     }
-    uploadJob = { client: client, files: files, index: 0, ok: 0, say: say, left: false };
+    uploadJob = { client: client, items: items, index: 0, ok: 0, say: say, left: false };
     window.addEventListener('beforeunload', keepPage);
     nextUpload();
   }
 
   function finishUpload(message) {
-    var say = uploadJob && uploadJob.say;
+    var job = uploadJob;
+    var say = job && job.say;
+    var shown = job ? jobFolder(job) : 'inbox';
+    var openFolder = shown == null && job && job.items.length ? job.items[job.items.length - 1].folder : shown;
     uploadJob = null;
     window.removeEventListener('beforeunload', keepPage);
-    if (refreshAfterUpload) refreshAfterUpload(message);
+    if (refreshAfterUpload) refreshAfterUpload(message, openFolder == null ? 'inbox' : openFolder);
     else if (say) say(message);
   }
 
@@ -250,21 +277,23 @@
     var job = uploadJob;
     if (!job) return;
     if (job.left) {
-      finishUpload('Upload stopped because the page was left. ' + job.ok + ' of ' + job.files.length + ' finished.');
+      finishUpload('Upload stopped because the page was left. ' + job.ok + ' of ' + job.items.length + ' finished.');
       return;
     }
-    if (job.index >= job.files.length) {
-      var total = job.files.length;
+    if (job.index >= job.items.length) {
+      var total = job.items.length;
       var ok = job.ok;
+      var place = landed(jobFolder(job));
       var message = ok === total
-        ? (total === 1 ? 'Uploaded 1 file to the private inbox.' : 'Uploaded ' + total + ' files to the private inbox.')
-        : ('Uploaded ' + ok + ' of ' + total + ' files to the private inbox.');
+        ? (total === 1 ? 'Uploaded 1 file to ' + place + '.' : 'Uploaded ' + total + ' files to ' + place + '.')
+        : ('Uploaded ' + ok + ' of ' + total + ' files to ' + place + '.');
       finishUpload(message);
       return;
     }
-    var file = job.files[job.index];
-    job.say('Uploading ' + (job.index + 1) + ' of ' + job.files.length + ' · ' + (file.name || 'file') + '.');
-    send(job.client, file, function (ok) {
+    var item = job.items[job.index];
+    var file = item.file;
+    job.say('Uploading ' + (job.index + 1) + ' of ' + job.items.length + ' · ' + (file.name || 'file') + '.');
+    send(job.client, file, item.folder, function (ok) {
       if (!uploadJob) return;
       if (uploadJob.left) { nextUpload(); return; }
       if (ok) uploadJob.ok += 1;
@@ -296,14 +325,15 @@
     title.id = 'studio-files-title';
     title.textContent = 'Library';
     var actions = document.createElement('div');
-    var upload = document.createElement('button');
-    upload.type = 'button';
-    upload.textContent = 'Upload';
+    var upload = document.createElement('label');
+    upload.className = 'studio-files-upload';
+    upload.appendChild(document.createTextNode('Upload'));
     var picker = document.createElement('input');
     picker.type = 'file';
     picker.multiple = true;
-    picker.hidden = true;
-    upload.addEventListener('click', function () { picker.click(); });
+    picker.className = 'studio-files-picker';
+    picker.setAttribute('aria-label', 'Upload files');
+    upload.appendChild(picker);
     var closer = document.createElement('button');
     closer.type = 'button';
     closer.textContent = 'Close';
@@ -319,8 +349,8 @@
     var note = document.createElement('p');
     note.className = 'studio-files-note';
     note.textContent = picking
-      ? 'Choose a photo. Drop a new one here if it is not in the library yet.'
-      : 'Website folders are the photos already on the site. Drop new files here to put them in the private inbox.';
+      ? 'Choose a photo. Drop a new one here and it goes to the private inbox, off the live site.'
+      : 'Website folders are the photos already on the site. Drop new files here to put them in the private inbox. They stay off the live site.';
 
     var body = document.createElement('div');
     body.className = 'studio-files-body';
@@ -377,9 +407,144 @@
     };
     var chosen = false;
     var pinned = '';
+    var dragDepth = 0;
+    uploadFolder = function () {
+      if (view.kind === 'store' && view.bucket === 'lesson-inbox') return view.parts.join('/');
+      return 'inbox';
+    };
     function status(text) {
       if (uploadJob || pinned) return;
       say(text);
+    }
+
+    function paintNote() {
+      if (movingFile) {
+        note.textContent = 'Moving ' + movingFile.name + '. Open Private inbox or Public uploads, then press Move here. Or drop the file on a folder.';
+        return;
+      }
+      if (view.kind === 'store' && view.bucket === 'lesson-inbox') {
+        note.textContent = 'Drop files here to add them to this folder. They stay off the live site. Drag a stored file onto a folder to move it.';
+        return;
+      }
+      note.textContent = picking
+        ? 'Choose a photo. Drop a new one here and it goes to the private inbox, off the live site.'
+        : 'Website folders are the photos already on the site. Drop new files here to put them in the private inbox. They stay off the live site.';
+    }
+
+    function clearMoveOver() {
+      var overs = root.querySelectorAll('.is-move-over');
+      Array.prototype.forEach.call(overs, function (node) { node.classList.remove('is-move-over'); });
+    }
+
+    function placeFile(item, bucket, prefix) {
+      if (!item || !client || !client.storage) { say('Sign in before moving a file.'); return; }
+      var destPrefix = String(prefix || '').replace(/^\/+|\/+$/g, '');
+      var destPath = destPrefix ? destPrefix + '/' + item.name : item.name;
+      if (item.bucket === bucket && item.path === destPath) {
+        say(item.name + ' is already in this folder.');
+        return;
+      }
+      if (bucket === 'lesson-media' && item.bucket !== 'lesson-media') {
+        if (!window.confirm('Move ' + item.name + ' to public uploads? Anyone with the link can open it. It stays off the lesson pages until you use it there.')) return;
+      } else if (item.bucket === 'lesson-media') {
+        if (!window.confirm('Move ' + item.name + '? A lesson that already uses this public file will lose the picture.')) return;
+      }
+      say('Moving ' + item.name + '…');
+      client.storage.from(bucket).list(destPrefix, { limit: 100, search: item.name }).then(function (listed) {
+        if (!dialog) {
+          return;
+        }
+        if (listed.error) { say(listed.error.message); return; }
+        var taken = (listed.data || []).some(function (row) { return row.name === item.name && row.id; });
+        if (taken) { say('A file named ' + item.name + ' is already in that folder.'); return; }
+        var options = bucket === item.bucket ? undefined : { destinationBucket: bucket };
+        return client.storage.from(item.bucket).move(item.path, destPath, options).then(function (result) {
+          if ((!result || result.error) && bucket !== item.bucket) {
+            return client.storage.from(item.bucket).download(item.path).then(function (downloaded) {
+              if (downloaded.error || !downloaded.data) return result || { error: { message: 'The file could not be moved.' } };
+              return client.storage.from(bucket).upload(destPath, downloaded.data, { upsert: false }).then(function (uploaded) {
+                if (uploaded.error) return uploaded;
+                return client.storage.from(item.bucket).remove([item.path]).then(function (removed) {
+                  if (removed.error) return { error: { message: 'The copy was made, but the original is still there.' } };
+                  return { error: null };
+                });
+              });
+            });
+          }
+          return result || { error: { message: 'The file could not be moved.' } };
+        }).then(function (result) {
+          if (!dialog) {
+            return;
+          }
+          if (!result || result.error) { say((result && result.error && result.error.message) || 'The file could not be moved.'); return; }
+          if (movingFile && movingFile.bucket === item.bucket && movingFile.path === item.path) movingFile = null;
+          chosen = true;
+          view = { kind: 'store', area: 'store', lesson: null, folder: '', bucket: bucket, parts: destPrefix ? destPrefix.split('/').filter(Boolean) : [] };
+          pinned = 'Moved ' + item.name + '.';
+          paint();
+          pinned = '';
+        });
+      }).catch(function () {
+        say('The file could not be moved.');
+      });
+    }
+
+    function watchFolder(node, bucket, prefix, allowUpload) {
+      node.addEventListener('dragover', function (event) {
+        var incoming = !draggingFile;
+        if (incoming && !allowUpload) return;
+        event.preventDefault();
+        event.stopPropagation();
+        if (event.dataTransfer) event.dataTransfer.dropEffect = incoming ? 'copy' : 'move';
+        node.classList.add('is-move-over');
+      });
+      node.addEventListener('dragleave', function (event) {
+        if (event.target !== node) return;
+        node.classList.remove('is-move-over');
+      });
+      node.addEventListener('drop', function (event) {
+        var incoming = !draggingFile;
+        if (incoming && !allowUpload) return;
+        event.preventDefault();
+        event.stopPropagation();
+        dragDepth = 0;
+        root.classList.remove('is-dropping');
+        node.classList.remove('is-move-over');
+        if (incoming) {
+          uploadFiles(client, event.dataTransfer && event.dataTransfer.files, say, prefix);
+          return;
+        }
+        var item = draggingFile;
+        draggingFile = null;
+        placeFile(item, bucket, prefix);
+      });
+    }
+
+    function moveBar() {
+      if (!movingFile) return null;
+      var bar = document.createElement('div');
+      bar.className = 'studio-files-move';
+      var label = document.createElement('p');
+      label.textContent = 'Moving ' + movingFile.name + '.';
+      bar.appendChild(label);
+      if (view.kind === 'store') {
+        var here = document.createElement('button');
+        here.type = 'button';
+        here.textContent = 'Move here';
+        here.addEventListener('click', function () {
+          placeFile(movingFile, view.bucket, view.parts.join('/'));
+        });
+        bar.appendChild(here);
+      }
+      var cancel = document.createElement('button');
+      cancel.type = 'button';
+      cancel.textContent = 'Cancel';
+      cancel.addEventListener('click', function () {
+        movingFile = null;
+        paint();
+      });
+      bar.appendChild(cancel);
+      return bar;
     }
 
     function groupOf(name) {
@@ -504,16 +669,20 @@
       storeLabel.className = 'studio-files-group';
       storeLabel.textContent = 'Storage';
       nav.appendChild(storeLabel);
-      nav.appendChild(navButton('Public uploads', view.kind === 'store' && view.bucket === 'lesson-media', function () {
+      var publicNav = navButton('Public uploads', view.kind === 'store' && view.bucket === 'lesson-media', function () {
         chosen = true;
         view = { kind: 'store', area: 'store', lesson: null, folder: '', bucket: 'lesson-media', parts: [] };
         paint();
-      }, 0));
-      nav.appendChild(navButton('Private inbox', view.kind === 'store' && view.bucket === 'lesson-inbox', function () {
+      }, 0);
+      watchFolder(publicNav, 'lesson-media', '', false);
+      nav.appendChild(publicNav);
+      var privateNav = navButton('Private inbox', view.kind === 'store' && view.bucket === 'lesson-inbox', function () {
         chosen = true;
         view = { kind: 'store', area: 'store', lesson: null, folder: '', bucket: 'lesson-inbox', parts: [] };
         paint();
-      }, 0));
+      }, 0);
+      watchFolder(privateNav, 'lesson-inbox', '', true);
+      nav.appendChild(privateNav);
       var current = nav.querySelector('.is-on');
       if (current && current.scrollIntoView) current.scrollIntoView({ block: 'nearest' });
     }
@@ -539,6 +708,7 @@
       if (isPdf(item.name)) {
         var pdfImg = document.createElement('img');
         pdfImg.alt = '';
+        pdfImg.draggable = false;
         box.appendChild(pdfImg);
         watchPreview(pdfImg, item);
         enqueueThumb(function () {
@@ -554,6 +724,7 @@
       if (isImage(item.name)) {
         var img = document.createElement('img');
         img.alt = '';
+        img.draggable = false;
         if (item.src) img.src = item.src;
         else if (item.signed) item.signed(function (url) { if (url) img.src = url; });
         box.appendChild(img);
@@ -617,6 +788,35 @@
         box.appendChild(publish);
       }
       if (item.bucket && item.storagePath) {
+        box.draggable = true;
+        box.addEventListener('dragstart', function (event) {
+          var target = event.target;
+          if (target && target.closest && target.closest('button')) {
+            event.preventDefault();
+            return;
+          }
+          draggingFile = { bucket: item.bucket, path: item.storagePath, name: item.name };
+          if (event.dataTransfer) {
+            event.dataTransfer.setData('text/plain', item.name);
+            event.dataTransfer.effectAllowed = 'move';
+          }
+          root.classList.remove('is-dropping');
+        });
+        box.addEventListener('dragend', function () {
+          setTimeout(function () {
+            draggingFile = null;
+            if (root) root.classList.remove('is-dropping');
+            clearMoveOver();
+          }, 0);
+        });
+        var move = document.createElement('button');
+        move.type = 'button';
+        move.textContent = 'Move';
+        move.addEventListener('click', function () {
+          movingFile = { bucket: item.bucket, path: item.storagePath, name: item.name };
+          paint();
+        });
+        box.appendChild(move);
         var remove = document.createElement('button');
         remove.type = 'button';
         remove.textContent = 'Remove';
@@ -716,6 +916,8 @@
     function paintSite() {
       paintNav();
       main.replaceChildren();
+      var moving = moveBar();
+      if (moving) main.appendChild(moving);
       if (view.area === 'lessons') {
         var lesson = view.lesson || {};
         var steps = lessonSteps(lesson);
@@ -791,26 +993,32 @@
     function paintStore() {
       paintNav();
       main.replaceChildren();
+      var moving = moveBar();
+      if (moving) main.appendChild(moving);
       var crumbs = document.createElement('p');
       crumbs.className = 'studio-files-crumbs';
       var rootName = view.bucket === 'lesson-inbox' ? 'Private inbox' : 'Public uploads';
-      var back = document.createElement('button');
-      back.type = 'button';
-      back.textContent = rootName;
-      back.addEventListener('click', function () {
+      var allowUpload = view.bucket === 'lesson-inbox';
+      var rootJump = document.createElement('button');
+      rootJump.type = 'button';
+      rootJump.textContent = rootName;
+      rootJump.addEventListener('click', function () {
         view.parts = [];
         paint();
       });
-      crumbs.appendChild(back);
+      watchFolder(rootJump, view.bucket, '', allowUpload);
+      crumbs.appendChild(rootJump);
       view.parts.forEach(function (part, index) {
         crumbs.appendChild(document.createTextNode(' / '));
         var jump = document.createElement('button');
         jump.type = 'button';
         jump.textContent = part;
+        var jumpPrefix = view.parts.slice(0, index + 1).join('/');
         jump.addEventListener('click', function () {
           view.parts = view.parts.slice(0, index + 1);
           paint();
         });
+        watchFolder(jump, view.bucket, jumpPrefix, allowUpload);
         crumbs.appendChild(jump);
       });
       if (view.parts.length) {
@@ -849,6 +1057,7 @@
                 view.parts = view.parts.concat(item.name);
                 paint();
               });
+              watchFolder(folder, bucket, path, bucket === 'lesson-inbox');
               grid.appendChild(folder);
               return;
             }
@@ -890,37 +1099,38 @@
     }
 
     function paint() {
+      paintNote();
       if (view.kind === 'store') paintStore();
       else paintSite();
     }
 
-    refreshAfterUpload = function (message) {
+    refreshAfterUpload = function (message, folder) {
       pinned = message || '';
       if (!dialog) {
         if (pinned) say(pinned);
         pinned = '';
         return;
       }
-      view = { kind: 'store', area: 'store', lesson: null, folder: '', bucket: 'lesson-inbox', parts: ['inbox'] };
+      var parts = String(folder == null ? 'inbox' : folder).split('/').filter(Boolean);
+      view = { kind: 'store', area: 'store', lesson: null, folder: '', bucket: 'lesson-inbox', parts: parts };
       paint();
       pinned = '';
     };
 
     picker.addEventListener('change', function () {
-      var files = picker.files;
+      var files = Array.prototype.slice.call(picker.files || []);
       picker.value = '';
       uploadFiles(client, files, say);
     });
 
-    var dragDepth = 0;
     root.addEventListener('dragenter', function (event) {
       event.preventDefault();
       dragDepth += 1;
-      root.classList.add('is-dropping');
+      if (!draggingFile) root.classList.add('is-dropping');
     });
     root.addEventListener('dragover', function (event) {
       event.preventDefault();
-      if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
+      if (event.dataTransfer) event.dataTransfer.dropEffect = draggingFile ? 'move' : 'copy';
     });
     root.addEventListener('dragleave', function () {
       dragDepth -= 1;
@@ -933,6 +1143,12 @@
       event.preventDefault();
       dragDepth = 0;
       root.classList.remove('is-dropping');
+      if (draggingFile) {
+        var item = draggingFile;
+        draggingFile = null;
+        if (view.kind === 'store') placeFile(item, view.bucket, view.parts.join('/'));
+        return;
+      }
       var files = event.dataTransfer && event.dataTransfer.files;
       uploadFiles(client, files, say);
     });
@@ -952,11 +1168,12 @@
 
   var uploadSerial = 0;
 
-  function send(client, file, done) {
+  function send(client, file, folder, done) {
     if (!client || !client.storage) { if (done) done(false); return; }
     var safe = String(file.name || 'file').replace(/[^\w.\-]+/g, '-').replace(/^\.+/, '');
     uploadSerial += 1;
-    var path = 'inbox/' + Date.now() + '-' + uploadSerial + '-' + (safe || 'file');
+    var prefix = String(folder || '').replace(/^\/+|\/+$/g, '');
+    var path = (prefix ? prefix + '/' : '') + Date.now() + '-' + uploadSerial + '-' + (safe || 'file');
     client.storage.from('lesson-inbox').upload(path, file, { upsert: false }).then(function (result) {
       if (uploadJob && document.visibilityState === 'hidden') uploadJob.left = true;
       if (done) done(!(result && result.error));
