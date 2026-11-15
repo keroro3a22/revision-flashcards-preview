@@ -42,6 +42,20 @@ test('the public page asks for the published series and term', () => {
   assert.match(live, /text\.indexOf\('oxford-6b\/'\) === 0/);
 });
 
+test('a revision card hides the play icon when it has no audio', () => {
+  ['unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6'].forEach((unit) => {
+    ['index.html', 'grammar/index.html'].forEach((file) => {
+      const html = fs.readFileSync(unit + '/' + file, 'utf8');
+      assert.match(html, /const audio = String\(card\.audio \|\| ''\)\.trim\(\)/, unit + '/' + file);
+      assert.match(html, /if \(audio\)/, unit + '/' + file);
+      assert.match(html, /article\.classList\.add\('no-audio'\)/, unit + '/' + file);
+      assert.match(html, /lbPlay\.hidden = !String\(card\.audio \|\| ''\)\.trim\(\)/, unit + '/' + file);
+    });
+  });
+  assert.match(studio, /if \(!src\) return cell/);
+  assert.match(fs.readFileSync('assets/unit.css', 'utf8'), /\.card\.no-audio \.top \{ padding-right: 0\.85rem; \}/);
+});
+
 test('the studio edits the same place and publishes a snapshot', () => {
   assert.match(studio, /mypearson-express/);
   assert.match(studio, /elect/);

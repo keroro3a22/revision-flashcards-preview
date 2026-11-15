@@ -208,6 +208,7 @@ button { font: inherit; cursor: pointer; }
   /* leave room so syllables don't collide with inset speaker */
   padding: 0.85rem 3.7rem 0 0.85rem;
 }
+.card.no-audio .top { padding-right: 0.85rem; }
 .illust {
   position: relative;
   border-radius: var(--radius-sm);

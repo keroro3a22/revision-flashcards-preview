@@ -14,7 +14,8 @@ test('Book B revision stays open and practice stays closed', () => {
   assert.equal(vocab.ready, true);
   assert.equal(vocab.href, 'unit1/?term=second');
   assert.equal(vocab.image, 'https://cdn.example/pick.png');
-  assert.equal(vocab.note, 'Open the word cards.');
+  assert.equal(vocab.note, 'Review the words in this unit.');
+  assert.equal(grammar.note, 'Review the grammar in this unit.');
   assert.equal(grammar.ready, true);
   assert.equal(grammar.href, 'unit1/grammar/?term=second');
   assert.equal(grammar.image, 'oxford-6b/u1-grammar-01-1x1.png');
@@ -63,7 +64,7 @@ test('a saved picture replaces the card photo and an empty field falls back', ()
     { unit_id: 'unit1', slot: 'revision-vocab', label: '', note: '', image: '' }
   ], lessons, []);
   assert.equal(cleared.items[0].image, 'unit1/card.png');
-  assert.equal(cleared.items[0].note, 'Open the word cards.');
+  assert.equal(cleared.items[0].note, 'Review the words in this unit.');
 });
 
 test('Book A keeps its title and the saved cover', () => {
@@ -107,6 +108,26 @@ test('page photos use the shape students see', () => {
   assert.equal(pages.photoRatio('title'), 1);
   assert.equal(Math.round(pages.photoRatio('revision-vocab') * 100) / 100, Math.round(4 / 3 * 100) / 100);
   assert.equal(Math.round(pages.photoRatio('see') * 100) / 100, Math.round(4 / 3 * 100) / 100);
+});
+
+test('empty door notes use the approved sentences', () => {
+  const lessons = [
+    { unit_id: 'unit1', track: 'vocab', n: 1, img: 'a.png' },
+    { unit_id: 'unit1', track: 'grammar', n: 1, img: 'b.png' }
+  ];
+  const practices = [
+    { unit_id: 'unit1', track: 'vocab' },
+    { unit_id: 'unit1', track: 'grammar' }
+  ];
+  const unit = pages.resolveUnit(bookA, 'unit1', [], lessons, practices);
+  const notes = {};
+  unit.items.forEach((item) => { notes[item.id] = item.note; });
+  assert.deepEqual(notes, {
+    'revision-vocab': 'Review the words in this unit.',
+    'revision-grammar': 'Review the grammar in this unit.',
+    'practice-vocab': 'Try the word quizzes.',
+    'practice-grammar': 'Practise the grammar in games.'
+  });
 });
 
 test('Get started packs follow titles and open doors', () => {
