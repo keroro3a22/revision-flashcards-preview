@@ -382,15 +382,14 @@
   function audioCell(row) {
     var cell = document.createElement('td');
     cell.className = 'studio-audio-cell';
+    var src = audioSrc(row && row.audio);
+    if (!src) return cell;
     var button = document.createElement('button');
     button.type = 'button';
     button.className = 'studio-audio';
     button.innerHTML = SPEAKER_SVG;
-    var src = audioSrc(row && row.audio);
-    button.disabled = !src;
-    button.setAttribute('aria-label', src ? 'Play pronunciation' : 'No pronunciation');
+    button.setAttribute('aria-label', 'Play pronunciation');
     button.addEventListener('click', function () {
-      if (!src) return;
       if (studioAudio && button.classList.contains('is-playing')) {
         studioAudio.pause();
         button.classList.remove('is-playing');

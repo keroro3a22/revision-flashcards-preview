@@ -5,10 +5,10 @@
 
   var openMenu = '';
   var blurbs = {
-    'revision-vocab': 'Open the word cards.',
-    'revision-grammar': 'Open the grammar cards.',
-    'practice-vocab': 'Open the quizzes.',
-    'practice-grammar': 'Open the grammar games.',
+    'revision-vocab': 'Review the words in this unit.',
+    'revision-grammar': 'Review the grammar in this unit.',
+    'practice-vocab': 'Try the word quizzes.',
+    'practice-grammar': 'Practise the grammar in games.',
     game: 'Open School Mystery.'
   };
 

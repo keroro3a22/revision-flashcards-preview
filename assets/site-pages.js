@@ -6,10 +6,10 @@
   if (root) root.SitePages = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function (root) {
   var DOORS = [
-    { id: 'revision-vocab', group: 'revision', groupLabel: 'Revision card', label: 'Vocab', note: 'Open the word cards.', photo: 'first', track: 'vocab', source: 'lesson' },
-    { id: 'revision-grammar', group: 'revision', groupLabel: 'Revision card', label: 'Grammar', note: 'Open the grammar cards.', photo: 'first', track: 'grammar', source: 'lesson' },
-    { id: 'practice-vocab', group: 'practice', groupLabel: 'Practice', label: 'Vocab', note: 'Open the quizzes.', photo: 'second', track: 'vocab', source: 'practice' },
-    { id: 'practice-grammar', group: 'practice', groupLabel: 'Practice', label: 'Grammar', note: 'Open the grammar games.', photo: 'second', track: 'grammar', source: 'practice' }
+    { id: 'revision-vocab', group: 'revision', groupLabel: 'Revision card', label: 'Vocab', note: 'Review the words in this unit.', photo: 'first', track: 'vocab', source: 'lesson' },
+    { id: 'revision-grammar', group: 'revision', groupLabel: 'Revision card', label: 'Grammar', note: 'Review the grammar in this unit.', photo: 'first', track: 'grammar', source: 'lesson' },
+    { id: 'practice-vocab', group: 'practice', groupLabel: 'Practice', label: 'Vocab', note: 'Try the word quizzes.', photo: 'second', track: 'vocab', source: 'practice' },
+    { id: 'practice-grammar', group: 'practice', groupLabel: 'Practice', label: 'Grammar', note: 'Practise the grammar in games.', photo: 'second', track: 'grammar', source: 'practice' }
   ];
   var HOME = [
     { id: 'hero', label: 'Play and Learn Club', note: 'Flashcards, games, quizzes', image: '' },
