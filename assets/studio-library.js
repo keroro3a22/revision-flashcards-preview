@@ -1,7 +1,7 @@
 /* Standalone file browser. Website folders come from the site catalog.
    New uploads stay in the private inbox until a photo is copied out. */
 (function () {
-  var SITE = 'assets/site-files.json?v=1';
+  var SITE = 'assets/site-files.json?v=2';
   var dialog = null;
   var onKey = null;
   var preview = null;
@@ -948,10 +948,12 @@
     }
 
     function lessonFiles(lesson) {
-      if (!lesson || lesson.book !== 'oxford' || lesson.series !== 'oxford' || lesson.term !== 'first' || lesson.level !== 'p6' || !lesson.unit) return null;
+      if (!lesson || lesson.book !== 'oxford' || lesson.series !== 'oxford' || lesson.level !== 'p6' || !lesson.unit) return null;
+      var wanted = lesson.term === 'second' ? 'oxford-6b/' + lesson.unit : (lesson.term === 'first' ? lesson.unit : '');
+      if (!wanted) return null;
       var found = null;
       siteFolders.forEach(function (folder) {
-        if (folder.name === lesson.unit) found = folder;
+        if (folder.name === wanted) found = folder;
       });
       return found;
     }

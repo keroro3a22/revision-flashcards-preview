@@ -2735,6 +2735,456 @@
           "path": "practice/icons/timed.svg"
         }
       ]
+    },
+  {
+      "name": "oxford-6b/unit1",
+      "files": [
+        {
+          "name": "u1-grammar-01-1x1.png",
+          "path": "oxford-6b/u1-grammar-01-1x1.png"
+        },
+        {
+          "name": "u1-grammar-02-1x1.png",
+          "path": "oxford-6b/u1-grammar-02-1x1.png"
+        },
+        {
+          "name": "u1-vocab-01-1x1.png",
+          "path": "oxford-6b/u1-vocab-01-1x1.png"
+        },
+        {
+          "name": "u1-vocab-02-1x1.png",
+          "path": "oxford-6b/u1-vocab-02-1x1.png"
+        },
+        {
+          "name": "u1-vocab-03-1x1.png",
+          "path": "oxford-6b/u1-vocab-03-1x1.png"
+        },
+        {
+          "name": "u1-vocab-04-1x1.png",
+          "path": "oxford-6b/u1-vocab-04-1x1.png"
+        },
+        {
+          "name": "u1-vocab-05-1x1.png",
+          "path": "oxford-6b/u1-vocab-05-1x1.png"
+        },
+        {
+          "name": "u1-vocab-06-1x1.png",
+          "path": "oxford-6b/u1-vocab-06-1x1.png"
+        },
+        {
+          "name": "u1-vocab-07-1x1.png",
+          "path": "oxford-6b/u1-vocab-07-1x1.png"
+        },
+        {
+          "name": "u1-vocab-08-1x1.png",
+          "path": "oxford-6b/u1-vocab-08-1x1.png"
+        },
+        {
+          "name": "u1-vocab-09-1x1.png",
+          "path": "oxford-6b/u1-vocab-09-1x1.png"
+        },
+        {
+          "name": "u1-vocab-10-1x1.png",
+          "path": "oxford-6b/u1-vocab-10-1x1.png"
+        },
+        {
+          "name": "u1-vocab-11-1x1.png",
+          "path": "oxford-6b/u1-vocab-11-1x1.png"
+        },
+        {
+          "name": "u1-vocab-12-1x1.png",
+          "path": "oxford-6b/u1-vocab-12-1x1.png"
+        },
+        {
+          "name": "u1-vocab-13-1x1.png",
+          "path": "oxford-6b/u1-vocab-13-1x1.png"
+        },
+        {
+          "name": "u1-vocab-14-1x1.png",
+          "path": "oxford-6b/u1-vocab-14-1x1.png"
+        },
+        {
+          "name": "u1-vocab-15-1x1.png",
+          "path": "oxford-6b/u1-vocab-15-1x1.png"
+        },
+        {
+          "name": "u1-vocab-16-1x1.png",
+          "path": "oxford-6b/u1-vocab-16-1x1.png"
+        }
+      ]
+    },
+    {
+      "name": "oxford-6b/unit2",
+      "files": [
+        {
+          "name": "u2-grammar-01-1x1.png",
+          "path": "oxford-6b/u2-grammar-01-1x1.png"
+        },
+        {
+          "name": "u2-grammar-02-1x1.png",
+          "path": "oxford-6b/u2-grammar-02-1x1.png"
+        },
+        {
+          "name": "u2-grammar-03-1x1.png",
+          "path": "oxford-6b/u2-grammar-03-1x1.png"
+        },
+        {
+          "name": "u2-vocab-01-1x1.png",
+          "path": "oxford-6b/u2-vocab-01-1x1.png"
+        },
+        {
+          "name": "u2-vocab-02-1x1.png",
+          "path": "oxford-6b/u2-vocab-02-1x1.png"
+        },
+        {
+          "name": "u2-vocab-03-1x1.png",
+          "path": "oxford-6b/u2-vocab-03-1x1.png"
+        },
+        {
+          "name": "u2-vocab-04-1x1.png",
+          "path": "oxford-6b/u2-vocab-04-1x1.png"
+        },
+        {
+          "name": "u2-vocab-05-1x1.png",
+          "path": "oxford-6b/u2-vocab-05-1x1.png"
+        },
+        {
+          "name": "u2-vocab-06-1x1.png",
+          "path": "oxford-6b/u2-vocab-06-1x1.png"
+        },
+        {
+          "name": "u2-vocab-07-1x1.png",
+          "path": "oxford-6b/u2-vocab-07-1x1.png"
+        },
+        {
+          "name": "u2-vocab-08-1x1.png",
+          "path": "oxford-6b/u2-vocab-08-1x1.png"
+        },
+        {
+          "name": "u2-vocab-09-1x1.png",
+          "path": "oxford-6b/u2-vocab-09-1x1.png"
+        },
+        {
+          "name": "u2-vocab-10-1x1.png",
+          "path": "oxford-6b/u2-vocab-10-1x1.png"
+        },
+        {
+          "name": "u2-vocab-11-1x1.png",
+          "path": "oxford-6b/u2-vocab-11-1x1.png"
+        },
+        {
+          "name": "u2-vocab-12-1x1.png",
+          "path": "oxford-6b/u2-vocab-12-1x1.png"
+        },
+        {
+          "name": "u2-vocab-13-1x1.png",
+          "path": "oxford-6b/u2-vocab-13-1x1.png"
+        },
+        {
+          "name": "u2-vocab-14-1x1.png",
+          "path": "oxford-6b/u2-vocab-14-1x1.png"
+        },
+        {
+          "name": "u2-vocab-15-1x1.png",
+          "path": "oxford-6b/u2-vocab-15-1x1.png"
+        }
+      ]
+    },
+    {
+      "name": "oxford-6b/unit3",
+      "files": [
+        {
+          "name": "u3-grammar-01-1x1.png",
+          "path": "oxford-6b/u3-grammar-01-1x1.png"
+        },
+        {
+          "name": "u3-grammar-02-1x1.png",
+          "path": "oxford-6b/u3-grammar-02-1x1.png"
+        },
+        {
+          "name": "u3-vocab-01-1x1.png",
+          "path": "oxford-6b/u3-vocab-01-1x1.png"
+        },
+        {
+          "name": "u3-vocab-02-1x1.png",
+          "path": "oxford-6b/u3-vocab-02-1x1.png"
+        },
+        {
+          "name": "u3-vocab-03-1x1.png",
+          "path": "oxford-6b/u3-vocab-03-1x1.png"
+        },
+        {
+          "name": "u3-vocab-04-1x1.png",
+          "path": "oxford-6b/u3-vocab-04-1x1.png"
+        },
+        {
+          "name": "u3-vocab-05-1x1.png",
+          "path": "oxford-6b/u3-vocab-05-1x1.png"
+        },
+        {
+          "name": "u3-vocab-06-1x1.png",
+          "path": "oxford-6b/u3-vocab-06-1x1.png"
+        },
+        {
+          "name": "u3-vocab-07-1x1.png",
+          "path": "oxford-6b/u3-vocab-07-1x1.png"
+        },
+        {
+          "name": "u3-vocab-08-1x1.png",
+          "path": "oxford-6b/u3-vocab-08-1x1.png"
+        },
+        {
+          "name": "u3-vocab-09-1x1.png",
+          "path": "oxford-6b/u3-vocab-09-1x1.png"
+        },
+        {
+          "name": "u3-vocab-10-1x1.png",
+          "path": "oxford-6b/u3-vocab-10-1x1.png"
+        },
+        {
+          "name": "u3-vocab-11-1x1.png",
+          "path": "oxford-6b/u3-vocab-11-1x1.png"
+        },
+        {
+          "name": "u3-vocab-12-1x1.png",
+          "path": "oxford-6b/u3-vocab-12-1x1.png"
+        },
+        {
+          "name": "u3-vocab-13-1x1.png",
+          "path": "oxford-6b/u3-vocab-13-1x1.png"
+        },
+        {
+          "name": "u3-vocab-14-1x1.png",
+          "path": "oxford-6b/u3-vocab-14-1x1.png"
+        },
+        {
+          "name": "u3-vocab-15-1x1.png",
+          "path": "oxford-6b/u3-vocab-15-1x1.png"
+        },
+        {
+          "name": "u3-vocab-16-1x1.png",
+          "path": "oxford-6b/u3-vocab-16-1x1.png"
+        }
+      ]
+    },
+    {
+      "name": "oxford-6b/unit4",
+      "files": [
+        {
+          "name": "u4-grammar-01-1x1-v2.png",
+          "path": "oxford-6b/u4-grammar-01-1x1-v2.png"
+        },
+        {
+          "name": "u4-grammar-02-1x1-v2.png",
+          "path": "oxford-6b/u4-grammar-02-1x1-v2.png"
+        },
+        {
+          "name": "u4-grammar-03-1x1.png",
+          "path": "oxford-6b/u4-grammar-03-1x1.png"
+        },
+        {
+          "name": "u4-vocab-01-1x1.png",
+          "path": "oxford-6b/u4-vocab-01-1x1.png"
+        },
+        {
+          "name": "u4-vocab-02-1x1.png",
+          "path": "oxford-6b/u4-vocab-02-1x1.png"
+        },
+        {
+          "name": "u4-vocab-03-1x1.png",
+          "path": "oxford-6b/u4-vocab-03-1x1.png"
+        },
+        {
+          "name": "u4-vocab-04-1x1.png",
+          "path": "oxford-6b/u4-vocab-04-1x1.png"
+        },
+        {
+          "name": "u4-vocab-05-1x1.png",
+          "path": "oxford-6b/u4-vocab-05-1x1.png"
+        },
+        {
+          "name": "u4-vocab-06-1x1.png",
+          "path": "oxford-6b/u4-vocab-06-1x1.png"
+        },
+        {
+          "name": "u4-vocab-07-1x1.png",
+          "path": "oxford-6b/u4-vocab-07-1x1.png"
+        },
+        {
+          "name": "u4-vocab-08-1x1.png",
+          "path": "oxford-6b/u4-vocab-08-1x1.png"
+        },
+        {
+          "name": "u4-vocab-09-1x1-v2.png",
+          "path": "oxford-6b/u4-vocab-09-1x1-v2.png"
+        },
+        {
+          "name": "u4-vocab-10-1x1.png",
+          "path": "oxford-6b/u4-vocab-10-1x1.png"
+        },
+        {
+          "name": "u4-vocab-11-1x1.png",
+          "path": "oxford-6b/u4-vocab-11-1x1.png"
+        },
+        {
+          "name": "u4-vocab-12-1x1.png",
+          "path": "oxford-6b/u4-vocab-12-1x1.png"
+        },
+        {
+          "name": "u4-vocab-13-1x1.png",
+          "path": "oxford-6b/u4-vocab-13-1x1.png"
+        },
+        {
+          "name": "u4-vocab-14-1x1.png",
+          "path": "oxford-6b/u4-vocab-14-1x1.png"
+        },
+        {
+          "name": "u4-vocab-15-1x1.png",
+          "path": "oxford-6b/u4-vocab-15-1x1.png"
+        }
+      ]
+    },
+    {
+      "name": "oxford-6b/unit5",
+      "files": [
+        {
+          "name": "u5-grammar-01-1x1.png",
+          "path": "oxford-6b/u5-grammar-01-1x1.png"
+        },
+        {
+          "name": "u5-grammar-02-1x1-v2.png",
+          "path": "oxford-6b/u5-grammar-02-1x1-v2.png"
+        },
+        {
+          "name": "u5-grammar-03-1x1-v2.png",
+          "path": "oxford-6b/u5-grammar-03-1x1-v2.png"
+        },
+        {
+          "name": "u5-vocab-01-1x1.png",
+          "path": "oxford-6b/u5-vocab-01-1x1.png"
+        },
+        {
+          "name": "u5-vocab-02-1x1.png",
+          "path": "oxford-6b/u5-vocab-02-1x1.png"
+        },
+        {
+          "name": "u5-vocab-03-1x1.png",
+          "path": "oxford-6b/u5-vocab-03-1x1.png"
+        },
+        {
+          "name": "u5-vocab-04-1x1.png",
+          "path": "oxford-6b/u5-vocab-04-1x1.png"
+        },
+        {
+          "name": "u5-vocab-05-1x1.png",
+          "path": "oxford-6b/u5-vocab-05-1x1.png"
+        },
+        {
+          "name": "u5-vocab-06-1x1.png",
+          "path": "oxford-6b/u5-vocab-06-1x1.png"
+        },
+        {
+          "name": "u5-vocab-07-1x1.png",
+          "path": "oxford-6b/u5-vocab-07-1x1.png"
+        },
+        {
+          "name": "u5-vocab-08-1x1.png",
+          "path": "oxford-6b/u5-vocab-08-1x1.png"
+        },
+        {
+          "name": "u5-vocab-09-1x1.png",
+          "path": "oxford-6b/u5-vocab-09-1x1.png"
+        },
+        {
+          "name": "u5-vocab-10-1x1.png",
+          "path": "oxford-6b/u5-vocab-10-1x1.png"
+        }
+      ]
+    },
+    {
+      "name": "oxford-6b/unit6",
+      "files": [
+        {
+          "name": "u6-grammar-01-1x1-v2.png",
+          "path": "oxford-6b/u6-grammar-01-1x1-v2.png"
+        },
+        {
+          "name": "u6-grammar-02-1x1-v2.png",
+          "path": "oxford-6b/u6-grammar-02-1x1-v2.png"
+        },
+        {
+          "name": "u6-grammar-03-1x1-v2.png",
+          "path": "oxford-6b/u6-grammar-03-1x1-v2.png"
+        },
+        {
+          "name": "u6-vocab-01-1x1.png",
+          "path": "oxford-6b/u6-vocab-01-1x1.png"
+        },
+        {
+          "name": "u6-vocab-02-1x1.png",
+          "path": "oxford-6b/u6-vocab-02-1x1.png"
+        },
+        {
+          "name": "u6-vocab-03-1x1.png",
+          "path": "oxford-6b/u6-vocab-03-1x1.png"
+        },
+        {
+          "name": "u6-vocab-04-1x1.png",
+          "path": "oxford-6b/u6-vocab-04-1x1.png"
+        },
+        {
+          "name": "u6-vocab-05-1x1.png",
+          "path": "oxford-6b/u6-vocab-05-1x1.png"
+        },
+        {
+          "name": "u6-vocab-06-1x1-v2.png",
+          "path": "oxford-6b/u6-vocab-06-1x1-v2.png"
+        },
+        {
+          "name": "u6-vocab-07-1x1.png",
+          "path": "oxford-6b/u6-vocab-07-1x1.png"
+        },
+        {
+          "name": "u6-vocab-08-1x1.png",
+          "path": "oxford-6b/u6-vocab-08-1x1.png"
+        },
+        {
+          "name": "u6-vocab-09-1x1.png",
+          "path": "oxford-6b/u6-vocab-09-1x1.png"
+        },
+        {
+          "name": "u6-vocab-10-1x1.png",
+          "path": "oxford-6b/u6-vocab-10-1x1.png"
+        },
+        {
+          "name": "u6-vocab-11-1x1.png",
+          "path": "oxford-6b/u6-vocab-11-1x1.png"
+        },
+        {
+          "name": "u6-vocab-12-1x1.png",
+          "path": "oxford-6b/u6-vocab-12-1x1.png"
+        },
+        {
+          "name": "u6-vocab-13-1x1.png",
+          "path": "oxford-6b/u6-vocab-13-1x1.png"
+        },
+        {
+          "name": "u6-vocab-14-1x1.png",
+          "path": "oxford-6b/u6-vocab-14-1x1.png"
+        },
+        {
+          "name": "u6-vocab-15-1x1.png",
+          "path": "oxford-6b/u6-vocab-15-1x1.png"
+        },
+        {
+          "name": "u6-vocab-16-1x1.png",
+          "path": "oxford-6b/u6-vocab-16-1x1.png"
+        },
+        {
+          "name": "u6-vocab-17-1x1.png",
+          "path": "oxford-6b/u6-vocab-17-1x1.png"
+        }
+      ]
     }
   ]
 }

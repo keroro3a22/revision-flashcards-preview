@@ -118,6 +118,9 @@ test('the library button opens website folders and stored files', () => {
   assert.match(fs.readFileSync('assets/vendor/pdf.min.js', 'utf8'), /pdfjsLib/);
   assert.doesNotMatch(browser, /if \(!dialog\) return;/);
   assert.ok(unit1.files.some((file) => file.path === 'unit1/thumb_01.jpg'));
+  assert.match(browser, /oxford-6b/);
+  const bookB = catalog.folders.find((folder) => folder.name === 'oxford-6b/unit1');
+  assert.ok(bookB.files.some((file) => file.path === 'oxford-6b/u1-vocab-01-1x1.png'));
 });
 
 test('a path jump highlight fades back to the row color', () => {
