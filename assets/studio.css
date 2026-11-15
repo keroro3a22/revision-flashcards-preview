@@ -149,7 +149,6 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
 .studio-files-head button,
 .studio-files-crumbs button { margin: 0.25rem 0.25rem 0 0; padding: 0.3rem 0.55rem; cursor: pointer; }
 .studio-files-folder { min-height: 7rem; background: #f4f7fb; }
-.studio-files-upload,
 .studio-files-move button {
   font: inherit;
   color: #16324f;
@@ -159,22 +158,16 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
   padding: 0.3rem 0.55rem;
   cursor: pointer;
 }
-.studio-files-upload {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  margin: 0.25rem 0.25rem 0 0;
-  overflow: hidden;
-}
 .studio-files-picker {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  position: fixed;
+  left: -200vw;
+  top: 0;
+  width: 1px;
+  height: 1px;
   margin: 0;
   opacity: 0;
-  cursor: pointer;
-  font-size: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 .studio-files-move {
   display: flex;
