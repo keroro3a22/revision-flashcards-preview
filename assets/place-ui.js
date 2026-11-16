@@ -50,14 +50,21 @@
 
   function openBossGate(place, href) {
     var gate = ensureBossGate();
-    gate.classList.remove('is-oni');
+    gate.classList.remove('is-entering');
     gate.classList.add('open');
     document.body.style.overflow = 'hidden';
-    void gate.offsetWidth;
-    gate.classList.add('is-oni');
     gate.querySelector('[data-ready]').onclick = function () {
-      closeBossGate();
-      location.href = (scriptRoot() || '') + href;
+      if (gate.classList.contains('is-entering')) return;
+      gate.classList.add('is-entering');
+      var cave = gate.querySelector('.boss-gate-cave');
+      var gone = false;
+      function go() {
+        if (gone) return;
+        gone = true;
+        location.href = (scriptRoot() || '') + href;
+      }
+      cave.addEventListener('animationend', go);
+      setTimeout(go, 1100);
     };
     gate.querySelector('[data-practice]').onclick = function () {
       closeBossGate();
@@ -68,7 +75,7 @@
   function closeBossGate() {
     var gate = document.getElementById('boss-gate');
     if (!gate) return;
-    gate.classList.remove('open', 'is-oni');
+    gate.classList.remove('open', 'is-entering');
     if (!document.getElementById('boss-practice') || document.getElementById('boss-practice').hidden) {
       document.body.style.overflow = '';
     }
@@ -84,8 +91,9 @@
     gate.setAttribute('role', 'dialog');
     gate.setAttribute('aria-modal', 'true');
     gate.setAttribute('aria-labelledby', 'boss-gate-title');
-    gate.innerHTML = '<img class="boss-gate-cave" alt="" src="' + root + 'assets/boss/cave.png">'
+    gate.innerHTML = '<a class="boss-gate-back" href="' + root + '">← Back to packs</a>'
       + '<img class="boss-gate-oni" alt="" src="' + root + 'assets/boss/oni.png">'
+      + '<img class="boss-gate-cave" alt="" src="' + root + 'assets/boss/cave.png">'
       + '<div class="boss-gate-card">'
       + '<h2 id="boss-gate-title">Ready for the boss?</h2>'
       + '<p>This round mixes grammar from every unit in this book. You have 3 lives.</p>'
@@ -93,6 +101,10 @@
       + '<button type="button" class="boss-gate-ready" data-ready>I\'m ready</button>'
       + '<button type="button" class="boss-gate-practice" data-practice>Practice</button>'
       + '</div></div>';
+    gate.querySelector('.boss-gate-back').addEventListener('click', function (event) {
+      event.preventDefault();
+      closeBossGate();
+    });
     document.body.appendChild(gate);
     document.addEventListener('keydown', function (event) {
       if (event.key !== 'Escape') return;
@@ -329,6 +341,7 @@
     path = path.replace(/\/index\.html$/, '').replace(/\.html$/, '').replace(/\/$/, '');
     if (/\/unit\d+\/grammar$/.test(path)) return 'revision-grammar';
     if (/\/unit\d+$/.test(path)) return 'revision-vocab';
+    if (/\/practice\/grammar\/boss$/.test(path)) return '';
     if (/\/practice\/grammar\/(?:unit\d+-|boss$)/.test(path)) return 'practice-grammar';
     if (/\/practice$/.test(path) || /\/practice\/(?:fill|letters|match|timed)$/.test(path)) return 'practice-vocab';
     return '';
