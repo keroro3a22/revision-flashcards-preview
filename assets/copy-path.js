@@ -189,6 +189,9 @@
     host.appendChild(makeButton('copy-path copy-path-answer', 'Answer', function () {
       if (window.RevisionTestAnswer) window.RevisionTestAnswer();
     }));
+    host.appendChild(makeButton('copy-path copy-path-answer', 'Victory', function () {
+      if (window.RevisionTestVictory) window.RevisionTestVictory();
+    }));
   }
 
   function mountQuestion() {
