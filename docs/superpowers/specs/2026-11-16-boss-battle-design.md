@@ -35,7 +35,7 @@ Leaving the fight early does not save hearts or the demon's health, and it does 
 
 ## Victory and defeat
 
-Victory shows the word Victory and a picture. The picture is a simple paper-cut celebration in the same flat colours, saved at `assets/boss/victory.png`. Replacing that file is enough for a later picture. The word is page text, so the picture does not need to contain it. One button, Grammar practice, goes to the grammar hub. There is no Try again button. A real clear still earns the Boss Beater badge. A preview opened with `?set=` does not.
+Victory shows the word Victory and a picture of the king pulling the sword from the stone. The picture has no background of its own and is saved at `assets/boss/victory.png`. Replacing that file is enough for a later picture. The word is page text, so the picture does not need to contain it. One button, Grammar practice, goes to the grammar hub. There is no Try again button. A real clear still earns the Boss Beater badge. A preview opened with `?set=` does not.
 
 Defeat shows the demon and encourages another try. Try again starts the next authored set of 12, which is what finishing a round already does. A second button goes to the grammar hub. Remaining answers are not listed.
 
@@ -57,6 +57,6 @@ The entrance card stays as it is: Ready for the boss, the current sentence, I'm 
 
 The waiting picture is the cave, not the demon. The mountain file has no background of its own, and the entrance page has its own cream background so the home page does not show through. The orange arrow points up, with a white edge and no background, and its tip sits a little below the middle of the opening. The arrow, the mouth, and I'm ready do the same thing: the cave zooms in, as if the player walks into the mouth, then the fight appears with the fade the entrance already uses. Reduced motion still opens the quiz directly.
 
-Try again has no white card. The demon there uses the same eye-line alignment as the fight. MY HP and its hearts are pink. Mute is a speaker icon, with a slash across it when the sound is off.
+Victory and Try again have no white card. The demon there uses the same eye-line alignment as the fight. MY HP and its hearts are pink. Mute is a speaker icon, with a slash across it when the sound is off.
 
 The sign-in control stays off the quiz, as it does now.

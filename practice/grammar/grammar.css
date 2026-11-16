@@ -1492,6 +1492,8 @@ body.boss-round .choice.spent {
   text-align: center;
   gap: 0.4rem;
   overflow: hidden;
+  background: transparent;
+  box-shadow: none;
 }
 .battle-end img {
   width: min(70vw, 16rem);
