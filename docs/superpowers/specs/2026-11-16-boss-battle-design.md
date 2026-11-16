@@ -55,7 +55,7 @@ When the device asks for reduced motion, the demon stays still, the cave arrow d
 
 The entrance card stays as it is: Ready for the boss, the current sentence, I'm ready, and Practice. Practice still opens the revision cards.
 
-The waiting picture is the cave, not the demon. The mountain file has no background of its own, and the entrance page has its own cream background so the home page does not show through. The orange arrow points up, with a white edge and no background, and its tip sits on the middle of the opening. The arrow, the mouth, and I'm ready do the same thing: the cave zooms in, as if the player walks into the mouth, then the fight appears with the fade the entrance already uses. Reduced motion still opens the quiz directly.
+The waiting picture is the cave, not the demon. The mountain file has no background of its own, and the entrance page has its own cream background so the home page does not show through. The orange arrow points up, with a white edge and no background, and its tip sits a little below the middle of the opening. The arrow, the mouth, and I'm ready do the same thing: the cave zooms in, as if the player walks into the mouth, then the fight appears with the fade the entrance already uses. Reduced motion still opens the quiz directly.
 
 Try again has no white card. The demon there uses the same eye-line alignment as the fight. MY HP and its hearts are pink. Mute is a speaker icon, with a slash across it when the sound is off.
 
