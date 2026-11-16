@@ -16,7 +16,7 @@
 <script src="../../assets/supabase-public.js?v=1"></script>
 <script src="../../assets/progress-sync.js?v=3"></script>
 <script src="../../assets/place.js?v=11"></script>
-<script src="../../assets/place-ui.js?v=33"></script>
+<script src="../../assets/place-ui.js?v=34"></script>
 <script src="../../assets/profile.js?v=7"></script>
 <script src="../../assets/account.js?v=17"></script>
 </head>
@@ -949,6 +949,21 @@
     }
     locked = false;
   }
+
+  window.RevisionTestAnswer = function () {
+    const done = document.getElementById("done");
+    if (done && !done.hidden) return;
+    const it = items[idx];
+    if (!it) return;
+    const key = BossAnswer.answerKey(it.answer);
+    const buttons = choices.querySelectorAll(".choice");
+    for (let i = 0; i < buttons.length; i += 1) {
+      if (buttons[i].textContent === key) {
+        buttons[i].click();
+        return;
+      }
+    }
+  };
 
   btnNext.addEventListener("click", () => {
     if (foot.hidden || !zoom.hidden) return;
