@@ -21,14 +21,10 @@ window.Profile = (function () {
     { id: 'timed-brave', badgeId: 'timed-brave', label: 'Timed Hero', zh: '限時勇者', src: 'assets/badges/timed-hero.png' },
     { id: 'hard-challenger', badgeId: 'hard-challenger', label: 'Hard Challenger', zh: 'Hard 挑戰者', src: 'assets/badges/hard-challenger.png' },
     { id: 'all-rounder', badgeId: 'all-rounder', label: 'All-rounder', zh: '全能練習生', src: 'assets/badges/all-rounder.png' },
-    { id: 'unit1', badgeId: 'unit-done:unit1', label: 'Unit 1 Completer', zh: 'Unit 完成者', src: 'assets/badges/unit-completer-unit1.png' },
-    { id: 'unit2', badgeId: 'unit-done:unit2', label: 'Unit 2 Completer', zh: 'Unit 完成者', src: 'assets/badges/unit-completer-unit2.png' },
-    { id: 'unit3', badgeId: 'unit-done:unit3', label: 'Unit 3 Completer', zh: 'Unit 完成者', src: 'assets/badges/unit-completer-unit3.png' },
-    { id: 'unit4', badgeId: 'unit-done:unit4', label: 'Unit 4 Completer', zh: 'Unit 完成者', src: 'assets/badges/unit-completer-unit4.png' },
-    { id: 'dictation3', badgeId: 'unit-done:dictation3', label: 'Dictation 3 Completer', zh: 'Unit 完成者', src: 'assets/badges/unit-completer-dictation3.png' },
     { id: 'grammar-story', badgeId: 'grammar-story', label: 'Story Reader', zh: '故事閱讀員', src: 'assets/badges/story-reader.png' },
-    { id: 'grammar-inference', badgeId: 'grammar-inference', label: 'Inference Ace', zh: '推理高手', src: 'assets/badges/inference-ace.png' },
     { id: 'grammar-join', badgeId: 'grammar-join', label: 'Sentence Linker', zh: '組句高手', src: 'assets/badges/sentence-linker.png' },
+    { id: 'grammar-chat', badgeId: 'grammar-chat', label: 'Chat Practiser', zh: '對話練習生', src: 'assets/badges/chat-practiser.png' },
+    { id: 'grammar-inference', badgeId: 'grammar-inference', label: 'Inference Ace', zh: '推理高手', src: 'assets/badges/inference-ace.png' },
     { id: 'grammar-boss', badgeId: 'grammar-boss', label: 'Boss Beater', zh: 'Boss 挑戰者', src: 'assets/badges/boss-beater.png' }
   ];
 
@@ -152,14 +148,34 @@ window.Profile = (function () {
     return { id: avatar.id, label: avatar.label, zh: avatar.zh, src: shown ? shown.src : avatar.src };
   }
 
+  function bustBadge(path) {
+    if (!path || path.indexOf('assets/badges/') === -1 || path.indexOf('?') !== -1) return path;
+    return path + '?v=7';
+  }
+
   function resolve(path) {
-    var name = String(path || '').replace(/^(\.\.\/)+/, '');
+    var text = String(path || '');
+    if (/^(https?:|data:)/i.test(text)) return text;
+    var name = text.replace(/^(\.\.\/)+/, '');
+    var prefix = '';
     try {
       var pathName = (typeof location !== 'undefined' && location.pathname) || '';
-      if (pathName.indexOf('/practice/grammar/') !== -1) return '../../' + name;
-      if (pathName.indexOf('/practice/') !== -1 || /\/unit\d+\//.test(pathName)) return '../' + name;
+      if (pathName.indexOf('/practice/grammar/') !== -1) prefix = '../../';
+      else if (pathName.indexOf('/practice/') !== -1 || /\/unit\d+\//.test(pathName)) prefix = '../';
     } catch (e) { /* tests */ }
-    return name;
+    return bustBadge(prefix + name);
+  }
+
+  var repaintChip = function () {};
+  var repaintSheet = function () {};
+  var refreshers = [];
+
+  function refresh() {
+    repaintChip();
+    repaintSheet();
+    refreshers.forEach(function (fn) {
+      try { fn(); } catch (e) { /* a listener must not block the picture */ }
+    });
   }
 
   function mount(slot) {
@@ -284,6 +300,10 @@ window.Profile = (function () {
       }
     });
 
+    repaintChip = paintChip;
+    repaintSheet = function () {
+      if (!sheet.root.hidden) paintGrid();
+    };
     paintChip();
   }
 
@@ -442,6 +462,9 @@ window.Profile = (function () {
     load: load,
     save: save,
     display: display,
+    resolve: resolve,
+    refresh: refresh,
+    onRefresh: function (fn) { if (typeof fn === 'function') refreshers.push(fn); },
     mount: mount,
     labelChip: labelChip
   };

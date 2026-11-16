@@ -195,19 +195,17 @@
     return new URL(safe, root).href;
   }
 
-  function paintSettings() {
-    if (settingsPainted || !userId) return;
-    var nameInput = document.getElementById('settings-name');
-    var userInput = document.getElementById('settings-username');
+  function paintAvatarGrid() {
     var grid = document.getElementById('settings-avatars');
-    if (!nameInput || !userInput || !grid || !window.Profile) return;
-    settingsPainted = true;
-    var profile = window.Profile.load();
-    settingsAvatar = profile.avatar;
-    nameInput.value = profile.nickname || '';
-    userInput.value = displayName && displayName !== 'Account' ? displayName : '';
+    if (!grid || !userId || !window.Profile) return;
+    var rows = window.Profile.list();
+    var valid = false;
+    for (var n = 0; n < rows.length; n++) {
+      if (rows[n].id === settingsAvatar && rows[n].unlocked) valid = true;
+    }
+    if (!valid) settingsAvatar = window.Profile.display().id;
     grid.replaceChildren();
-    window.Profile.list().forEach(function (item) {
+    rows.forEach(function (item) {
       var choice = document.createElement('button');
       choice.type = 'button';
       choice.className = 'profile-choice' + (item.unlocked ? '' : ' is-locked') + (item.filtered ? ' is-filtered' : '') + (item.id === settingsAvatar ? ' is-on' : '');
@@ -215,7 +213,7 @@
       choice.setAttribute('aria-pressed', item.id === settingsAvatar ? 'true' : 'false');
       choice.setAttribute('aria-label', item.unlocked ? item.label : item.lockLabel);
       var img = document.createElement('img');
-      img.src = item.src.indexOf('../') === 0 ? item.src : item.src;
+      img.src = window.Profile.resolve ? window.Profile.resolve(item.src) : item.src;
       img.alt = '';
       img.width = 72;
       img.height = 72;
@@ -241,6 +239,22 @@
       }
       grid.appendChild(choice);
     });
+  }
+
+  function paintSettings() {
+    if (!userId) return;
+    var nameInput = document.getElementById('settings-name');
+    var userInput = document.getElementById('settings-username');
+    var grid = document.getElementById('settings-avatars');
+    if (!nameInput || !userInput || !grid || !window.Profile) return;
+    if (!settingsPainted) {
+      settingsPainted = true;
+      var profile = window.Profile.load();
+      settingsAvatar = profile.avatar;
+      nameInput.value = profile.nickname || '';
+      userInput.value = displayName && displayName !== 'Account' ? displayName : '';
+    }
+    paintAvatarGrid();
   }
 
   function paintLink() {
@@ -835,8 +849,7 @@
         }
         var chipName = document.querySelector('.profile-chip-name');
         if (chipName) chipName.textContent = saved.profile.nickname;
-        var chipImg = document.querySelector('.profile-chip-avatar');
-        if (chipImg) chipImg.src = window.Profile.display(saved.profile).src;
+        if (window.Profile.refresh) window.Profile.refresh();
         showProfile('Saved.', false);
       });
     }
@@ -866,8 +879,7 @@
         if (window.Profile.labelChip) window.Profile.labelChip(displayName);
         var chipName = document.querySelector('.profile-chip-name');
         if (chipName) chipName.textContent = saved.profile.nickname;
-        var chipImg = document.querySelector('.profile-chip-avatar');
-        if (chipImg) chipImg.src = window.Profile.display(saved.profile).src;
+        if (window.Profile.refresh) window.Profile.refresh();
         if (!username || !window.ProgressSync.usernameOk(username)) {
           showSettings('Use 3–20 letters, numbers, or underscores, and start with a letter.', true);
           return;
@@ -968,6 +980,12 @@
       return;
     }
     hydrate({ afterLogin: false });
+  }
+
+  if (window.Profile && window.Profile.onRefresh) {
+    window.Profile.onRefresh(function () {
+      if (userId) paintSettings();
+    });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);

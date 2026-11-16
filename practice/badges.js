@@ -409,16 +409,17 @@ window.Badges = (function () {
   }
 
   function imageSrc(path) {
-    if (!path) return '';
+    var text = String(path || '');
+    if (!text) return '';
+    if (/^(https?:|data:)/i.test(text)) return text;
+    var prefix = '';
     try {
-      if (typeof location !== 'undefined' && location.pathname.indexOf('/practice/grammar/') !== -1) {
-        return '../../' + path;
-      }
-      if (typeof location !== 'undefined' && location.pathname.indexOf('/practice/') !== -1) {
-        return '../' + path;
-      }
+      if (typeof location !== 'undefined' && location.pathname.indexOf('/practice/grammar/') !== -1) prefix = '../../';
+      else if (typeof location !== 'undefined' && location.pathname.indexOf('/practice/') !== -1) prefix = '../';
     } catch (e) { /* tests */ }
-    return path;
+    var src = prefix + text;
+    if (src.indexOf('assets/badges/') !== -1 && src.indexOf('?') === -1) src += '?v=7';
+    return src;
   }
 
   function award(data, id) {
@@ -850,7 +851,7 @@ window.Badges = (function () {
       var art = document.createElement('div');
       art.className = 'badge-art' + (!badge.earned && badge.custom ? ' is-filtered' : '');
       var img = document.createElement('img');
-      img.src = badge.earned ? badge.image : badge.lockedImage;
+      img.src = imageSrc(badge.earned ? badge.image : badge.lockedImage);
       img.alt = '';
       art.appendChild(img);
       var name = document.createElement('h2');
@@ -979,6 +980,7 @@ if (typeof document !== 'undefined' && document.getElementById) {
           var grid = document.getElementById('badge-grid');
           if (grid) window.Badges.renderGrid(grid);
           window.Badges.renderCount(document.getElementById('badge-count'));
+          if (window.Profile && window.Profile.refresh) window.Profile.refresh();
         }, function () {});
       } catch (e) { /* built-in copy remains */ }
     });

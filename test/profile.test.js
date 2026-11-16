@@ -87,10 +87,6 @@ test('each badge maps to one avatar', () => {
   const badgeIds = window.Badges.catalog().map(badge => badge.id);
   badgeIds.forEach(id => {
     const matches = window.Profile.AVATARS.filter(avatar => avatar.badgeId === id);
-    if (id === 'grammar-chat') {
-      assert.equal(matches.length, 0, id);
-      return;
-    }
     assert.equal(matches.length, 1, id);
   });
   [
@@ -107,6 +103,25 @@ test('each badge maps to one avatar', () => {
     'grammar-chat'
   ].forEach(id => assert.ok(badgeIds.includes(id), id));
   assert.equal(badgeIds.some(id => id.indexOf('unit-done:') === 0), false);
+  assert.equal(window.Profile.AVATARS.some(avatar => String(avatar.id).indexOf('unit') === 0), false);
+});
+
+test('a saved unit badge is no longer the account picture', () => {
+  const { window, localStorage } = setup({ 'unit-done:unit1': { earnedAt: 1 } });
+  localStorage.setItem(window.Profile.KEY, JSON.stringify({ nickname: 'Amy', avatar: 'unit1' }));
+  assert.equal(window.Profile.list().some(item => item.id === 'unit1'), false);
+  assert.equal(window.Profile.display().id, 'cat');
+  assert.equal(window.Profile.display().src, 'assets/avatars/cat.svg');
+});
+
+test('the account picture follows a published badge picture', () => {
+  const { window } = setup({ starter: { earnedAt: 1 } });
+  const picture = 'https://cdn.example/lesson-media/starter.png';
+  window.Badges.applyOverlay([{ id: 'starter', image: picture }]);
+  assert.equal(window.Profile.display({ nickname: 'Amy', avatar: 'starter' }).src, picture);
+  const chat = window.Profile.list().find(item => item.id === 'grammar-chat');
+  assert.equal(chat.unlocked, false);
+  assert.equal(chat.src, 'assets/badges/chat-practiser-locked.png');
 });
 
 test('homepage, badges, and practice hub mount the profile chip', () => {

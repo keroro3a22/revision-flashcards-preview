@@ -639,7 +639,7 @@ test('practice pages pass set ids and load the bumped badges script', () => {
   assert.match(fill, /recordSession\(unitId, 'fill', mode, \{ correct: correctCount, total: items\.length \}, setIndex \+ 1\)/);
   ['letters', 'match', 'timed'].forEach(name => {
     const html = fs.readFileSync(path.join(root, 'practice', name, 'index.html'), 'utf8');
-    assert.match(html, /badges\.js\?v=5/);
+    assert.match(html, /badges\.js\?v=7/);
     assert.doesNotMatch(html, /recordSession\([^)]*setIndex/);
   });
   const pages = [];
@@ -659,7 +659,8 @@ test('practice pages pass set ids and load the bumped badges script', () => {
     const refs = html.match(/[A-Za-z0-9_./-]*badges\.js(?:\?[^"']*)?/g) || [];
     assert.ok(refs.length > 0, path.relative(root, file));
     refs.forEach(ref => {
-      assert.match(ref, /badges\.js\?v=5$/, path.relative(root, file) + ' ' + ref);
+      if (ref.indexOf('studio-badges.js') !== -1) return;
+      assert.match(ref, /badges\.js\?v=7$/, path.relative(root, file) + ' ' + ref);
     });
   });
 });
