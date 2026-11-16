@@ -251,6 +251,7 @@ textarea.studio-funfact-text,
   background: transparent;
 }
 .studio-funfact-head { font-weight: 800; }
+.studio-funfact .studio-hl { color: #e04870; }
 .studio-funfact .studio-thumb-preview { aspect-ratio: 3 / 2; }
 .studio-funfact.is-off .studio-funfact-text,
 .studio-funfact.is-off .studio-thumb-btn,
