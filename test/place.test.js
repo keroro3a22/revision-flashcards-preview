@@ -95,15 +95,21 @@ test('a book without pages keeps both groups, with no status line yet', () => {
   assert.equal(JSON.stringify(doors).includes('砌緊'), false);
 });
 
-test('the same grade shares one game across books and terms', () => {
+test('every book, publisher, grade, and term opens the same game', () => {
   const P = place();
   const oxford = flat(P.entriesFor({ book: 'oxford', level: 'p6', term: 'first', unit: 'game' }))[0];
   const elect = flat(P.entriesFor({ book: 'longman', series: 'elect', level: 'p6', term: 'second', unit: 'game' }))[0];
+  const primary = flat(P.entriesFor({ book: 'oxford', level: 'p1', unit: 'game' }))[0];
   assert.equal(oxford.href, 'game/');
+  assert.equal(oxford.ready, true);
   assert.equal(elect.href, oxford.href);
-  assert.equal(flat(P.entriesFor({ book: 'oxford', level: 'p1', unit: 'game' }))[0].ready, false);
-  const stayed = P.withChange({ book: 'oxford', level: 'p6', term: 'first', unit: 'game' }, { book: 'longman', term: 'second' });
+  assert.equal(elect.ready, true);
+  assert.equal(primary.href, oxford.href);
+  assert.equal(primary.ready, true);
+  assert.equal(primary.label, 'School Mystery');
+  const stayed = P.withChange({ book: 'oxford', level: 'p6', term: 'first', unit: 'game' }, { book: 'longman', level: 'p3', term: 'second' });
   assert.equal(stayed.unit, 'game');
+  assert.equal(stayed.level, 'p3');
   assert.equal(stayed.series, 'mypearson-express');
 });
 

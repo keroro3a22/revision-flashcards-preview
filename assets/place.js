@@ -222,11 +222,10 @@ window.RevisionPlace = (function () {
   function entriesFor(place) {
     if (!place || place.unit === HOME) return [];
     if (place.unit === GAME) {
-      var sameGame = place.level === 'p6';
       return [{
         id: 'game',
         label: 'Game',
-        items: [door('game', 'School Mystery', sameGame ? 'game/' : '', 'game/illust/intro/detective.png', sameGame)]
+        items: [door('game', 'School Mystery', 'game/', 'game/illust/intro/detective.png', true)]
       }];
     }
     var art = cardArt[place.unit] || cardArt.unit1;
