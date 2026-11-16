@@ -16,7 +16,7 @@
 <script src="../../assets/supabase-public.js?v=1"></script>
 <script src="../../assets/progress-sync.js?v=3"></script>
 <script src="../../assets/place.js?v=11"></script>
-<script src="../../assets/place-ui.js?v=34"></script>
+<script src="../../assets/place-ui.js?v=35"></script>
 <script src="../../assets/profile.js?v=7"></script>
 <script src="../../assets/account.js?v=17"></script>
 </head>
@@ -875,16 +875,18 @@
     }
   }
 
-  function finish(won) {
+  function finish(won, preview) {
     if (pending) clearTimeout(pending);
     pending = null;
     stopMusic();
     if (won) playWin();
     else playLose();
-    advanceSetIfNeeded();
-    if (won && lives >= 1 && !forced && window.Badges) {
-      var grammarRewards = Badges.recordGrammarBoss(lives);
-      if (window.GrammarProgress) GrammarProgress.show(grammarRewards);
+    if (!preview) {
+      advanceSetIfNeeded();
+      if (won && lives >= 1 && !forced && window.Badges) {
+        var grammarRewards = Badges.recordGrammarBoss(lives);
+        if (window.GrammarProgress) GrammarProgress.show(grammarRewards);
+      }
     }
     hud.hidden = true;
     quizSide.hidden = true;
@@ -949,6 +951,11 @@
     }
     locked = false;
   }
+
+  window.RevisionTestVictory = function () {
+    if (!zoom.hidden) closeZoom();
+    finish(true, true);
+  };
 
   window.RevisionTestAnswer = function () {
     const done = document.getElementById("done");
