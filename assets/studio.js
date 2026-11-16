@@ -127,6 +127,8 @@
     if (badges) badges.hidden = !(site && here.site === 'badges');
     var bar = $('letter-ignore');
     if (bar && !(site && here.site === 'ignore')) bar.hidden = true;
+    var chatPhoto = $('chat-photo');
+    if (chatPhoto && !(here.section === 'practice' && here.kind === 'grammar' && here.mode === 'chat')) chatPhoto.hidden = true;
     if ($('studio-empty') && site) $('studio-empty').hidden = true;
   }
   function fillSelect(select, items, selected) {
@@ -941,7 +943,16 @@
         if (rowSet == null || otherSet !== rowSet || other === row) return;
         other.extra = Object.assign({}, other.extra || {});
         other.extra.meta = Object.assign({}, other.extra.meta || {}, { hero: picture.src, frame: picture.frame });
-        if (client && other.id) client.from('practice_items').update({ extra: other.extra }).eq('id', other.id);
+        if (client && other.id) {
+          var otherPatch = { extra: other.extra };
+          if (other.status === 'published' && other.published) {
+            other.published = Object.assign({}, other.published, {
+              meta: Object.assign({}, other.published.meta || {}, { hero: picture.src, frame: picture.frame })
+            });
+            otherPatch.published = other.published;
+          }
+          client.from('practice_items').update(otherPatch).eq('id', other.id);
+        }
       });
     } else {
       row.extra.item = Object.assign({}, row.extra.item || {}, { img: picture.src, frame: picture.frame });
@@ -1006,6 +1017,60 @@
     cell.appendChild(path);
     cell.appendChild(button);
     return cell;
+  }
+  function chatHero(row) {
+    var extra = (row && row.extra) || {};
+    var published = (row && row.published) || {};
+    var meta = extra.meta || published.meta || {};
+    return { src: meta.hero || '', frame: meta.frame || null, kind: 'hero' };
+  }
+  function paintChatPhoto() {
+    var host = $('chat-photo');
+    if (!host) return;
+    var here = place();
+    var show = here.section === 'practice' && here.kind === 'grammar' && here.mode === 'chat';
+    host.hidden = !show;
+    var slot = $('chat-photo-slot');
+    if (!slot) return;
+    slot.replaceChildren();
+    if (!show) return;
+    var sample = shownRows()[0];
+    if (!sample) {
+      slot.textContent = 'Add a question, then choose the picture for this chat.';
+      return;
+    }
+    var picture = chatHero(sample);
+    var path = document.createElement('div');
+    path.hidden = true;
+    path.textContent = picture.src || '';
+    var thumb = thumbButton(photoSrc(picture.src), picture.frame, 320 / 220, function () {
+      var current = path.textContent.trim();
+      openPhotoFrame({
+        src: photoSrc(current),
+        frame: picture.frame,
+        shape: 'chat',
+        fit: 'contain',
+        onDone: function (frame) {
+          picture = { src: current, frame: frame, kind: 'hero' };
+          thumb.update(photoSrc(current), frame);
+          saveGrammarPicture(sample, picture);
+        }
+      });
+    });
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'studio-upload';
+    button.textContent = 'Change photo';
+    button.addEventListener('click', function () {
+      chooseLibraryPhoto(function (src) {
+        path.textContent = src;
+        picture = { src: src, frame: null, kind: 'hero' };
+        thumb.update(photoSrc(src), null);
+        saveGrammarPicture(sample, picture);
+      });
+    });
+    slot.appendChild(thumb);
+    slot.appendChild(button);
   }
   function revisionColumns(here) {
     var grammar = here.kind === 'grammar';
@@ -1082,7 +1147,7 @@
         { col: 'col-state', key: 'state', label: 'State' },
         { col: 'col-actions', key: 'actions', label: '' }
       ];
-      if (mode === 'story' || mode === 'chat' || mode === 'boss') {
+      if (mode === 'story' || mode === 'boss') {
         columns.splice(1, 0, { col: 'col-photo', key: 'photo', label: 'Photo' });
       }
       return {
@@ -1437,7 +1502,7 @@
       number.className = 'is-num';
       number.textContent = String(row.n);
       tr.appendChild(number);
-      if (spec.kind === 'grammar' && (place().mode === 'story' || place().mode === 'chat' || place().mode === 'boss')) {
+      if (spec.kind === 'grammar' && (place().mode === 'story' || place().mode === 'boss')) {
         tr.appendChild(grammarPhotoCell(row));
       }
       spec.fields.forEach(function (name) {
@@ -1449,6 +1514,7 @@
       body.appendChild(tr);
     });
     paintEmpty();
+    paintChatPhoto();
     focusPendingRow();
   }
   function stateCell(row) {

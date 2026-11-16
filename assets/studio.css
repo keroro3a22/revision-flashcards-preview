@@ -660,6 +660,22 @@ body.studio-col-dragging * {
   margin: 0 0 0.8rem;
 }
 .studio-ignore[hidden] { display: none; }
+.studio-chat-photo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin: 0 0 0.8rem;
+}
+.studio-chat-photo[hidden] { display: none; }
+.studio-chat-photo #chat-photo-slot { width: 9rem; }
+.studio-chat-photo p {
+  margin: 0;
+  flex: 1 1 14rem;
+  max-width: 28rem;
+  color: #5a6570;
+  font-size: 0.92rem;
+}
 .studio-badges {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));

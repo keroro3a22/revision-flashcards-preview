@@ -200,6 +200,9 @@ test('every studio column has its own width key', () => {
   assert.deepEqual(columns.practiceColumns(Object.assign({}, place, { kind: 'grammar', mode: 'story' })).columns.map(function (column) { return column.key; }), [
     'num', 'photo', 'prompt', 'answer', 'explain', 'options', 'hard', 'state', 'actions'
   ]);
+  assert.deepEqual(columns.practiceColumns(Object.assign({}, place, { kind: 'grammar', mode: 'chat' })).columns.map(function (column) { return column.key; }), [
+    'num', 'prompt', 'answer', 'explain', 'options', 'hard', 'state', 'actions'
+  ]);
   assert.deepEqual(columns.practiceColumns(Object.assign({}, place, { mode: 'timed' })).columns.map(function (column) { return column.key; }), [
     'num', 'prompt', 'answer', 'explain', 'options', 'state', 'actions'
   ]);
