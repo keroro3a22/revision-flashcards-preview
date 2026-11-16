@@ -79,6 +79,7 @@
       funfact_on: false,
       funfact_text: '',
       funfact_img: '',
+      funfact_frame: null,
       published: null,
       status: 'draft'
     };

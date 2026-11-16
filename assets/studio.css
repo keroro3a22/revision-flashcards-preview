@@ -248,7 +248,7 @@ textarea.studio-funfact-text {
   color: inherit;
   background: transparent;
 }
-.studio-funfact .studio-thumb-preview { aspect-ratio: 16 / 10; }
+.studio-funfact .studio-thumb-preview { aspect-ratio: 1; }
 .studio-funfact.is-off .studio-funfact-text,
 .studio-funfact.is-off .studio-thumb-btn,
 .studio-funfact.is-off .studio-upload { opacity: 0.45; }

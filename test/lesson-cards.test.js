@@ -31,7 +31,7 @@ test('the public page asks for the published series and term', () => {
     assert.match(html, /let CARDS/);
     assert.match(html, /function renderLesson/);
     assert.match(html, /window\.applyLessonCards/);
-    assert.match(html, /lesson-live\.js\?v=8/);
+    assert.match(html, /lesson-live\.js\?v=9/);
     assert.match(html, /card\.highlight_adv \|\| card\.highlight/);
   });
   assert.match(live, /SUPABASE_PUBLIC/);
@@ -39,7 +39,7 @@ test('the public page asks for the published series and term', () => {
   assert.match(live, /\.eq\('term', term\)/);
   assert.match(live, /cutout/);
   assert.match(live, /highlight_adv/);
-  assert.match(live, /funfact_on,funfact_text,funfact_img/);
+  assert.match(live, /funfact_on,funfact_text,funfact_img,funfact_frame/);
   assert.match(live, /className = 'funfact-btn'/);
   assert.match(live, /text\.indexOf\('oxford-6b\/'\) === 0/);
 });

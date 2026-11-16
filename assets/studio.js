@@ -440,18 +440,27 @@
     img.hidden = !src;
     if (src) img.src = src;
   }
+  function funfactFrameValue(cell) {
+    var hidden = cell.querySelector('[data-field="funfact_frame"]');
+    if (!hidden || !hidden.value) return null;
+    try { return JSON.parse(hidden.value); } catch (error) { return null; }
+  }
   function paintFunfact(cell) {
     var button = cell.querySelector('.studio-thumb-btn');
     var path = cell.querySelector('[data-field="funfact_img"]');
     var src = photoSrc(path ? path.textContent : '');
-    if (button && button.update) button.update(src, null);
+    if (button && button.update) button.update(src, funfactFrameValue(cell));
     var remove = cell.querySelector('.studio-funfact-remove');
     if (remove) remove.hidden = !src;
   }
   function pickFunfactPhoto(cell) {
     var path = cell.querySelector('[data-field="funfact_img"]');
+    var frameInput = cell.querySelector('[data-field="funfact_frame"]');
     chooseLibraryPhoto(function (src) {
       if (path) path.textContent = src;
+      if (frameInput) frameInput.value = '';
+      var row = rowById(cell.closest('tr') && cell.closest('tr').dataset.id);
+      if (row) row.funfact_frame = null;
       paintFunfact(cell);
       say('Fun fact photo is in this row. Publish to show it on the site.');
     });
@@ -483,8 +492,22 @@
     path.hidden = true;
     path.textContent = cellText(row.funfact_img);
     path.addEventListener('paste', plainPaste);
-    var thumb = thumbButton(photoSrc(row.funfact_img), null, 16 / 10, function () {
-      pickFunfactPhoto(cell);
+    var frameInput = document.createElement('input');
+    frameInput.type = 'hidden';
+    frameInput.dataset.field = 'funfact_frame';
+    frameInput.value = row.funfact_frame ? JSON.stringify(row.funfact_frame) : '';
+    var thumb = thumbButton(photoSrc(row.funfact_img), row.funfact_frame, 1, function () {
+      openPhotoFrame({
+        src: photoSrc(path.textContent),
+        frame: frameInput.value,
+        shape: 'revision',
+        onDone: function (frame) {
+          frameInput.value = JSON.stringify(frame);
+          row.funfact_frame = frame;
+          thumb.update(photoSrc(path.textContent), frame);
+          saveFunfactFrame(row);
+        }
+      });
     });
     var change = document.createElement('button');
     change.type = 'button';
@@ -497,6 +520,8 @@
     remove.textContent = 'Remove photo';
     remove.addEventListener('click', function () {
       path.textContent = '';
+      frameInput.value = '';
+      row.funfact_frame = null;
       paintFunfact(cell);
       say('Fun fact photo removed. Publish to update the site.');
     });
@@ -506,12 +531,24 @@
     cell.appendChild(toggle);
     cell.appendChild(words);
     cell.appendChild(thumb);
+    cell.appendChild(frameInput);
     cell.appendChild(path);
     cell.appendChild(change);
     cell.appendChild(remove);
     cell.classList.toggle('is-off', !input.checked);
     paintFunfact(cell);
     return cell;
+  }
+  function saveFunfactFrame(row) {
+    if (!client || !row || !row.id) return;
+    var patch = { funfact_frame: row.funfact_frame };
+    if (row.status === 'published' && row.published) {
+      row.published = Object.assign({}, row.published, { funfact_frame: row.funfact_frame });
+      patch.published = row.published;
+    }
+    client.from('lesson_cards').update(patch).eq('id', row.id).then(function (result) {
+      say(result.error ? result.error.message : 'Reframe saved. Students see it after a refresh.');
+    });
   }
   function libraryPlace() {
     var here = place();
@@ -1453,13 +1490,14 @@
     data.video = row && row.video ? row.video : '';
     data.highlight = row && row.highlight ? row.highlight : '';
     data.highlight_adv = row && row.highlight_adv != null ? row.highlight_adv : null;
-    if (typeof data.img_frame === 'string') {
-      if (!data.img_frame) data.img_frame = null;
+    ['img_frame', 'funfact_frame'].forEach(function (name) {
+      if (typeof data[name] !== 'string') return;
+      if (!data[name]) data[name] = null;
       else {
-        try { data.img_frame = JSON.parse(data.img_frame); }
-        catch (error) { data.img_frame = null; }
+        try { data[name] = JSON.parse(data[name]); }
+        catch (error) { data[name] = null; }
       }
-    }
+    });
     if (tableName === 'practice_items') {
       ['prompt', 'answer', 'explain', 'options'].forEach(function (name) {
         if (!Object.prototype.hasOwnProperty.call(data, name)) data[name] = row && row[name] ? row[name] : '';
@@ -1696,7 +1734,7 @@
     say('Loading…');
     var query = client.from(tableName).select(practice
       ? 'id,n,status,prompt,answer,explain,options,level_name,extra'
-      : 'id,n,status,en,zh,pos,syllables,pattern,note_zh,highlight,highlight_adv,ex_en,ex_zh,adv_en,adv_zh,img,img_frame,audio,video,funfact_on,funfact_text,funfact_img,published')
+      : 'id,n,status,en,zh,pos,syllables,pattern,note_zh,highlight,highlight_adv,ex_en,ex_zh,adv_en,adv_zh,img,img_frame,audio,video,funfact_on,funfact_text,funfact_img,funfact_frame,published')
       .eq('book', here.book).eq('series', here.series).eq('term', here.term)
       .eq('level', here.level).eq('track', here.kind);
     if (practice) {

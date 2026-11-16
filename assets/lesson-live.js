@@ -88,7 +88,7 @@
     funfactPop.setAttribute('aria-labelledby', 'funfact-title');
     funfactPop.innerHTML = '<div class="funfact-card">'
       + '<p id="funfact-title" class="funfact-title">Fun fact</p>'
-      + '<img class="funfact-img" alt="">'
+      + '<div class="funfact-photo img-crop"><img class="funfact-img" alt=""></div>'
       + '<p class="funfact-text"></p>'
       + '<button type="button" class="funfact-close">Close</button>'
       + '</div>';
@@ -107,15 +107,19 @@
 
   function openFunfact(card, button) {
     var box = ensureFunfactPop();
+    var photo = box.querySelector('.funfact-photo');
     var img = box.querySelector('.funfact-img');
     var text = box.querySelector('.funfact-text');
     var words = String(card.funfact_text || '').trim();
     var picture = String(card.funfact_img || '').trim();
     if (picture) {
+      photo.hidden = false;
       img.hidden = false;
       img.src = picture;
       img.alt = words ? '' : 'Fun fact';
+      if (window.ImgFrame) window.ImgFrame.apply(img, card.funfact_frame, 1);
     } else {
+      photo.hidden = true;
       img.hidden = true;
       img.removeAttribute('src');
       img.alt = '';
@@ -168,7 +172,7 @@
     var client = window.supabase.createClient(cfg.url, cfg.key, {
       auth: { persistSession: false, autoRefreshToken: false }
     });
-    client.from('lesson_cards_live').select('n,en,syllables,zh,pos,ex_en,ex_zh,adv_en,adv_zh,highlight,highlight_adv,audio,img,img_frame,video,pattern,note_zh,cutout,funfact_on,funfact_text,funfact_img')
+    client.from('lesson_cards_live').select('n,en,syllables,zh,pos,ex_en,ex_zh,adv_en,adv_zh,highlight,highlight_adv,audio,img,img_frame,video,pattern,note_zh,cutout,funfact_on,funfact_text,funfact_img,funfact_frame')
       .eq('book', book).eq('series', series).eq('term', term).eq('level', level).eq('unit_id', unit).eq('track', track)
       .order('n', { ascending: true })
       .then(function (result) {
