@@ -9,14 +9,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../../assets/huninn.css"/>
-<link rel="stylesheet" href="grammar.css?v=55"/>
+<link rel="stylesheet" href="grammar.css?v=56"/>
 <link rel="stylesheet" href="../../assets/chrome.css?v=7" />
 <link rel="stylesheet" href="../../assets/profile.css?v=6" />
 <link rel="stylesheet" href="../../assets/account.css?v=8" />
 <script src="../../assets/supabase-public.js?v=1"></script>
 <script src="../../assets/progress-sync.js?v=3"></script>
 <script src="../../assets/place.js?v=11"></script>
-<script src="../../assets/place-ui.js?v=30"></script>
+<script src="../../assets/place-ui.js?v=31"></script>
 <script src="../../assets/profile.js?v=7"></script>
 <script src="../../assets/account.js?v=17"></script>
 </head>
@@ -35,7 +35,10 @@
   <div class="quiz-side" id="quiz-side">
   <div class="toolbar battle-tools" id="battle-tools">
     <span class="chip boss" id="q-num">1 / 12</span>
-    <button type="button" class="battle-mute" id="btn-mute" aria-pressed="false">Mute</button>
+    <button type="button" class="battle-mute" id="btn-mute" aria-pressed="false" aria-label="Mute">
+      <svg class="icon-sound" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3 9.5v5h3.2L11 19V5L6.2 9.5H3z"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M15 9.5a4 4 0 0 1 0 5"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M17.2 7a7 7 0 0 1 0 10"/></svg>
+      <svg class="icon-muted" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3 9.5v5h3.2L11 19V5L6.2 9.5H3z"/><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M15.5 9.5l5 5M20.5 9.5l-5 5"/></svg>
+    </button>
   </div>
 
   <div class="panel battle-play" id="game">
@@ -619,7 +622,32 @@
   function paintMute() {
     const on = muted();
     btnMute.setAttribute("aria-pressed", on ? "true" : "false");
-    btnMute.textContent = on ? "Sound" : "Mute";
+    btnMute.setAttribute("aria-label", on ? "Turn sound on" : "Mute");
+  }
+
+  const artCache = new Map();
+  function warmArt(src) {
+    if (!src || artCache.has(src)) return;
+    const im = new Image();
+    artCache.set(src, im);
+    im.src = src;
+  }
+  items.forEach((it) => warmArt(it.img));
+
+  function showArt(src) {
+    if (!src) {
+      artOpen.hidden = true;
+      return;
+    }
+    warmArt(src);
+    const cached = artCache.get(src);
+    const paint = () => {
+      if (!items[idx] || items[idx].img !== src) return;
+      if ((art.getAttribute("src") || "") !== src) art.src = src;
+      artOpen.hidden = !(cached.naturalWidth || art.naturalWidth);
+    };
+    if (cached.complete) paint();
+    else cached.addEventListener("load", paint, { once: true });
   }
 
   function ensureAudio() {
@@ -794,12 +822,8 @@
     if (pending) clearTimeout(pending);
     pending = null;
     qNum.textContent = (idx + 1) + " / " + items.length;
-    artOpen.hidden = true;
-    if ((art.getAttribute("src") || "") === (it.img || "") && art.complete) {
-      artOpen.hidden = !art.naturalWidth;
-    } else {
-      art.src = it.img || "";
-    }
+    showArt(it.img || "");
+    if (items[idx + 1]) warmArt(items[idx + 1].img);
     reason.hidden = true;
     reason.textContent = "";
     battleQ.classList.remove("has-reason");
@@ -850,6 +874,8 @@
     const done = document.getElementById("done");
     const actions = document.getElementById("done-actions");
     done.hidden = false;
+    done.classList.toggle("is-defeat", !won);
+    document.getElementById("done-art").classList.toggle("oni-align", !won);
     if (won) {
       document.getElementById("done-title").textContent = "Victory";
       document.getElementById("done-art").src = "../../assets/boss/victory.png";
@@ -889,7 +915,7 @@
           idx += 1;
           render();
         }
-      }, 2000);
+      }, reduce ? 0 : 720);
       return;
     }
     pose("is-lunge");
