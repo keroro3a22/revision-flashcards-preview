@@ -465,6 +465,83 @@
       say('Brain Boost photo is in this row. Publish to show it on the site.');
     });
   }
+  function funfactMarkup(node) {
+    var out = '';
+    function walk(current) {
+      current.childNodes.forEach(function (child) {
+        if (child.nodeType === 3) {
+          out += child.textContent.replace(/\u00a0/g, ' ');
+          return;
+        }
+        if (child.nodeType !== 1) return;
+        var name = child.tagName;
+        if (name === 'BR') {
+          out += '\n';
+          return;
+        }
+        var block = name === 'DIV' || name === 'P';
+        if (block && out && out.charAt(out.length - 1) !== '\n') out += '\n';
+        if (child.classList.contains('studio-funfact-head')) out += '{{h}}';
+        else if (child.classList.contains('studio-hl')) out += '{{m}}';
+        walk(child);
+        if (child.classList.contains('studio-funfact-head')) out += '{{/h}}';
+        else if (child.classList.contains('studio-hl')) out += '{{/m}}';
+        if (block && out.charAt(out.length - 1) !== '\n') out += '\n';
+      });
+    }
+    walk(node);
+    return out.replace(/\n+$/g, '');
+  }
+  function fillFunfactEditor(editor, value) {
+    editor.textContent = '';
+    String(value || '').split('\n').forEach(function (line, index) {
+      if (index) editor.appendChild(document.createElement('br'));
+      var re = /\{\{(h|m)\}\}([\s\S]*?)\{\{\/\1\}\}/g;
+      var last = 0;
+      var match;
+      while ((match = re.exec(line))) {
+        if (match.index > last) editor.appendChild(document.createTextNode(line.slice(last, match.index)));
+        if (match[2]) {
+          var span = document.createElement('span');
+          span.className = match[1] === 'h' ? 'studio-funfact-head' : 'studio-hl';
+          span.textContent = match[2];
+          editor.appendChild(span);
+        }
+        last = re.lastIndex;
+      }
+      if (last < line.length) editor.appendChild(document.createTextNode(line.slice(last)));
+    });
+  }
+  function formatFunfact(editor, stored, kind) {
+    var className = kind === 'h' ? 'studio-funfact-head' : 'studio-hl';
+    var label = kind === 'h' ? 'Headline' : 'Highlight';
+    var sel = window.getSelection();
+    if (!sel || !sel.rangeCount || sel.isCollapsed) {
+      say('Select the words in Brain Boost, then press ' + label + '.');
+      return;
+    }
+    var range = sel.getRangeAt(0);
+    if (!editor.contains(range.commonAncestorContainer)) {
+      say('Select the words in Brain Boost, then press ' + label + '.');
+      return;
+    }
+    var host = range.commonAncestorContainer.nodeType === 1 ? range.commonAncestorContainer : range.commonAncestorContainer.parentElement;
+    while (host && host !== editor && !(host.classList && host.classList.contains(className))) host = host.parentElement;
+    if (host && host !== editor) {
+      var parent = host.parentNode;
+      while (host.firstChild) parent.insertBefore(host.firstChild, host);
+      parent.removeChild(host);
+    } else {
+      var mark = document.createElement('span');
+      mark.className = className;
+      try { range.surroundContents(mark); }
+      catch (error) {
+        say('Select the words inside one part of the text.');
+        return;
+      }
+    }
+    stored.value = funfactMarkup(editor);
+  }
   function funfactCell(row) {
     var cell = document.createElement('td');
     cell.className = 'studio-funfact';
@@ -478,12 +555,28 @@
     caption.textContent = 'On';
     toggle.appendChild(input);
     toggle.appendChild(caption);
-    var words = document.createElement('textarea');
+    var stored = document.createElement('input');
+    stored.type = 'hidden';
+    stored.dataset.field = 'funfact_text';
+    stored.value = cellText(row.funfact_text);
+    var words = document.createElement('div');
     words.className = 'studio-edit studio-funfact-text';
-    words.dataset.field = 'funfact_text';
-    words.rows = 3;
-    words.value = cellText(row.funfact_text);
+    words.contentEditable = 'true';
+    words.spellcheck = true;
     words.setAttribute('aria-label', 'Brain Boost words');
+    fillFunfactEditor(words, stored.value);
+    words.addEventListener('paste', plainPaste);
+    words.addEventListener('input', function () { stored.value = funfactMarkup(words); });
+    words.addEventListener('blur', function () { stored.value = funfactMarkup(words); });
+    function formatButton(label, kind) {
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'studio-upload';
+      button.textContent = label;
+      button.addEventListener('mousedown', function (event) { event.preventDefault(); });
+      button.addEventListener('click', function () { formatFunfact(words, stored, kind); });
+      return button;
+    }
     var path = document.createElement('div');
     path.className = 'studio-edit';
     path.contentEditable = 'true';
@@ -530,6 +623,9 @@
     });
     cell.appendChild(toggle);
     cell.appendChild(words);
+    cell.appendChild(formatButton('Headline', 'h'));
+    cell.appendChild(formatButton('Highlight', 'm'));
+    cell.appendChild(stored);
     cell.appendChild(thumb);
     cell.appendChild(frameInput);
     cell.appendChild(path);

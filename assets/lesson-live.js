@@ -91,7 +91,7 @@
     funfactPop.innerHTML = '<div class="funfact-card">'
       + '<p id="funfact-title" class="funfact-title">Brain Boost !</p>'
       + '<div class="funfact-photo img-crop"><img class="funfact-img" alt=""></div>'
-      + '<p class="funfact-text"></p>'
+      + '<div class="funfact-block"></div>'
       + '<button type="button" class="funfact-close">Close</button>'
       + '</div>';
     funfactPop.addEventListener('click', function (event) {
@@ -107,11 +107,40 @@
     return funfactPop;
   }
 
+  function appendFunfactPieces(parent, line, headlineClass) {
+    var re = /\{\{(h|m)\}\}([\s\S]*?)\{\{\/\1\}\}/g;
+    var last = 0;
+    var match;
+    while ((match = re.exec(line))) {
+      if (match.index > last) parent.appendChild(document.createTextNode(line.slice(last, match.index)));
+      if (match[2]) {
+        var span = document.createElement('span');
+        span.className = match[1] === 'h' ? headlineClass : 'hl';
+        span.textContent = match[2];
+        parent.appendChild(span);
+      }
+      last = re.lastIndex;
+    }
+    if (last < line.length) parent.appendChild(document.createTextNode(line.slice(last)));
+  }
+  function paintFunfactBlock(block, raw) {
+    block.textContent = '';
+    var lines = String(raw || '').replace(/\r\n/g, '\n').split('\n');
+    lines.forEach(function (line) {
+      if (!String(line).trim()) return;
+      var row = document.createElement('p');
+      row.className = 'funfact-line';
+      appendFunfactPieces(row, line, 'funfact-headline');
+      if (row.childNodes.length === 1 && row.firstChild.classList && row.firstChild.classList.contains('funfact-headline')) row.classList.add('is-headline');
+      if (row.childNodes.length) block.appendChild(row);
+    });
+    return !!block.childNodes.length;
+  }
   function openFunfact(card, button) {
     var box = ensureFunfactPop();
     var photo = box.querySelector('.funfact-photo');
     var img = box.querySelector('.funfact-img');
-    var text = box.querySelector('.funfact-text');
+    var block = box.querySelector('.funfact-block');
     var words = String(card.funfact_text || '').trim();
     var picture = String(card.funfact_img || '').trim();
     if (picture) {
@@ -126,8 +155,7 @@
       img.removeAttribute('src');
       img.alt = '';
     }
-    text.hidden = !words;
-    text.textContent = words;
+    block.hidden = !paintFunfactBlock(block, words);
     funfactReturn = button || null;
     box.classList.add('open');
     document.body.style.overflow = 'hidden';
