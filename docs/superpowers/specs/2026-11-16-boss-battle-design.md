@@ -35,7 +35,7 @@ Leaving the fight early does not save hearts or the demon's health, and it does 
 
 ## Victory and defeat
 
-Victory shows the word Victory and a picture of the king pulling the sword from the stone. The picture has no background of its own and is saved at `assets/boss/victory.png`. Replacing that file is enough for a later picture. The word is page text, so the picture does not need to contain it. One button, Grammar practice, goes to the grammar hub. There is no Try again button. A real clear still earns the Boss Beater badge. A preview opened with `?set=` does not.
+Victory shows the word Victory and a picture of the king pulling the sword from the stone. The picture has no background of its own and is saved at `assets/boss/victory.png`. Replacing that file is enough for a later picture. The word is page text, so the picture does not need to contain it. One button, Back to packs, goes to the same packs page as the link at the top. There is no Try again button. A real clear still earns the Boss Beater badge. A preview opened with `?set=` does not.
 
 Defeat shows the demon and encourages another try. Try again starts the next authored set of 12, which is what finishing a round already does. A second button goes to the grammar hub. Remaining answers are not listed.
 
