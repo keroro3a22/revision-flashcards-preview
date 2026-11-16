@@ -1589,39 +1589,80 @@ body.boss-quiz-open .account-link-fab {
   text-decoration: underline;
   text-underline-offset: 0.16em;
 }
-.boss-gate-cave,
-.boss-gate-oni {
+.boss-gate-scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3.2rem 5vw 30vh;
+  pointer-events: none;
+}
+.boss-gate-frame {
+  position: relative;
+  width: min(92vw, calc((100dvh - 3.2rem - 30vh) * 770 / 539));
+  aspect-ratio: 770 / 539;
+}
+.boss-gate-cave {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-}
-.boss-gate-oni {
-  object-fit: contain;
-  padding: 4.5rem 8vw 24vh;
-}
-.boss-gate-cave {
-  object-fit: cover;
-  opacity: 0;
+  object-fit: fill;
+  opacity: 1;
   transform: scale(1);
+  transform-origin: 48.7% 64%;
   pointer-events: none;
 }
-.boss-gate.is-entering .boss-gate-oni,
+.boss-gate-arrow {
+  position: absolute;
+  z-index: 6;
+  left: 48.7%;
+  top: 28%;
+  width: 4.4rem;
+  height: 4.4rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 4px solid #fff;
+  border-radius: 50%;
+  background: #fcc03c;
+  color: #243c6c;
+  cursor: pointer;
+  pointer-events: auto;
+  animation: boss-arrow 0.7s ease-in-out infinite;
+}
+.boss-gate-arrow svg { width: 2.4rem; height: 2.4rem; }
+.boss-gate-arrow path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+@keyframes boss-arrow {
+  from { transform: translate(-50%, 0); }
+  to { transform: translate(-50%, 12px); }
+}
+.boss-gate.is-entering .boss-gate-arrow,
 .boss-gate.is-entering .boss-gate-card,
 .boss-gate.is-entering .boss-gate-back {
   opacity: 0;
   transition: opacity 0.2s ease;
 }
 .boss-gate.is-entering .boss-gate-cave {
-  opacity: 1;
   z-index: 3;
   animation: boss-enter 2.8s ease forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .boss-gate-arrow { animation: none; }
 }
 .boss-gate.is-fading .boss-gate-cave {
   animation: boss-sink 1.5s ease forwards;
 }
 .boss-gate-card {
   position: absolute;
+  z-index: 4;
   left: 50%;
   bottom: max(1.25rem, env(safe-area-inset-bottom));
   transform: translateX(-50%);

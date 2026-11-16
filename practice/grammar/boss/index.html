@@ -9,60 +9,54 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../../assets/huninn.css"/>
-<link rel="stylesheet" href="grammar.css?v=51"/>
+<link rel="stylesheet" href="grammar.css?v=52"/>
 <link rel="stylesheet" href="../../assets/chrome.css?v=7" />
 <link rel="stylesheet" href="../../assets/profile.css?v=6" />
 <link rel="stylesheet" href="../../assets/account.css?v=8" />
 <script src="../../assets/supabase-public.js?v=1"></script>
 <script src="../../assets/progress-sync.js?v=3"></script>
 <script src="../../assets/place.js?v=11"></script>
-<script src="../../assets/place-ui.js?v=28"></script>
+<script src="../../assets/place-ui.js?v=29"></script>
 <script src="../../assets/profile.js?v=7"></script>
 <script src="../../assets/account.js?v=17"></script>
 </head>
 <body class="boss-round">
-<header class="prac-header">
-  <a class="back" href="../../">← Back to packs</a>
-</header>
-<main class="wrap">
-  <div class="toolbar">
-    <span class="chip boss" id="q-num">1 / 12</span>
-    <div class="lives-row" id="lives" aria-label="Lives">
-      <span class="heart" aria-hidden="true"><svg viewBox="0 0 40 36" focusable="false"><path fill="currentColor" d="M20 31.2C14.2 26.4 7.2 21.2 7.2 14.6c0-4.2 3.2-7.4 7.2-7.4c2.2 0 4.1 1.05 5.6 2.85C21.5 8.25 23.4 7.2 25.6 7.2c4 0 7.2 3.2 7.2 7.4 0 6.6-7 11.8-12.8 16.6z"/></svg></span>
-      <span class="heart" aria-hidden="true"><svg viewBox="0 0 40 36" focusable="false"><path fill="currentColor" d="M20 31.2C14.2 26.4 7.2 21.2 7.2 14.6c0-4.2 3.2-7.4 7.2-7.4c2.2 0 4.1 1.05 5.6 2.85C21.5 8.25 23.4 7.2 25.6 7.2c4 0 7.2 3.2 7.2 7.4 0 6.6-7 11.8-12.8 16.6z"/></svg></span>
-      <span class="heart" aria-hidden="true"><svg viewBox="0 0 40 36" focusable="false"><path fill="currentColor" d="M20 31.2C14.2 26.4 7.2 21.2 7.2 14.6c0-4.2 3.2-7.4 7.2-7.4c2.2 0 4.1 1.05 5.6 2.85C21.5 8.25 23.4 7.2 25.6 7.2c4 0 7.2 3.2 7.2 7.4 0 6.6-7 11.8-12.8 16.6z"/></svg></span>
-    </div>
-    <div class="progress-dots" id="dots" aria-label="Progress"></div>
+<a class="battle-back" href="../../" target="_top">← Back to packs</a>
+<main class="battle">
+  <div class="battle-hud" id="hud">
+    <img class="battle-oni" id="oni" alt="" src="../../assets/boss/oni.png">
+    <div class="boss-hp" id="boss-hp" role="meter" aria-label="Boss health" aria-valuemin="0" aria-valuemax="12" aria-valuenow="12"></div>
+    <div class="lives-row" id="lives" aria-label="Lives"></div>
+    <span class="battle-count" id="q-num">1 / 12</span>
+    <button type="button" class="battle-mute" id="btn-mute" aria-pressed="false">Mute</button>
   </div>
 
-  <div class="panel" id="game">
-    <div class="illust" id="art-wrap" style="max-width:200px;aspect-ratio:1.2">
-      <img id="art" src="illust/u1_09_fair.jpg" alt=""/>
+  <div class="battle-play" id="game">
+    <div class="battle-q" id="battle-q">
+      <button type="button" class="battle-art" id="art-open" hidden>
+        <img id="art" alt="">
+      </button>
+      <div class="battle-copy">
+        <p class="prompt" id="prompt"></p>
+        <p class="battle-reason" id="reason" hidden></p>
+      </div>
     </div>
-    <p class="prompt" id="prompt"></p>
     <div class="join-plain" id="pair" hidden></div>
     <div class="choices" id="choices"></div>
-    <div class="btn-row">
-      <button type="button" class="btn btn-ghost" id="btn-clear">Clear</button>
-      <button type="button" class="btn btn-primary" id="btn-check" disabled>Check</button>
-      <button type="button" class="btn btn-secondary" id="btn-next" hidden>Next</button>
-    </div>
-    <div class="toast" id="toast" hidden></div>
   </div>
 
-  <div class="panel result-card" id="done" hidden>
-    <div class="illust" style="max-width:180px;aspect-ratio:1;margin:0 auto 1rem">
-      <img id="done-art" src="illust/feedback-ok.png" alt=""/>
-    </div>
-    <h2 id="done-title">Boss cleared!</h2>
-    <p class="big" id="score-big">0</p>
-    <p id="done-sub">correct · lives left</p>
-    <div class="btn-row" style="justify-content:center">
-      <a class="btn btn-primary" href="boss/">Try again</a>
-      <a class="btn btn-ghost" href="grammar-hub/">Hub</a>
-    </div>
+  <div class="battle-end" id="done" hidden>
+    <img id="done-art" alt="" src="../../assets/boss/victory.png">
+    <h2 id="done-title">Victory</h2>
+    <p id="done-sub"></p>
+    <div class="btn-row" id="done-actions"></div>
   </div>
 </main>
+<div class="art-zoom" id="art-zoom" hidden>
+  <button type="button" class="art-zoom-backdrop" id="art-zoom-close" aria-label="Close picture"></button>
+  <img id="art-zoom-img" alt="">
+  <button type="button" class="art-zoom-x" id="art-zoom-x">Close</button>
+</div>
 <script src="../../practice/badges.js?v=7"></script>
 <script src="grammar-progress.js"></script>
 <script src="../../assets/img-frame.js?v=13"></script>
@@ -73,21 +67,10 @@
   /* Authors: ?set=1|2|3|4|5 (1-based) forces that authored set; never show set chips on screen.
      Students (no ?set=): silent rotate via localStorage key boss-set-i — index starts at 0,
      advances +1 when a run finishes (clear or out of lives) so the next visit uses the next authored set. */
-  const FB = { ok: "illust/feedback-ok.png", bad: "illust/feedback-bad.png" };
   const HEART_SVG =
     '<svg viewBox="0 0 40 36" focusable="false" aria-hidden="true">' +
     '<path fill="currentColor" d="M20 31.2C14.2 26.4 7.2 21.2 7.2 14.6c0-4.2 3.2-7.4 7.2-7.4c2.2 0 4.1 1.05 5.6 2.85C21.5 8.25 23.4 7.2 25.6 7.2c4 0 7.2 3.2 7.2 7.4 0 6.6-7 11.8-12.8 16.6z"/>' +
     "</svg>";
-
-  function showToast(el, title, explain, kind) {
-    el.className = "toast toast-feedback has-art " + kind;
-    el.innerHTML =
-      '<img class="toast-art" src="' + FB[kind === "ok" ? "ok" : "bad"] + '" alt=""/>' +
-      '<div class="toast-body"><div class="toast-title"></div><div class="toast-explain"></div></div>';
-    el.querySelector(".toast-title").textContent = title;
-    el.querySelector(".toast-explain").textContent = explain || "";
-    el.hidden = false;
-  }
 
   // Set 1 — 12 mixed Units 1–4 (kept intact)
   const set1Data = {
@@ -590,19 +573,132 @@
   const forced = resolved.forced;
   const items = SETS[setIndex].items;
 
-  let idx = 0, selected = null, locked = false, correctCount = 0, lives = 3;
+  let idx = 0, locked = false, lives = 3, hits = 0;
+  let pending = null;
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const MUTE_KEY = "boss-muted";
+  let audioCtx = null;
+  let musicTimer = null;
+  let musicOn = false;
+  let step = 0;
+  const melody = [262, 294, 330, 294, 262, 220, 196, 220];
 
   const qNum = document.getElementById("q-num");
   const livesEl = document.getElementById("lives");
-  const dots = document.getElementById("dots");
+  const bossHp = document.getElementById("boss-hp");
+  const oni = document.getElementById("oni");
+  const hud = document.getElementById("hud");
   const art = document.getElementById("art");
+  const artOpen = document.getElementById("art-open");
   const prompt = document.getElementById("prompt");
   const pair = document.getElementById("pair");
   const choices = document.getElementById("choices");
-  const btnCheck = document.getElementById("btn-check");
-  const btnNext = document.getElementById("btn-next");
-  const btnClear = document.getElementById("btn-clear");
-  const toast = document.getElementById("toast");
+  const reason = document.getElementById("reason");
+  const battleQ = document.getElementById("battle-q");
+  const zoom = document.getElementById("art-zoom");
+  const zoomImg = document.getElementById("art-zoom-img");
+  const btnMute = document.getElementById("btn-mute");
+
+  function muted() {
+    try { return localStorage.getItem(MUTE_KEY) === "1"; } catch (err) { return false; }
+  }
+
+  function paintMute() {
+    const on = muted();
+    btnMute.setAttribute("aria-pressed", on ? "true" : "false");
+    btnMute.textContent = on ? "Sound" : "Mute";
+  }
+
+  function ensureAudio() {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    try {
+      if (!audioCtx) audioCtx = new AC();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      return audioCtx;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function blip(freq, start, dur, type, peak) {
+    try {
+      const ac = ensureAudio();
+      if (!ac || muted()) return;
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.type = type || "square";
+      osc.frequency.setValueAtTime(freq, start);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(peak || 0.05, start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.start(start);
+      osc.stop(start + dur + 0.02);
+    } catch (err) {}
+  }
+
+  function playHit() {
+    const ac = ensureAudio();
+    if (!ac || muted()) return;
+    const t = ac.currentTime;
+    blip(520, t, 0.08, "square", 0.07);
+    blip(780, t + 0.07, 0.12, "square", 0.06);
+  }
+
+  function playHurt() {
+    const ac = ensureAudio();
+    if (!ac || muted()) return;
+    const t = ac.currentTime;
+    blip(180, t, 0.18, "sawtooth", 0.07);
+    blip(90, t + 0.08, 0.22, "square", 0.05);
+  }
+
+  function playWin() {
+    [523, 659, 784, 1046].forEach((freq, i) => {
+      const ac = ensureAudio();
+      if (!ac) return;
+      blip(freq, ac.currentTime + i * 0.12, 0.18, "square", 0.06);
+    });
+  }
+
+  function playLose() {
+    [392, 349, 294, 220].forEach((freq, i) => {
+      const ac = ensureAudio();
+      if (!ac) return;
+      blip(freq, ac.currentTime + i * 0.14, 0.2, "triangle", 0.06);
+    });
+  }
+
+  function musicTick() {
+    if (!musicOn) return;
+    if (!muted()) {
+      const ac = ensureAudio();
+      if (ac) blip(melody[step % melody.length], ac.currentTime, 0.18, "triangle", 0.03);
+    }
+    step += 1;
+    musicTimer = setTimeout(musicTick, 420);
+  }
+
+  function startMusic() {
+    musicOn = true;
+    if (musicTimer) return;
+    musicTick();
+  }
+
+  function stopMusic() {
+    musicOn = false;
+    if (musicTimer) clearTimeout(musicTimer);
+    musicTimer = null;
+  }
+
+  function pose(name) {
+    oni.classList.remove("is-hurt", "is-lunge", "is-down");
+    if (reduce || !name) return;
+    void oni.offsetWidth;
+    oni.classList.add(name);
+  }
 
   function renderLives() {
     let html = "";
@@ -610,16 +706,17 @@
       html += '<span class="heart' + (i >= lives ? " lost" : "") + '" aria-hidden="true">' + HEART_SVG + "</span>";
     }
     livesEl.innerHTML = html;
+    livesEl.setAttribute("aria-label", lives + (lives === 1 ? " life left" : " lives left"));
   }
 
-  function renderDots() {
-    dots.innerHTML = "";
-    items.forEach((_, i) => {
-      const s = document.createElement("span");
-      if (i < idx) s.className = "done";
-      else if (i === idx) s.className = "now";
-      dots.appendChild(s);
-    });
+  function renderHp() {
+    let html = "";
+    for (let i = 0; i < items.length; i++) {
+      html += '<span class="' + (i < hits ? "spent" : "") + '"></span>';
+    }
+    bossHp.innerHTML = html;
+    bossHp.setAttribute("aria-valuemax", String(items.length));
+    bossHp.setAttribute("aria-valuenow", String(Math.max(0, items.length - hits)));
   }
 
   function joinParts(it) {
@@ -637,11 +734,7 @@
       if (p === "REL") {
         const shown = val || "________";
         let cls = "blank";
-        if (val) {
-          if (mode === "ok") cls = "blank ok";
-          else if (mode === "soft") cls = "blank soft-answer";
-          else cls = "blank filled";
-        }
+        if (val) cls = mode === "ok" ? "blank ok" : "blank filled";
         html += '<span class="' + cls + '">' + shown + "</span>";
       } else html += p;
     });
@@ -663,11 +756,7 @@
       if (p === "____") {
         const v = vals && vals[bi] != null ? vals[bi] : "____";
         let cls = "blank";
-        if (vals && vals[bi] != null) {
-          if (mode === "ok") cls = "blank ok";
-          else if (mode === "soft") cls = "blank soft-answer";
-          else cls = "blank filled";
-        }
+        if (vals && vals[bi] != null) cls = mode === "ok" ? "blank ok" : "blank filled";
         html += '<span class="' + cls + '">' + v + "</span>";
         bi++;
       } else html += p;
@@ -676,29 +765,32 @@
     prompt.innerHTML = html;
   }
 
+  function closeZoom() {
+    zoom.hidden = true;
+  }
+
   function render() {
     const it = items[idx];
     locked = false;
-    selected = null;
+    if (pending) clearTimeout(pending);
+    pending = null;
     qNum.textContent = (idx + 1) + " / " + items.length;
-    art.src = it.img;
-    if (window.ImgFrame) ImgFrame.apply(art, it.frame);
-    toast.hidden = true;
-    btnNext.hidden = true;
-    btnCheck.disabled = true;
-    btnClear.disabled = false;
-    renderDots();
-    renderLives();
-
-    if (it.kind === "join") {
-      pair.hidden = true;
-      pair.innerHTML = "";
-      renderJoinStem(null);
+    artOpen.hidden = true;
+    if ((art.getAttribute("src") || "") === (it.img || "") && art.complete) {
+      artOpen.hidden = !art.naturalWidth;
     } else {
-      pair.hidden = true;
-      pair.innerHTML = "";
-      renderPrompt(null);
+      art.src = it.img || "";
     }
+    reason.hidden = true;
+    reason.textContent = "";
+    battleQ.classList.remove("has-reason");
+    pose(null);
+    renderHp();
+    renderLives();
+    pair.hidden = true;
+    pair.innerHTML = "";
+    if (it.kind === "join") renderJoinStem(null);
+    else renderPrompt(null);
 
     choices.innerHTML = "";
     it.options.forEach((opt) => {
@@ -706,17 +798,8 @@
       btn.type = "button";
       btn.className = "choice";
       if (it.answers || (it.kind === "join" && opt.length > 8)) btn.classList.add("block");
-      if (it.answers) btn.classList.add("block");
       btn.textContent = opt;
-      btn.addEventListener("click", () => {
-        if (locked) return;
-        selected = opt;
-        [...choices.children].forEach((c) => c.classList.remove("selected"));
-        btn.classList.add("selected");
-        if (it.kind === "join") renderJoinStem(opt);
-        else renderPrompt(opt);
-        btnCheck.disabled = false;
-      });
+      btn.addEventListener("click", () => answer(opt, btn));
       choices.appendChild(btn);
     });
   }
@@ -728,82 +811,109 @@
   }
 
   function finish(won) {
+    if (pending) clearTimeout(pending);
+    pending = null;
+    stopMusic();
+    if (won) playWin();
+    else playLose();
     advanceSetIfNeeded();
     if (won && lives >= 1 && !forced && window.Badges) {
       var grammarRewards = Badges.recordGrammarBoss(lives);
       if (window.GrammarProgress) GrammarProgress.show(grammarRewards);
     }
+    hud.hidden = true;
     document.getElementById("game").hidden = true;
-    document.getElementById("done").hidden = false;
-    document.getElementById("done-title").textContent = won ? "Boss cleared!" : "Out of lives";
-    document.getElementById("done-art").src = won ? FB.ok : FB.bad;
-    document.getElementById("score-big").textContent = correctCount + " / " + items.length;
-    document.getElementById("done-sub").textContent =
-      won
-        ? ("correct · " + lives + " life" + (lives === 1 ? "" : "s") + " left")
-        : ("correct before the round ended · try again!");
+    const done = document.getElementById("done");
+    const actions = document.getElementById("done-actions");
+    done.hidden = false;
+    if (won) {
+      document.getElementById("done-title").textContent = "Victory";
+      document.getElementById("done-art").src = "../../assets/boss/victory.png";
+      document.getElementById("done-sub").textContent = lives + (lives === 1 ? " life left" : " lives left");
+      actions.innerHTML = '<a class="btn btn-primary" href="grammar-hub/" target="_top">Grammar practice</a>';
+    } else {
+      document.getElementById("done-title").textContent = "Try again";
+      document.getElementById("done-art").src = "../../assets/boss/oni.png";
+      document.getElementById("done-sub").textContent = "The next boss is waiting.";
+      const again = "boss/" + (forced ? location.search : "");
+      actions.innerHTML = '<a class="btn btn-primary" href="' + again + '">Try again</a>'
+        + '<a class="btn btn-ghost" href="grammar-hub/" target="_top">Grammar practice</a>';
+    }
   }
 
-  btnClear.addEventListener("click", () => {
-    if (locked) return;
-    selected = null;
-    [...choices.children].forEach((c) => c.classList.remove("selected"));
-    if (items[idx].kind === "join") renderJoinStem(null);
-    else renderPrompt(null);
-    btnCheck.disabled = true;
-    toast.hidden = true;
-  });
-
-  btnCheck.addEventListener("click", () => {
-    if (!selected || locked) return;
-    locked = true;
+  function answer(opt, btn) {
+    if (locked || !zoom.hidden) return;
     const it = items[idx];
-    const ok = selected === it.answer;
-    [...choices.children].forEach((c) => {
-      c.disabled = true;
-      if (c.textContent === it.answer) c.classList.add("correct");
-      else if (c.textContent === selected && !ok) c.classList.add("wrong");
-    });
-    if (it.kind === "join") renderJoinStem(it.answer, ok ? "ok" : "soft");
-    else renderPrompt(it.answer, ok ? "ok" : "soft");
+    const ok = opt === it.answer;
+    locked = true;
     if (ok) {
-      correctCount++;
-      showToast(toast, "Nice!", it.explain + (it.full ? " → " + it.full : ""), "ok");
-    } else {
-      lives--;
-      renderLives();
-      showToast(
-        toast,
-        "Not quite",
-        (it.full ? it.full + " — " : "Answer: " + it.answer + " — ") + it.explain,
-        "bad"
-      );
+      const last = idx >= items.length - 1;
+      pose(last ? "is-down" : "is-hurt");
+      playHit();
+      hits += 1;
+      renderHp();
+      if (it.kind === "join") renderJoinStem(it.answer, "ok");
+      else renderPrompt(it.answer, "ok");
+      [...choices.children].forEach((c) => { c.disabled = true; });
+      btn.classList.add("correct");
+      reason.hidden = false;
+      reason.textContent = it.explain || "";
+      battleQ.classList.add("has-reason");
+      pending = setTimeout(() => {
+        if (last) finish(true);
+        else {
+          idx += 1;
+          render();
+        }
+      }, 2000);
+      return;
     }
-    btnCheck.disabled = true;
-    btnClear.disabled = true;
+    pose("is-lunge");
+    playHurt();
+    lives -= 1;
+    renderLives();
+    livesEl.classList.remove("is-hit");
+    void livesEl.offsetWidth;
+    livesEl.classList.add("is-hit");
+    btn.classList.add("spent");
+    btn.disabled = true;
     if (lives <= 0) {
-      btnNext.hidden = false;
-      btnNext.textContent = "See result";
-      btnNext.dataset.end = "lose";
-    } else {
-      btnNext.hidden = false;
-      btnNext.textContent = idx === items.length - 1 ? "Finish" : "Next";
-      btnNext.dataset.end = "";
+      [...choices.children].forEach((c) => { c.disabled = true; });
+      pending = setTimeout(() => finish(false), reduce ? 0 : 500);
+      return;
     }
+    locked = false;
+  }
+
+  art.addEventListener("load", () => {
+    artOpen.hidden = !art.naturalWidth;
+  });
+  art.addEventListener("error", () => {
+    artOpen.hidden = true;
+  });
+  artOpen.addEventListener("click", () => {
+    if (artOpen.hidden || !art.getAttribute("src")) return;
+    zoomImg.src = art.src;
+    zoom.hidden = false;
+  });
+  document.getElementById("art-zoom-close").addEventListener("click", closeZoom);
+  document.getElementById("art-zoom-x").addEventListener("click", closeZoom);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !zoom.hidden) closeZoom();
   });
 
-  btnNext.addEventListener("click", () => {
-    if (btnNext.dataset.end === "lose") {
-      finish(false);
-      return;
-    }
-    if (idx >= items.length - 1) {
-      finish(true);
-      return;
-    }
-    idx++;
-    render();
+  paintMute();
+  btnMute.addEventListener("click", () => {
+    try { localStorage.setItem(MUTE_KEY, muted() ? "0" : "1"); } catch (err) {}
+    paintMute();
+    if (!muted()) startMusic();
+    else stopMusic();
   });
+  document.addEventListener("pointerdown", () => {
+    ensureAudio();
+    startMusic();
+  }, { once: true });
+  startMusic();
 
   render();
   }
