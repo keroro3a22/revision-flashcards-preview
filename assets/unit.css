@@ -255,6 +255,7 @@ button { font: inherit; cursor: pointer; }
   font-weight: 650;
   font-size: 1.35rem;
   line-height: 1.1;
+  color: #e04870;
 }
 .funfact-photo {
   --img-crop-ratio: 1.5;
