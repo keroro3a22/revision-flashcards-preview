@@ -101,6 +101,10 @@ body.account-page:has(.profile-page) {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+body.boss-round #account-link,
+body.boss-round .account-link-fab {
+  display: none !important;
+}
 
 .account-notice {
   max-width: var(--page-max, 1080px);

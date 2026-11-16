@@ -1551,11 +1551,15 @@ html[data-view="home"] .place-shell { display: none; }
 .boss-quiz-frame {
   position: fixed;
   inset: 0;
-  z-index: 85;
+  z-index: 1000;
   width: 100%;
   height: 100%;
   border: 0;
   background: #fcf0d8;
+}
+body.boss-quiz-open #account-link,
+body.boss-quiz-open .account-link-fab {
+  display: none !important;
 }
 .boss-gate {
   position: fixed;

@@ -64,8 +64,17 @@
     if (!doc || doc.documentElement.dataset.bossLinks === '1') return;
     doc.documentElement.dataset.bossLinks = '1';
     var scroll = doc.createElement('style');
-    scroll.textContent = 'html,body{min-height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch}';
+    scroll.textContent = 'html,body{min-height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch}body.boss-round #account-link,body.boss-round .account-link-fab{display:none !important}';
     doc.head.appendChild(scroll);
+    function hideSignIn() {
+      var links = doc.querySelectorAll('#account-link, .account-link-fab');
+      for (var i = 0; i < links.length; i++) links[i].remove();
+    }
+    hideSignIn();
+    if (typeof MutationObserver === 'function' && doc.documentElement) {
+      var watcher = new MutationObserver(hideSignIn);
+      watcher.observe(doc.documentElement, { childList: true, subtree: true });
+    }
     doc.addEventListener('click', function (event) {
       var link = event.target && event.target.closest ? event.target.closest('a[href]') : null;
       if (!link) return;
@@ -86,6 +95,7 @@
     }
     var practice = document.getElementById('boss-practice');
     if (!practice || practice.hidden) document.body.style.overflow = '';
+    document.body.classList.remove('boss-quiz-open');
     if (bossPackTitle) {
       document.title = bossPackTitle;
       bossPackTitle = '';
@@ -156,6 +166,7 @@
         try { history.pushState({ bossQuiz: 1 }, '', next); } catch (err) {}
         try { document.title = frame.contentDocument.title || document.title; } catch (err2) {}
         frame.removeAttribute('aria-hidden');
+        document.body.classList.add('boss-quiz-open');
         var finished = false;
         function done(event) {
           if (finished) return;
@@ -213,6 +224,7 @@
     if (!document.getElementById('boss-practice') || document.getElementById('boss-practice').hidden) {
       document.body.style.overflow = '';
     }
+    document.body.classList.remove('boss-quiz-open');
   }
 
   function ensureBossGate() {
