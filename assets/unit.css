@@ -207,18 +207,19 @@ button { font: inherit; cursor: pointer; }
   right: calc(var(--shell) + 14px);
   width: 44px;
   height: 44px;
-  border-radius: 14px;
-  background: var(--sunny);
-  color: var(--navy);
+  border-radius: 0;
+  background: transparent;
+  color: var(--pink);
   display: grid;
   place-items: center;
   border: 0;
-  box-shadow: 0 1px 0 rgba(36, 60, 108, 0.08);
-  transition: transform var(--t-press) var(--ease-out), background var(--t-hover);
+  box-shadow: none;
+  padding: 0;
+  transition: transform var(--t-press) var(--ease-out), color var(--t-hover);
 }
-.funfact-btn:hover { background: #f0b020; }
+.funfact-btn:hover { background: transparent; color: #e56d7e; }
 .funfact-btn:active { transform: scale(0.94); }
-.funfact-btn svg { width: 22px; height: 22px; }
+.funfact-btn svg { width: 32px; height: 32px; }
 .card.no-audio .funfact-btn { top: calc(var(--shell) + 14px); }
 .funfact-pop {
   position: fixed;

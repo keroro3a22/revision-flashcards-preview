@@ -462,7 +462,7 @@
       var row = rowById(cell.closest('tr') && cell.closest('tr').dataset.id);
       if (row) row.funfact_frame = null;
       paintFunfact(cell);
-      say('Fun fact photo is in this row. Publish to show it on the site.');
+      say('Brain Boost photo is in this row. Publish to show it on the site.');
     });
   }
   function funfactCell(row) {
@@ -483,7 +483,7 @@
     words.dataset.field = 'funfact_text';
     words.rows = 3;
     words.value = cellText(row.funfact_text);
-    words.setAttribute('aria-label', 'Fun fact words');
+    words.setAttribute('aria-label', 'Brain Boost words');
     var path = document.createElement('div');
     path.className = 'studio-edit';
     path.contentEditable = 'true';
@@ -523,7 +523,7 @@
       frameInput.value = '';
       row.funfact_frame = null;
       paintFunfact(cell);
-      say('Fun fact photo removed. Publish to update the site.');
+      say('Brain Boost photo removed. Publish to update the site.');
     });
     input.addEventListener('change', function () {
       cell.classList.toggle('is-off', !input.checked);
@@ -926,7 +926,7 @@
     columns.push(
       { col: 'col-pair', key: 'example', label: 'Example<br>例句' },
       { col: 'col-pair', key: 'advanced', label: 'Advanced<br>進階例句' },
-      { col: 'col-funfact', key: 'funfact', label: 'Fun fact' },
+      { col: 'col-funfact', key: 'funfact', label: 'Brain Boost !' },
       { col: 'col-state', key: 'state', label: 'State' },
       { col: 'col-actions', key: 'actions', label: '' }
     );

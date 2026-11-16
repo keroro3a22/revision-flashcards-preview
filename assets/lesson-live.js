@@ -57,7 +57,7 @@
     return mediaRoot() + text.replace(/^(\.\.\/)+/, '');
   }
 
-  var BULB_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>';
+  var BRAIN_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M19.967 17.484A4 4 0 0 1 18 18"/></svg>';
   var funfactPop = null;
   var funfactReturn = null;
 
@@ -87,7 +87,7 @@
     funfactPop.setAttribute('aria-modal', 'true');
     funfactPop.setAttribute('aria-labelledby', 'funfact-title');
     funfactPop.innerHTML = '<div class="funfact-card">'
-      + '<p id="funfact-title" class="funfact-title">Fun fact</p>'
+      + '<p id="funfact-title" class="funfact-title">Brain Boost !</p>'
       + '<div class="funfact-photo img-crop"><img class="funfact-img" alt=""></div>'
       + '<p class="funfact-text"></p>'
       + '<button type="button" class="funfact-close">Close</button>'
@@ -116,7 +116,7 @@
       photo.hidden = false;
       img.hidden = false;
       img.src = picture;
-      img.alt = words ? '' : 'Fun fact';
+      img.alt = words ? '' : 'Brain Boost !';
       if (window.ImgFrame) window.ImgFrame.apply(img, card.funfact_frame, 3 / 2);
     } else {
       photo.hidden = true;
@@ -140,8 +140,8 @@
       var button = document.createElement('button');
       button.type = 'button';
       button.className = 'funfact-btn';
-      button.setAttribute('aria-label', 'Fun fact');
-      button.innerHTML = BULB_SVG;
+      button.setAttribute('aria-label', 'Brain Boost !');
+      button.innerHTML = BRAIN_SVG;
       button.addEventListener('click', function (event) {
         event.preventDefault();
         event.stopPropagation();
