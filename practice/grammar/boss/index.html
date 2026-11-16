@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../../assets/huninn.css"/>
-<link rel="stylesheet" href="grammar.css?v=53"/>
+<link rel="stylesheet" href="grammar.css?v=54"/>
 <link rel="stylesheet" href="../../assets/chrome.css?v=7" />
 <link rel="stylesheet" href="../../assets/profile.css?v=6" />
 <link rel="stylesheet" href="../../assets/account.css?v=8" />
@@ -24,9 +24,15 @@
 <a class="battle-back" href="../../" target="_top">← Back to packs</a>
 <main class="battle">
   <div class="boss-stage" id="hud">
-    <img class="battle-oni" id="oni" alt="" src="../../assets/boss/oni.png">
-    <div class="boss-hp" id="boss-hp" role="meter" aria-label="Boss health" aria-valuemin="0" aria-valuemax="12" aria-valuenow="12"></div>
+    <div class="oni-shift">
+      <img class="battle-oni" id="oni" alt="" src="../../assets/boss/oni.png">
+    </div>
+    <div class="boss-meter">
+      <span class="boss-hp-label">HP</span>
+      <div class="boss-hp" id="boss-hp" role="meter" aria-label="Boss health" aria-valuemin="0" aria-valuemax="12" aria-valuenow="12"></div>
+    </div>
   </div>
+  <div class="quiz-side" id="quiz-side">
   <div class="toolbar battle-tools" id="battle-tools">
     <span class="chip boss" id="q-num">1 / 12</span>
     <div class="lives-row" id="lives" aria-label="Lives"></div>
@@ -45,6 +51,7 @@
     </div>
     <div class="join-plain" id="pair" hidden></div>
     <div class="choices" id="choices"></div>
+  </div>
   </div>
 
   <div class="panel battle-end" id="done" hidden>
@@ -590,7 +597,7 @@
   const bossHp = document.getElementById("boss-hp");
   const oni = document.getElementById("oni");
   const hud = document.getElementById("hud");
-  const tools = document.getElementById("battle-tools");
+  const quizSide = document.getElementById("quiz-side");
   const art = document.getElementById("art");
   const artOpen = document.getElementById("art-open");
   const prompt = document.getElementById("prompt");
@@ -825,8 +832,7 @@
       if (window.GrammarProgress) GrammarProgress.show(grammarRewards);
     }
     hud.hidden = true;
-    tools.hidden = true;
-    document.getElementById("game").hidden = true;
+    quizSide.hidden = true;
     const done = document.getElementById("done");
     const actions = document.getElementById("done-actions");
     done.hidden = false;
