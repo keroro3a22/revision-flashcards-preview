@@ -386,7 +386,7 @@
   }
 
   function mount(place) {
-    if (!place || place.unit === 'game') return;
+    if (!place || place.unit === 'game' || place.unit === 'boss' || place.unit === 'resources') return;
     var token = ++request;
     whenReady(function (db) {
       loadCatalog(db, place).then(function (catalog) {

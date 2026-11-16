@@ -9,7 +9,8 @@
     'revision-grammar': 'Review the grammar in this unit.',
     'practice-vocab': 'Try the word quizzes.',
     'practice-grammar': 'Practise the grammar in games.',
-    game: 'Open School Mystery.'
+    game: 'Open School Mystery.',
+    boss: 'Whole book · 3 lives.'
   };
 
   function show(mode) {
@@ -47,6 +48,193 @@
     });
   }
 
+  function openBossGate(place, href) {
+    var gate = ensureBossGate();
+    gate.classList.remove('is-oni');
+    gate.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    void gate.offsetWidth;
+    gate.classList.add('is-oni');
+    gate.querySelector('[data-ready]').onclick = function () {
+      closeBossGate();
+      location.href = (scriptRoot() || '') + href;
+    };
+    gate.querySelector('[data-practice]').onclick = function () {
+      closeBossGate();
+      openBossPractice(place);
+    };
+  }
+
+  function closeBossGate() {
+    var gate = document.getElementById('boss-gate');
+    if (!gate) return;
+    gate.classList.remove('open', 'is-oni');
+    if (!document.getElementById('boss-practice') || document.getElementById('boss-practice').hidden) {
+      document.body.style.overflow = '';
+    }
+  }
+
+  function ensureBossGate() {
+    var gate = document.getElementById('boss-gate');
+    if (gate) return gate;
+    var root = scriptRoot() || '';
+    gate = document.createElement('div');
+    gate.id = 'boss-gate';
+    gate.className = 'boss-gate';
+    gate.setAttribute('role', 'dialog');
+    gate.setAttribute('aria-modal', 'true');
+    gate.setAttribute('aria-labelledby', 'boss-gate-title');
+    gate.innerHTML = '<img class="boss-gate-cave" alt="" src="' + root + 'assets/boss/cave.png">'
+      + '<img class="boss-gate-oni" alt="" src="' + root + 'assets/boss/oni.png">'
+      + '<div class="boss-gate-card">'
+      + '<h2 id="boss-gate-title">Ready for the boss?</h2>'
+      + '<p>This round mixes grammar from every unit in this book. You have 3 lives.</p>'
+      + '<div class="boss-gate-actions">'
+      + '<button type="button" class="boss-gate-ready" data-ready>I\'m ready</button>'
+      + '<button type="button" class="boss-gate-practice" data-practice>Practice</button>'
+      + '</div></div>';
+    document.body.appendChild(gate);
+    document.addEventListener('keydown', function (event) {
+      if (event.key !== 'Escape') return;
+      var practice = document.getElementById('boss-practice');
+      if (practice && !practice.hidden) {
+        closeBossPractice();
+        return;
+      }
+      if (gate.classList.contains('open')) closeBossGate();
+    });
+    return gate;
+  }
+
+  function closeBossPractice() {
+    var pop = document.getElementById('boss-practice');
+    if (!pop) return;
+    pop.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  function openBossPractice(place) {
+    var pop = ensureBossPractice();
+    pop.hidden = false;
+    document.body.style.overflow = 'hidden';
+    var body = pop.querySelector('.boss-practice-body');
+    body.textContent = 'Loading the grammar cards…';
+    loadGrammarCards(place, function (cards) {
+      paintBossPractice(body, place, cards);
+    });
+  }
+
+  function ensureBossPractice() {
+    var pop = document.getElementById('boss-practice');
+    if (pop) return pop;
+    pop = document.createElement('div');
+    pop.id = 'boss-practice';
+    pop.className = 'boss-practice';
+    pop.hidden = true;
+    pop.setAttribute('role', 'dialog');
+    pop.setAttribute('aria-modal', 'true');
+    pop.setAttribute('aria-labelledby', 'boss-practice-title');
+    pop.innerHTML = '<div class="boss-practice-panel">'
+      + '<div class="boss-practice-bar"><h2 id="boss-practice-title">Grammar revision</h2>'
+      + '<button type="button" class="boss-practice-close">Close</button></div>'
+      + '<div class="boss-practice-body"></div></div>';
+    pop.addEventListener('click', function (event) {
+      if (event.target === pop) closeBossPractice();
+    });
+    pop.querySelector('.boss-practice-close').addEventListener('click', closeBossPractice);
+    document.body.appendChild(pop);
+    return pop;
+  }
+
+  function withGrammarClient(done) {
+    var cfg = window.SUPABASE_PUBLIC || {};
+    function start() {
+      if (!cfg.url || !cfg.key || !window.supabase || !window.supabase.createClient) {
+        done(null);
+        return;
+      }
+      done(window.supabase.createClient(cfg.url, cfg.key, {
+        auth: { persistSession: false, autoRefreshToken: false }
+      }));
+    }
+    if (window.supabase && window.supabase.createClient) start();
+    else {
+      var tag = document.createElement('script');
+      tag.src = (scriptRoot() || '') + 'assets/vendor/supabase.js?v=1';
+      tag.onload = start;
+      tag.onerror = function () { done(null); };
+      document.head.appendChild(tag);
+    }
+  }
+
+  function loadGrammarCards(place, done) {
+    withGrammarClient(function (client) {
+      if (!client) { done([]); return; }
+      client.from('lesson_cards_live')
+        .select('unit_id,n,en,zh,pos,pattern,ex_en,ex_zh')
+        .eq('book', place.book).eq('series', place.series).eq('term', place.term).eq('level', place.level)
+        .eq('track', 'grammar')
+        .order('n', { ascending: true })
+        .then(function (result) {
+          done(result.error ? [] : (result.data || []));
+        });
+    });
+  }
+
+  function paintBossPractice(body, place, cards) {
+    body.textContent = '';
+    var units = P.unitsFor(place.book, place.level, place.series, place.term);
+    var root = scriptRoot() || '';
+    units.forEach(function (unit) {
+      var section = document.createElement('section');
+      section.className = 'boss-unit';
+      var head = document.createElement('div');
+      head.className = 'boss-unit-head';
+      var title = document.createElement('h3');
+      title.textContent = unit.label;
+      var practice = document.createElement('a');
+      practice.className = 'boss-unit-practice';
+      practice.href = root + 'practice/grammar/' + unit.id + '-hub/';
+      practice.textContent = 'Practice';
+      head.appendChild(title);
+      head.appendChild(practice);
+      section.appendChild(head);
+      var mine = cards.filter(function (card) { return card.unit_id === unit.id; });
+      if (!mine.length) {
+        var empty = document.createElement('p');
+        empty.className = 'boss-unit-empty';
+        empty.textContent = 'No grammar cards in this unit yet.';
+        section.appendChild(empty);
+      }
+      mine.forEach(function (card) {
+        var article = document.createElement('article');
+        article.className = 'boss-card';
+        var en = document.createElement('p');
+        en.className = 'boss-card-en';
+        en.textContent = card.en || '';
+        var zh = document.createElement('p');
+        zh.className = 'boss-card-zh';
+        zh.textContent = card.pos ? (card.zh || '') + '（' + card.pos + '）' : (card.zh || '');
+        article.appendChild(en);
+        if (zh.textContent) article.appendChild(zh);
+        if (card.pattern) {
+          var pattern = document.createElement('p');
+          pattern.className = 'boss-card-pattern';
+          pattern.textContent = card.pattern;
+          article.appendChild(pattern);
+        }
+        if (card.ex_en || card.ex_zh) {
+          var ex = document.createElement('p');
+          ex.className = 'boss-card-ex';
+          ex.textContent = [card.ex_en, card.ex_zh].filter(Boolean).join(' ');
+          article.appendChild(ex);
+        }
+        section.appendChild(article);
+      });
+      body.appendChild(section);
+    });
+  }
+
   function renderEntries(place, resolved) {
     var box = document.getElementById('place-entries');
     var heading = document.getElementById('unit-heading');
@@ -60,8 +248,8 @@
       heading.textContent = '';
       return;
     }
-    if (place.unit === P.GAME) {
-      heading.textContent = 'Game';
+    if (place.unit === P.GAME || place.unit === P.BOSS) {
+      heading.textContent = place.unit === P.BOSS ? 'Boss' : 'Game';
     } else {
       var selected = P.unitsFor(place.book, place.level, place.series, place.term).filter(function (unit) {
         return unit.id === place.unit;
@@ -73,7 +261,7 @@
     groups.forEach(function (group) {
       var section = document.createElement('section');
       section.className = 'place-group';
-      if (group.id !== 'game') {
+      if (group.id !== 'game' && group.id !== 'boss') {
         var title = document.createElement('h3');
         title.className = 'place-group-title';
         title.textContent = group.label;
@@ -85,6 +273,12 @@
         var el = document.createElement(item.ready ? 'a' : 'div');
         el.className = 'place-entry tone-' + item.id + (item.ready ? '' : ' is-soon');
         if (item.ready) el.href = item.href;
+        if (item.id === 'boss' && item.ready) {
+          el.addEventListener('click', function (event) {
+            event.preventDefault();
+            openBossGate(place, item.href);
+          });
+        }
         var copy = document.createElement('div');
         copy.className = 'place-entry-copy';
         if (item.ready && (item.image || bookBRevision(place, item))) {
@@ -359,7 +553,7 @@
 
   window.RevisionPlacePaint = function (place, resolved) {
     if (!document.getElementById('place-entries')) return;
-    if (!place || place.unit === P.HOME || place.unit === P.GAME) return;
+    if (!place || place.unit === P.HOME || place.unit === P.GAME || place.unit === P.BOSS) return;
     renderEntries(place, resolved);
   };
 

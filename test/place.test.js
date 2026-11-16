@@ -33,7 +33,8 @@ test('Oxford P6 keeps four units and there is no dictation tab', () => {
   assert.equal(P.unitsFor('longman', 'p3').map((unit) => unit.id).join(','), 'unit1,unit2,unit3,unit4');
   assert.equal(P.normalize({ book: 'oxford', level: 'p6', unit: 'dictation3' }).unit, 'home');
   assert.equal(P.normalize({ book: 'oxford', level: 'p6', unit: 'resources' }).unit, 'resources');
-  assert.equal(P.tabsFor({ book: 'oxford', series: 'oxford', level: 'p6', term: 'first' }).slice(-2).map((tab) => tab.label).join(','), 'Game,Resources');
+  assert.equal(P.normalize({ book: 'oxford', level: 'p6', unit: 'boss' }).unit, 'boss');
+  assert.equal(P.tabsFor({ book: 'oxford', series: 'oxford', level: 'p6', term: 'first' }).slice(-3).map((tab) => tab.label).join(','), 'Boss,Game,Resources');
   const bookBUnits = P.unitsFor('oxford', 'p6', 'oxford', 'second');
   assert.equal(bookBUnits.map((unit) => unit.title).join('|'), [
     'Going green',
@@ -111,6 +112,21 @@ test('every book, publisher, grade, and term opens the same game', () => {
   assert.equal(stayed.unit, 'game');
   assert.equal(stayed.level, 'p3');
   assert.equal(stayed.series, 'mypearson-express');
+});
+
+test('the boss tab sits after the last unit and opens for this book', () => {
+  const P = place();
+  const tabs = P.tabsFor({ book: 'oxford', series: 'oxford', level: 'p6', term: 'first' });
+  const labels = tabs.map((tab) => tab.label);
+  assert.equal(labels[labels.length - 3], 'Boss');
+  assert.equal(labels[labels.indexOf('Boss') - 1], 'Unit 6');
+  const open = flat(P.entriesFor({ book: 'oxford', series: 'oxford', level: 'p6', term: 'first', unit: 'boss' }))[0];
+  assert.equal(open.ready, true);
+  assert.equal(open.href, 'practice/grammar/boss/');
+  assert.equal(open.label, 'Boss Round');
+  const closed = flat(P.entriesFor({ book: 'oxford', series: 'oxford', level: 'p6', term: 'second', unit: 'boss' }))[0];
+  assert.equal(closed.ready, false);
+  assert.equal(flat(P.entriesFor({ book: 'longman', series: 'elect', level: 'p3', term: 'first', unit: 'boss' }))[0].ready, false);
 });
 
 test('the last place is remembered on this device and a missing unit falls back', () => {
