@@ -599,7 +599,7 @@
       return bits.filter(Boolean).join('/');
     }
     if (here.source === 'mixed') return bits.concat(['practice', 'vocab', 'mixed', here.mode]).concat(pathTail(here, row)).filter(Boolean).join('/');
-    if (here.source === 'boss') return bits.concat(['practice', 'grammar', 'boss']).join('/');
+    if (here.source === 'boss') return bits.concat(['practice', 'grammar', 'boss']).concat(pathTail(here, row)).filter(Boolean).join('/');
     if (here.part === 'doors') {
       bits.push(here.unit, 'doors');
       var door = row && row.slot ? row.slot : here.slot;
@@ -657,9 +657,20 @@
         });
       }
       if (practiceKind === 'grammar' && parts[6] === 'boss') {
+        var bossSet = '1';
+        var bossRow = '';
+        var bossIndex = 7;
+        while (bossIndex < parts.length) {
+          var bossPart = parts[bossIndex];
+          var bossSetMatch = /^set([1-5])$/i.exec(bossPart);
+          if (bossSetMatch) { bossSet = bossSetMatch[1]; bossIndex += 1; continue; }
+          if (/^\d+$/.test(bossPart)) { bossRow = bossPart; bossIndex += 1; continue; }
+          return null;
+        }
         return studioPlace({
           book: book, series: series, term: term, level: level,
-          open: 'unit', part: 'practice', source: 'boss', kind: 'grammar', mode: 'boss'
+          open: 'unit', part: 'practice', source: 'boss', kind: 'grammar', mode: 'boss',
+          set: bossSet, n: bossRow
         });
       }
       return null;

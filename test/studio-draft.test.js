@@ -435,6 +435,12 @@ test('studio paths open home, a unit, resources, practice sources, and site', ()
   assert.equal(boss.source, 'boss');
   assert.equal(boss.mode, 'boss');
   assert.equal(boss.unit, 'mixed');
+  assert.equal(boss.set, '1');
+  assert.equal(draft.studioPath(boss), 'oxford/Livingoxfordenglish/bookA/p6/practice/grammar/boss');
+  const bossSet = draft.parseStudioPath('oxford/Livingoxfordenglish/bookA/p6/practice/grammar/boss/set2/4');
+  assert.equal(bossSet.set, '2');
+  assert.equal(bossSet.n, '4');
+  assert.equal(draft.studioPath(bossSet, { n: '4' }), 'oxford/Livingoxfordenglish/bookA/p6/practice/grammar/boss/set2/4');
   const oldBoss = draft.parseStudioPath('oxford/Livingoxfordenglish/bookA/p6/unit3/practice/grammar/boss');
   assert.equal(oldBoss.source, 'boss');
   assert.equal(oldBoss.mode, 'boss');
