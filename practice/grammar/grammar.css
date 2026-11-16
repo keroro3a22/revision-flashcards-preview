@@ -1431,13 +1431,16 @@ body.boss-round .prompt .blank {
   line-height: 1.35;
 }
 .battle-next {
-  min-height: 2.9rem;
+  align-self: flex-end;
+  width: auto;
+  min-height: 0;
+  padding: 0.32rem 0.85rem;
   border-radius: var(--pill);
   background: var(--navy);
   color: #fff;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.15rem;
+  font-size: 0.95rem;
 }
 body.boss-round .choices {
   flex: none;

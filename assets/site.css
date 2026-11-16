@@ -1641,26 +1641,30 @@ body.boss-quiz-open .account-link-fab {
   z-index: 6;
   left: 48.7%;
   top: 64.2%;
-  width: 4.6rem;
+  width: 7.4rem;
   height: auto;
   display: block;
   padding: 0;
   border: 0;
   border-radius: 0;
-  background: none;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  box-shadow: none;
   cursor: pointer;
   pointer-events: auto;
-  transform: translate(-50%, -100%);
+  transform: translate(-50%, 0);
   animation: boss-arrow 0.7s ease-in-out infinite alternate;
 }
 .boss-gate-arrow img {
   width: 100%;
   height: auto;
   display: block;
+  background: transparent;
 }
 @keyframes boss-arrow {
-  from { transform: translate(-50%, calc(-100% - 16px)); }
-  to { transform: translate(-50%, -100%); }
+  from { transform: translate(-50%, 18px); }
+  to { transform: translate(-50%, 0); }
 }
 .boss-gate.is-entering .boss-gate-arrow,
 .boss-gate.is-entering .boss-gate-mouth,
