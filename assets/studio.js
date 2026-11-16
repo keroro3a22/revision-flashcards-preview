@@ -106,7 +106,7 @@
     $('filter-mode-label').hidden = !practice || source === 'boss';
     $('filter-difficulty-label').hidden = true;
     var sentenceFill = practice && source !== 'boss' && $('filter-mode').value === 'fill';
-    $('filter-set-label').hidden = !practice || source === 'boss' || !(kind === 'grammar' || sentenceFill);
+    $('filter-set-label').hidden = !practice || !(kind === 'grammar' || sentenceFill);
     $('filter-unit-label').hidden = open !== 'unit' || (part === 'practice' && source !== 'unit');
     if ($('studio-new')) $('studio-new').hidden = open === 'home' || open === 'site' || (open === 'unit' && part === 'doors');
     syncUnits(preferredUnit);
