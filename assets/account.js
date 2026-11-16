@@ -339,6 +339,10 @@
   }
 
   function mountLink() {
+    if (document.body && document.body.classList.contains('boss-round')) {
+      paintLink();
+      return;
+    }
     if (document.getElementById('account-link')) {
       paintLink();
       return;
