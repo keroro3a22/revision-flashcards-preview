@@ -50,21 +50,37 @@
 
   function openBossGate(place, href) {
     var gate = ensureBossGate();
+    var next = (scriptRoot() || '') + href;
+    if (!document.querySelector('link[data-boss-prefetch]')) {
+      var preload = document.createElement('link');
+      preload.rel = 'prefetch';
+      preload.href = next;
+      preload.setAttribute('data-boss-prefetch', '');
+      document.head.appendChild(preload);
+    }
     gate.classList.remove('is-entering');
     gate.classList.add('open');
     document.body.style.overflow = 'hidden';
     gate.querySelector('[data-ready]').onclick = function () {
       if (gate.classList.contains('is-entering')) return;
-      gate.classList.add('is-entering');
-      var cave = gate.querySelector('.boss-gate-cave');
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var gone = false;
       function go() {
         if (gone) return;
         gone = true;
-        location.href = (scriptRoot() || '') + href;
+        if (!reduce) {
+          try { sessionStorage.setItem('boss-cave-fade', '1'); } catch (err) {}
+        }
+        location.href = next;
       }
+      if (reduce) {
+        go();
+        return;
+      }
+      gate.classList.add('is-entering');
+      var cave = gate.querySelector('.boss-gate-cave');
       cave.addEventListener('animationend', go);
-      setTimeout(go, 1100);
+      setTimeout(go, 3300);
     };
     gate.querySelector('[data-practice]').onclick = function () {
       closeBossGate();

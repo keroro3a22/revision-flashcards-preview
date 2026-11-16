@@ -1594,7 +1594,7 @@ html[data-view="home"] .place-shell { display: none; }
 .boss-gate.is-entering .boss-gate-cave {
   opacity: 1;
   z-index: 3;
-  animation: boss-enter 0.95s ease forwards;
+  animation: boss-enter 2.8s ease forwards;
 }
 .boss-gate-card {
   position: absolute;
