@@ -11,8 +11,8 @@ From top to bottom:
 - A small back control, the same destination as today.
 - The existing red demon, the largest thing on the screen, centered. A health bar of 12 segments sits directly under it.
 - The familiar quiz row: the question number, such as `3 / 12`, the player's 3 hearts, and a mute control.
-- The question in the same card as before. The picture is smaller than it used to be, centered above the sentence. A long sentence uses a slightly smaller type so the choices stay on screen.
-- The answer chips sit under the sentence and wrap, the way they did before.
+- The question card keeps a smaller picture above the sentence, and the answer chips wrap underneath.
+- On a wide screen the fight splits in half. The demon and its health bar fill one side. The question card fills the other. On a phone the demon stays centered above the question. The health bar is centered on the point between the demon's eyes, with the word HP to its left.
 
 The old row of progress dots is not on this screen. The 12 segments and the question number show progress. Clear, Check, and Next are gone. Tapping a choice attacks at once.
 
