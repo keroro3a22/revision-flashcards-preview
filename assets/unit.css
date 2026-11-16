@@ -285,7 +285,7 @@ button { font: inherit; cursor: pointer; }
 }
 .funfact-line.is-headline { font-size: 0.95rem; margin-bottom: 0.3rem; }
 .funfact-block .hl {
-  background: var(--highlight);
+  background: #f6c3d0;
   color: #e04870;
 }
 .funfact-close {
