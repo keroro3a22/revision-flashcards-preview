@@ -204,22 +204,26 @@ button { font: inherit; cursor: pointer; }
 .funfact-btn {
   position: absolute;
   top: calc(var(--shell) + 14px + 52px);
-  right: calc(var(--shell) + 14px);
-  width: 44px;
-  height: 44px;
+  right: calc(var(--shell) + 10px);
+  width: 52px;
+  height: auto;
   border-radius: 0;
   background: transparent;
-  color: var(--pink);
-  display: grid;
-  place-items: center;
+  display: block;
   border: 0;
   box-shadow: none;
   padding: 0;
-  transition: transform var(--t-press) var(--ease-out), color var(--t-hover);
+  line-height: 0;
+  transition: transform var(--t-press) var(--ease-out);
 }
-.funfact-btn:hover { background: transparent; color: #e56d7e; }
+.funfact-btn:hover { background: transparent; }
 .funfact-btn:active { transform: scale(0.94); }
-.funfact-btn svg { width: 32px; height: 32px; }
+.funfact-btn img {
+  width: 52px;
+  height: auto;
+  display: block;
+  background: transparent;
+}
 .card.no-audio .funfact-btn { top: calc(var(--shell) + 14px); }
 .funfact-pop {
   position: fixed;
