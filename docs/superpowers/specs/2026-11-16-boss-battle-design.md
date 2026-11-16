@@ -9,9 +9,10 @@ The quiz fills the screen. Phone portrait, tablet, and computer all show the bos
 From top to bottom:
 
 - A small back control, the same destination as today.
-- One row: the existing red demon, small, beside a health bar of 12 segments; the player's 3 hearts; the question number, such as `3 / 12`; a mute control.
-- The question picture, as large as the leftover space allows, beside or above the sentence. A long sentence uses a slightly smaller type so the choices stay on screen.
-- Four choices, pinned along the bottom.
+- The existing red demon, the largest thing on the screen, centered. A health bar of 12 segments sits directly under it.
+- The familiar quiz row: the question number, such as `3 / 12`, the player's 3 hearts, and a mute control.
+- The question in the same card as before. The picture is smaller than it used to be, centered above the sentence. A long sentence uses a slightly smaller type so the choices stay on screen.
+- The answer chips sit under the sentence and wrap, the way they did before.
 
 The old row of progress dots is not on this screen. The 12 segments and the question number show progress. Clear, Check, and Next are gone. Tapping a choice attacks at once.
 
