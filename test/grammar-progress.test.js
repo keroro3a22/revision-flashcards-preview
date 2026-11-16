@@ -222,6 +222,42 @@ test('join pages use one blank stem and lowercase choices', () => {
   });
 });
 
+test('join pages leave out the decorative picture and keep the answer icons', () => {
+  const pictures = {
+    unit1: 'u1_04_raffle.jpg',
+    unit2: 'u2_03_flood.png',
+    unit3: 'u3_mix.png',
+    unit4: 'u4_comedy.png',
+    unit5: 'u5_s1_q1.jpg',
+    unit6: 'u6_s1_q1.jpg'
+  };
+  Object.entries(pictures).forEach(([unit, file]) => {
+    const html = read(unit + '-join.html');
+    assert.doesNotMatch(html, /class="illust/, unit);
+    assert.doesNotMatch(html, new RegExp(file.replace('.', '\\.')), unit);
+    assert.match(html, /illust\/feedback-ok\.png/, unit);
+    assert.match(html, /illust\/feedback-bad\.png/, unit);
+    assert.match(html, /class="toast-art"/, unit);
+    assert.equal(fs.existsSync(path.join(grammar, 'illust', file)), true, file);
+  });
+  assert.match(read('unit1-story.html'), /illust\/u1_04_raffle\.jpg/);
+  assert.match(read('unit2-story.html'), /class="story-panel-art"/);
+  assert.match(read('unit3-story.html'), /illust\/u3_mix\.png/);
+  assert.match(read('unit3-chat.html'), /class="illust sky chat-hero"/);
+  assert.match(read('unit4-story.html'), /illust\/u4_comedy\.png/);
+  assert.match(read('unit4-chat.html'), /class="illust sky chat-hero"/);
+  assert.match(read('unit5-story.html'), /illust\/u5_s1_q1\.jpg/);
+  assert.match(read('unit6-story.html'), /illust\/u6_s1_q1\.jpg/);
+  assert.match(read('boss.html'), /id="art-wrap"/);
+  assert.match(read('boss.html'), /illust\/u1_04_raffle\.jpg/);
+  ['unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6'].forEach(unit => {
+    const hub = read(unit + '-hub.html');
+    assert.match(hub, /icons\/story\.svg/, unit);
+    assert.match(hub, /icons\/chat\.svg/, unit);
+    assert.match(hub, /icons\/join\.svg/, unit);
+  });
+});
+
 test('grammar banners only go back to packs', () => {
   const html = read('grammar-hub.html');
   assert.match(html, /class="back" href="\.\.\/\.\.\/">← Back to packs</);
