@@ -12,8 +12,8 @@
   --sky: #84c0e4;
   --pink: #f0909c;
   --white: #ffffff;
-  --font-display: "Fredoka", "Nunito", "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
-  --font-text: "Nunito", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --font-display: "Fredoka", "Nunito", "jf-openhuninn", "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
+  --font-text: "Nunito", "jf-openhuninn", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
   --radius: 22px;
   --radius-sm: 16px;
   --pill: 999px;
@@ -878,7 +878,7 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
   object-fit: contain;
 }
 .mcard-front.face-zh .zh {
-  font-family: "Noto Sans TC", "PingFang TC", var(--font-text);
+  font-family: "jf-openhuninn", "Noto Sans TC", "PingFang TC", var(--font-text);
   font-weight: 700;
   font-size: clamp(0.72rem, 2.7vw, 0.92rem);
   text-align: center;
@@ -1015,7 +1015,7 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
   color: var(--navy);
 }
 .badge-toast-name {
-  font-family: "Noto Sans TC", "PingFang TC", var(--font-display);
+  font-family: "jf-openhuninn", "Noto Sans TC", "PingFang TC", var(--font-display);
   font-weight: 700;
   font-size: 1.25rem;
   line-height: 1.25;

@@ -33,7 +33,7 @@
   display: inline-flex;
   align-items: center;
   min-width: 0;
-  font-family: var(--font-display, "Fredoka", sans-serif);
+  font-family: var(--font-display, "Fredoka", "jf-openhuninn", sans-serif);
   font-weight: 600;
   font-size: 1.1rem;
   letter-spacing: -0.02em;
@@ -65,7 +65,7 @@
 .site-chrome .place-drop > button,
 .site-chrome .unit-tab,
 .site-chrome .nav-jump {
-  font-family: var(--font-display, "Fredoka", sans-serif);
+  font-family: var(--font-display, "Fredoka", "jf-openhuninn", sans-serif);
   font-weight: 650;
   min-height: 44px;
 }
@@ -104,7 +104,7 @@
   padding: 0.35rem 0.75rem;
   border-radius: 12px;
   text-align: left;
-  font-family: var(--font-display, "Fredoka", sans-serif);
+  font-family: var(--font-display, "Fredoka", "jf-openhuninn", sans-serif);
   font-weight: 650;
 }
 .site-chrome .place-menu button:hover,

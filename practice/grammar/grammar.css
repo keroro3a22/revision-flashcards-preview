@@ -1052,7 +1052,7 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
 }
 .badge-card .badge-name {
   margin: 0;
-  font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", var(--font-display);
+  font-family: "jf-openhuninn", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", var(--font-display);
   font-weight: 700;
   font-size: 1.02rem;
   line-height: 1.25;
@@ -1133,7 +1133,7 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
   color: var(--navy);
 }
 .badge-toast-name {
-  font-family: "Noto Sans TC", "PingFang TC", var(--font-display);
+  font-family: "jf-openhuninn", "Noto Sans TC", "PingFang TC", var(--font-display);
   font-weight: 700;
   font-size: 1.2rem;
   color: var(--navy);

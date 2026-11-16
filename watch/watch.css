@@ -14,8 +14,8 @@
   --green: #009c48;
   --sky: #84c0e4;
   --white: #ffffff;
-  --font: "Nunito", "Fredoka", "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
-  --font-display: "Fredoka", "Nunito", system-ui, sans-serif;
+  --font: "Nunito", "Fredoka", "jf-openhuninn", "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
+  --font-display: "Fredoka", "Nunito", "jf-openhuninn", system-ui, sans-serif;
   /* ~10–12% of short side for thick inner bezel + camera notch headroom */
   --safe-pct: 11%;
   --bezel-top: max(12%, env(safe-area-inset-top, 0px));

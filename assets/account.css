@@ -14,7 +14,7 @@ body.account-page:has(.profile-page) {
   overflow-y: auto;
 }
 .profile-page h1 {
-  font-family: var(--font-display, "Fredoka", sans-serif);
+  font-family: var(--font-display, "Fredoka", "jf-openhuninn", sans-serif);
   font-weight: 700;
   letter-spacing: -0.03em;
   color: var(--navy, #243c6c);
@@ -93,7 +93,7 @@ body.account-page:has(.profile-page) {
   border-radius: 999px;
   background: var(--navy, #243c6c);
   color: var(--cream, #fcf0d8);
-  font-family: var(--font-display, "Fredoka", sans-serif);
+  font-family: var(--font-display, "Fredoka", "jf-openhuninn", sans-serif);
   font-weight: 650;
   font-size: 0.95rem;
   text-decoration: none;
@@ -151,7 +151,7 @@ body.account-page .topbar { position: relative; flex: none; }
 
 .account-kicker,
 .account-form-kicker {
-  font-family: var(--font-display, "Fredoka", sans-serif);
+  font-family: var(--font-display, "Fredoka", "jf-openhuninn", sans-serif);
   font-weight: 650;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -162,7 +162,7 @@ body.account-page .topbar { position: relative; flex: none; }
 
 .account-aside h1 {
   margin-top: 0.35rem;
-  font-family: var(--font-display, "Fredoka", sans-serif);
+  font-family: var(--font-display, "Fredoka", "jf-openhuninn", sans-serif);
   font-weight: 650;
   font-size: clamp(2.4rem, 1.6rem + 2.4vw, 4rem);
   line-height: 0.95;
@@ -219,7 +219,7 @@ body.account-page .topbar { position: relative; flex: none; }
 }
 
 .account-card h2 {
-  font-family: var(--font-display, "Fredoka", sans-serif);
+  font-family: var(--font-display, "Fredoka", "jf-openhuninn", sans-serif);
   font-weight: 650;
   font-size: clamp(1.6rem, 1.2rem + 1vw, 2.1rem);
   letter-spacing: -0.03em;
@@ -328,7 +328,7 @@ body.account-page .topbar { position: relative; flex: none; }
 }
 
 .account-ask-panel h2 {
-  font-family: var(--font-display, "Fredoka", sans-serif);
+  font-family: var(--font-display, "Fredoka", "jf-openhuninn", sans-serif);
   font-size: 1.7rem;
   font-weight: 650;
 }

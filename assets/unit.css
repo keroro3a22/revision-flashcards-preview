@@ -18,8 +18,8 @@
   --coral: #fc903c;        /* CTA */
   --white: #ffffff;
 
-  --font-display: "Fredoka", "Nunito", "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
-  --font-text: "Nunito", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --font-display: "Fredoka", "Nunito", "jf-openhuninn", "PingFang TC", "Noto Sans TC", system-ui, sans-serif;
+  --font-text: "Nunito", "jf-openhuninn", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
   --margin: clamp(1rem, 2.2vw, 1.75rem);
   --illust: 220px;
   --radius: 24px;
@@ -356,7 +356,7 @@ button { font: inherit; cursor: pointer; }
   font-size: 1rem;
   line-height: 1.45;
   opacity: 0.95;
-  font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", var(--font-text);
+  font-family: "jf-openhuninn", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", var(--font-text);
 }
 
 .ex {
@@ -378,7 +378,7 @@ button { font: inherit; cursor: pointer; }
   font-size: 0.95rem;
   line-height: 1.45;
   opacity: 0.95;
-  font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", var(--font-text);
+  font-family: "jf-openhuninn", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", var(--font-text);
 }
 .hl {
   background: var(--highlight);

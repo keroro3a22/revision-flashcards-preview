@@ -1,0 +1,8 @@
+/* Chinese text. English keeps Fredoka and Nunito, which are listed first. */
+@font-face {
+  font-family: "jf-openhuninn";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("fonts/jf-openhuninn.woff2") format("woff2");
+}
