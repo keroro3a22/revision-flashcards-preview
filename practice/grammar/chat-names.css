@@ -1,0 +1,21 @@
+/* Speakers with no handwritten bubble class. chat-names.js picks a stable side and tint. */
+.bubble.guest-start,
+.bubble.guest-end {
+  background: var(--bubble-amy);
+}
+.bubble.guest-start {
+  align-self: flex-start;
+  border-bottom-left-radius: 6px;
+}
+.bubble.guest-end {
+  align-self: flex-end;
+  border-bottom-right-radius: 6px;
+}
+.bubble.guest-tone-0 { background: var(--bubble-amy); }
+.bubble.guest-tone-1 { background: var(--bubble-tom); }
+.bubble.guest-tone-2 { background: var(--bubble-miss); }
+.bubble.guest-tone-3 { background: var(--bubble-ken); }
+.bubble.guest-tone-4 { background: var(--bubble-leo); }
+.bubble.guest-tone-5 { background: var(--bubble-sam); }
+.bubble.guest-tone-6 { background: var(--bubble-mia); }
+.bubble.guest-tone-7 { background: var(--bubble-chef); }
