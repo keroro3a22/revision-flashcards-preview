@@ -496,11 +496,11 @@
     frameInput.type = 'hidden';
     frameInput.dataset.field = 'funfact_frame';
     frameInput.value = row.funfact_frame ? JSON.stringify(row.funfact_frame) : '';
-    var thumb = thumbButton(photoSrc(row.funfact_img), row.funfact_frame, 1, function () {
+    var thumb = thumbButton(photoSrc(row.funfact_img), row.funfact_frame, 3 / 2, function () {
       openPhotoFrame({
         src: photoSrc(path.textContent),
         frame: frameInput.value,
-        shape: 'revision',
+        ratio: 3 / 2,
         onDone: function (frame) {
           frameInput.value = JSON.stringify(frame);
           row.funfact_frame = frame;

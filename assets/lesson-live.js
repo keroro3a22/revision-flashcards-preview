@@ -117,7 +117,7 @@
       img.hidden = false;
       img.src = picture;
       img.alt = words ? '' : 'Fun fact';
-      if (window.ImgFrame) window.ImgFrame.apply(img, card.funfact_frame, 1);
+      if (window.ImgFrame) window.ImgFrame.apply(img, card.funfact_frame, 3 / 2);
     } else {
       photo.hidden = true;
       img.hidden = true;
