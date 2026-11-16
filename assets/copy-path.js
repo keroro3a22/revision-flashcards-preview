@@ -5,7 +5,8 @@
     '.copy-path { font: inherit; font-size: 0.75rem; font-weight: 700; color: #16324f; background: #fff; border: 1px solid #8ea4ba; border-radius: 999px; padding: 0.15rem 0.55rem; cursor: pointer; }',
     '.copy-path-page { margin: 0.35rem 0 0.2rem; }',
     '.copy-path-row { margin-top: 0.35rem; }',
-    '.toolbar .copy-path-row, .prac-header .copy-path-page { margin-left: 0.4rem; }'
+    '.toolbar .copy-path-row, .prac-header .copy-path-page { margin-left: 0.4rem; }',
+    '.copy-path-answer { margin-left: 0.35rem; }'
   ].join('\n');
 
   function copyText(text, button) {
@@ -143,11 +144,11 @@
     return bits.join(' · ');
   }
 
-  function makeButton(className, onClick) {
+  function makeButton(className, label, onClick) {
     var el = document.createElement('button');
     el.type = 'button';
     el.className = className;
-    el.textContent = 'Copy path';
+    el.textContent = label;
     el.addEventListener('click', function (event) {
       event.preventDefault();
       event.stopPropagation();
@@ -159,7 +160,7 @@
   function mountPage() {
     if (document.querySelector('.copy-path-page')) return;
     var host = document.querySelector('.unit-header, .prac-header, header') || document.body;
-    host.appendChild(makeButton('copy-path copy-path-page', function (button) {
+    host.appendChild(makeButton('copy-path copy-path-page', 'Copy path', function (button) {
       copyText(lessonBits() ? lessonPath(null) : practicePath(''), button);
     }));
   }
@@ -170,7 +171,7 @@
       var num = card.querySelector('.num');
       if (!num) return;
       var head = card.querySelector('.headword, .pattern');
-      var el = makeButton('copy-path copy-path-row', function (button) {
+      var el = makeButton('copy-path copy-path-row', 'Copy path', function (button) {
         copyText(lessonPath({
           n: num.textContent.trim(),
           label: head ? head.textContent.trim() : ''
@@ -181,12 +182,25 @@
     });
   }
 
+  function mountAnswer(host) {
+    if (!host || host.querySelector('.copy-path-answer')) return;
+    var mode = practiceMode(siteFile());
+    if (!mode || mode.mode !== 'boss') return;
+    host.appendChild(makeButton('copy-path copy-path-answer', 'Answer', function () {
+      if (window.RevisionTestAnswer) window.RevisionTestAnswer();
+    }));
+  }
+
   function mountQuestion() {
     var num = document.getElementById('q-num');
-    if (!num || num.parentElement.querySelector('.copy-path-row')) return;
-    num.parentElement.appendChild(makeButton('copy-path copy-path-row', function (button) {
-      copyText(practicePath(questionText()), button);
-    }));
+    if (!num) return;
+    var host = num.parentElement;
+    if (!host.querySelector('.copy-path-row')) {
+      host.appendChild(makeButton('copy-path copy-path-row', 'Copy path', function (button) {
+        copyText(practicePath(questionText()), button);
+      }));
+    }
+    mountAnswer(host);
   }
 
   var shown = false;
