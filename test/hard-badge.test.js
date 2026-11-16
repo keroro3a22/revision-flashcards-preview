@@ -76,7 +76,7 @@ test('chat pages put the harder badge on the message stem', () => {
     assert.doesNotMatch(html, /qLabel\.innerHTML[\s\S]{0,240}hard-badge/, unit);
     assert.match(
       html,
-      /qLabel\.textContent = "Fill the blank in " \+ names\[bubbles\[idx\]\.speaker\] \+ "’s message";/,
+      /qLabel\.textContent = "Fill the blank in " \+ ChatNames\.display\(bubbles\[idx\], names\) \+ "’s message";/,
       unit
     );
     const calls = [...html.matchAll(/buildBubbleHtml\(([^)]*)\)/g)]
