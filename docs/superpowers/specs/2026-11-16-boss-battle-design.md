@@ -10,9 +10,10 @@ From top to bottom:
 
 - A small back control, the same destination as today.
 - The existing red demon, the largest thing on the screen, centered. A health bar of 12 segments sits directly under it.
-- The familiar quiz row: the question number, such as `3 / 12`, the player's 3 hearts, and a mute control.
-- The question card keeps a smaller picture above the sentence, and the answer chips wrap underneath.
-- On a wide screen the fight splits in half. The demon and its health bar fill one side. The question card fills the other. On a phone the demon stays centered above the question. The health bar is centered on the point between the demon's eyes, with the word HP to its left.
+- The familiar quiz row: the question number, such as `3 / 12`, and a mute control.
+- The question card uses the spare room for a larger picture, a larger sentence, and one answer on each line. Each answer has A. B. C. or D. outside the chip.
+- The player's three hearts sit at the bottom right of the question card, labeled MY HP.
+- On a wide screen the fight splits in half. The demon and its health bar fill one side. The question card fills the other. On a phone the demon stays centered above the question. The health bar is centered on the point between the demon's eyes, with the words BOSS HP to its left. A hit empties the bar from the right. The lost segment, and a lost heart, swell and fade so the hit is easy to see.
 
 The old row of progress dots is not on this screen. The 12 segments and the question number show progress. Clear, Check, and Next are gone. Tapping a choice attacks at once.
 
@@ -54,6 +55,6 @@ When the device asks for reduced motion, the demon stays still, the cave arrow d
 
 The entrance card stays as it is: Ready for the boss, the current sentence, I'm ready, and Practice. Practice still opens the revision cards.
 
-The waiting picture is the cave, not the demon. An arrow points at the dark mouth and bounces toward it. It sits clear of the card. The arrow and I'm ready do the same thing: the cave zooms in, as if the player walks into the mouth, then the fight appears with the fade the entrance already uses. Reduced motion still opens the quiz directly.
+The waiting picture is the cave, not the demon. The mountain is a cutout on the page colour, with no dark backdrop. A plain chevron, with no circle around it, sits under the mouth and points up at the middle of the opening. The chevron, the mouth, and I'm ready do the same thing: the cave zooms in, as if the player walks into the mouth, then the fight appears with the fade the entrance already uses. Reduced motion still opens the quiz directly.
 
 The sign-in control stays off the quiz, as it does now.

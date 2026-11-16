@@ -9,14 +9,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../../assets/huninn.css"/>
-<link rel="stylesheet" href="grammar.css?v=54"/>
+<link rel="stylesheet" href="grammar.css?v=55"/>
 <link rel="stylesheet" href="../../assets/chrome.css?v=7" />
 <link rel="stylesheet" href="../../assets/profile.css?v=6" />
 <link rel="stylesheet" href="../../assets/account.css?v=8" />
 <script src="../../assets/supabase-public.js?v=1"></script>
 <script src="../../assets/progress-sync.js?v=3"></script>
 <script src="../../assets/place.js?v=11"></script>
-<script src="../../assets/place-ui.js?v=29"></script>
+<script src="../../assets/place-ui.js?v=30"></script>
 <script src="../../assets/profile.js?v=7"></script>
 <script src="../../assets/account.js?v=17"></script>
 </head>
@@ -28,14 +28,13 @@
       <img class="battle-oni" id="oni" alt="" src="../../assets/boss/oni.png">
     </div>
     <div class="boss-meter">
-      <span class="boss-hp-label">HP</span>
+      <span class="boss-hp-label">BOSS HP</span>
       <div class="boss-hp" id="boss-hp" role="meter" aria-label="Boss health" aria-valuemin="0" aria-valuemax="12" aria-valuenow="12"></div>
     </div>
   </div>
   <div class="quiz-side" id="quiz-side">
   <div class="toolbar battle-tools" id="battle-tools">
     <span class="chip boss" id="q-num">1 / 12</span>
-    <div class="lives-row" id="lives" aria-label="Lives"></div>
     <button type="button" class="battle-mute" id="btn-mute" aria-pressed="false">Mute</button>
   </div>
 
@@ -51,6 +50,10 @@
     </div>
     <div class="join-plain" id="pair" hidden></div>
     <div class="choices" id="choices"></div>
+    <div class="my-hp">
+      <span class="my-hp-label">MY HP</span>
+      <div class="lives-row" id="lives" aria-label="Lives"></div>
+    </div>
   </div>
   </div>
 
@@ -710,23 +713,29 @@
     oni.classList.add(name);
   }
 
-  function renderLives() {
+  function renderLives(flash) {
     let html = "";
     for (let i = 0; i < 3; i++) {
-      html += '<span class="heart' + (i >= lives ? " lost" : "") + '" aria-hidden="true">' + HEART_SVG + "</span>";
+      const lost = i >= lives;
+      const pop = flash && !reduce && lost && i === lives;
+      const cls = pop ? "heart is-dissolving" : ("heart" + (lost ? " lost" : ""));
+      html += '<span class="' + cls + '" aria-hidden="true">' + HEART_SVG + "</span>";
     }
     livesEl.innerHTML = html;
     livesEl.setAttribute("aria-label", lives + (lives === 1 ? " life left" : " lives left"));
   }
 
-  function renderHp() {
+  function renderHp(flash) {
+    const n = items.length;
     let html = "";
-    for (let i = 0; i < items.length; i++) {
-      html += '<span class="' + (i < hits ? "spent" : "") + '"></span>';
+    for (let i = 0; i < n; i++) {
+      const spent = i >= n - hits;
+      const pop = flash && !reduce && spent && i === n - hits;
+      html += '<span class="' + (pop ? "is-dissolving" : (spent ? "spent" : "")) + '"></span>';
     }
     bossHp.innerHTML = html;
-    bossHp.setAttribute("aria-valuemax", String(items.length));
-    bossHp.setAttribute("aria-valuenow", String(Math.max(0, items.length - hits)));
+    bossHp.setAttribute("aria-valuemax", String(n));
+    bossHp.setAttribute("aria-valuenow", String(Math.max(0, n - hits)));
   }
 
   function joinParts(it) {
@@ -803,14 +812,19 @@
     else renderPrompt(null);
 
     choices.innerHTML = "";
-    it.options.forEach((opt) => {
+    it.options.forEach((opt, i) => {
+      const line = document.createElement("div");
+      line.className = "choice-line";
+      const letter = document.createElement("span");
+      letter.className = "choice-letter";
+      letter.textContent = "ABCD".charAt(i) + ".";
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "choice";
-      if (it.answers || (it.kind === "join" && opt.length > 8)) btn.classList.add("block");
       btn.textContent = opt;
       btn.addEventListener("click", () => answer(opt, btn));
-      choices.appendChild(btn);
+      line.append(letter, btn);
+      choices.appendChild(line);
     });
   }
 
@@ -861,10 +875,10 @@
       pose(last ? "is-down" : "is-hurt");
       playHit();
       hits += 1;
-      renderHp();
+      renderHp(true);
       if (it.kind === "join") renderJoinStem(it.answer, "ok");
       else renderPrompt(it.answer, "ok");
-      [...choices.children].forEach((c) => { c.disabled = true; });
+      choices.querySelectorAll(".choice").forEach((c) => { c.disabled = true; });
       btn.classList.add("correct");
       reason.hidden = false;
       reason.textContent = it.explain || "";
@@ -881,14 +895,14 @@
     pose("is-lunge");
     playHurt();
     lives -= 1;
-    renderLives();
+    renderLives(true);
     livesEl.classList.remove("is-hit");
     void livesEl.offsetWidth;
     livesEl.classList.add("is-hit");
     btn.classList.add("spent");
     btn.disabled = true;
     if (lives <= 0) {
-      [...choices.children].forEach((c) => { c.disabled = true; });
+      choices.querySelectorAll(".choice").forEach((c) => { c.disabled = true; });
       pending = setTimeout(() => finish(false), reduce ? 0 : 500);
       return;
     }
