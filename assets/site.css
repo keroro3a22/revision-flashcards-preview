@@ -1556,6 +1556,12 @@ html[data-view="home"] .place-shell { display: none; }
   height: 100%;
   border: 0;
   background: #fcf0d8;
+  opacity: 0;
+  pointer-events: none;
+}
+body.boss-quiz-open .boss-quiz-frame {
+  opacity: 1;
+  pointer-events: auto;
 }
 body.boss-quiz-open #account-link,
 body.boss-quiz-open .account-link-fab {
@@ -1566,11 +1572,12 @@ body.boss-quiz-open .account-link-fab {
   inset: 0;
   z-index: 90;
   display: none;
-  background: var(--bg);
+  background: transparent;
   overflow: hidden;
 }
 .boss-gate.open {
   display: block;
+  z-index: 1100;
   opacity: 1;
   transition: opacity 1.5s ease;
 }
@@ -1600,8 +1607,8 @@ body.boss-quiz-open .account-link-fab {
 }
 .boss-gate-frame {
   position: relative;
-  width: min(92vw, calc((100dvh - 3.2rem - 30vh) * 770 / 539));
-  aspect-ratio: 770 / 539;
+  width: min(92vw, calc((100dvh - 3.2rem - 30vh) * 774 / 541));
+  aspect-ratio: 774 / 541;
 }
 .boss-gate-cave {
   position: absolute;
@@ -1609,9 +1616,10 @@ body.boss-quiz-open .account-link-fab {
   width: 100%;
   height: 100%;
   object-fit: fill;
+  background: transparent;
   opacity: 1;
   transform: scale(1);
-  transform-origin: 48.7% 64%;
+  transform-origin: 48.7% 64.2%;
   pointer-events: none;
 }
 .boss-gate-mouth {
@@ -1633,8 +1641,8 @@ body.boss-quiz-open .account-link-fab {
   z-index: 6;
   left: 48.7%;
   top: 64.2%;
-  width: 5rem;
-  height: 3.5rem;
+  width: 2.8rem;
+  height: 4.6rem;
   display: block;
   padding: 0;
   border: 0;

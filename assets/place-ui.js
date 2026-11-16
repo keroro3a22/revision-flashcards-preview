@@ -240,10 +240,10 @@
     gate.setAttribute('aria-labelledby', 'boss-gate-title');
     gate.innerHTML = '<a class="boss-gate-back" href="' + root + '">← Back to packs</a>'
       + '<div class="boss-gate-scene"><div class="boss-gate-frame">'
-      + '<img class="boss-gate-cave" alt="" src="' + root + 'assets/boss/cave.png">'
+      + '<img class="boss-gate-cave" alt="" src="' + root + 'assets/boss/cave.png?v=3">'
       + '<button type="button" class="boss-gate-mouth" data-ready aria-label="Enter the cave"></button>'
       + '<button type="button" class="boss-gate-arrow" data-ready aria-label="Enter the cave">'
-      + '<svg viewBox="0 0 80 56" aria-hidden="true" focusable="false"><path d="M10 50 L40 4 L70 50"/><path d="M10 50 L40 4 L70 50"/></svg>'
+      + '<svg viewBox="0 0 64 96" aria-hidden="true" focusable="false"><path d="M32 90 V30 M12 46 L32 6 L52 46"/><path d="M32 90 V30 M12 46 L32 6 L52 46"/></svg>'
       + '</button></div></div>'
       + '<div class="boss-gate-card">'
       + '<h2 id="boss-gate-title">Ready for the boss?</h2>'
