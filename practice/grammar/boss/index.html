@@ -80,6 +80,7 @@
 <script src="../../assets/img-frame.js?v=13"></script>
 <script src="../../assets/vendor/supabase.js?v=1"></script>
 <script src="grammar-live.js?v=3"></script>
+<script src="boss-answer.js?v=1"></script>
 <script>
 (function () {
   /* Authors: ?set=1|2|3|4|5 (1-based) forces that authored set; never show set chips on screen.
@@ -812,9 +813,7 @@
       return;
     }
     let html = "", bi = 0;
-    const vals = it.answers
-      ? (val ? String(val).split(" · ") : null)
-      : (val != null ? [val] : null);
+    const vals = val == null ? null : BossAnswer.blankValues(val);
     it.parts.forEach((p) => {
       if (p === "____") {
         const v = vals && vals[bi] != null ? vals[bi] : "____";
@@ -912,7 +911,7 @@
   function answer(opt, btn) {
     if (locked || !zoom.hidden) return;
     const it = items[idx];
-    const ok = opt === it.answer;
+    const ok = BossAnswer.matches(opt, it.answer);
     locked = true;
     if (ok) {
       const last = idx >= items.length - 1;
