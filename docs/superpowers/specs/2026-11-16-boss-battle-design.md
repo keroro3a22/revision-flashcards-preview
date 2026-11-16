@@ -25,7 +25,7 @@ A `Harder` mark stays on the sentence when the question has one.
 
 The player has 3 hearts for the whole round. The demon has 12 health, one segment per question. The questions, pictures, and answer text are the ones the round already uses.
 
-- A correct tap hits the demon. The same picture flashes and recoils, and one segment empties. The picture stays the same size. The other answers disappear, and the chosen answer stays. The reason sits in a rounded block in the space those answers left, with a Next question button. On the last question that button opens the victory screen. The next picture is already loaded, so it shows at once.
+- A correct tap hits the demon. The same picture flashes and recoils, and one segment empties. The picture stays the same size. The other answers disappear, and the chosen answer stays. The reason sits in a rounded block in the space those answers left, with a small Next button on the right. On the last question that button opens the victory screen. The next picture is already loaded, so it shows at once.
 - A wrong tap is a hit from the demon. The picture lunges, one heart is lost, and the chosen option goes dim and cannot be tapped again. The right answer is not shown. The other options stay available.
 - The third heart ends the fight at once. That question is not retried.
 
@@ -55,7 +55,7 @@ When the device asks for reduced motion, the demon stays still, the cave arrow d
 
 The entrance card stays as it is: Ready for the boss, the current sentence, I'm ready, and Practice. Practice still opens the revision cards.
 
-The waiting picture is the cave, not the demon. The mountain file has no background of its own, and the entrance page has its own cream background so the home page does not show through. The orange down arrow, with a white edge and no circle, points at the middle of the opening. The arrow, the mouth, and I'm ready do the same thing: the cave zooms in, as if the player walks into the mouth, then the fight appears with the fade the entrance already uses. Reduced motion still opens the quiz directly.
+The waiting picture is the cave, not the demon. The mountain file has no background of its own, and the entrance page has its own cream background so the home page does not show through. The orange arrow points up, with a white edge and no background, and its tip sits on the middle of the opening. The arrow, the mouth, and I'm ready do the same thing: the cave zooms in, as if the player walks into the mouth, then the fight appears with the fade the entrance already uses. Reduced motion still opens the quiz directly.
 
 Try again has no white card. The demon there uses the same eye-line alignment as the fight. MY HP and its hearts are pink. Mute is a speaker icon, with a slash across it when the sound is off.
 
