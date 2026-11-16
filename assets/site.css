@@ -1572,7 +1572,7 @@ body.boss-quiz-open .account-link-fab {
   inset: 0;
   z-index: 90;
   display: none;
-  background: transparent;
+  background: var(--bg);
   overflow: hidden;
 }
 .boss-gate.open {
@@ -1641,8 +1641,8 @@ body.boss-quiz-open .account-link-fab {
   z-index: 6;
   left: 48.7%;
   top: 64.2%;
-  width: 2.8rem;
-  height: 4.6rem;
+  width: 4.6rem;
+  height: auto;
   display: block;
   padding: 0;
   border: 0;
@@ -1650,24 +1650,17 @@ body.boss-quiz-open .account-link-fab {
   background: none;
   cursor: pointer;
   pointer-events: auto;
-  transform: translate(-50%, 0);
+  transform: translate(-50%, -100%);
   animation: boss-arrow 0.7s ease-in-out infinite alternate;
 }
-.boss-gate-arrow svg { width: 100%; height: 100%; overflow: visible; }
-.boss-gate-arrow path {
-  fill: none;
-  stroke: #243c6c;
-  stroke-width: 16;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.boss-gate-arrow path + path {
-  stroke: #fcc03c;
-  stroke-width: 8;
+.boss-gate-arrow img {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 @keyframes boss-arrow {
-  from { transform: translate(-50%, 16px); }
-  to { transform: translate(-50%, 0); }
+  from { transform: translate(-50%, calc(-100% - 16px)); }
+  to { transform: translate(-50%, -100%); }
 }
 .boss-gate.is-entering .boss-gate-arrow,
 .boss-gate.is-entering .boss-gate-mouth,

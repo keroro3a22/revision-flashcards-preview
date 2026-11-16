@@ -9,14 +9,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../../assets/huninn.css"/>
-<link rel="stylesheet" href="grammar.css?v=56"/>
+<link rel="stylesheet" href="grammar.css?v=57"/>
 <link rel="stylesheet" href="../../assets/chrome.css?v=7" />
 <link rel="stylesheet" href="../../assets/profile.css?v=6" />
 <link rel="stylesheet" href="../../assets/account.css?v=8" />
 <script src="../../assets/supabase-public.js?v=1"></script>
 <script src="../../assets/progress-sync.js?v=3"></script>
 <script src="../../assets/place.js?v=11"></script>
-<script src="../../assets/place-ui.js?v=31"></script>
+<script src="../../assets/place-ui.js?v=32"></script>
 <script src="../../assets/profile.js?v=7"></script>
 <script src="../../assets/account.js?v=17"></script>
 </head>
@@ -48,11 +48,14 @@
       </button>
       <div class="battle-copy">
         <p class="prompt" id="prompt"></p>
-        <p class="battle-reason" id="reason" hidden></p>
       </div>
     </div>
     <div class="join-plain" id="pair" hidden></div>
     <div class="choices" id="choices"></div>
+    <div class="battle-foot" id="battle-foot" hidden>
+      <p class="battle-tip" id="reason" hidden></p>
+      <button type="button" class="battle-next" id="btn-next">Next question</button>
+    </div>
     <div class="my-hp">
       <span class="my-hp-label">MY HP</span>
       <div class="lives-row" id="lives" aria-label="Lives"></div>
@@ -610,6 +613,8 @@
   const pair = document.getElementById("pair");
   const choices = document.getElementById("choices");
   const reason = document.getElementById("reason");
+  const foot = document.getElementById("battle-foot");
+  const btnNext = document.getElementById("btn-next");
   const battleQ = document.getElementById("battle-q");
   const zoom = document.getElementById("art-zoom");
   const zoomImg = document.getElementById("art-zoom-img");
@@ -648,6 +653,17 @@
     };
     if (cached.complete) paint();
     else cached.addEventListener("load", paint, { once: true });
+  }
+
+  function holdPicture() {
+    if (artOpen.hidden) return;
+    artOpen.style.height = artOpen.getBoundingClientRect().height + "px";
+    artOpen.style.flex = "none";
+  }
+
+  function releasePicture() {
+    artOpen.style.height = "";
+    artOpen.style.flex = "";
   }
 
   function ensureAudio() {
@@ -824,6 +840,8 @@
     qNum.textContent = (idx + 1) + " / " + items.length;
     showArt(it.img || "");
     if (items[idx + 1]) warmArt(items[idx + 1].img);
+    releasePicture();
+    foot.hidden = true;
     reason.hidden = true;
     reason.textContent = "";
     battleQ.classList.remove("has-reason");
@@ -904,18 +922,17 @@
       renderHp(true);
       if (it.kind === "join") renderJoinStem(it.answer, "ok");
       else renderPrompt(it.answer, "ok");
-      choices.querySelectorAll(".choice").forEach((c) => { c.disabled = true; });
+      holdPicture();
+      choices.querySelectorAll(".choice-line").forEach((line) => {
+        const choice = line.querySelector(".choice");
+        choice.disabled = true;
+        if (choice !== btn) line.hidden = true;
+      });
       btn.classList.add("correct");
-      reason.hidden = false;
       reason.textContent = it.explain || "";
-      battleQ.classList.add("has-reason");
-      pending = setTimeout(() => {
-        if (last) finish(true);
-        else {
-          idx += 1;
-          render();
-        }
-      }, reduce ? 0 : 720);
+      reason.hidden = !it.explain;
+      foot.hidden = false;
+      btnNext.textContent = last ? "Continue" : "Next question";
       return;
     }
     pose("is-lunge");
@@ -934,6 +951,16 @@
     }
     locked = false;
   }
+
+  btnNext.addEventListener("click", () => {
+    if (foot.hidden || !zoom.hidden) return;
+    if (pending) { clearTimeout(pending); pending = null; }
+    if (idx >= items.length - 1) finish(true);
+    else {
+      idx += 1;
+      render();
+    }
+  });
 
   art.addEventListener("load", () => {
     artOpen.hidden = !art.naturalWidth;

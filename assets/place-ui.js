@@ -243,7 +243,7 @@
       + '<img class="boss-gate-cave" alt="" src="' + root + 'assets/boss/cave.png?v=3">'
       + '<button type="button" class="boss-gate-mouth" data-ready aria-label="Enter the cave"></button>'
       + '<button type="button" class="boss-gate-arrow" data-ready aria-label="Enter the cave">'
-      + '<svg viewBox="0 0 64 96" aria-hidden="true" focusable="false"><path d="M32 90 V30 M12 46 L32 6 L52 46"/><path d="M32 90 V30 M12 46 L32 6 L52 46"/></svg>'
+      + '<img alt="" src="' + root + 'assets/boss/arrow.png?v=1">'
       + '</button></div></div>'
       + '<div class="boss-gate-card">'
       + '<h2 id="boss-gate-title">Ready for the boss?</h2>'
