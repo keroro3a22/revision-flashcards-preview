@@ -48,9 +48,80 @@
     });
   }
 
+  var bossPackTitle = '';
+
+  function frameHasQuiz(frame) {
+    try {
+      return !!(frame && frame.contentDocument && frame.contentDocument.getElementById('game'));
+    } catch (err) {
+      return false;
+    }
+  }
+
+  function wireFrameLinks(frame) {
+    var doc;
+    try { doc = frame.contentDocument; } catch (err) { return; }
+    if (!doc || doc.documentElement.dataset.bossLinks === '1') return;
+    doc.documentElement.dataset.bossLinks = '1';
+    var scroll = doc.createElement('style');
+    scroll.textContent = 'html,body{min-height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch}';
+    doc.head.appendChild(scroll);
+    doc.addEventListener('click', function (event) {
+      var link = event.target && event.target.closest ? event.target.closest('a[href]') : null;
+      if (!link) return;
+      var href = link.getAttribute('href') || '';
+      if (href === 'boss/' || href.indexOf('boss/?') === 0) return;
+      link.setAttribute('target', '_top');
+    }, true);
+  }
+
+  function leaveBossQuiz() {
+    var frame = document.getElementById('boss-quiz-frame');
+    if (frame) frame.remove();
+    var gate = document.getElementById('boss-gate');
+    if (gate) {
+      gate.classList.remove('open', 'is-entering', 'is-fading');
+      gate.dataset.enter = '';
+      delete gate.dataset.quiz;
+    }
+    var practice = document.getElementById('boss-practice');
+    if (!practice || practice.hidden) document.body.style.overflow = '';
+    if (bossPackTitle) {
+      document.title = bossPackTitle;
+      bossPackTitle = '';
+    }
+  }
+
+  function watchBossHistory() {
+    if (watchBossHistory.bound) return;
+    watchBossHistory.bound = true;
+    window.addEventListener('popstate', function () {
+      var onBoss = location.pathname.indexOf('/practice/grammar/boss') !== -1;
+      var frame = document.getElementById('boss-quiz-frame');
+      if (onBoss && !frame) {
+        location.reload();
+        return;
+      }
+      if (!onBoss && frame) leaveBossQuiz();
+    });
+  }
+
+  function ensureBossFrame(gate) {
+    var frame = document.getElementById('boss-quiz-frame');
+    if (frame) return frame;
+    frame = document.createElement('iframe');
+    frame.id = 'boss-quiz-frame';
+    frame.className = 'boss-quiz-frame';
+    frame.title = 'Boss Round';
+    frame.setAttribute('aria-hidden', 'true');
+    gate.parentNode.insertBefore(frame, gate);
+    return frame;
+  }
+
   function openBossGate(place, href) {
     var gate = ensureBossGate();
     var next = (scriptRoot() || '') + href;
+    watchBossHistory();
     if (!document.querySelector('link[data-boss-prefetch]')) {
       var preload = document.createElement('link');
       preload.rel = 'prefetch';
@@ -58,29 +129,73 @@
       preload.setAttribute('data-boss-prefetch', '');
       document.head.appendChild(preload);
     }
-    gate.classList.remove('is-entering');
+    gate.classList.remove('is-entering', 'is-fading');
+    delete gate.dataset.quiz;
     gate.classList.add('open');
     document.body.style.overflow = 'hidden';
     gate.querySelector('[data-ready]').onclick = function () {
-      if (gate.classList.contains('is-entering')) return;
+      if (gate.classList.contains('is-entering') || gate.dataset.quiz === 'open') return;
       var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      var gone = false;
-      function go() {
-        if (gone) return;
-        gone = true;
-        if (!reduce) {
-          try { sessionStorage.setItem('boss-cave-fade', '1'); } catch (err) {}
-        }
-        location.href = next;
-      }
       if (reduce) {
-        go();
+        location.href = next;
         return;
       }
+      var frame = ensureBossFrame(gate);
+      var token = String(Date.now());
+      var zoomDone = false;
+      var revealed = false;
+      gate.dataset.enter = token;
+      function reveal() {
+        if (revealed || gate.dataset.enter !== token) return;
+        if (!zoomDone || !gate.classList.contains('open') || !frame.isConnected) return;
+        if (!frameHasQuiz(frame)) return;
+        revealed = true;
+        gate.dataset.quiz = 'open';
+        wireFrameLinks(frame);
+        if (!bossPackTitle) bossPackTitle = document.title;
+        try { history.pushState({ bossQuiz: 1 }, '', next); } catch (err) {}
+        try { document.title = frame.contentDocument.title || document.title; } catch (err2) {}
+        frame.removeAttribute('aria-hidden');
+        var finished = false;
+        function done(event) {
+          if (finished) return;
+          if (event && event.propertyName && event.propertyName !== 'opacity') return;
+          if (gate.dataset.enter !== token) return;
+          finished = true;
+          gate.classList.remove('open', 'is-entering', 'is-fading');
+          try { frame.focus(); } catch (err3) {}
+        }
+        gate.addEventListener('transitionend', done);
+        requestAnimationFrame(function () {
+          gate.classList.add('is-fading');
+          setTimeout(done, 1800);
+        });
+      }
+      function markZoom() {
+        if (zoomDone || gate.dataset.enter !== token) return;
+        zoomDone = true;
+        reveal();
+      }
+      frame.addEventListener('load', function () {
+        if (!frameHasQuiz(frame)) return;
+        wireFrameLinks(frame);
+        reveal();
+      });
+      if (frame.getAttribute('src') !== next) frame.src = next;
+      else if (frameHasQuiz(frame)) wireFrameLinks(frame);
       gate.classList.add('is-entering');
       var cave = gate.querySelector('.boss-gate-cave');
-      cave.addEventListener('animationend', go);
-      setTimeout(go, 3300);
+      cave.addEventListener('animationend', markZoom);
+      setTimeout(markZoom, 3300);
+      setTimeout(function () {
+        if (gate.dataset.enter !== token || revealed || gate.dataset.quiz === 'open') return;
+        if (!gate.classList.contains('open')) return;
+        if (frameHasQuiz(frame)) {
+          markZoom();
+          return;
+        }
+        location.href = next;
+      }, 7000);
     };
     gate.querySelector('[data-practice]').onclick = function () {
       closeBossGate();
@@ -90,8 +205,11 @@
 
   function closeBossGate() {
     var gate = document.getElementById('boss-gate');
-    if (!gate) return;
-    gate.classList.remove('open', 'is-entering');
+    if (!gate || gate.dataset.quiz === 'open') return;
+    var frame = document.getElementById('boss-quiz-frame');
+    if (frame) frame.remove();
+    gate.dataset.enter = '';
+    gate.classList.remove('open', 'is-entering', 'is-fading');
     if (!document.getElementById('boss-practice') || document.getElementById('boss-practice').hidden) {
       document.body.style.overflow = '';
     }

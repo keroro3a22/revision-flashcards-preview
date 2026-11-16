@@ -1548,6 +1548,15 @@ html[data-view="home"] .place-shell { display: none; }
 .place-entry.tone-practice-grammar { background: color-mix(in srgb, var(--sky) 72%, white); }
 .place-entry.tone-game { background: color-mix(in srgb, var(--green) 38%, white); }
 .place-entry.tone-boss { background: color-mix(in srgb, #c4473a 28%, white); }
+.boss-quiz-frame {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fcf0d8;
+}
 .boss-gate {
   position: fixed;
   inset: 0;
@@ -1556,7 +1565,15 @@ html[data-view="home"] .place-shell { display: none; }
   background: #1c140f;
   overflow: hidden;
 }
-.boss-gate.open { display: block; }
+.boss-gate.open {
+  display: block;
+  opacity: 1;
+  transition: opacity 1.5s ease;
+}
+.boss-gate.is-fading {
+  opacity: 0;
+  pointer-events: none;
+}
 .boss-gate-back {
   position: absolute;
   z-index: 4;
@@ -1595,6 +1612,9 @@ html[data-view="home"] .place-shell { display: none; }
   opacity: 1;
   z-index: 3;
   animation: boss-enter 2.8s ease forwards;
+}
+.boss-gate.is-fading .boss-gate-cave {
+  animation: boss-sink 1.5s ease forwards;
 }
 .boss-gate-card {
   position: absolute;
@@ -1729,6 +1749,10 @@ html[data-view="home"] .place-shell { display: none; }
 @keyframes boss-enter {
   from { transform: scale(1); }
   to { transform: scale(2.8); }
+}
+@keyframes boss-sink {
+  from { transform: scale(2.8); }
+  to { transform: scale(3.6); }
 }
 @keyframes boss-show {
   from { opacity: 0; }

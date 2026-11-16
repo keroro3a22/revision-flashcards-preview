@@ -3,41 +3,6 @@
 <head>
 <meta charset="UTF-8"/>
 <base href="../">
-<style>
-.boss-arrive {
-  position: fixed;
-  inset: 0;
-  z-index: 80;
-  background: #1c140f url("../../assets/boss/cave.png") center / cover no-repeat;
-  transform: scale(2.8);
-  pointer-events: none;
-  animation: boss-arrive 1.5s ease forwards;
-}
-@keyframes boss-arrive {
-  from { opacity: 1; transform: scale(2.8); }
-  to { opacity: 0; transform: scale(3.4); }
-}
-</style>
-<script>
-(function () {
-  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var show = false;
-  try {
-    show = sessionStorage.getItem('boss-cave-fade') === '1';
-    if (show) sessionStorage.removeItem('boss-cave-fade');
-  } catch (err) {}
-  if (!show || reduce) return;
-  var veil = document.createElement('div');
-  veil.className = 'boss-arrive';
-  veil.setAttribute('aria-hidden', 'true');
-  document.documentElement.appendChild(veil);
-  function done() {
-    if (veil.parentNode) veil.remove();
-  }
-  veil.addEventListener('animationend', done);
-  setTimeout(done, 1800);
-})();
-</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <title>Boss Round · Grammar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -51,7 +16,7 @@
 <script src="../../assets/supabase-public.js?v=1"></script>
 <script src="../../assets/progress-sync.js?v=3"></script>
 <script src="../../assets/place.js?v=11"></script>
-<script src="../../assets/place-ui.js?v=26"></script>
+<script src="../../assets/place-ui.js?v=27"></script>
 <script src="../../assets/profile.js?v=7"></script>
 <script src="../../assets/account.js?v=16"></script>
 </head>
