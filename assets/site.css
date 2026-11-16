@@ -1557,6 +1557,17 @@ html[data-view="home"] .place-shell { display: none; }
   overflow: hidden;
 }
 .boss-gate.open { display: block; }
+.boss-gate-back {
+  position: absolute;
+  z-index: 4;
+  top: max(0.85rem, env(safe-area-inset-top));
+  left: 1rem;
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+}
 .boss-gate-cave,
 .boss-gate-oni {
   position: absolute;
@@ -1564,21 +1575,26 @@ html[data-view="home"] .place-shell { display: none; }
   width: 100%;
   height: 100%;
 }
-.boss-gate-cave {
-  object-fit: cover;
-  transform: scale(1.22);
-  opacity: 1;
-}
-.boss-gate.is-oni .boss-gate-cave {
-  animation: boss-cave 1.05s ease forwards;
-}
 .boss-gate-oni {
   object-fit: contain;
-  padding: 3vh 8vw 24vh;
-  opacity: 0;
+  padding: 4.5rem 8vw 24vh;
 }
-.boss-gate.is-oni .boss-gate-oni {
-  animation: boss-show 0.55s ease 0.62s forwards;
+.boss-gate-cave {
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1);
+  pointer-events: none;
+}
+.boss-gate.is-entering .boss-gate-oni,
+.boss-gate.is-entering .boss-gate-card,
+.boss-gate.is-entering .boss-gate-back {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.boss-gate.is-entering .boss-gate-cave {
+  opacity: 1;
+  z-index: 3;
+  animation: boss-enter 0.95s ease forwards;
 }
 .boss-gate-card {
   position: absolute;
@@ -1590,10 +1606,6 @@ html[data-view="home"] .place-shell { display: none; }
   border-radius: 22px;
   background: rgba(252, 240, 216, 0.95);
   color: var(--navy);
-  opacity: 0;
-}
-.boss-gate.is-oni .boss-gate-card {
-  animation: boss-show 0.4s ease 0.95s forwards;
 }
 .boss-gate-card h2 {
   margin: 0;
@@ -1714,9 +1726,9 @@ html[data-view="home"] .place-shell { display: none; }
 .boss-card-zh,
 .boss-card-pattern,
 .boss-card-ex { margin: 0.25rem 0 0; font-weight: 700; line-height: 1.4; }
-@keyframes boss-cave {
-  from { transform: scale(1.22); opacity: 1; }
-  to { transform: scale(1); opacity: 0; }
+@keyframes boss-enter {
+  from { transform: scale(1); }
+  to { transform: scale(2.8); }
 }
 @keyframes boss-show {
   from { opacity: 0; }

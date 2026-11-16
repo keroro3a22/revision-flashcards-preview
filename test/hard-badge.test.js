@@ -113,7 +113,7 @@ test('pages that link grammar.css pick up the badge alignment', () => {
   assert.ok(linked.length >= 20);
   linked.forEach((file) => {
     const html = fs.readFileSync(file, 'utf8');
-    assert.match(html, /grammar\.css\?v=50/, path.relative(root, file));
+    assert.match(html, /grammar\.css\?v=51/, path.relative(root, file));
     assert.doesNotMatch(html, /grammar\.css\?v=48/, path.relative(root, file));
   });
 });
