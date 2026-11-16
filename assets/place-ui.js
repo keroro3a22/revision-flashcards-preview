@@ -143,7 +143,7 @@
     delete gate.dataset.quiz;
     gate.classList.add('open');
     document.body.style.overflow = 'hidden';
-    gate.querySelector('[data-ready]').onclick = function () {
+    function enterBoss() {
       if (gate.classList.contains('is-entering') || gate.dataset.quiz === 'open') return;
       var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (reduce) {
@@ -207,7 +207,8 @@
         }
         location.href = next;
       }, 7000);
-    };
+    }
+    gate.querySelectorAll('[data-ready]').forEach(function (btn) { btn.onclick = enterBoss; });
     gate.querySelector('[data-practice]').onclick = function () {
       closeBossGate();
       openBossPractice(place);
@@ -238,8 +239,11 @@
     gate.setAttribute('aria-modal', 'true');
     gate.setAttribute('aria-labelledby', 'boss-gate-title');
     gate.innerHTML = '<a class="boss-gate-back" href="' + root + '">← Back to packs</a>'
-      + '<img class="boss-gate-oni" alt="" src="' + root + 'assets/boss/oni.png">'
+      + '<div class="boss-gate-scene"><div class="boss-gate-frame">'
       + '<img class="boss-gate-cave" alt="" src="' + root + 'assets/boss/cave.png">'
+      + '<button type="button" class="boss-gate-arrow" data-ready aria-label="Enter the cave">'
+      + '<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M32 8v34M18 30l14 18 14-18"/></svg>'
+      + '</button></div></div>'
       + '<div class="boss-gate-card">'
       + '<h2 id="boss-gate-title">Ready for the boss?</h2>'
       + '<p>This round mixes grammar from every unit in this book. You have 3 lives.</p>'

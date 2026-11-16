@@ -1,6 +1,6 @@
 # Boss round battle
 
-Status: design agreed in chat. The boss round stays a 12-question grammar quiz. Answering becomes a fight on one screen.
+Status: built from the agreed design. The boss round stays a 12-question grammar quiz. Answering becomes a fight on one screen.
 
 ## Battle screen
 
