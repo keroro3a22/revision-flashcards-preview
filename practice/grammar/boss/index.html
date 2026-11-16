@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../../assets/huninn.css"/>
-<link rel="stylesheet" href="grammar.css?v=58"/>
+<link rel="stylesheet" href="grammar.css?v=59"/>
 <link rel="stylesheet" href="../../assets/chrome.css?v=7" />
 <link rel="stylesheet" href="../../assets/profile.css?v=6" />
 <link rel="stylesheet" href="../../assets/account.css?v=8" />
@@ -64,7 +64,7 @@
   </div>
 
   <div class="panel battle-end" id="done" hidden>
-    <img id="done-art" alt="" src="../../assets/boss/victory.png">
+    <img id="done-art" alt="" src="../../assets/boss/victory.png?v=1">
     <h2 id="done-title">Victory</h2>
     <p id="done-sub"></p>
     <div class="btn-row" id="done-actions"></div>
@@ -895,7 +895,7 @@
     document.getElementById("done-art").classList.toggle("oni-align", !won);
     if (won) {
       document.getElementById("done-title").textContent = "Victory";
-      document.getElementById("done-art").src = "../../assets/boss/victory.png";
+      document.getElementById("done-art").src = "../../assets/boss/victory.png?v=1";
       document.getElementById("done-sub").textContent = lives + (lives === 1 ? " life left" : " lives left");
       actions.innerHTML = '<a class="btn btn-primary" href="grammar-hub/" target="_top">Grammar practice</a>';
     } else {
