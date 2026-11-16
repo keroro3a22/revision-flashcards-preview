@@ -195,7 +195,16 @@
       var practice = document.createElement('a');
       practice.className = 'boss-unit-practice';
       practice.href = root + 'practice/grammar/' + unit.id + '-hub/';
-      practice.textContent = 'Practice';
+      practice.textContent = '';
+      var word = document.createElement('span');
+      word.className = 'boss-unit-word';
+      word.textContent = 'Practice';
+      var chevron = document.createElement('span');
+      chevron.className = 'boss-unit-chevron';
+      chevron.setAttribute('aria-hidden', 'true');
+      chevron.textContent = '›';
+      practice.appendChild(word);
+      practice.appendChild(chevron);
       head.appendChild(title);
       head.appendChild(practice);
       section.appendChild(head);

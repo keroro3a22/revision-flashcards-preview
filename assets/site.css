@@ -1623,7 +1623,7 @@ html[data-view="home"] .place-shell { display: none; }
   cursor: pointer;
 }
 .boss-gate-ready { background: #c4473a; color: #fff; }
-.boss-gate-practice { background: transparent; color: var(--navy); text-decoration: underline; text-underline-offset: 0.16em; }
+.boss-gate-practice { background: var(--navy); color: #fff; }
 .boss-practice {
   position: fixed;
   inset: 0;
@@ -1685,9 +1685,18 @@ html[data-view="home"] .place-shell { display: none; }
   font-size: 1.2rem;
 }
 .boss-unit-practice {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
   font-weight: 800;
+}
+.boss-unit-word {
   text-decoration: underline;
   text-underline-offset: 0.16em;
+}
+.boss-unit-chevron {
+  font-size: 1.25em;
+  line-height: 1;
 }
 .boss-unit-empty { margin: 0; font-weight: 700; opacity: 0.75; }
 .boss-card {
