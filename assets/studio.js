@@ -440,6 +440,79 @@
     img.hidden = !src;
     if (src) img.src = src;
   }
+  function paintFunfact(cell) {
+    var button = cell.querySelector('.studio-thumb-btn');
+    var path = cell.querySelector('[data-field="funfact_img"]');
+    var src = photoSrc(path ? path.textContent : '');
+    if (button && button.update) button.update(src, null);
+    var remove = cell.querySelector('.studio-funfact-remove');
+    if (remove) remove.hidden = !src;
+  }
+  function pickFunfactPhoto(cell) {
+    var path = cell.querySelector('[data-field="funfact_img"]');
+    chooseLibraryPhoto(function (src) {
+      if (path) path.textContent = src;
+      paintFunfact(cell);
+      say('Fun fact photo is in this row. Publish to show it on the site.');
+    });
+  }
+  function funfactCell(row) {
+    var cell = document.createElement('td');
+    cell.className = 'studio-funfact';
+    var toggle = document.createElement('label');
+    toggle.className = 'studio-funfact-toggle';
+    var input = document.createElement('input');
+    input.type = 'checkbox';
+    input.dataset.field = 'funfact_on';
+    input.checked = row.funfact_on === true || String(row.funfact_on) === 'true';
+    var caption = document.createElement('span');
+    caption.textContent = 'On';
+    toggle.appendChild(input);
+    toggle.appendChild(caption);
+    var words = document.createElement('textarea');
+    words.className = 'studio-edit studio-funfact-text';
+    words.dataset.field = 'funfact_text';
+    words.rows = 3;
+    words.value = cellText(row.funfact_text);
+    words.setAttribute('aria-label', 'Fun fact words');
+    var path = document.createElement('div');
+    path.className = 'studio-edit';
+    path.contentEditable = 'true';
+    path.spellcheck = false;
+    path.dataset.field = 'funfact_img';
+    path.hidden = true;
+    path.textContent = cellText(row.funfact_img);
+    path.addEventListener('paste', plainPaste);
+    var thumb = thumbButton(photoSrc(row.funfact_img), null, 16 / 10, function () {
+      pickFunfactPhoto(cell);
+    });
+    var change = document.createElement('button');
+    change.type = 'button';
+    change.className = 'studio-upload';
+    change.textContent = 'Change photo';
+    change.addEventListener('click', function () { pickFunfactPhoto(cell); });
+    var remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'studio-upload studio-funfact-remove';
+    remove.textContent = 'Remove photo';
+    remove.addEventListener('click', function () {
+      path.textContent = '';
+      paintFunfact(cell);
+      say('Fun fact photo removed. Publish to update the site.');
+    });
+    input.addEventListener('change', function () {
+      cell.classList.toggle('is-off', !input.checked);
+    });
+    cell.appendChild(toggle);
+    cell.appendChild(words);
+    cell.appendChild(thumb);
+    cell.appendChild(path);
+    cell.appendChild(change);
+    cell.appendChild(remove);
+    cell.classList.toggle('is-off', !input.checked);
+    paintFunfact(cell);
+    return cell;
+  }
   function libraryPlace() {
     var here = place();
     var unit = here.unit === 'home' || here.unit === 'mixed' ? '' : here.unit;
@@ -816,6 +889,7 @@
     columns.push(
       { col: 'col-pair', key: 'example', label: 'Example<br>例句' },
       { col: 'col-pair', key: 'advanced', label: 'Advanced<br>進階例句' },
+      { col: 'col-funfact', key: 'funfact', label: 'Fun fact' },
       { col: 'col-state', key: 'state', label: 'State' },
       { col: 'col-actions', key: 'actions', label: '' }
     );
@@ -1350,6 +1424,7 @@
       PAIRS.forEach(function (pair) {
         tr.appendChild(pairCell(pair[0], pair[1], row));
       });
+      tr.appendChild(funfactCell(row));
       tr.appendChild(stateCell(row));
       tr.appendChild(actionCell(tr));
       body.appendChild(tr);
@@ -1621,7 +1696,7 @@
     say('Loading…');
     var query = client.from(tableName).select(practice
       ? 'id,n,status,prompt,answer,explain,options,level_name,extra'
-      : 'id,n,status,en,zh,pos,syllables,pattern,note_zh,highlight,highlight_adv,ex_en,ex_zh,adv_en,adv_zh,img,img_frame,audio,video,published')
+      : 'id,n,status,en,zh,pos,syllables,pattern,note_zh,highlight,highlight_adv,ex_en,ex_zh,adv_en,adv_zh,img,img_frame,audio,video,funfact_on,funfact_text,funfact_img,published')
       .eq('book', here.book).eq('series', here.series).eq('term', here.term)
       .eq('level', here.level).eq('track', here.kind);
     if (practice) {
@@ -1849,8 +1924,8 @@
       return fields.map(function (field) { return field + '.ilike."' + needle + '"'; }).join(',');
     }
     return Promise.all([
-      client.from('lesson_cards').select('book,series,term,level,unit_id,track,n,en,zh,ex_en,ex_zh,adv_en,adv_zh,pattern,note_zh')
-        .or(like(['en', 'zh', 'ex_en', 'ex_zh', 'adv_en', 'adv_zh', 'pattern', 'note_zh'])).limit(1000),
+      client.from('lesson_cards').select('book,series,term,level,unit_id,track,n,en,zh,ex_en,ex_zh,adv_en,adv_zh,pattern,note_zh,funfact_text')
+        .or(like(['en', 'zh', 'ex_en', 'ex_zh', 'adv_en', 'adv_zh', 'pattern', 'note_zh', 'funfact_text'])).limit(1000),
       client.from('practice_items').select('book,series,term,level,unit_id,track,mode,set_no,n,level_name,prompt,answer,explain')
         .or(like(['prompt', 'answer', 'explain'])).limit(1000),
       client.from('site_pages').select('book,series,term,level,unit_id,slot,label,note')

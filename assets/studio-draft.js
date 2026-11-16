@@ -76,6 +76,9 @@
       img: '',
       audio: '',
       video: '',
+      funfact_on: false,
+      funfact_text: '',
+      funfact_img: '',
       published: null,
       status: 'draft'
     };
@@ -786,7 +789,8 @@
       [row.ex_en, row.ex_zh].filter(Boolean).join(' '),
       [row.adv_en, row.adv_zh].filter(Boolean).join(' '),
       row.pattern,
-      row.note_zh
+      row.note_zh,
+      row.funfact_text
     ];
   }
 
