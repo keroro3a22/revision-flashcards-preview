@@ -2023,11 +2023,20 @@
     from = from.replace(/(^|\/)index\.html(?=[#?]|$)/, '$1').replace(/\.html(?=[#?]|$)/, '/');
     return from === './' ? '' : from;
   }
-  function wireBack() {
+  function rememberedReturn() {
     var from = '';
-    try { from = sessionStorage.getItem('revision-studio-from') || ''; } catch (e) {}
+    try { from = new URLSearchParams(window.location.search).get('from') || ''; } catch (e) {}
+    if (!from) {
+      try { from = sessionStorage.getItem('revision-studio-from') || ''; } catch (e2) {}
+    }
+    return safeReturn(from);
+  }
+  function wireBack() {
     var link = $('studio-back');
-    if (link) link.setAttribute('href', (studioRoot() || '../') + safeReturn(from));
+    if (!link) return;
+    link.setAttribute('href', (studioRoot() || '../') + rememberedReturn());
+    link.setAttribute('target', '_blank');
+    link.setAttribute('rel', 'noopener');
   }
 
   function bindEditor() {
