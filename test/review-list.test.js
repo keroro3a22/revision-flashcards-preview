@@ -65,7 +65,7 @@ test('every badge states exactly how to unlock it', () => {
   assert.equal(byId['grammar-join'], 'Finish 3 different Join the sentences sets.');
   assert.equal(byId['grammar-chat'], 'Finish 3 different Chat Quest sets.');
   assert.equal(byId['grammar-inference'], 'Get the Chat Quest mystery right 3 times.');
-  assert.equal(byId['grammar-boss'], 'Clear Boss Round with at least 1 life left.');
+  assert.equal(byId['grammar-boss'], 'Clear Boss Round with 3 lives left.');
   assert.equal(byId['review-clear'], undefined);
   assert.equal(byId['unit-done:unit1'], undefined);
 });

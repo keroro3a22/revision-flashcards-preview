@@ -33,6 +33,7 @@ window.Badges = (function () {
       if (!data.earned || typeof data.earned !== 'object') data.earned = {};
       if (!data.units || typeof data.units !== 'object') data.units = {};
       if (!data.hadReview || typeof data.hadReview !== 'object') data.hadReview = {};
+      if (settleBoss(data)) save(data);
       return data;
     } catch (e) {
       return empty();
@@ -87,7 +88,7 @@ window.Badges = (function () {
       { id: 'grammar-join', title: '組句高手', english: 'Sentence Linker', image: 'assets/badges/sentence-linker.png', detail: 'Finish 3 different Join the sentences sets.' },
       { id: 'grammar-chat', title: '對話練習生', english: 'Chat Practiser', image: 'assets/badges/chat-practiser.png', detail: 'Finish 3 different Chat Quest sets.' },
       { id: 'grammar-inference', title: '推理高手', english: 'Inference Ace', image: 'assets/badges/inference-ace.png', detail: 'Get the Chat Quest mystery right 3 times.' },
-      { id: 'grammar-boss', title: 'Boss 挑戰者', english: 'Boss Beater', image: 'assets/badges/boss-beater.png', detail: 'Clear Boss Round with at least 1 life left.' },
+      { id: 'grammar-boss', title: 'Boss 挑戰者', english: 'Boss Beater', image: 'assets/badges/boss-beater.png', detail: 'Clear Boss Round with 3 lives left.' },
       { id: 'all-rounder', title: '全能練習生', english: 'All-rounder', image: 'assets/badges/all-rounder.png', detail: 'Finish Fill, Letters, Match, and Timed once each, in the same book or in Mixed topic.' },
       { id: 'letters-phrase', title: '詞組拼寫手', english: 'Phrase Speller', image: 'assets/badges/phrase-speller.png', detail: 'Finish 3 different Missing Letters sets, all correct each time.' },
       { id: 'hard-challenger', title: 'Hard 挑戰者', english: 'Hard Challenger', image: 'assets/badges/hard-challenger.png', detail: 'Finish 3 different Fill Hard sets and 3 different Letters Hard sets, each at least 90% correct.' }
@@ -95,7 +96,8 @@ window.Badges = (function () {
   }
 
   function builtinTarget(id) {
-    if (id === 'starter' || id === 'grammar-boss') return 1;
+    if (id === 'starter') return 1;
+    if (id === 'grammar-boss') return 3;
     if (id === 'all-rounder') return 4;
     return 3;
   }
@@ -148,10 +150,14 @@ window.Badges = (function () {
   function presented(raw) {
     var over = overlay[raw.id] || {};
     var target = builtinTarget(raw.id);
-    var custom = Number(over.target);
-    var max = targetLimit(raw.id);
-    if (isFinite(custom) && custom >= 1 && custom <= max && Math.floor(custom) === custom) target = custom;
+    if (raw.id !== 'grammar-boss') {
+      var custom = Number(over.target);
+      var max = targetLimit(raw.id);
+      if (isFinite(custom) && custom >= 1 && custom <= max && Math.floor(custom) === custom) target = custom;
+    }
     var image = cleanText(over.image, raw.image || '', 400);
+    var milestones = cleanMilestones(over.milestones, target);
+    if (raw.id === 'grammar-boss') milestones = bossPep(milestones, target);
     return {
       id: raw.id,
       title: cleanText(over.title, raw.title || raw.id, 40),
@@ -162,8 +168,41 @@ window.Badges = (function () {
       countEditable: raw.id === 'grammar-inference',
       custom: !!(over.image && String(over.image).trim()),
       target: target,
-      milestones: cleanMilestones(over.milestones, target)
+      milestones: milestones
     };
+  }
+
+  function bossPep(published, target) {
+    var byAt = {};
+    (published || []).forEach(function (row) { byAt[row.at] = row.message; });
+    return [
+      { at: 1, message: 'One life left. Earn this badge with 3 lives left.' },
+      { at: 2, message: 'Two lives left. Earn this badge with 3 lives left.' }
+    ].filter(function (row) {
+      return row.at < target;
+    }).map(function (row) {
+      return { at: row.at, message: byAt[row.at] || row.message };
+    });
+  }
+
+  function bossLives(data) {
+    var lives = Number(data && data.grammarBossLives);
+    if (!isFinite(lives) || lives < 0) return 0;
+    return Math.floor(lives);
+  }
+
+  /* A Boss Beater earned before the 3-life rule does not count. A past clear still counts as practice. */
+  function settleBoss(data) {
+    if (bossLives(data) >= 3) return false;
+    if (!data.earned || !data.earned['grammar-boss']) return false;
+    data.grammarBossCleared = true;
+    delete data.earned['grammar-boss'];
+    if (data.nudgesSeen && data.nudgesSeen['grammar-boss']) delete data.nudgesSeen['grammar-boss'];
+    var pending = readPending().filter(function (item) {
+      return !(item && item.id === 'grammar-boss' && item.kind === 'unlock');
+    });
+    writePending(pending);
+    return true;
   }
 
   function viewById(id) {
@@ -273,10 +312,7 @@ window.Badges = (function () {
       if (!isFinite(wins) || wins < 0) return 0;
       return Math.floor(wins);
     }
-    if (id === 'grammar-boss') {
-      if (data.grammarBossCleared) return 1;
-      return data.earned && data.earned[id] ? 1 : 0;
-    }
+    if (id === 'grammar-boss') return bossLives(data);
     return 0;
   }
 
@@ -309,6 +345,7 @@ window.Badges = (function () {
       var seen = Array.isArray(data.nudgesSeen[raw.id]) ? data.nudgesSeen[raw.id].slice() : [];
       var changed = false;
       view.milestones.forEach(function (row) {
+        if (raw.id === 'grammar-boss' && (now >= view.target || row.at !== now)) return;
         if (row.at <= prev || row.at > now || seen.indexOf(row.at) !== -1) return;
         seen.push(row.at);
         changed = true;
@@ -566,7 +603,11 @@ window.Badges = (function () {
   function recordGrammarBoss(livesLeft) {
     const data = load();
     const before = snapshot(data);
-    if (Number(livesLeft) >= 1) data.grammarBossCleared = true;
+    var lives = Number(livesLeft);
+    if (!isFinite(lives) || lives < 1) lives = 0;
+    else lives = Math.floor(lives);
+    if (lives >= 1) data.grammarBossCleared = true;
+    if (lives > bossLives(data)) data.grammarBossLives = lives;
     return finish(data, before, grantGrammarBadges(data));
   }
 

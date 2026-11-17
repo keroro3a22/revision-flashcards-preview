@@ -18,7 +18,7 @@ test('story chat and join pages record a grammar session when the set advances',
   ['unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6'].forEach(unit => {
     ['story', 'chat', 'join'].forEach(mode => {
       const html = read(unit + '-' + mode + '.html');
-      assert.match(html, /src="\.\.\/\.\.\/practice\/badges\.js\?v=7"/, unit + '-' + mode);
+      assert.match(html, /src="\.\.\/\.\.\/practice\/badges\.js\?v=8"/, unit + '-' + mode);
       assert.match(
         html,
         new RegExp("Badges\\.recordGrammarSession\\('" + unit + "', '" + mode + "', setIndex \\+ 1\\)"),

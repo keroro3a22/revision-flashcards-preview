@@ -67,6 +67,26 @@ test('merge keeps both badges and the earlier date', () => {
   assert.equal(merged.badges.units.unit1.match, true);
   assert.equal(merged.badges.units.unit1.fillEasyBest, 1);
   assert.equal(merged.badges.grammarInferenceWins, 2);
+  const boss = P.merge({
+    badges: { earned: { 'grammar-boss': { earnedAt: 5 }, starter: { earnedAt: 1 } }, grammarBossCleared: true }
+  }, {
+    badges: { earned: { 'grammar-boss': { earnedAt: 9 } }, grammarBossLives: 2 }
+  }, { remoteAt: 1, profileAt: 1, lastAt: 1 });
+  assert.equal(boss.badges.earned['grammar-boss'], undefined);
+  assert.equal(boss.badges.earned.starter.earnedAt, 1);
+  assert.equal(boss.badges.grammarBossCleared, true);
+  assert.equal(boss.badges.grammarBossLives, 2);
+  assert.equal(P.same(
+    { badges: { earned: { 'grammar-boss': { earnedAt: 5 } } } },
+    { badges: { earned: {}, grammarBossCleared: true } }
+  ), false);
+  const kept = P.merge({
+    badges: { earned: { 'grammar-boss': { earnedAt: 5 } }, grammarBossLives: 3 }
+  }, {
+    badges: { earned: { 'grammar-boss': { earnedAt: 8 } }, grammarBossLives: 1 }
+  }, { remoteAt: 1, profileAt: 1, lastAt: 1 });
+  assert.equal(kept.badges.earned['grammar-boss'].earnedAt, 5);
+  assert.equal(kept.badges.grammarBossLives, 3);
   const seen = P.merge({
     badges: { earned: {}, units: {}, nudgesSeen: { 'match-pro': [1] } }
   }, {

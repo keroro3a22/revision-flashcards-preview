@@ -219,6 +219,17 @@
     if (Object.keys(seen).length) out.nudgesSeen = seen;
     var wins = Math.max(leftWins, rightWins);
     if (wins > 0) out.grammarInferenceWins = wins;
+    if (a.grammarBossCleared || b.grammarBossCleared) out.grammarBossCleared = true;
+    var leftLives = num(a.grammarBossLives);
+    var rightLives = num(b.grammarBossLives);
+    if (leftLives < 0) leftLives = 0;
+    if (rightLives < 0) rightLives = 0;
+    var bossLives = Math.max(Math.floor(leftLives), Math.floor(rightLives));
+    if (bossLives > 0) out.grammarBossLives = bossLives;
+    if (bossLives < 3 && out.earned && out.earned['grammar-boss']) {
+      out.grammarBossCleared = true;
+      delete out.earned['grammar-boss'];
+    }
     return out;
   }
 
@@ -329,7 +340,16 @@
     };
   }
 
+  function bossBadgeStale(snapshot) {
+    var badges = snapshot && snapshot.badges;
+    if (!badges || !badges.earned || !badges.earned['grammar-boss']) return false;
+    var lives = num(badges.grammarBossLives);
+    if (lives < 0) lives = 0;
+    return Math.floor(lives) < 3;
+  }
+
   function same(a, b) {
+    if (bossBadgeStale(a) || bossBadgeStale(b)) return false;
     return stable(normalize(a)) === stable(normalize(b));
   }
 

@@ -17,7 +17,8 @@
 
   function builtinTarget(id) {
     if (window.Badges && window.Badges.builtinTarget) return window.Badges.builtinTarget(id);
-    if (id === 'starter' || id === 'grammar-boss') return 1;
+    if (id === 'starter') return 1;
+    if (id === 'grammar-boss') return 3;
     if (id === 'all-rounder') return 4;
     return 3;
   }
@@ -178,13 +179,20 @@
     targetInput.type = 'number';
     targetInput.min = '1';
     targetInput.max = String(targetLimit(badge.id));
-    targetInput.value = String(target);
+    targetInput.value = badge.id === 'grammar-boss' ? '3' : String(target);
+    if (badge.id === 'grammar-boss') targetInput.readOnly = true;
     targetWrap.appendChild(targetName);
     targetWrap.appendChild(targetInput);
     article.appendChild(targetWrap);
     var steps = document.createElement('div');
     steps.className = 'studio-badge-steps';
     var storedSteps = row && Array.isArray(row.milestones) ? row.milestones : [];
+    if (badge.id === 'grammar-boss' && !storedSteps.length) {
+      storedSteps = [
+        { at: 1, message: 'One life left. Earn this badge with 3 lives left.' },
+        { at: 2, message: 'Two lives left. Earn this badge with 3 lives left.' }
+      ];
+    }
     storedSteps.forEach(function (step) { steps.appendChild(stepRow(step)); });
     article.appendChild(steps);
     var add = document.createElement('button');
