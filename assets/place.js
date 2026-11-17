@@ -25,12 +25,18 @@ window.RevisionPlace = (function () {
   books.forEach(function (item) { bookDefaults[item.id] = item.image; });
   levels.forEach(function (item) { levelDefaults[item.id] = item.image; });
   var seriesByBook = {
-    oxford: [{ id: 'oxford', label: 'Living Oxford English' }],
+    oxford: [{ id: 'oxford', label: 'Living Oxford English', image: 'covers/unit1.jpg' }],
     longman: [
-      { id: 'mypearson-express', label: 'Primary Longman Express' },
-      { id: 'elect', label: 'Primary Longman Elect' }
+      { id: 'mypearson-express', label: 'Primary Longman Express', image: 'covers/unit2.jpg' },
+      { id: 'elect', label: 'Primary Longman Elect', image: 'covers/unit3.jpg' }
     ]
   };
+  var seriesDefaults = {};
+  Object.keys(seriesByBook).forEach(function (bookId) {
+    seriesByBook[bookId].forEach(function (item) {
+      seriesDefaults[bookId + ':' + item.id] = item.image;
+    });
+  });
   var terms = [
     { id: 'first', label: 'Book A' },
     { id: 'second', label: 'Book B' }
@@ -229,11 +235,56 @@ window.RevisionPlace = (function () {
   }
 
   function onboardingPictures() {
-    return books.map(function (item) {
-      return { id: 'book-' + item.id, name: 'Book · ' + item.label, image: bookDefaults[item.id] || '' };
-    }).concat(levels.map(function (item) {
-      return { id: 'level-' + item.id, name: 'Level · ' + item.label, image: levelDefaults[item.id] || '' };
-    }));
+    var list = [];
+    var order = 0;
+    books.forEach(function (item) {
+      list.push({
+        id: 'book-' + item.id,
+        name: 'Publisher · ' + item.label,
+        publisher: item.label,
+        bookName: '',
+        image: bookDefaults[item.id] || '',
+        order: order++
+      });
+    });
+    books.forEach(function (book) {
+      seriesFor(book.id).forEach(function (item) {
+        list.push({
+          id: 'series-' + item.id,
+          name: 'Book · ' + item.label,
+          publisher: book.label,
+          bookName: item.label,
+          image: seriesDefaults[book.id + ':' + item.id] || '',
+          order: order++
+        });
+      });
+    });
+    levels.forEach(function (item) {
+      list.push({
+        id: 'level-' + item.id,
+        name: 'Level · ' + item.label,
+        publisher: '',
+        bookName: '',
+        image: levelDefaults[item.id] || '',
+        order: order++
+      });
+    });
+    return list;
+  }
+
+  function sortOnboarding(list, key, dir) {
+    var field = key === 'book' ? 'bookName' : 'publisher';
+    var factor = dir === 'desc' ? -1 : 1;
+    return (list || []).slice().sort(function (a, b) {
+      var left = String(a[field] || '');
+      var right = String(b[field] || '');
+      if (!left && !right) return a.order - b.order;
+      if (!left) return 1;
+      if (!right) return -1;
+      var compared = left.localeCompare(right);
+      if (compared) return compared * factor;
+      return a.order - b.order;
+    });
   }
 
   function applyOnboarding(rows) {
@@ -251,6 +302,14 @@ window.RevisionPlace = (function () {
     }
     paint(books, 'book', bookDefaults);
     paint(levels, 'level', levelDefaults);
+    Object.keys(seriesByBook).forEach(function (bookId) {
+      seriesByBook[bookId].forEach(function (item) {
+        var row = saved['series-' + item.id];
+        var image = row ? String(row.image || '').trim() : '';
+        item.image = image || seriesDefaults[bookId + ':' + item.id];
+        item.frame = row && row.frame ? row.frame : null;
+      });
+    });
   }
 
   function entriesFor(place) {
@@ -310,6 +369,7 @@ window.RevisionPlace = (function () {
     books: books,
     levels: levels,
     onboardingPictures: onboardingPictures,
+    sortOnboarding: sortOnboarding,
     applyOnboarding: applyOnboarding,
     terms: terms,
     seriesFor: seriesFor,

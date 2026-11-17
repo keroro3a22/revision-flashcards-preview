@@ -4,8 +4,8 @@
   if (!P) return;
 
   var openMenu = '';
-  var guideStep = 'book';
-  var guideDraft = { book: '', level: '', unit: P.HOME };
+  var guideStep = 'publisher';
+  var guideDraft = { book: '', series: '', level: '', unit: P.HOME };
   var blurbs = {
     'revision-vocab': 'Review the words in this unit.',
     'revision-grammar': 'Review the grammar in this unit.',
@@ -747,11 +747,11 @@
     var back = document.getElementById('place-guide-back');
     var choices = document.getElementById('place-guide-choices');
     if (!title || !back || !choices) return;
-    title.textContent = step === 'book' ? 'Pick a book' : 'Pick a level';
-    choices.className = 'place-choices is-' + step;
-    back.hidden = step === 'book';
+    title.textContent = step === 'publisher' ? 'Pick a publisher' : (step === 'book' ? 'Pick a book' : 'Pick a level');
+    choices.className = 'place-choices is-' + (step === 'level' ? 'level' : 'book');
+    back.hidden = step === 'publisher';
     choices.replaceChildren();
-    var items = step === 'book' ? P.books : P.levels;
+    var items = step === 'publisher' ? P.books : (step === 'book' ? P.seriesFor(draft.book) : P.levels);
     items.forEach(function (item) {
       var button = document.createElement('button');
       button.type = 'button';
@@ -769,13 +769,15 @@
       button.appendChild(art);
       button.appendChild(label);
       button.addEventListener('click', function () {
-        if (step === 'book') renderGuide('level', { book: item.id, level: '', unit: P.HOME });
-        else save({ book: draft.book, level: item.id, unit: P.HOME });
+        if (step === 'publisher') renderGuide('book', { book: item.id, series: '', level: '', unit: P.HOME });
+        else if (step === 'book') renderGuide('level', { book: draft.book, series: item.id, level: '', unit: P.HOME });
+        else save({ book: draft.book, series: draft.series, level: item.id, unit: P.HOME });
       });
       choices.appendChild(button);
     });
     back.onclick = function () {
-      renderGuide('book', { book: '', level: '', unit: P.HOME });
+      if (step === 'level') renderGuide('book', { book: draft.book, series: '', level: '', unit: P.HOME });
+      else renderGuide('publisher', { book: '', series: '', level: '', unit: P.HOME });
     };
   }
 
@@ -857,7 +859,7 @@
     var place = P.read(window.localStorage);
     if (!place) {
       show('guide');
-      renderGuide('book', { book: '', level: '', unit: P.HOME });
+      renderGuide('publisher', { book: '', series: '', level: '', unit: P.HOME });
       loadOnboardingImages();
       return;
     }

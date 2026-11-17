@@ -454,6 +454,8 @@ test('studio paths open home, a unit, resources, practice sources, and site', ()
   assert.equal(draft.studioPath({ open: 'site', site: 'onboarding' }), 'site/onboarding');
   assert.equal(draft.parseStudioPath('site/onboarding/level-p3').slot, 'level-p3');
   assert.equal(draft.studioPath({ open: 'site', site: 'onboarding' }, { id: 'book-oxford' }), 'site/onboarding/book-oxford');
+  assert.equal(draft.parseStudioPath('site/onboarding/series-elect').slot, 'series-elect');
+  assert.equal(draft.studioPath({ open: 'site', site: 'onboarding' }, { id: 'series-mypearson-express' }), 'site/onboarding/series-mypearson-express');
   assert.equal(draft.parseStudioPath('site/onboarding/nope'), null);
 });
 
