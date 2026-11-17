@@ -122,7 +122,7 @@
     var here = place();
     var site = here.open === 'site';
     var scroll = document.querySelector('.studio-scroll');
-    if (scroll) scroll.hidden = site;
+    if (scroll) scroll.hidden = site && here.site !== 'onboarding';
     var badges = $('studio-badges');
     if (badges) badges.hidden = !(site && here.site === 'badges');
     var bar = $('letter-ignore');
@@ -1865,6 +1865,16 @@
   function load(doneMessage) {
     var here = place();
     syncPanels();
+    if (here.open === 'site' && here.site === 'onboarding') {
+      if (window.RevisionStudioOnboarding) {
+        window.RevisionStudioOnboarding.load(client, here, {
+          say: say,
+          focus: pendingFocus,
+          focused: function () { pendingFocus = ''; }
+        });
+      } else say('The onboarding editor did not load.');
+      return;
+    }
     if (here.open === 'site' && here.site === 'badges') {
       if (window.RevisionStudioBadges) window.RevisionStudioBadges.load(client, here, { say: say, focus: pendingFocus, focused: function () { pendingFocus = ''; } });
       else say('The badge editor did not load.');
@@ -2073,6 +2083,10 @@
     });
     $('filter-review').addEventListener('change', function () {
       rememberPlace();
+      if (place().open === 'site' && place().site === 'onboarding') {
+        load();
+        return;
+      }
       render();
       say(reviewLine());
     });

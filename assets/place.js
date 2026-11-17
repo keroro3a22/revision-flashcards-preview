@@ -20,6 +20,10 @@ window.RevisionPlace = (function () {
     { id: 'p5', label: 'P5', image: 'covers/unit4.jpg' },
     { id: 'p6', label: 'P6', image: 'covers/unit4.jpg' }
   ];
+  var bookDefaults = {};
+  var levelDefaults = {};
+  books.forEach(function (item) { bookDefaults[item.id] = item.image; });
+  levels.forEach(function (item) { levelDefaults[item.id] = item.image; });
   var seriesByBook = {
     oxford: [{ id: 'oxford', label: 'Living Oxford English' }],
     longman: [
@@ -224,6 +228,31 @@ window.RevisionPlace = (function () {
       .concat([{ id: BOSS, label: 'Boss' }, { id: GAME, label: 'Game' }, { id: RESOURCES, label: 'Resources' }]);
   }
 
+  function onboardingPictures() {
+    return books.map(function (item) {
+      return { id: 'book-' + item.id, name: 'Book · ' + item.label, image: bookDefaults[item.id] || '' };
+    }).concat(levels.map(function (item) {
+      return { id: 'level-' + item.id, name: 'Level · ' + item.label, image: levelDefaults[item.id] || '' };
+    }));
+  }
+
+  function applyOnboarding(rows) {
+    var saved = {};
+    (rows || []).forEach(function (row) {
+      if (row && row.id) saved[row.id] = row;
+    });
+    function paint(list, kind, defaults) {
+      list.forEach(function (item) {
+        var row = saved[kind + '-' + item.id];
+        var image = row ? String(row.image || '').trim() : '';
+        item.image = image || defaults[item.id];
+        item.frame = row && row.frame ? row.frame : null;
+      });
+    }
+    paint(books, 'book', bookDefaults);
+    paint(levels, 'level', levelDefaults);
+  }
+
   function entriesFor(place) {
     if (!place || place.unit === HOME) return [];
     if (place.unit === BOSS) {
@@ -280,6 +309,8 @@ window.RevisionPlace = (function () {
     SOON: SOON,
     books: books,
     levels: levels,
+    onboardingPictures: onboardingPictures,
+    applyOnboarding: applyOnboarding,
     terms: terms,
     seriesFor: seriesFor,
     unitsFor: unitsFor,

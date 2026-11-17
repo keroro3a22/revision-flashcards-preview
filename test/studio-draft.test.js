@@ -449,6 +449,12 @@ test('studio paths open home, a unit, resources, practice sources, and site', ()
   assert.equal(draft.studioPath({ open: 'site', site: 'badges' }, { id: 'starter' }), 'site/badges/starter');
   assert.equal(draft.parseStudioPath('site/letter-ignore').site, 'ignore');
   assert.equal(draft.studioPath({ open: 'site', site: 'ignore' }), 'site/letter-ignore');
+  assert.equal(draft.parseStudioPath('site/onboarding').site, 'onboarding');
+  assert.equal(draft.parseStudioPath('site/onboarding').slot, '');
+  assert.equal(draft.studioPath({ open: 'site', site: 'onboarding' }), 'site/onboarding');
+  assert.equal(draft.parseStudioPath('site/onboarding/level-p3').slot, 'level-p3');
+  assert.equal(draft.studioPath({ open: 'site', site: 'onboarding' }, { id: 'book-oxford' }), 'site/onboarding/book-oxford');
+  assert.equal(draft.parseStudioPath('site/onboarding/nope'), null);
 });
 
 function studioNode(tag) {

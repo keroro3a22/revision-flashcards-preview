@@ -460,7 +460,7 @@
     var series = oneOf(STUDIO_SERIES[book], raw.series, STUDIO_SERIES[book][0]);
     var open = oneOf(['home', 'unit', 'resources', 'site'], raw.open, '');
     var part = oneOf(['doors', 'revision', 'practice'], raw.part, '');
-    var siteItem = oneOf(['badges', 'ignore'], raw.site, '');
+    var siteItem = oneOf(['badges', 'ignore', 'onboarding'], raw.site, '');
     var source = oneOf(['unit', 'mixed', 'boss'], raw.source, '');
     var legacy = raw.section;
     if (!open) {
@@ -583,10 +583,25 @@
     return bits;
   }
 
+  var ONBOARDING_SLOTS = {
+    'book-longman': 1,
+    'book-oxford': 1,
+    'level-p1': 1,
+    'level-p2': 1,
+    'level-p3': 1,
+    'level-p4': 1,
+    'level-p5': 1,
+    'level-p6': 1
+  };
+
   function studioPath(place, row) {
     var here = studioPlace(place || {});
     if (here.open === 'site') {
       if (here.site === 'ignore') return 'site/letter-ignore';
+      if (here.site === 'onboarding') {
+        var picture = (row && (row.id || row.slot)) || here.slot;
+        return picture ? 'site/onboarding/' + picture : 'site/onboarding';
+      }
       var badge = (row && row.id) || here.badgeId;
       return badge ? 'site/badges/' + badge : 'site/badges';
     }
@@ -620,6 +635,12 @@
     if (parts[0] && parts[0].toLowerCase() === 'site') {
       if (parts[1] === 'letter-ignore') return studioPlace({ open: 'site', site: 'ignore' });
       if (parts[1] === 'badges') return studioPlace({ open: 'site', site: 'badges', badgeId: parts[2] || '' });
+      if (parts[1] === 'onboarding') {
+        var picture = parts[2] || '';
+        if (parts.length > (picture ? 3 : 2)) return null;
+        if (picture && !ONBOARDING_SLOTS[picture]) return null;
+        return studioPlace({ open: 'site', site: 'onboarding', slot: picture });
+      }
       return null;
     }
     if (parts.length < 5) return null;
