@@ -409,7 +409,8 @@
     });
   }
 
-  function renderEntries(place, resolved) {
+  function renderEntries(place, resolved, pictures) {
+    var showPictures = pictures !== false;
     var box = document.getElementById('place-entries');
     var heading = document.getElementById('unit-heading');
     box.replaceChildren();
@@ -455,7 +456,7 @@
         }
         var copy = document.createElement('div');
         copy.className = 'place-entry-copy';
-        if (item.ready && (item.image || bookBRevision(place, item))) {
+        if (showPictures && item.ready && (item.image || bookBRevision(place, item))) {
           var frame = document.createElement('div');
           frame.className = 'place-entry-media';
           var img = document.createElement('img');
@@ -721,7 +722,8 @@
         tabs.appendChild(tab);
       });
     }
-    if (document.getElementById('place-entries')) renderEntries(place);
+    var deferPictures = place.unit !== P.HOME && place.unit !== P.GAME && place.unit !== P.BOSS && place.unit !== P.RESOURCES && !!(window.SitePages && window.SitePages.mount);
+    if (document.getElementById('place-entries')) renderEntries(place, null, !deferPictures);
     closeMenus();
     if (window.SitePages && window.SitePages.mount) window.SitePages.mount(place);
   }
@@ -739,6 +741,8 @@
     renderShell(next);
     document.dispatchEvent(new Event('revision-place-ready'));
   }
+
+  var onboardingReady = false;
 
   function renderGuide(step, draft) {
     guideStep = step;
@@ -758,11 +762,13 @@
       button.className = 'place-choice';
       var art = document.createElement('span');
       art.className = 'place-choice-art';
-      var img = document.createElement('img');
-      img.src = item.image;
-      img.alt = '';
-      art.appendChild(img);
-      if (item.frame && window.ImgFrame) window.ImgFrame.apply(img, item.frame, 4 / 3);
+      if (onboardingReady) {
+        var img = document.createElement('img');
+        img.src = item.image;
+        img.alt = '';
+        art.appendChild(img);
+        if (item.frame && window.ImgFrame) window.ImgFrame.apply(img, item.frame, 4 / 3);
+      }
       var label = document.createElement('span');
       label.className = 'place-choice-label';
       label.textContent = item.label;
@@ -782,15 +788,26 @@
   }
 
   function loadOnboardingImages() {
-    if (!document.getElementById('place-guide') || !P.applyOnboarding) return;
+    function settle(rows) {
+      if (onboardingReady) return;
+      onboardingReady = true;
+      if (P.applyOnboarding) P.applyOnboarding(rows || []);
+      if (document.documentElement.getAttribute('data-place') !== 'guide') return;
+      renderGuide(guideStep, guideDraft);
+    }
+    if (!document.getElementById('place-guide') || !P.applyOnboarding) {
+      settle(null);
+      return;
+    }
     withGrammarClient(function (client) {
-      if (!client) return;
+      if (!client) {
+        settle(null);
+        return;
+      }
       client.from('onboarding_images_live').select('id,image,frame').then(function (result) {
-        if (!result || result.error) return;
-        P.applyOnboarding(result.data || []);
-        if (document.documentElement.getAttribute('data-place') !== 'guide') return;
-        renderGuide(guideStep, guideDraft);
-      });
+        if (!result || result.error) settle(null);
+        else settle(result.data || []);
+      }, function () { settle(null); });
     });
   }
 

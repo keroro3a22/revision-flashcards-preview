@@ -527,6 +527,23 @@ body.boss-round .prac-header .back {
   object-position: center;
   border-radius: var(--radius-sm);
 }
+#game .story-page .story-panel-art,
+#game .illust.chat-hero {
+  width: min(100%, 640px) !important;
+  max-width: min(100%, 640px) !important;
+  aspect-ratio: 320 / 220 !important;
+}
+#game .story-page .story-panel-art > img,
+#game .illust.chat-hero > img {
+  visibility: hidden;
+}
+#game .story-page .story-panel-art > img.is-cropped,
+#game .illust.chat-hero > img.is-cropped {
+  visibility: visible;
+}
+img.is-pending {
+  visibility: hidden !important;
+}
 .story-beat-label {
   display: inline-flex;
   align-items: center;

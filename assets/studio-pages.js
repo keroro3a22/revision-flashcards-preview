@@ -140,22 +140,21 @@
       var next = currentFrame();
       preview.style.background = next && window.ImgFrame ? window.ImgFrame.normalize(next).bg : '#ffffff';
       preview.style.aspectRatio = String(ratio);
-      img.classList.remove('is-cropped');
-      ['--crop-left', '--crop-top', '--crop-width', '--crop-height'].forEach(function (name) {
-        img.style.removeProperty(name);
-      });
       if (!src) {
         img.hidden = true;
         img.removeAttribute('src');
+        img.classList.remove('is-cropped', 'is-pending');
         return;
       }
       img.hidden = false;
-      function framed() {
-        if (next && window.ImgFrame) window.ImgFrame.apply(img, next, ratio);
-      }
-      img.onload = framed;
       if (img.getAttribute('src') !== src) img.src = src;
-      else framed();
+      if (next && window.ImgFrame) window.ImgFrame.apply(img, next, ratio);
+      else {
+        img.classList.remove('is-cropped', 'is-pending');
+        ['--crop-left', '--crop-top', '--crop-width', '--crop-height'].forEach(function (name) {
+          img.style.removeProperty(name);
+        });
+      }
     }
     thumb.addEventListener('click', function () {
       if (!window.RevisionStudio || !textOf(path)) return;

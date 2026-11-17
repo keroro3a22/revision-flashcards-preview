@@ -226,7 +226,8 @@
       '.illust img.is-cropped,.img-crop img.is-cropped,.story-panel-art img.is-cropped,.illust.chat-hero img.is-cropped,.mcard-photo img.is-cropped,.studio-thumb-preview img.is-cropped,.place-entry-media img.is-cropped,.how-art img.is-cropped,.pack-cover img.is-cropped,.place-choice-art img.is-cropped{',
       'position:absolute !important;inset:auto !important;left:var(--crop-left) !important;top:var(--crop-top) !important;',
       'width:var(--crop-width) !important;height:var(--crop-height) !important;max-width:none !important;max-height:none !important;',
-      'object-fit:contain !important;object-position:center !important;transform:none !important;} '
+      'object-fit:contain !important;object-position:center !important;transform:none !important;}',
+      'img.is-pending{visibility:hidden !important}'
     ].join('');
     document.head.appendChild(style);
   }
@@ -272,29 +273,64 @@
     return { box: parent, ratio: aspect };
   }
 
+  function clearCrop(img) {
+    img.classList.remove('is-cropped');
+    ['--crop-left', '--crop-top', '--crop-width', '--crop-height'].forEach(function (name) {
+      img.style.removeProperty(name);
+    });
+  }
+
+  function hold(img) {
+    img.classList.add('is-pending');
+  }
+
+  function reveal(img) {
+    img.classList.remove('is-pending');
+  }
+
   function paint(img, frame, ratio) {
     var host = hostFor(img, ratio);
     var useRatio = host.ratio;
     var plain = normalize(frame);
     if (host.box) host.box.style.background = plain.bg;
-    if (host.box && host.box.classList.contains('cutout')) {
-      if (plain.x === 50 && plain.y === 50 && plain.z === 1 && plain.bg === '#ffffff') return;
+    if (host.box && host.box.classList.contains('cutout') && plain.x === 50 && plain.y === 50 && plain.z === 1 && plain.bg === '#ffffff') {
+      clearCrop(img);
+      reveal(img);
+      return;
     }
-    function place() {
-      var iw = img.naturalWidth;
-      var ih = img.naturalHeight;
-      if (!iw || !ih) return;
+    hold(img);
+    clearCrop(img);
+    var token = (img.__frameToken || 0) + 1;
+    img.__frameToken = token;
+    var wanted = img.src;
+    var settled = false;
+    function finish() {
+      if (settled || img.__frameToken !== token) return;
+      if (!img.complete || !img.naturalWidth || !img.naturalHeight) return;
+      if ((img.currentSrc || img.src) !== wanted) return;
+      settled = true;
+      img.removeEventListener('load', finish);
+      img.removeEventListener('error', fail);
       var parentNow = img.parentElement;
       if (parentNow) parentNow.style.background = normalize(frame).bg;
-      var spot = placement(frame, iw, ih, ratio > 0 ? ratio : useRatio);
+      var spot = placement(frame, img.naturalWidth, img.naturalHeight, ratio > 0 ? ratio : useRatio);
       img.classList.add('is-cropped');
       img.style.setProperty('--crop-left', spot.left + '%');
       img.style.setProperty('--crop-top', spot.top + '%');
       img.style.setProperty('--crop-width', spot.width + '%');
       img.style.setProperty('--crop-height', spot.height + '%');
+      reveal(img);
     }
-    if (img.naturalWidth) place();
-    else img.addEventListener('load', place, { once: true });
+    function fail() {
+      if (settled || img.__frameToken !== token) return;
+      settled = true;
+      img.removeEventListener('load', finish);
+      img.removeEventListener('error', fail);
+      reveal(img);
+    }
+    img.addEventListener('load', finish);
+    img.addEventListener('error', fail);
+    finish();
   }
 
   function apply(img, frame, ratio) {

@@ -14,7 +14,15 @@
   if (queryTerm === 'first' || queryTerm === 'second') term = queryTerm;
   else if (savedPlace && savedPlace.book === book && savedPlace.series === series && savedPlace.level === level && savedPlace.unit === unit && (savedPlace.term === 'first' || savedPlace.term === 'second')) term = savedPlace.term;
   if (term === 'first' || term === 'second') body.setAttribute('data-term', term);
-  if (!book || !series || !term || !level || !unit || !cfg.url || !cfg.key) return;
+  var lessonSettled = false;
+  function revealLesson() {
+    lessonSettled = true;
+    document.documentElement.setAttribute('data-lesson', 'ready');
+  }
+  if (!book || !series || !term || !level || !unit || !cfg.url || !cfg.key) {
+    revealLesson();
+    return;
+  }
 
   function officialLessonImage(url) {
     if (!url || term !== 'first') return url;
@@ -188,7 +196,10 @@
   }
 
   function show(cards) {
-    if (!cards || !cards.length || typeof window.applyLessonCards !== 'function') return;
+    if (!cards || !cards.length || typeof window.applyLessonCards !== 'function') {
+      revealLesson();
+      return;
+    }
     var mapped = cards.map(function (card) {
       if (!card) return card;
       var next = Object.assign({}, card);
@@ -199,6 +210,7 @@
     });
     window.applyLessonCards(mapped);
     mountFunfacts(mapped);
+    revealLesson();
   }
 
   function load() {
@@ -210,13 +222,16 @@
       .eq('book', book).eq('series', series).eq('term', term).eq('level', level).eq('unit_id', unit).eq('track', track)
       .order('n', { ascending: true })
       .then(function (result) {
-        if (result.error) return;
-        if (result.data && result.data.length) show(result.data);
-        else if (term === 'second') {
-          var list = document.getElementById('list');
-          if (list) list.textContent = '';
+        if (result.error || !result.data || !result.data.length) {
+          if (!result.error && term === 'second') {
+            var list = document.getElementById('list');
+            if (list) list.textContent = '';
+          }
+          revealLesson();
+          return;
         }
-      });
+        show(result.data);
+      }, revealLesson);
     client.from('site_pages_live').select('label')
       .eq('book', book).eq('series', series).eq('term', term).eq('level', level)
       .eq('unit_id', unit).eq('slot', 'title')
@@ -237,6 +252,10 @@
     var tag = document.createElement('script');
     tag.src = '../assets/vendor/supabase.js?v=1';
     tag.onload = load;
+    tag.onerror = revealLesson;
     document.head.appendChild(tag);
   }
+  setTimeout(function () {
+    if (!lessonSettled) revealLesson();
+  }, 8000);
 })();

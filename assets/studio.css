@@ -459,6 +459,7 @@ body.studio-col-dragging * {
   object-fit: contain;
 }
 .studio-thumb-preview img[hidden] { display: none; }
+.studio-thumb-preview img.is-pending { visibility: hidden; }
 .studio-photo-cell button { margin: 0.25rem 0.25rem 0 0; }
 .studio-library {
   position: fixed;

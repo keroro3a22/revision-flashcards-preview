@@ -9,14 +9,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../../assets/huninn.css"/>
-<link rel="stylesheet" href="grammar.css?v=59"/>
+<link rel="stylesheet" href="grammar.css?v=52"/>
 <link rel="stylesheet" href="../../assets/chrome.css?v=7" />
 <link rel="stylesheet" href="../../assets/profile.css?v=6" />
 <link rel="stylesheet" href="../../assets/account.css?v=8" />
 <script src="../../assets/supabase-public.js?v=1"></script>
 <script src="../../assets/progress-sync.js?v=3"></script>
 <script src="../../assets/place.js?v=11"></script>
-<script src="../../assets/place-ui.js?v=35"></script>
+<script src="../../assets/place-ui.js?v=37"></script>
 <script src="../../assets/profile.js?v=7"></script>
 <script src="../../assets/account.js?v=19"></script>
 </head>
@@ -77,7 +77,7 @@
 </div>
 <script src="../../practice/badges.js?v=7"></script>
 <script src="grammar-progress.js"></script>
-<script src="../../assets/img-frame.js?v=13"></script>
+<script src="../../assets/img-frame.js?v=15"></script>
 <script src="../../assets/vendor/supabase.js?v=1"></script>
 <script src="grammar-live.js?v=3"></script>
 <script src="boss-answer.js?v=1"></script>
@@ -645,14 +645,17 @@
       artOpen.hidden = true;
       return;
     }
+    artOpen.hidden = true;
     warmArt(src);
     const cached = artCache.get(src);
     const paint = () => {
       if (!items[idx] || items[idx].img !== src) return;
       if ((art.getAttribute("src") || "") !== src) art.src = src;
-      artOpen.hidden = !(cached.naturalWidth || art.naturalWidth);
+      if (window.ImgFrame && items[idx].frame) ImgFrame.apply(art, items[idx].frame);
+      const showing = art.complete && art.naturalWidth && String(art.currentSrc || "").indexOf(src) !== -1;
+      artOpen.hidden = !showing;
     };
-    if (cached.complete) paint();
+    if (cached.complete && cached.naturalWidth) paint();
     else cached.addEventListener("load", paint, { once: true });
   }
 
@@ -1143,6 +1146,8 @@
   });
 
   art.addEventListener("load", () => {
+    const it = items[idx];
+    if (!it || !it.img || String(art.currentSrc || art.getAttribute("src") || "").indexOf(it.img) === -1) return;
     artOpen.hidden = !art.naturalWidth;
   });
   art.addEventListener("error", () => {

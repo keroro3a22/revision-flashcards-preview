@@ -327,6 +327,12 @@ button { font: inherit; cursor: pointer; }
   object-position: center;
   background: transparent;
 }
+html:not([data-lesson="ready"]) #list {
+  visibility: hidden;
+}
+img.is-pending {
+  visibility: hidden !important;
+}
 .illust.cutout { background: #fff; }
 .illust.cutout img {
   object-fit: contain;

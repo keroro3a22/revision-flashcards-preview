@@ -853,11 +853,8 @@
         return;
       }
       img.hidden = false;
-      img.onload = function () {
-        if (window.ImgFrame) window.ImgFrame.apply(img, frame, ratio);
-      };
       if (img.getAttribute('src') !== src) img.src = src;
-      else if (img.complete && img.naturalWidth && window.ImgFrame) window.ImgFrame.apply(img, frame, ratio);
+      if (window.ImgFrame) window.ImgFrame.apply(img, frame, ratio);
     };
     button.update(src, frame);
     return button;

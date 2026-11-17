@@ -342,8 +342,7 @@
         var img = card.querySelector('img');
         var name = card.querySelector('h3');
         var line = card.querySelector('p');
-        if (img && copy[id].image) img.src = copy[id].image;
-        if (img && copy[id].frame && root.ImgFrame) root.ImgFrame.apply(img, copy[id].frame, photoRatio(id));
+        if (img) usePhoto(img, copy[id].image, copy[id].frame, photoRatio(id));
         if (name) name.textContent = copy[id].label;
         if (line) line.textContent = copy[id].note;
       });
@@ -374,29 +373,77 @@
     if (root.refreshPackCarousel) root.refreshPackCarousel();
   }
 
-  function whenReady(done) {
+  function whenReady(done, fail) {
     var tries = 0;
     function tick() {
       var db = client();
       if (db) { done(db); return; }
       tries += 1;
       if (tries < 40) setTimeout(tick, 100);
+      else if (fail) fail();
     }
     tick();
+  }
+
+  function markPagesReady() {
+    if (root.document && root.document.documentElement) {
+      root.document.documentElement.setAttribute('data-pages', 'ready');
+    }
+  }
+
+  function usePhoto(img, src, frame, ratio) {
+    if (!img || !src) return;
+    var changed = img.getAttribute('src') !== src;
+    if (changed) img.src = src;
+    if (frame && root.ImgFrame) {
+      root.ImgFrame.apply(img, frame, ratio);
+      return;
+    }
+    if (!changed) return;
+    img.classList.add('is-pending');
+    var wanted = img.src;
+    var settled = false;
+    function reveal() {
+      if (settled) return;
+      if (!img.complete || (img.currentSrc || img.src) !== wanted) return;
+      settled = true;
+      img.removeEventListener('load', reveal);
+      img.removeEventListener('error', giveUp);
+      img.classList.remove('is-pending');
+    }
+    function giveUp() {
+      if (settled) return;
+      settled = true;
+      img.removeEventListener('load', reveal);
+      img.removeEventListener('error', giveUp);
+      img.classList.remove('is-pending');
+    }
+    img.addEventListener('load', reveal);
+    img.addEventListener('error', giveUp);
+    reveal();
   }
 
   function mount(place) {
     if (!place || place.unit === 'game' || place.unit === 'boss' || place.unit === 'resources') return;
     var token = ++request;
+    var painted = false;
+    function revealDefaults() {
+      if (painted || token !== request) return;
+      painted = true;
+      markPagesReady();
+      if (root.RevisionPlacePaint && place.unit && place.unit !== 'home') root.RevisionPlacePaint(place, null);
+    }
     whenReady(function (db) {
       loadCatalog(db, place).then(function (catalog) {
         if (token !== request) return;
+        painted = true;
         if (root.RevisionPlacePaint && place.unit && place.unit !== 'home') {
           root.RevisionPlacePaint(place, groupsFor(place, place.unit, catalog));
         }
         paintHome(place, catalog);
-      }).catch(function () {});
-    });
+        markPagesReady();
+      }).catch(revealDefaults);
+    }, revealDefaults);
   }
 
   function placeFrom(body) {
