@@ -167,7 +167,7 @@
         '<span class="zh">' + C.escapeHtml(c.zh) + '</span>';
     }
     btn.innerHTML = '<div class="mcard-inner"><div class="mcard-face mcard-back">?</div><div class="' + frontClass + '">' + frontBody + '</div></div>';
-    if (c.side !== 'en' && c.frame && window.ImgFrame) {
+    if (c.side !== 'en' && window.ImgFrame) {
       ImgFrame.apply(btn.querySelector('.mcard-photo img'), c.frame, 1);
     }
     btn.addEventListener('click', () => onFlip(btn, c));

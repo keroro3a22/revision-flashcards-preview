@@ -1895,7 +1895,7 @@
     tableName = practice ? 'practice_items' : 'lesson_cards';
     say('Loading…');
     var query = client.from(tableName).select(practice
-      ? 'id,n,status,prompt,answer,explain,options,level_name,extra'
+      ? 'id,n,status,prompt,answer,explain,options,level_name,extra,published'
       : 'id,n,status,en,zh,pos,syllables,pattern,note_zh,highlight,highlight_adv,ex_en,ex_zh,adv_en,adv_zh,img,img_frame,audio,video,funfact_on,funfact_text,funfact_img,funfact_frame,published')
       .eq('book', here.book).eq('series', here.series).eq('term', here.term)
       .eq('level', here.level).eq('track', here.kind);
