@@ -45,7 +45,7 @@ Try again reloads the quiz in place. Grammar practice and Back to packs leave th
 
 ## Sound and motion
 
-The fight has a looping tune and four short sounds: a hit on the demon, a hit on the player, victory, and defeat. They are short original tones played by the page, not separate music files. The tune starts when the fight appears. If the browser blocks that, it starts on the first tap. Mute is in the top row, silences the tune and the sounds, and is remembered on this device. Victory and defeat stop the tune and play their short sound.
+The fight has a looping tune and four short sounds, all loud enough to hear in a normal room. A hit on the demon is one pained cry. A hit on the player is a roar together with a strike. Victory and defeat stay short tunes. They are made on the page, not separate music files. The tune starts when the fight appears. If the browser blocks that, it starts on the first tap. Mute is in the top row, silences the tune and the sounds, and is remembered on this device. Victory and defeat stop the tune and play their short sound.
 
 The demon uses the existing picture. While waiting it bobs slightly. Hits, the lunge, and the fall are motion on that picture.
 

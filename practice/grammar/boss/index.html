@@ -679,6 +679,34 @@
     }
   }
 
+  let soundBus = null;
+
+  function output(ac) {
+    if (soundBus) return soundBus;
+    const comp = ac.createDynamicsCompressor();
+    comp.threshold.value = -14;
+    comp.knee.value = 8;
+    comp.ratio.value = 3;
+    comp.attack.value = 0.003;
+    comp.release.value = 0.12;
+    const makeup = ac.createGain();
+    makeup.gain.value = 1.7;
+    comp.connect(makeup);
+    makeup.connect(ac.destination);
+    soundBus = comp;
+    return soundBus;
+  }
+
+  function noiseBuffer(ac) {
+    if (ac._bossNoise) return ac._bossNoise;
+    const len = Math.floor(ac.sampleRate * 1.2);
+    const buf = ac.createBuffer(1, len, ac.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < len; i += 1) data[i] = Math.random() * 2 - 1;
+    ac._bossNoise = buf;
+    return buf;
+  }
+
   function blip(freq, start, dur, type, peak) {
     try {
       const ac = ensureAudio();
@@ -688,36 +716,168 @@
       osc.type = type || "square";
       osc.frequency.setValueAtTime(freq, start);
       gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.exponentialRampToValueAtTime(peak || 0.05, start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(peak || 0.16, start + 0.02);
       gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
       osc.connect(gain);
-      gain.connect(ac.destination);
+      gain.connect(output(ac));
       osc.start(start);
       osc.stop(start + dur + 0.02);
     } catch (err) {}
   }
 
   function playHit() {
-    const ac = ensureAudio();
-    if (!ac || muted()) return;
-    const t = ac.currentTime;
-    blip(520, t, 0.08, "square", 0.07);
-    blip(780, t + 0.07, 0.12, "square", 0.06);
+    try {
+      const ac = ensureAudio();
+      if (!ac || muted()) return;
+      const t = ac.currentTime;
+      const dur = 0.78;
+      const voice = ac.createOscillator();
+      const over = ac.createOscillator();
+      voice.type = "sawtooth";
+      over.type = "square";
+      voice.frequency.setValueAtTime(620, t);
+      voice.frequency.exponentialRampToValueAtTime(430, t + 0.08);
+      voice.frequency.exponentialRampToValueAtTime(130, t + dur);
+      over.frequency.setValueAtTime(930, t);
+      over.frequency.exponentialRampToValueAtTime(640, t + 0.08);
+      over.frequency.exponentialRampToValueAtTime(190, t + dur);
+      const wobble = ac.createOscillator();
+      const wobbleAmt = ac.createGain();
+      wobble.frequency.setValueAtTime(18, t);
+      wobble.frequency.exponentialRampToValueAtTime(7, t + dur);
+      wobbleAmt.gain.setValueAtTime(36, t);
+      wobble.connect(wobbleAmt);
+      wobbleAmt.connect(voice.frequency);
+      wobbleAmt.connect(over.frequency);
+      const mouth = ac.createBiquadFilter();
+      mouth.type = "bandpass";
+      mouth.Q.value = 8;
+      mouth.frequency.setValueAtTime(2400, t);
+      mouth.frequency.exponentialRampToValueAtTime(480, t + dur);
+      const gain = ac.createGain();
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.42, t + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.22, t + 0.24);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      voice.connect(mouth);
+      over.connect(mouth);
+      mouth.connect(gain);
+      gain.connect(output(ac));
+      const rasp = ac.createBufferSource();
+      rasp.buffer = noiseBuffer(ac);
+      const raspFilter = ac.createBiquadFilter();
+      raspFilter.type = "bandpass";
+      raspFilter.frequency.value = 1400;
+      raspFilter.Q.value = 0.8;
+      const raspGain = ac.createGain();
+      raspGain.gain.setValueAtTime(0.0001, t);
+      raspGain.gain.exponentialRampToValueAtTime(0.16, t + 0.04);
+      raspGain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      rasp.connect(raspFilter);
+      raspFilter.connect(raspGain);
+      raspGain.connect(output(ac));
+      voice.start(t);
+      over.start(t);
+      wobble.start(t);
+      rasp.start(t);
+      const end = t + dur + 0.03;
+      voice.stop(end);
+      over.stop(end);
+      wobble.stop(end);
+      rasp.stop(end);
+    } catch (err) {}
   }
 
   function playHurt() {
-    const ac = ensureAudio();
-    if (!ac || muted()) return;
-    const t = ac.currentTime;
-    blip(180, t, 0.18, "sawtooth", 0.07);
-    blip(90, t + 0.08, 0.22, "square", 0.05);
+    try {
+      const ac = ensureAudio();
+      if (!ac || muted()) return;
+      const t = ac.currentTime;
+      const thump = ac.createOscillator();
+      thump.type = "sine";
+      thump.frequency.setValueAtTime(210, t);
+      thump.frequency.exponentialRampToValueAtTime(48, t + 0.16);
+      const thumpGain = ac.createGain();
+      thumpGain.gain.setValueAtTime(0.0001, t);
+      thumpGain.gain.exponentialRampToValueAtTime(0.55, t + 0.008);
+      thumpGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+      thump.connect(thumpGain);
+      thumpGain.connect(output(ac));
+      const crack = ac.createBufferSource();
+      crack.buffer = noiseBuffer(ac);
+      const crackFilter = ac.createBiquadFilter();
+      crackFilter.type = "highpass";
+      crackFilter.frequency.value = 1600;
+      const crackGain = ac.createGain();
+      crackGain.gain.setValueAtTime(0.42, t);
+      crackGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.07);
+      crack.connect(crackFilter);
+      crackFilter.connect(crackGain);
+      crackGain.connect(output(ac));
+      const dur = 0.7;
+      const growl = ac.createOscillator();
+      const body = ac.createOscillator();
+      growl.type = "sawtooth";
+      body.type = "square";
+      growl.frequency.setValueAtTime(78, t);
+      growl.frequency.exponentialRampToValueAtTime(168, t + 0.16);
+      growl.frequency.exponentialRampToValueAtTime(96, t + dur);
+      body.frequency.setValueAtTime(52, t);
+      body.frequency.exponentialRampToValueAtTime(110, t + 0.16);
+      body.frequency.exponentialRampToValueAtTime(64, t + dur);
+      const shake = ac.createOscillator();
+      const shakeAmt = ac.createGain();
+      shake.frequency.value = 6;
+      shakeAmt.gain.value = 14;
+      shake.connect(shakeAmt);
+      shakeAmt.connect(growl.frequency);
+      const throat = ac.createBiquadFilter();
+      throat.type = "lowpass";
+      throat.frequency.setValueAtTime(280, t);
+      throat.frequency.exponentialRampToValueAtTime(900, t + 0.18);
+      throat.frequency.exponentialRampToValueAtTime(340, t + dur);
+      const roarGain = ac.createGain();
+      roarGain.gain.setValueAtTime(0.0001, t);
+      roarGain.gain.exponentialRampToValueAtTime(0.38, t + 0.06);
+      roarGain.gain.exponentialRampToValueAtTime(0.2, t + 0.32);
+      roarGain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      growl.connect(throat);
+      body.connect(throat);
+      throat.connect(roarGain);
+      roarGain.connect(output(ac));
+      const breath = ac.createBufferSource();
+      breath.buffer = noiseBuffer(ac);
+      const breathFilter = ac.createBiquadFilter();
+      breathFilter.type = "lowpass";
+      breathFilter.frequency.value = 700;
+      const breathGain = ac.createGain();
+      breathGain.gain.setValueAtTime(0.0001, t);
+      breathGain.gain.exponentialRampToValueAtTime(0.14, t + 0.05);
+      breathGain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      breath.connect(breathFilter);
+      breathFilter.connect(breathGain);
+      breathGain.connect(output(ac));
+      thump.start(t);
+      crack.start(t);
+      growl.start(t);
+      body.start(t);
+      shake.start(t);
+      breath.start(t);
+      const end = t + dur + 0.03;
+      thump.stop(t + 0.22);
+      crack.stop(t + 0.1);
+      growl.stop(end);
+      body.stop(end);
+      shake.stop(end);
+      breath.stop(end);
+    } catch (err) {}
   }
 
   function playWin() {
     [523, 659, 784, 1046].forEach((freq, i) => {
       const ac = ensureAudio();
       if (!ac) return;
-      blip(freq, ac.currentTime + i * 0.12, 0.18, "square", 0.06);
+      blip(freq, ac.currentTime + i * 0.12, 0.18, "square", 0.2);
     });
   }
 
@@ -725,7 +885,7 @@
     [392, 349, 294, 220].forEach((freq, i) => {
       const ac = ensureAudio();
       if (!ac) return;
-      blip(freq, ac.currentTime + i * 0.14, 0.2, "triangle", 0.06);
+      blip(freq, ac.currentTime + i * 0.14, 0.2, "triangle", 0.18);
     });
   }
 
@@ -733,7 +893,7 @@
     if (!musicOn) return;
     if (!muted()) {
       const ac = ensureAudio();
-      if (ac) blip(melody[step % melody.length], ac.currentTime, 0.18, "triangle", 0.03);
+      if (ac) blip(melody[step % melody.length], ac.currentTime, 0.18, "triangle", 0.12);
     }
     step += 1;
     musicTimer = setTimeout(musicTick, 420);
