@@ -944,8 +944,22 @@
     }
   }
 
+    form.addEventListener('keydown', function (event) {
+      if (event.key !== 'Enter' && event.keyCode !== 13) return;
+      if (event.isComposing || event.keyCode === 229) return;
+      var field = event.target;
+      if (!field || field.tagName !== 'INPUT' || field.form !== form) return;
+      if (submit && submit.disabled) return;
+      event.preventDefault();
+      if (typeof form.requestSubmit === 'function') {
+        if (submit) form.requestSubmit(submit);
+        else form.requestSubmit();
+      } else if (submit) submit.click();
+    });
+
     form.addEventListener('submit', function (event) {
       event.preventDefault();
+      if (submit && submit.disabled) return;
       if (mode === 'signup') {
         showSignupPause();
         return;

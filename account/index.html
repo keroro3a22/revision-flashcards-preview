@@ -16,7 +16,7 @@
   <script src="assets/supabase-public.js?v=1"></script>
   <script src="assets/progress-sync.js?v=3"></script>
   <script src="assets/profile.js?v=7"></script>
-  <script src="assets/account.js?v=18"></script>
+  <script src="assets/account.js?v=19"></script>
 </head>
 <body class="account-page">
   <header class="topbar">
@@ -45,18 +45,18 @@
         <p class="account-form-kicker" id="account-form-kicker">Sign in with your username</p>
         <label class="account-field" for="account-username-input">
           <span class="account-field-name">Username <span lang="zh-Hant">使用者名稱</span></span>
-          <input id="account-username-input" name="username" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20" required />
+          <input id="account-username-input" name="username" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20" enterkeyhint="go" required />
         </label>
         <p class="account-hint">3–20 characters. Start with a letter. Not an email.</p>
         <label class="account-field" for="account-password">
           <span class="account-field-name">Password <span lang="zh-Hant">密碼</span></span>
-          <input id="account-password" name="password" type="password" autocomplete="current-password" minlength="6" maxlength="72" required />
+          <input id="account-password" name="password" type="password" autocomplete="current-password" minlength="6" maxlength="72" enterkeyhint="go" required />
         </label>
         <p class="account-hint">At least 6 characters.</p>
         <p id="account-error" class="account-error" role="alert" hidden></p>
         <div class="account-actions">
           <button type="submit" class="btn btn-primary" id="account-submit">Sign in</button>
-          <button type="button" class="account-text-btn" id="account-toggle">Don't have an account? Create one here.</button>
+          <button type="button" class="account-text-btn" id="account-toggle" form="">Don't have an account? Create one here.</button>
         </div>
       </form>
     </section>
