@@ -226,6 +226,7 @@ body.studio-page { margin: 0; background: #f4f7fb; color: #16324f; font-family: 
 .studio-table[data-shape="letters"] { min-width: 68.9rem; }
 .studio-table[data-shape="passage"] { min-width: 92.5rem; }
 .studio-table[data-shape="pages"] { min-width: 58rem; }
+.studio-table[data-shape="onboarding"] { min-width: 29rem; }
 .studio-table col.col-num { width: 2.4rem; }
 .studio-table col.col-photo { width: 5.4rem; }
 .studio-table col.col-audio { width: 2.8rem; }

@@ -1319,14 +1319,23 @@ a.account-entry:hover { background: var(--coral); color: var(--navy); }
   padding: 0.45rem;
   text-align: left;
 }
-.place-choice img {
+.place-choice-art {
+  position: relative;
+  display: block;
   width: 100%;
   aspect-ratio: 4 / 3;
-  object-fit: cover;
+  overflow: hidden;
   border-radius: 14px;
   background: #fff;
 }
-.place-choice span {
+.place-choice-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.place-choice-label {
+  display: block;
   padding: 0.65rem 0.35rem 0.35rem;
   font-size: 1.25rem;
 }

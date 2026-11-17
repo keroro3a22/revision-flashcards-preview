@@ -21,6 +21,27 @@ test('books are Longman and Oxford, levels are P1 to P6', () => {
   assert.equal(P.HOME, 'home');
 });
 
+test('a published onboarding photo replaces that book or level picture', () => {
+  const P = place();
+  const oxford = 'covers/unit1.jpg';
+  const longman = 'covers/unit2.jpg';
+  const p1 = 'unit1/thumb_01.jpg';
+  P.applyOnboarding([
+    { id: 'book-oxford', image: 'covers/custom.jpg', frame: { x: 10, y: 20, z: 1.2 } },
+    { id: 'level-p1', image: '  ' }
+  ]);
+  assert.equal(P.onboardingPictures().map((item) => item.id).join(','), 'book-longman,book-oxford,level-p1,level-p2,level-p3,level-p4,level-p5,level-p6');
+  assert.equal(P.books.find((book) => book.id === 'oxford').image, 'covers/custom.jpg');
+  assert.equal(P.onboardingPictures().find((item) => item.id === 'book-oxford').image, oxford);
+  assert.deepEqual(P.books.find((book) => book.id === 'oxford').frame, { x: 10, y: 20, z: 1.2 });
+  assert.equal(P.books.find((book) => book.id === 'longman').image, longman);
+  assert.equal(P.books.find((book) => book.id === 'longman').frame, null);
+  assert.equal(P.levels.find((level) => level.id === 'p1').image, p1);
+  P.applyOnboarding([]);
+  assert.equal(P.books.find((book) => book.id === 'oxford').image, oxford);
+  assert.equal(P.books.find((book) => book.id === 'oxford').frame, null);
+});
+
 function flat(groups) {
   return groups.flatMap((group) => group.items);
 }

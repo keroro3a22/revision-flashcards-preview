@@ -4,6 +4,8 @@
   if (!P) return;
 
   var openMenu = '';
+  var guideStep = 'book';
+  var guideDraft = { book: '', level: '', unit: P.HOME };
   var blurbs = {
     'revision-vocab': 'Review the words in this unit.',
     'revision-grammar': 'Review the grammar in this unit.',
@@ -739,9 +741,12 @@
   }
 
   function renderGuide(step, draft) {
+    guideStep = step;
+    guideDraft = draft;
     var title = document.getElementById('place-guide-title');
     var back = document.getElementById('place-guide-back');
     var choices = document.getElementById('place-guide-choices');
+    if (!title || !back || !choices) return;
     title.textContent = step === 'book' ? 'Pick a book' : 'Pick a level';
     choices.className = 'place-choices is-' + step;
     back.hidden = step === 'book';
@@ -751,12 +756,17 @@
       var button = document.createElement('button');
       button.type = 'button';
       button.className = 'place-choice';
+      var art = document.createElement('span');
+      art.className = 'place-choice-art';
       var img = document.createElement('img');
       img.src = item.image;
       img.alt = '';
+      art.appendChild(img);
+      if (item.frame && window.ImgFrame) window.ImgFrame.apply(img, item.frame, 4 / 3);
       var label = document.createElement('span');
+      label.className = 'place-choice-label';
       label.textContent = item.label;
-      button.appendChild(img);
+      button.appendChild(art);
       button.appendChild(label);
       button.addEventListener('click', function () {
         if (step === 'book') renderGuide('level', { book: item.id, level: '', unit: P.HOME });
@@ -767,6 +777,19 @@
     back.onclick = function () {
       renderGuide('book', { book: '', level: '', unit: P.HOME });
     };
+  }
+
+  function loadOnboardingImages() {
+    if (!document.getElementById('place-guide') || !P.applyOnboarding) return;
+    withGrammarClient(function (client) {
+      if (!client) return;
+      client.from('onboarding_images_live').select('id,image,frame').then(function (result) {
+        if (!result || result.error) return;
+        P.applyOnboarding(result.data || []);
+        if (document.documentElement.getAttribute('data-place') !== 'guide') return;
+        renderGuide(guideStep, guideDraft);
+      });
+    });
   }
 
   function toggleMenu(name) {
@@ -835,6 +858,7 @@
     if (!place) {
       show('guide');
       renderGuide('book', { book: '', level: '', unit: P.HOME });
+      loadOnboardingImages();
       return;
     }
     show('ready');
