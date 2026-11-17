@@ -301,6 +301,17 @@
     slot.insertBefore(link, slot.firstChild);
   }
 
+  function studioHref() {
+    return pageHref('studio/?from=' + encodeURIComponent(currentPlace()));
+  }
+
+  function rememberStudioFrom() {
+    var place = currentPlace();
+    try { sessionStorage.setItem('revision-studio-from', place); } catch (e) {}
+    var link = document.getElementById('edit-lessons');
+    if (link) link.href = studioHref();
+  }
+
   function paintLessons() {
     var current = document.getElementById('edit-lessons');
     if (!userId || !client) {
@@ -323,11 +334,12 @@
         link.id = 'edit-lessons';
         link.className = 'edit-lessons';
         link.textContent = 'Edit lessons';
-        link.addEventListener('pointerdown', function () {
-          try { sessionStorage.setItem('revision-studio-from', currentPlace()); } catch (e) {}
-        });
+        link.target = '_blank';
+        link.rel = 'noopener';
+        link.addEventListener('pointerdown', rememberStudioFrom);
+        link.addEventListener('click', rememberStudioFrom);
       }
-      link.href = pageHref('studio/');
+      link.href = studioHref();
       var badges = document.getElementById('badges-link');
       if (badges && badges.parentNode === slot) slot.insertBefore(link, badges.nextSibling);
       else {
