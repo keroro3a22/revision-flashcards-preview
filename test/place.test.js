@@ -30,7 +30,7 @@ test('a published onboarding photo replaces that book or level picture', () => {
     { id: 'book-oxford', image: 'covers/custom.jpg', frame: { x: 10, y: 20, z: 1.2 } },
     { id: 'level-p1', image: '  ' }
   ]);
-  assert.equal(P.onboardingPictures().map((item) => item.id).join(','), 'book-longman,book-oxford,level-p1,level-p2,level-p3,level-p4,level-p5,level-p6');
+  assert.equal(P.onboardingPictures().map((item) => item.id).join(','), 'book-longman,book-oxford,series-mypearson-express,series-elect,series-oxford,level-p1,level-p2,level-p3,level-p4,level-p5,level-p6');
   assert.equal(P.books.find((book) => book.id === 'oxford').image, 'covers/custom.jpg');
   assert.equal(P.onboardingPictures().find((item) => item.id === 'book-oxford').image, oxford);
   assert.deepEqual(P.books.find((book) => book.id === 'oxford').frame, { x: 10, y: 20, z: 1.2 });
@@ -40,6 +40,29 @@ test('a published onboarding photo replaces that book or level picture', () => {
   P.applyOnboarding([]);
   assert.equal(P.books.find((book) => book.id === 'oxford').image, oxford);
   assert.equal(P.books.find((book) => book.id === 'oxford').frame, null);
+});
+
+test('onboarding rows sort by publisher and by book name', () => {
+  const P = place();
+  const rows = P.onboardingPictures();
+  const byPublisher = P.sortOnboarding(rows, 'publisher', 'asc').map((item) => item.id);
+  assert.deepEqual(byPublisher.slice(0, 5), [
+    'book-longman',
+    'series-mypearson-express',
+    'series-elect',
+    'book-oxford',
+    'series-oxford'
+  ]);
+  assert.equal(byPublisher[byPublisher.length - 1], 'level-p6');
+  const byName = P.sortOnboarding(rows, 'book', 'asc').filter((item) => item.bookName).map((item) => item.bookName);
+  assert.deepEqual(byName, [
+    'Living Oxford English',
+    'Primary Longman Elect',
+    'Primary Longman Express'
+  ]);
+  const flipped = P.sortOnboarding(rows, 'publisher', 'desc').map((item) => item.publisher).filter(Boolean);
+  assert.equal(flipped[0], 'Oxford');
+  assert.equal(flipped[flipped.length - 1], 'Longman');
 });
 
 function flat(groups) {

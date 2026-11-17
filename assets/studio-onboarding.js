@@ -1,7 +1,10 @@
-/* Onboarding pictures: Pick a book, then Pick a level.
+/* Onboarding pictures: publisher, book name, then level.
    An empty photo keeps the built-in picture. Students read onboarding_images_live. */
 (function () {
   var RATIO = 4 / 3;
+  var sortKey = '';
+  var sortDir = 'asc';
+  var view = { client: null, place: null, rows: [], say: function () {}, focus: '', focused: function () {} };
 
   function $(id) { return document.getElementById(id); }
   function textOf(field) {
@@ -30,13 +33,21 @@
     client.from('onboarding_images').select('id,image,image_frame,status,published').then(function (result) {
       if (!stillHere()) { if (focus) focused(); return; }
       if (result.error) { say(result.error.message); if (focus) focused(); return; }
-      render(client, place, result.data || [], say, focus, focused);
+      view.client = client;
+      view.place = place;
+      view.rows = result.data || [];
+      view.say = say;
+      view.focus = focus;
+      view.focused = focused;
+      render(client, place, view.rows, say, focus, focused);
     });
   }
 
   function columns() {
     return [
       { col: 'col-page-line', key: 'line', label: 'Line' },
+      { col: 'col-page-name', key: 'publisher', label: 'Publisher' },
+      { col: 'col-page-words', key: 'book', label: 'Book name' },
       { col: 'col-page-photo', key: 'photo', label: 'Photo' },
       { col: 'col-state', key: 'state', label: 'State' },
       { col: 'col-actions', key: 'actions', label: '' }
@@ -61,7 +72,11 @@
     var byId = {};
     rows.forEach(function (row) { byId[row.id] = row; });
     var hit = null;
-    slots().forEach(function (slot) {
+    var list = slots();
+    if (sortKey && window.RevisionPlace && window.RevisionPlace.sortOnboarding) {
+      list = window.RevisionPlace.sortOnboarding(list, sortKey, sortDir);
+    }
+    list.forEach(function (slot) {
       var row = byId[slot.id] || null;
       if (!wanted(review, row)) return;
       var tr = line(client, place, slot, row, say);
@@ -70,7 +85,36 @@
     });
     if (hit && window.RevisionStudio && window.RevisionStudio.markPathRow) window.RevisionStudio.markPathRow(hit);
     if (focus) focused();
-    say('Empty photos keep the built-in picture. Publish is what students see on Pick a book and Pick a level.');
+    armSort($('studio-head'));
+    say('Empty photos keep the built-in picture. Publish is what students see. Sort with Publisher or Book name.');
+  }
+
+  function armSort(head) {
+    if (!head) return;
+    head.querySelectorAll('th').forEach(function (th) {
+      var key = th.dataset.key;
+      if (key !== 'publisher' && key !== 'book') return;
+      var grip = th.querySelector('.studio-col-resize');
+      var name = '';
+      Array.prototype.forEach.call(th.childNodes, function (node) {
+        if (node.nodeType === 3) name += node.textContent;
+      });
+      name = name.replace(/\s+/g, ' ').trim();
+      Array.prototype.slice.call(th.childNodes).forEach(function (node) {
+        if (node !== grip) node.remove();
+      });
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'studio-sort';
+      button.textContent = name + (sortKey === key ? (sortDir === 'asc' ? ' ↑' : ' ↓') : '');
+      button.addEventListener('click', function () {
+        if (sortKey === key) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+        else { sortKey = key; sortDir = 'asc'; }
+        render(view.client, view.place, view.rows, view.say, '', function () {});
+      });
+      th.setAttribute('aria-sort', sortKey === key ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none');
+      th.insertBefore(button, grip);
+    });
   }
 
   function line(client, place, slot, row, say) {
@@ -80,6 +124,8 @@
     var name = document.createElement('td');
     name.textContent = slot.name;
     tr.appendChild(name);
+    tr.appendChild(plainCell(slot.publisher));
+    tr.appendChild(plainCell(slot.bookName));
     tr.appendChild(photoCell(client, row, slot, say, place));
     var state = document.createElement('td');
     state.className = 'is-state';
@@ -87,6 +133,12 @@
     tr.appendChild(state);
     tr.appendChild(actions(client, slot, row, tr, say, place));
     return tr;
+  }
+
+  function plainCell(value) {
+    var td = document.createElement('td');
+    td.textContent = value || '';
+    return td;
   }
 
   function photoCell(client, row, slot, say, place) {

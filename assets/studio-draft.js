@@ -586,6 +586,9 @@
   var ONBOARDING_SLOTS = {
     'book-longman': 1,
     'book-oxford': 1,
+    'series-oxford': 1,
+    'series-mypearson-express': 1,
+    'series-elect': 1,
     'level-p1': 1,
     'level-p2': 1,
     'level-p3': 1,
