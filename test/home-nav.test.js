@@ -40,9 +40,9 @@ test('homepage topbar is the account link, with book, level, and unit navigation
   assert.doesNotMatch(html, /id="grade-covers"/);
   assert.doesNotMatch(html, />Account</);
   assert.doesNotMatch(html, /<select/);
-  assert.match(html, /assets\/place\.js\?v=13/);
-  assert.match(html, /assets\/place-ui\.js\?v=37/);
-  assert.equal(html.includes('site.css?v=73'), true);
+  assert.match(html, /assets\/place\.js\?v=14/);
+  assert.match(html, /assets\/place-ui\.js\?v=38/);
+  assert.equal(html.includes('site.css?v=74'), true);
   assert.match(html, /<header class="topbar">[\s\S]*id="unit-tabs" role="tablist"[\s\S]*<\/header>/);
   assert.doesNotMatch(html, /Open Dictation/);
 });
