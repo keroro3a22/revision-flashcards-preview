@@ -11,7 +11,6 @@
     'revision-grammar': 'Review the grammar in this unit.',
     'practice-vocab': 'Try the word quizzes.',
     'practice-grammar': 'Practise the grammar in games.',
-    game: 'Open School Mystery.',
     boss: 'Whole book · 3 lives.'
   };
 
@@ -409,6 +408,38 @@
     });
   }
 
+  function renderWorlds(box, items) {
+    var nav = document.createElement('nav');
+    nav.setAttribute('aria-label', 'Worlds');
+    var list = document.createElement('ul');
+    list.className = 'world-list';
+    (items || []).forEach(function (item) {
+      var li = document.createElement('li');
+      var link = document.createElement('a');
+      link.className = 'world';
+      link.href = item.href;
+      var img = document.createElement('img');
+      img.src = item.image;
+      img.alt = '';
+      if (item.width) img.width = item.width;
+      if (item.height) img.height = item.height;
+      var name = document.createElement('span');
+      name.className = 'world-name';
+      name.appendChild(document.createTextNode(item.label + ' '));
+      var zh = document.createElement('span');
+      zh.className = 'world-zh';
+      zh.lang = 'zh-Hant';
+      zh.textContent = item.zh || '';
+      name.appendChild(zh);
+      link.appendChild(img);
+      link.appendChild(name);
+      li.appendChild(link);
+      list.appendChild(li);
+    });
+    nav.appendChild(list);
+    box.appendChild(nav);
+  }
+
   function renderEntries(place, resolved, pictures) {
     var showPictures = pictures !== false;
     var box = document.getElementById('place-entries');
@@ -423,8 +454,14 @@
       heading.textContent = '';
       return;
     }
-    if (place.unit === P.GAME || place.unit === P.BOSS) {
-      heading.textContent = place.unit === P.BOSS ? 'Boss' : 'Game';
+    if (place.unit === P.GAME) {
+      heading.textContent = 'Game';
+      var worlds = P.entriesFor(place);
+      renderWorlds(box, worlds[0] && worlds[0].items);
+      return;
+    }
+    if (place.unit === P.BOSS) {
+      heading.textContent = 'Boss';
     } else {
       var selected = P.unitsFor(place.book, place.level, place.series, place.term).filter(function (unit) {
         return unit.id === place.unit;
@@ -721,6 +758,10 @@
         });
         tabs.appendChild(tab);
       });
+      var current = tabs.querySelector('.unit-tab[aria-selected="true"]');
+      if (place.unit === P.GAME && current && current.scrollIntoView) {
+        try { current.scrollIntoView({ inline: 'nearest', block: 'nearest' }); } catch (err) {}
+      }
     }
     var deferPictures = place.unit !== P.HOME && place.unit !== P.GAME && place.unit !== P.BOSS && place.unit !== P.RESOURCES && !!(window.SitePages && window.SitePages.mount);
     if (document.getElementById('place-entries')) renderEntries(place, null, !deferPictures);
