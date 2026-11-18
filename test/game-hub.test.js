@@ -57,3 +57,30 @@ test('game hub offers two worlds and leaves School Mystery in place', () => {
   assert.doesNotMatch(hunt, /Vocab · Unit/);
   assert.doesNotMatch(hunt, /Grammar ·/);
 });
+
+test('after-school club lists School Mystery and keeps Nunito', () => {
+  const page = fs.readFileSync(path.join(root, 'game/after-school-club/index.html'), 'utf8');
+  assert.match(page, /<h1>After-School Club<\/h1>/);
+  assert.match(page, /神秘校園日常/);
+  assert.match(page, /School Mystery/);
+  assert.match(page, /The missing raffle box/);
+  assert.match(page, /href="\.\.\/clue-hunt\/"/);
+  assert.match(page, /href="\.\.\/">← Game</);
+  assert.match(page, /after-school-club\.png\?v=2/);
+  assert.match(page, /huninn\.css/);
+  assert.match(page, /family=Nunito/);
+  assert.doesNotMatch(page, /Fredoka/);
+  assert.doesNotMatch(page, /Mystic Mist Isles/);
+  const ui = fs.readFileSync(path.join(root, 'assets/place-ui.js'), 'utf8');
+  const css = fs.readFileSync(path.join(root, 'assets/site.css'), 'utf8');
+  assert.match(ui, /className = 'world'/);
+  assert.match(ui, /world-zh/);
+  assert.doesNotMatch(ui, /School Mystery/);
+  assert.doesNotMatch(ui, /Open School Mystery/);
+  const worlds = css.slice(css.indexOf('.place-entries .world-list'), css.indexOf('.boss-quiz-frame'));
+  assert.match(worlds, /\.place-entries \.world img \{[^}]*background:\s*transparent/);
+  assert.match(worlds, /\.place-entries \.world img \{[^}]*box-shadow:\s*none/);
+  assert.match(worlds, /translateY\(-8px\)/);
+  assert.match(worlds, /\.place-entries \.world-zh \{[^}]*jf-openhuninn/);
+  assert.doesNotMatch(worlds, /Fredoka/);
+});

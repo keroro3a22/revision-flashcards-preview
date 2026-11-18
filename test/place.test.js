@@ -140,18 +140,39 @@ test('a book without pages keeps both groups, with no status line yet', () => {
   assert.equal(JSON.stringify(doors).includes('砌緊'), false);
 });
 
-test('every book, publisher, grade, and term opens the same game', () => {
+test('every book, publisher, grade, and term opens the same worlds', () => {
   const P = place();
-  const oxford = flat(P.entriesFor({ book: 'oxford', level: 'p6', term: 'first', unit: 'game' }))[0];
-  const elect = flat(P.entriesFor({ book: 'longman', series: 'elect', level: 'p6', term: 'second', unit: 'game' }))[0];
-  const primary = flat(P.entriesFor({ book: 'oxford', level: 'p1', unit: 'game' }))[0];
-  assert.equal(oxford.href, 'game/');
-  assert.equal(oxford.ready, true);
-  assert.equal(elect.href, oxford.href);
-  assert.equal(elect.ready, true);
-  assert.equal(primary.href, oxford.href);
-  assert.equal(primary.ready, true);
-  assert.equal(primary.label, 'School Mystery');
+  function worlds(input) {
+    return flat(P.entriesFor(input)).map((item) => ({
+      label: item.label,
+      zh: item.zh,
+      href: item.href,
+      image: item.image,
+      ready: item.ready
+    }));
+  }
+  const oxford = worlds({ book: 'oxford', level: 'p6', term: 'first', unit: 'game' });
+  const elect = worlds({ book: 'longman', series: 'elect', level: 'p6', term: 'second', unit: 'game' });
+  const primary = worlds({ book: 'oxford', level: 'p1', unit: 'game' });
+  assert.equal(JSON.stringify(elect), JSON.stringify(oxford));
+  assert.equal(JSON.stringify(primary), JSON.stringify(oxford));
+  assert.equal(JSON.stringify(oxford), JSON.stringify([
+    {
+      label: 'Mystic Mist Isles',
+      zh: '魔法與奇幻學院',
+      href: 'game/mystic-mist-isles/',
+      image: 'game/illust/mystic-mist-isles.png',
+      ready: true
+    },
+    {
+      label: 'After-School Club',
+      zh: '神秘校園日常',
+      href: 'game/after-school-club/',
+      image: 'game/illust/after-school-club.png?v=2',
+      ready: true
+    }
+  ]));
+  assert.equal(oxford.some((item) => item.label === 'School Mystery' || item.href === 'game/'), false);
   const stayed = P.withChange({ book: 'oxford', level: 'p6', term: 'first', unit: 'game' }, { book: 'longman', level: 'p3', term: 'second' });
   assert.equal(stayed.unit, 'game');
   assert.equal(stayed.level, 'p3');
