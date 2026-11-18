@@ -7,14 +7,22 @@ const root = path.join(__dirname, '..');
 
 test('home page keeps badges and does not put Game in the topbar', () => {
   const home = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-  assert.match(home, /class="detective-peek" href="game\/clue-hunt\/"/);
-  assert.match(home, />Be a Detective</);
+  const sheet = home.slice(home.indexOf('id="packs"'), home.indexOf('id="how"'));
   assert.match(home, /id="place-entries"/);
   assert.match(home, /Unlock your badges/);
+  assert.match(home, /id="pack-index"/);
+  assert.doesNotMatch(home, /detective-peek/);
+  assert.doesNotMatch(home, /Be a Detective/);
+  assert.doesNotMatch(home, /games-link/);
+  assert.doesNotMatch(sheet, /href="game\//);
+  assert.doesNotMatch(sheet, /game\/clue-hunt/);
   const nav = home.match(/<nav class="nav-plain"[\s\S]*?<\/nav>/)[0];
   assert.doesNotMatch(nav, />Game</);
   assert.doesNotMatch(home, /class="detective-card"/);
   assert.doesNotMatch(home, /Start Clue Hunt/);
+  const css = fs.readFileSync(path.join(root, 'assets/site.css'), 'utf8');
+  assert.doesNotMatch(css, /games-link|detective-peek/);
+  assert.match(css, /\.sheet \{[^}]*padding:\s*clamp\(4\.4rem, 7vw, 5\.2rem\)/);
 });
 
 test('game hub offers two worlds and leaves School Mystery in place', () => {

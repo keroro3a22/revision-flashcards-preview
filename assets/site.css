@@ -376,35 +376,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   border-radius: var(--radius);
   padding: clamp(4.4rem, 7vw, 5.2rem) clamp(1.25rem, 3vw, 2.5rem) 2rem;
 }
-.sheet .detective-peek {
-  position: absolute;
-  top: 0.45rem;
-  left: 0.55rem;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.05rem;
-  width: 4.1rem;
-  color: var(--navy);
-  text-decoration: none;
-  opacity: 0.82;
-}
-.sheet .detective-peek img {
-  width: 2.7rem;
-  height: 2.7rem;
-  object-fit: contain;
-  background: none;
-}
-.sheet .detective-peek span {
-  font-family: var(--font-display);
-  font-weight: 650;
-  font-size: 0.66rem;
-  line-height: 1.05;
-  text-align: center;
-}
-.sheet .detective-peek:hover,
-.sheet .detective-peek:focus-visible { opacity: 1; }
 .sheet-title {
   font-family: var(--font-display);
   font-weight: 650;
