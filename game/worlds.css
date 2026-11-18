@@ -1,0 +1,174 @@
+/* Game world entrance. Nunito for English, jf-openhuninn for Chinese.
+   Same cream field and navy header as the other student pages. */
+
+:root {
+  --bg: #fcf0d8;
+  --ink: #243c6c;
+  --navy: #243c6c;
+  --cream: #fcf0d8;
+  --sunny: #fcc03c;
+  --white: #ffffff;
+  --font-display: "Nunito", "jf-openhuninn", system-ui, sans-serif;
+  --font-text: "Nunito", "jf-openhuninn", system-ui, sans-serif;
+  --margin: clamp(1rem, 2.2vw, 1.75rem);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+img { display: block; max-width: 100%; height: auto; background: transparent; border: 0; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 3px solid var(--sunny); outline-offset: 3px; }
+::selection { background: var(--sunny); color: var(--navy); }
+:lang(zh-Hant) { font-family: "jf-openhuninn", sans-serif; }
+
+.prac-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: 0.75rem;
+  background: var(--navy);
+  color: var(--white);
+  padding: 0.55rem var(--margin) 0.7rem;
+}
+.prac-header .back {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  opacity: 0.9;
+  color: inherit;
+}
+.prac-header .back:hover { opacity: 1; }
+.prac-header h1 {
+  flex: 1 0 100%;
+  margin: 0.28rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.35rem, 1.1rem + 1vw, 1.85rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+.prac-header .sub {
+  flex: 1 0 100%;
+  margin: 0.15rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  opacity: 0.92;
+}
+
+.world-wrap {
+  width: min(68rem, calc(100% - 2 * var(--margin)));
+  margin: 0 auto;
+  padding: clamp(1.35rem, 3.2vw, 2.4rem) 0 calc(4.5rem + env(safe-area-inset-bottom));
+}
+
+.world-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(1.75rem, 4vw, 2.75rem);
+  align-items: stretch;
+}
+@media (min-width: 720px) {
+  .world-list {
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(1.25rem, 3vw, 2.75rem);
+  }
+}
+
+.world {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.85rem;
+  height: 100%;
+  min-width: 0;
+  color: var(--navy);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  border-radius: 12px;
+  transition: transform 180ms var(--ease);
+}
+.world img {
+  width: 100%;
+  height: auto;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+.world-name {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  max-width: 100%;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.2rem, 1.02rem + 0.55vw, 1.5rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--navy);
+}
+.world-zh {
+  font-family: "jf-openhuninn", sans-serif;
+  font-weight: 400;
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+  line-height: 1.35;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .world:hover { transform: translateY(-8px); }
+}
+.world:active { transform: translateY(-2px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .world { transition: none; }
+  .world:hover,
+  .world:active { transform: none; }
+}
+
+.hold {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1rem;
+}
+.hold img {
+  width: min(100%, 32rem);
+  margin: 0 auto;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+.hold p {
+  margin: 0;
+  max-width: 28rem;
+  font-family: var(--font-text);
+  font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1.4;
+  color: var(--navy);
+}
