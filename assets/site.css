@@ -374,37 +374,27 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   margin: 0 auto;
   background: var(--cream);
   border-radius: var(--radius);
-  padding: clamp(4.4rem, 7vw, 5.2rem) clamp(1.25rem, 3vw, 2.5rem) 2rem;
+  padding: clamp(3.6rem, 5.5vw, 4.1rem) clamp(1.25rem, 3vw, 2.5rem) 2rem;
 }
-.sheet .detective-peek {
+.sheet .games-link {
   position: absolute;
   top: 0.45rem;
-  left: 0.55rem;
+  left: 0.7rem;
   z-index: 2;
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
   align-items: center;
-  gap: 0.05rem;
-  width: 4.1rem;
+  min-height: 44px;
+  padding: 0 0.15rem;
+  font-family: "Nunito", "jf-openhuninn", system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.2;
   color: var(--navy);
-  text-decoration: none;
-  opacity: 0.82;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
 }
-.sheet .detective-peek img {
-  width: 2.7rem;
-  height: 2.7rem;
-  object-fit: contain;
-  background: none;
-}
-.sheet .detective-peek span {
-  font-family: var(--font-display);
-  font-weight: 650;
-  font-size: 0.66rem;
-  line-height: 1.05;
-  text-align: center;
-}
-.sheet .detective-peek:hover,
-.sheet .detective-peek:focus-visible { opacity: 1; }
+.sheet .games-link:hover,
+.sheet .games-link:focus-visible { text-decoration-thickness: 2px; }
 .sheet-title {
   font-family: var(--font-display);
   font-weight: 650;

@@ -7,8 +7,11 @@ const root = path.join(__dirname, '..');
 
 test('home page keeps badges and does not put Game in the topbar', () => {
   const home = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-  assert.match(home, /class="detective-peek" href="game\/clue-hunt\/"/);
-  assert.match(home, />Be a Detective</);
+  assert.match(home, /class="games-link" href="game\/"/);
+  assert.match(home, />Games</);
+  assert.doesNotMatch(home, /detective-peek/);
+  assert.doesNotMatch(home, /Be a Detective/);
+  assert.doesNotMatch(home, /game\/clue-hunt/);
   assert.match(home, /id="place-entries"/);
   assert.match(home, /Unlock your badges/);
   const nav = home.match(/<nav class="nav-plain"[\s\S]*?<\/nav>/)[0];
