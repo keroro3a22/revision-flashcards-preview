@@ -24,7 +24,8 @@ test('game hub offers two worlds and leaves School Mystery in place', () => {
   assert.match(hub, /Mystic Mist Isles/);
   assert.match(hub, /After-School Club/);
   assert.match(hub, /href="mystic-mist-isles\/"/);
-  assert.match(hub, /href="clue-hunt\/"/);
+  assert.match(hub, /href="after-school-club\/"/);
+  assert.doesNotMatch(hub, /href="clue-hunt\/"/);
   assert.match(hub, /illust\/mystic-mist-isles\.png/);
   assert.match(hub, /illust\/after-school-club\.png/);
   assert.match(hub, /huninn\.css/);
