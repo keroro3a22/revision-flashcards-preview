@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../../assets/huninn.css"/>
-<link rel="stylesheet" href="../worlds.css?v=3"/>
+<link rel="stylesheet" href="../worlds.css?v=4"/>
 <link rel="stylesheet" href="../../assets/account.css?v=8"/>
 <script src="../../assets/supabase-public.js?v=1"></script>
 <script src="../../assets/progress-sync.js?v=4"></script>
@@ -21,19 +21,43 @@
   <p class="sub"><span lang="zh-Hant">神秘校園日常</span></p>
 </header>
 <main class="world-wrap">
-  <nav aria-label="Games">
-    <ul class="play-list">
-      <li>
-        <a class="play-link" href="../clue-hunt/">
-          <img src="../illust/intro/report.png" alt="" width="800" height="791"/>
-          <span class="play-copy">
-            <span class="play-title">School Mystery</span>
-            <span class="play-note">The missing raffle box</span>
-          </span>
-        </a>
-      </li>
-    </ul>
-  </nav>
+  <div class="game-grid">
+    <a class="game-card gc-mystery" href="../clue-hunt/">
+      <div class="case-book">
+        <div class="case-page">
+          <div class="case-page-top">
+            <span class="case-holes" aria-hidden="true"><i></i><i></i><i></i></span>
+            <p class="case-file-kicker">Case file</p>
+            <div class="case-photo">
+              <img src="../illust/zoom-raffle-box.png" alt="" width="72" height="72"/>
+            </div>
+          </div>
+          <img class="case-stamp" src="../../assets/stamps/confidential-irasutoya.png" alt="Confidential" width="640" height="110"/>
+          <div class="case-box">
+            <span class="case-label">Case No.</span>
+            <span class="case-no">001</span>
+          </div>
+          <div class="case-box">
+            <span class="case-label">Case Name</span>
+            <h3>School Mystery</h3>
+            <p>Missing raffle box</p>
+          </div>
+          <div class="case-box">
+            <span class="case-label">Date</span>
+            <p>School Fair Day</p>
+          </div>
+          <div class="case-box">
+            <span class="case-label">Location</span>
+            <p>School</p>
+          </div>
+          <div class="case-box case-incident">
+            <span class="case-label">Incident Details</span>
+            <p>The raffle prize box went missing at the school fair.</p>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
 </main>
 </body>
 </html>
