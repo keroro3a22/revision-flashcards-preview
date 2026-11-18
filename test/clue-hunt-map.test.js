@@ -109,7 +109,9 @@ test('notebook and solve page are present, without a missing-person picker', () 
   assert.match(solve, /id="solve-back"/);
   assert.doesNotMatch(solve, /id="what-choices"/);
   assert.doesNotMatch(solve, /Who is missing/);
-  assert.match(html, /href="\.\/">← Game</);
+  assert.match(html, /<base href="\.\.\/">/);
+  assert.match(html, /href="after-school-club\/">← After-School Club</);
+  assert.doesNotMatch(html, /href="\.\/">← Game</);
   assert.match(html, /id="back-map"/);
   assert.match(html, /id="scene-actions"/);
   assert.match(html, /id="scene-spots"/);
