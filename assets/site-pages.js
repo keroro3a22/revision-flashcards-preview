@@ -359,13 +359,12 @@
       var cover = unit.items.filter(function (item) { return item.id === 'revision-vocab'; })[0];
       var src = coverSrc(place, unit.id, (cover && cover.image) || imageSrc(unit.id, cardPhoto(cardsFor(catalog.lessons, unit.id, 'vocab'), 'first')));
       var heading = 'Unit ' + n + (unit.title ? ' · ' + unit.title : '');
-      var open = cover && cover.ready ? cover.href : './';
       article.innerHTML = '<div class="pack-cover">' + (src ? '<img src="' + escapeHtml(src) + '" alt="" width="640" height="480" loading="lazy" />' : '') + '</div>'
         + '<div class="pack-body"><h3>' + escapeHtml(heading) + '</h3>'
         + (unit.packNote ? '<p>' + escapeHtml(unit.packNote) + '</p>' : '')
         + '<p class="pack-tags"><span class="tag">Unit ' + n + '</span>'
         + (unit.words ? '<span class="tag nums">' + unit.words + ' words</span>' : '')
-        + '</p><a class="btn btn-primary pack-open" href="' + escapeHtml(open) + '">Open Unit ' + n + '</a></div>';
+        + '</p><button type="button" class="btn btn-primary pack-open" data-unit="' + escapeHtml(unit.id) + '">Open Unit ' + n + '</button></div>';
       track.appendChild(article);
     });
     var status = root.document.getElementById('pack-status');

@@ -566,7 +566,7 @@
       else if (c.textContent === selected && !ok) c.classList.add("wrong");
     });
     if (ok) { correctCount++; showFullJoin(item.answer, "ok"); showToast(toast, "Perfect!", item.full, "ok"); }
-    else { showFullJoin(item.answer, "soft"); showToast(toast, "Try this", item.full, "bad"); }
+    else { showFullJoin(selected); showToast(toast, "Try this", item.full, "bad"); }
     btnCheck.disabled = true; btnClear.disabled = true; btnNext.hidden = false;
     btnNext.textContent = idx === items.length - 1 ? "Finish" : "Next";
   });

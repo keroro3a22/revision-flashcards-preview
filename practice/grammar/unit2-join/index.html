@@ -563,7 +563,7 @@ const set3Data = {
       showFullJoin(item.answer, "ok");
       showToast(toast, "Perfect!", item.full, "ok");
     } else {
-      showFullJoin(item.answer, "soft");
+      showFullJoin(selected);
       showToast(toast, "Try this", item.full, "bad");
     }
     btnCheck.disabled = true;

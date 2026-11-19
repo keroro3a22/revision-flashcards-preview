@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../assets/huninn.css"/>
-<link rel="stylesheet" href="practice.css?v=16"/>
+<link rel="stylesheet" href="practice.css?v=17"/>
 <link rel="stylesheet" href="../assets/chrome.css?v=7" />
 <link rel="stylesheet" href="../assets/profile.css?v=6" />
 <link rel="stylesheet" href="../assets/account.css?v=8" />
@@ -315,10 +315,7 @@
         chip.addEventListener('click', function () {
           if (locked) return;
           if (chip.classList.contains('used')) return;
-          bankEl.querySelectorAll('.bank-chip').forEach(function (c) { c.classList.remove('selected'); });
-          chip.classList.add('selected');
-          selectedChip = chip;
-          if (!placed) place(opt, chip);
+          place(opt, chip);
         });
         bankEl.appendChild(chip);
       });
@@ -359,12 +356,7 @@
         }
       });
       toast.classList.add('toast-explain-panel');
-      if (slotRef.el) slotRef.el.classList.add('is-wrong');
-      if (mode === 'hard' && slotRef.input) slotRef.input.value = item.answer;
-      else if (mode === 'easy' && slotRef.el) {
-        slotRef.el.textContent = item.answer;
-        slotRef.el.classList.add('filled');
-      }
+      if (slotRef.el) slotRef.el.classList.add('filled', 'is-wrong');
     }
     btnNext.hidden = false;
     document.getElementById('prog').style.width = (((idx + 1) / items.length) * 100) + '%';

@@ -196,7 +196,7 @@ test('missing letters render wraps between words, not inside them', () => {
   assert.match(inputRule, /background:\s*transparent/);
   assert.match(inputRule, /color:\s*var\(--navy\)/);
   assert.doesNotMatch(inputRule, /var\(--sunny\)/);
-  assert.match(html, /practice\.css\?v=11/);
+  assert.match(html, /practice\.css\?v=17/);
   assert.match(html, /letter-rules\.js/);
   const rowRule = css.slice(css.indexOf('.letter-row {'), css.indexOf('.letter-word {'));
   assert.doesNotMatch(rowRule, /display:\s*flex/);
