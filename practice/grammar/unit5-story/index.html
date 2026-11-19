@@ -1428,7 +1428,7 @@
       else if (i === selectedIdx && !ok) c.classList.add("wrong");
     });
     if (ok) { correctCount++; renderPrompt(s.answer, "ok"); showToast(toast, "Nice!", s.explain, "ok"); }
-    else { renderPrompt(s.answer, "soft"); showToast(toast, "Not quite", s.explain, "bad"); }
+    else { renderPrompt(vals); showToast(toast, "Not quite", s.explain, "bad"); }
     btnCheck.disabled = true; btnClear.disabled = true; btnNext.hidden = false;
     btnNext.textContent = idx === scenes.length - 1 ? "Finish" : "Next page";
   });

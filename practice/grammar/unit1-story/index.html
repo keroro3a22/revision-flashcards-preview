@@ -698,7 +698,7 @@
       renderPrompt(s.answer, "ok");
       showToast(toast, "Nice!", s.explain, "ok");
     } else {
-      renderPrompt(s.answer, "soft");
+      renderPrompt(vals);
       showToast(toast, "Not quite", s.explain, "bad");
     }
     btnCheck.disabled = true;

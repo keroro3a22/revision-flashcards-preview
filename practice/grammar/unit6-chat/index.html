@@ -998,7 +998,7 @@
   if (forced) document.getElementById("btn-again").href="unit6-chat/?set=" + (setIndex + 1);
   const names = { tom: "Tom", may: "May", mr: "Mr Tam" };
   const totalDots = bubbles.length + 1;
-  let idx = 0, selected = null, locked = false, correctCount = 0, filled = [], inferenceRewards = null;
+  let idx = 0, selected = null, locked = false, correctCount = 0, filled = [], filledRight = [], inferenceRewards = null;
   const thread = document.getElementById("thread");
   const choices = document.getElementById("choices");
   const phaseChip = document.getElementById("phase-chip");
@@ -1041,7 +1041,7 @@
       const b = bubbles[i];
       const d = document.createElement("div");
       ChatNames.paint(d, b);
-      d.innerHTML = '<span class="who">' + ChatNames.who(b, names) + "</span>" + buildBubbleHtml(b.parts, filled[i] || b.answer, "done", b.hard);
+      d.innerHTML = '<span class="who">' + ChatNames.who(b, names) + "</span>" + buildBubbleHtml(b.parts, filled[i] != null ? filled[i] : b.answer, filledRight[i] === false ? "" : "done", b.hard);
       thread.appendChild(d);
     }
     if (idx < bubbles.length) {
@@ -1083,7 +1083,7 @@
       bubbles.forEach((b, i) => {
         const d = document.createElement("div");
         ChatNames.paint(d, b);
-        d.innerHTML = '<span class="who">' + ChatNames.who(b, names) + "</span>" + buildBubbleHtml(b.parts, filled[i] || b.answer, "done", b.hard);
+        d.innerHTML = '<span class="who">' + ChatNames.who(b, names) + "</span>" + buildBubbleHtml(b.parts, filled[i] != null ? filled[i] : b.answer, filledRight[i] === false ? "" : "done", b.hard);
         thread.appendChild(d);
       });
       renderChoices(endQ.options);
@@ -1110,7 +1110,7 @@
       else if (c.textContent === selected && !ok) c.classList.add("wrong");
     });
     if (ok) { correctCount++; if (!isBubble && !forced && window.Badges) inferenceRewards = Badges.recordGrammarInference(); showToast(toast, "Yes!", explain, "ok"); if (isBubble) { filled[idx] = answer; renderThread(answer, "ok"); } }
-    else { showToast(toast, "Answer: " + answer, explain, "bad"); if (isBubble) { filled[idx] = answer; renderThread(answer, "soft"); } }
+    else { showToast(toast, "Answer: " + answer, explain, "bad"); if (isBubble) { filled[idx] = selected; filledRight[idx] = false; renderThread(selected); } }
     btnCheck.disabled = true; btnClear.disabled = true; btnNext.hidden = false;
     if (isBubble) btnNext.textContent = idx === bubbles.length - 1 ? "Inference question" : "Next bubble";
     else btnNext.textContent = "Finish";

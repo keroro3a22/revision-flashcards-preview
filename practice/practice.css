@@ -435,7 +435,12 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
 }
 .blank-slot.is-correct .blank-input { color: var(--white); }
 .blank-slot.is-wrong { background: var(--pink); }
-.blank-slot.is-wrong .blank-input { color: var(--navy); }
+.blank-slot.is-wrong .blank-input,
+.blank-slot.is-wrong .blank-input:disabled {
+  color: var(--navy);
+  -webkit-text-fill-color: var(--navy);
+  opacity: 1;
+}
 .blank-slot .blank-input::placeholder {
   color: var(--muted);
   opacity: 0.65;
@@ -624,6 +629,17 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
   border-bottom: 0;
   width: clamp(1.65rem, 7.2vw, 2.2rem);
 }
+.letter-slot input:disabled {
+  opacity: 1;
+  color: var(--navy);
+  -webkit-text-fill-color: var(--navy);
+}
+.letter-slot.is-wrong input,
+.letter-slot.is-wrong input:disabled {
+  color: #c43c3c;
+  -webkit-text-fill-color: #c43c3c;
+  opacity: 1;
+}
 /* A space in the phrase: empty slot, wider than the gap inside a word. */
 .letter-slot.is-space {
   display: inline-block;
@@ -647,6 +663,18 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
   background: transparent;
   padding: 0;
   border-radius: 0;
+}
+.letter-need {
+  margin: -0.45rem 0 0.15rem;
+  text-align: center;
+  color: #c43c3c;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.35;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
 }
 
 @media (max-width: 380px) {

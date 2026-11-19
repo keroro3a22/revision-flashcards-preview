@@ -144,3 +144,45 @@ test('Get started packs follow titles and open doors', () => {
   assert.equal(home.hero.label, 'Play and Learn Club');
   assert.equal(home.see.label, 'See it');
 });
+
+test('The packs Open button names the unit and does not link away', () => {
+  const cards = [];
+  const track = {
+    replaceChildren() { cards.length = 0; },
+    appendChild(node) { cards.push(node); }
+  };
+  const prev = global.document;
+  global.document = {
+    getElementById(id) { return id === 'pack-index' ? track : null; },
+    querySelector() { return null; },
+    getElementsByTagName() { return []; },
+    createElement() {
+      return { tagName: 'article', className: '', innerHTML: '', setAttribute() {} };
+    }
+  };
+  try {
+    pages.paintHome(bookA, { pages: [], lessons: [], practices: [] });
+    pages.paintHome(bookB, { pages: [], lessons: [], practices: [] });
+  } finally {
+    if (prev === undefined) delete global.document;
+    else global.document = prev;
+  }
+  assert.equal(cards.length, 6);
+  cards.forEach((card, index) => {
+    const n = index + 1;
+    assert.equal(card.tagName, 'article');
+    assert.match(card.className, /pack-card/);
+    assert.match(card.innerHTML, new RegExp('<button type="button" class="btn btn-primary pack-open" data-unit="unit' + n + '">Open Unit ' + n + '</button>'));
+    assert.doesNotMatch(card.innerHTML, /<a\b|href=|game\//);
+  });
+  const vocab = pages.resolveUnit(bookB, 'unit1', [], [
+    { unit_id: 'unit1', track: 'vocab', n: 1, img: 'one.png' }
+  ], [{ unit_id: 'unit1', track: 'vocab' }]).items.filter((item) => item.id === 'revision-vocab')[0];
+  const practice = pages.resolveUnit(bookB, 'unit1', [], [], [{ unit_id: 'unit1', track: 'vocab' }]).items
+    .filter((item) => item.group === 'practice');
+  assert.equal(vocab.href, 'unit1/?term=second');
+  practice.forEach((item) => {
+    assert.equal(item.ready, false);
+    assert.equal(item.note, 'Coming soon');
+  });
+});

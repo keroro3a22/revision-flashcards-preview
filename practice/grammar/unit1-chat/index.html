@@ -1014,7 +1014,7 @@ function boot(SETS) {
   let selected = null;
   let locked = false;
   let correctCount = 0;
-  let filled = [];
+  let filled = [], filledRight = [];
 
   const thread = document.getElementById("thread");
   const choices = document.getElementById("choices");
@@ -1065,7 +1065,7 @@ function boot(SETS) {
       ChatNames.paint(d, b);
       d.innerHTML =
         '<span class="who">' + ChatNames.who(b, names) + "</span>" +
-        buildBubbleHtml(b.parts, filled[i] || b.answer, "done", b.hard);
+        buildBubbleHtml(b.parts, filled[i] != null ? filled[i] : b.answer, filledRight[i] === false ? "" : "done", b.hard);
       thread.appendChild(d);
     }
     if (idx < bubbles.length) {
@@ -1124,7 +1124,7 @@ function boot(SETS) {
         ChatNames.paint(d, b);
         d.innerHTML =
           '<span class="who">' + ChatNames.who(b, names) + "</span>" +
-          buildBubbleHtml(b.parts, filled[i] || b.answer, "done", b.hard);
+          buildBubbleHtml(b.parts, filled[i] != null ? filled[i] : b.answer, filledRight[i] === false ? "" : "done", b.hard);
         thread.appendChild(d);
       });
       renderChoices(endQ.options);
@@ -1164,8 +1164,9 @@ function boot(SETS) {
     } else {
       showToast(toast, "Answer: " + answer, explain, "bad");
       if (isBubble) {
-        filled[idx] = answer;
-        renderThread(answer, "soft");
+        filled[idx] = selected;
+        filledRight[idx] = false;
+        renderThread(selected);
       }
     }
     btnCheck.disabled = true;

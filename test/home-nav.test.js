@@ -42,11 +42,20 @@ test('homepage topbar is the account link, with book, level, and unit navigation
   const packs = html.slice(html.indexOf('id="packs"'), html.indexOf('id="how"'));
   assert.doesNotMatch(packs, /href="game\//);
   assert.doesNotMatch(packs, /game\/clue-hunt/);
+  assert.doesNotMatch(packs, /<a\b[^>]*pack-open/);
+  assert.doesNotMatch(packs, /<a\b[^>]*pack-card/);
+  for (let n = 1; n <= 6; n += 1) {
+    assert.match(packs, new RegExp('<button type="button" class="btn btn-primary pack-open" data-unit="unit' + n + '">Open Unit ' + n + '</button>'));
+  }
+  assert.match(html, /closest\("\.pack-open"\)/);
+  assert.match(html, /tab\.click\(\)/);
+  assert.match(html, /scrollTo\(0, 0\)/);
   assert.doesNotMatch(html, /id="grade-covers"/);
   assert.doesNotMatch(html, />Account</);
   assert.doesNotMatch(html, /<select/);
   assert.match(html, /assets\/place\.js\?v=14/);
   assert.match(html, /assets\/place-ui\.js\?v=38/);
+  assert.match(html, /assets\/site-pages\.js\?v=10/);
   assert.equal(html.includes('site.css?v=75'), true);
   assert.match(html, /<header class="topbar">[\s\S]*id="unit-tabs" role="tablist"[\s\S]*<\/header>/);
   assert.doesNotMatch(html, /Open Dictation/);

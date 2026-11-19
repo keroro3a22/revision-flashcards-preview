@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../assets/huninn.css"/>
-<link rel="stylesheet" href="practice.css?v=16"/>
+<link rel="stylesheet" href="practice.css?v=17"/>
 <link rel="stylesheet" href="../assets/chrome.css?v=7" />
 <link rel="stylesheet" href="../assets/profile.css?v=6" />
 <link rel="stylesheet" href="../assets/account.css?v=8" />
@@ -39,6 +39,7 @@
   <div class="panel" id="game">
     <p class="hint-word" id="hint">Spell the word</p>
     <div class="letter-row" id="letters"></div>
+    <p class="letter-need" id="letter-need" role="status" hidden>Fill in every letter first.</p>
     <div class="btn-row">
       <button type="button" class="btn btn-primary" id="btn-check">Check</button>
       <button type="button" class="btn btn-secondary" id="btn-next" hidden>Next</button>
@@ -120,6 +121,24 @@
   let locked = false;
   let correctCount = 0;
   let blankInputs = [];
+  let needTimer = 0;
+  const letterNeed = document.getElementById('letter-need');
+
+  function showLetterNeed() {
+    if (!letterNeed) return;
+    letterNeed.hidden = false;
+    if (needTimer) clearTimeout(needTimer);
+    needTimer = setTimeout(function () {
+      letterNeed.hidden = true;
+      needTimer = 0;
+    }, 2000);
+  }
+
+  function hideLetterNeed() {
+    if (letterNeed) letterNeed.hidden = true;
+    if (needTimer) clearTimeout(needTimer);
+    needTimer = 0;
+  }
 
   const lettersEl = document.getElementById('letters');
   const toast = document.getElementById('toast');
@@ -151,6 +170,7 @@
 
   function render() {
     locked = false;
+    hideLetterNeed();
     toast.hidden = true;
     btnCheck.hidden = false;
     btnCheck.disabled = false;
@@ -190,6 +210,7 @@
             inp.value = inp.value.slice(-1);
             const i = blankInputs.indexOf(inp);
             if (inp.value && blankInputs[i + 1]) blankInputs[i + 1].focus();
+            if (blankInputs.every(el => (el.value || '').trim())) hideLetterNeed();
           });
           inp.addEventListener('keydown', e => {
             if (e.key === 'Backspace' && !inp.value) {
@@ -216,6 +237,11 @@
 
   btnCheck.addEventListener('click', () => {
     if (locked) return;
+    if (blankInputs.some(inp => !(inp.value || '').trim())) {
+      showLetterNeed();
+      return;
+    }
+    hideLetterNeed();
     const item = items[idx];
     const ok = blankInputs.every(inp => {
       const got = (inp.value || '').toLowerCase();
@@ -238,7 +264,12 @@
     } else {
       M.markWrong(item.wordKey);
       C.toast(toast, 'It\'s “' + item.word + '”', 'bad');
-      blankInputs.forEach(inp => { inp.value = inp.dataset.answer; inp.disabled = true; });
+      blankInputs.forEach(inp => {
+        const got = (inp.value || '').toLowerCase();
+        const answer = (inp.dataset.answer || '').toLowerCase();
+        inp.disabled = true;
+        if (got !== answer) inp.parentElement.classList.add('is-wrong');
+      });
     }
     blankInputs.forEach(inp => { inp.disabled = true; });
     btnNext.hidden = false;
