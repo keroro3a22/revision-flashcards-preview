@@ -186,3 +186,161 @@ test('The packs Open button names the unit and does not link away', () => {
     assert.equal(item.note, 'Coming soon');
   });
 });
+
+function catalogDb(answer) {
+  const seen = [];
+  return {
+    seen,
+    from(table) {
+      const state = { table, filters: {}, orders: [], range: null, count: null, limited: null };
+      const api = {
+        select(_cols, opts) {
+          state.count = opts && opts.count;
+          return api;
+        },
+        eq(key, value) {
+          state.filters[key] = value;
+          return api;
+        },
+        order(key) {
+          state.orders.push(key);
+          return api;
+        },
+        limit(n) {
+          state.limited = n;
+          return api;
+        },
+        range(from, to) {
+          state.range = [from, to];
+          return api;
+        },
+        then(resolve, reject) {
+          seen.push({
+            table: state.table,
+            filters: Object.assign({}, state.filters),
+            orders: state.orders.slice(),
+            range: state.range && state.range.slice(),
+            count: state.count
+          });
+          return Promise.resolve()
+            .then(() => answer(state))
+            .then(resolve, reject);
+        }
+      };
+      return api;
+    }
+  };
+}
+
+function practiceRows(counts) {
+  const rows = [];
+  Object.keys(counts).forEach((unitId) => {
+    Object.keys(counts[unitId]).forEach((track) => {
+      for (let i = 0; i < counts[unitId][track]; i += 1) rows.push({ unit_id: unitId, track });
+    });
+  });
+  return rows;
+}
+
+function practiceAnswer(rows, options) {
+  const opts = options || {};
+  return function (state) {
+    if (state.table !== 'practice_items_live') return { data: [], error: null };
+    if (opts.term && state.filters.term !== opts.term) return { data: [], error: null, count: 0 };
+    const from = state.range ? state.range[0] : 0;
+    const to = state.range ? state.range[1] : rows.length - 1;
+    if (opts.missPastEnd && from >= rows.length && from > 0) {
+      return {
+        data: null,
+        error: { code: 'PGRST103', message: 'Requested range not satisfiable' },
+        status: 416,
+        count: null
+      };
+    }
+    const data = rows.slice(from, to + 1);
+    return { data, error: null, status: 200, count: opts.count === undefined ? rows.length : opts.count };
+  };
+}
+
+test('practice doors read every page of the current book', async () => {
+  const early = practiceRows({
+    unit1: { vocab: 125, grammar: 125 },
+    unit2: { vocab: 125, grammar: 125 },
+    unit3: { vocab: 125, grammar: 125 },
+    unit4: { vocab: 125, grammar: 125 }
+  });
+  const rows = early.concat(practiceRows({
+    unit5: { vocab: 192, grammar: 120 },
+    unit6: { vocab: 178, grammar: 120 }
+  }));
+  assert.equal(early.length, 1000);
+  assert.equal(rows.slice(0, 1000).some((row) => row.unit_id === 'unit5' || row.unit_id === 'unit6'), false);
+  const db = catalogDb(practiceAnswer(rows));
+  const catalog = await pages.loadCatalog(db, bookA);
+  const practiceCalls = db.seen.filter((call) => call.table === 'practice_items_live');
+  assert.equal(practiceCalls.length, 2);
+  practiceCalls.forEach((call) => {
+    assert.equal(call.filters.book, 'oxford');
+    assert.equal(call.filters.series, 'oxford');
+    assert.equal(call.filters.term, 'first');
+    assert.equal(call.filters.level, 'p6');
+    assert.equal(call.count, 'exact');
+    assert.deepEqual(call.orders, ['unit_id', 'track', 'mode', 'level_name', 'set_no', 'n']);
+  });
+  assert.deepEqual(practiceCalls.map((call) => call.range), [[0, 999], [1000, 1999]]);
+  assert.equal(db.seen.some((call) => call.filters.term === 'second'), false);
+  assert.equal(catalog.practices.length, rows.length);
+  ['unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6'].forEach((unitId) => {
+    const unit = pages.resolveUnit(bookA, unitId, [], [], catalog.practices);
+    ['practice-vocab', 'practice-grammar'].forEach((id) => {
+      const door = unit.items.filter((item) => item.id === id)[0];
+      assert.equal(door.ready, true, unitId + ' ' + id);
+      assert.notEqual(door.note, 'Coming soon');
+      assert.notEqual(door.href, '');
+    });
+    unit.items.filter((item) => item.group === 'revision').forEach((door) => {
+      assert.equal(door.ready, false);
+    });
+  });
+  const grammar = pages.resolveUnit(bookA, 'unit5', [], [], catalog.practices)
+    .items.filter((item) => item.id === 'practice-grammar')[0];
+  assert.equal(grammar.href, 'practice/grammar/unit5-hub/?term=first');
+});
+
+test('a full last page still counts when the next range is past the end', async () => {
+  const rows = practiceRows({ unit1: { vocab: 1000 } });
+  const db = catalogDb(practiceAnswer(rows, { count: null, missPastEnd: true }));
+  const catalog = await pages.loadCatalog(db, bookA);
+  assert.equal(catalog.practices.length, 1000);
+  const door = pages.resolveUnit(bookA, 'unit1', [], [], catalog.practices)
+    .items.filter((item) => item.id === 'practice-vocab')[0];
+  assert.equal(door.ready, true);
+  assert.equal(db.seen.filter((call) => call.table === 'practice_items_live').length, 2);
+});
+
+test('Book B practice stays closed and is loaded on its own', async () => {
+  const rows = practiceRows({
+    unit5: { vocab: 192, grammar: 120 },
+    unit6: { vocab: 178, grammar: 120 }
+  });
+  const db = catalogDb(practiceAnswer(rows));
+  const catalog = await pages.loadCatalog(db, bookB);
+  const practiceCalls = db.seen.filter((call) => call.table === 'practice_items_live');
+  assert.equal(practiceCalls.length, 1);
+  practiceCalls.forEach((call) => assert.equal(call.filters.term, 'second'));
+  assert.equal(db.seen.some((call) => call.filters.term === 'first'), false);
+  ['unit5', 'unit6'].forEach((unitId) => {
+    const unit = pages.resolveUnit(bookB, unitId, [], [
+      { unit_id: unitId, track: 'vocab', n: 1, img: 'card.png' }
+    ], catalog.practices);
+    unit.items.filter((item) => item.group === 'revision').forEach((door) => {
+      assert.equal(door.ready, true);
+      assert.notEqual(door.href, '');
+    });
+    unit.items.filter((item) => item.group === 'practice').forEach((door) => {
+      assert.equal(door.ready, false);
+      assert.equal(door.note, 'Coming soon');
+      assert.equal(door.href, '');
+    });
+  });
+});
