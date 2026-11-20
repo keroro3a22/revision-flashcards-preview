@@ -278,13 +278,55 @@
     });
   }
 
+  /* One response holds at most 1000 rows. Keep reading this book until every
+     published practice row is in hand, so a later unit is not treated as empty. */
+  var CATALOG_PAGE = 1000;
+
+  function forPlace(query, place) {
+    return query.eq('book', place.book).eq('series', place.series).eq('term', place.term).eq('level', place.level);
+  }
+
+  function pastLastPage(result) {
+    if (!result) return false;
+    if (result.status === 416) return true;
+    var error = result.error;
+    return !!(error && (error.code === 'PGRST103' || /range not satisfiable/i.test(String(error.message || ''))));
+  }
+
+  function readEveryRow(openPage) {
+    var rows = [];
+    var total = null;
+    function step(from, pages) {
+      if (pages >= 200) return Promise.resolve({ error: { message: 'catalog page limit' }, data: [] });
+      return Promise.resolve(openPage(from, from + CATALOG_PAGE - 1)).then(function (result) {
+        if (!result || result.error) {
+          if (from > 0 && pastLastPage(result)) return { data: rows };
+          return { error: (result && result.error) || { message: 'catalog' }, data: [] };
+        }
+        var batch = result.data || [];
+        if (typeof result.count === 'number' && result.count >= 0) total = result.count;
+        rows = rows.concat(batch);
+        if (total !== null && rows.length >= total) return { data: rows };
+        if (!batch.length || batch.length < CATALOG_PAGE) return { data: rows };
+        return step(from + batch.length, pages + 1);
+      });
+    }
+    return step(0, 0);
+  }
+
   function loadCatalog(db, place) {
-    var pages = db.from('site_pages_live').select('unit_id,slot,label,note,image,frame')
-      .eq('book', place.book).eq('series', place.series).eq('term', place.term).eq('level', place.level);
-    var lessons = db.from('lesson_cards_live').select('unit_id,track,n,img')
-      .eq('book', place.book).eq('series', place.series).eq('term', place.term).eq('level', place.level).limit(2000);
-    var practices = db.from('practice_items_live').select('unit_id,track')
-      .eq('book', place.book).eq('series', place.series).eq('term', place.term).eq('level', place.level).limit(5000);
+    var pages = forPlace(db.from('site_pages_live').select('unit_id,slot,label,note,image,frame'), place);
+    var lessons = forPlace(db.from('lesson_cards_live').select('unit_id,track,n,img'), place).limit(2000);
+    var practices = readEveryRow(function (from, to) {
+      return forPlace(db.from('practice_items_live').select('unit_id,track', { count: 'exact' }), place)
+        .order('unit_id', { ascending: true })
+        .order('track', { ascending: true })
+        .order('mode', { ascending: true })
+        .order('level_name', { ascending: true })
+        .order('set_no', { ascending: true })
+        .order('n', { ascending: true })
+        .range(from, to);
+    });
     return Promise.all([pages, lessons, practices]).then(function (results) {
       return {
         pages: results[0].error ? [] : (results[0].data || []),
