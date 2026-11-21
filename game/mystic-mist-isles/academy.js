@@ -12,6 +12,23 @@
   for (var n = 1; n <= 10; n++) {
     BOOK.push({ src: 'art/guidebook/' + n + '.jpg', alt: 'Guidebook page ' + n });
   }
+  var POSTERS = {
+    club: { src: 'art/notice/club-fair.png', alt: 'Club Fair', w: 896, h: 1200 },
+    forest: { src: 'art/notice/forest.png', alt: 'Beware of the Forest', w: 896, h: 1199 },
+    lost: { src: 'art/notice/lost-and-found.png', alt: 'Lost and Found', w: 896, h: 1200 },
+    rules: { src: 'art/notice/library-rules.png', alt: 'Library Rules', w: 896, h: 1200 },
+    duel: { src: 'art/notice/dueling-club.png', alt: 'The Dueling Club', w: 1200, h: 896 },
+    chart: { src: 'art/notice/academy-map.png', alt: 'Map of the Magic Academy', w: 896, h: 1200 }
+  };
+  var NOTICE = {
+    notice: 1,
+    'notice-club': 1,
+    'notice-forest': 1,
+    'notice-lost': 1,
+    'notice-rules': 1,
+    'notice-duel': 1,
+    'notice-chart': 1
+  };
 
   var selected = '';
   var pageIndex = 0;
@@ -30,15 +47,53 @@
     try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {}
   }
 
+  function posterId(name) {
+    if (name.indexOf('notice-') !== 0) return '';
+    var id = name.slice(7);
+    return POSTERS[id] ? id : '';
+  }
+
+  function showPoster(id) {
+    var poster = POSTERS[id];
+    if (!poster) return;
+    var img = document.getElementById('poster-img');
+    img.src = poster.src;
+    img.alt = poster.alt;
+    img.width = poster.w;
+    img.height = poster.h;
+    document.getElementById('poster-title').textContent = poster.alt;
+  }
+
+  function layoutMap() {
+    if (document.documentElement.getAttribute('data-mmi') !== 'map') return;
+    var stage = document.querySelector('.map-stage');
+    var board = document.querySelector('.map-board');
+    if (!stage || !board || !window.MMIMapFit) return;
+    var box = window.MMIMapFit.fit(stage.clientWidth, stage.clientHeight);
+    if (box.width < 2 || box.height < 2) return;
+    board.style.width = box.width + 'px';
+    board.style.height = box.height + 'px';
+    board.style.left = box.left + 'px';
+    board.style.top = box.top + 'px';
+  }
+
   function applyScreen(name, mode) {
     var save = readSave();
-    if ((name === 'map' || name === 'guidebook') && !save.seen) name = 'welcome';
-    if (name !== 'welcome' && name !== 'character' && name !== 'map' && name !== 'guidebook') {
+    var poster = posterId(name);
+    var notice = name === 'notice' || !!poster || !!NOTICE[name];
+    if ((name === 'map' || name === 'guidebook' || notice) && !save.seen) name = 'welcome';
+    poster = posterId(name);
+    notice = name === 'notice' || !!poster;
+    if (name !== 'welcome' && name !== 'character' && name !== 'map' && name !== 'guidebook' && !notice) {
       name = save.seen ? 'map' : 'welcome';
     }
     document.documentElement.setAttribute('data-mmi', name);
+    if (poster) showPoster(poster);
     if (name === 'character') syncCharacterBack();
-    if (name === 'map') paintWho();
+    if (name === 'map') {
+      paintWho();
+      layoutMap();
+    }
     var url = '#' + name;
     if (location.hash !== url) {
       if (mode === 'push') history.pushState({ mmi: name }, '', url);
@@ -140,11 +195,29 @@
   });
   document.getElementById('book-prev').addEventListener('click', function () { turn(-1); });
   document.getElementById('book-next').addEventListener('click', function () { turn(1); });
+  document.getElementById('notice-back').addEventListener('click', function () {
+    applyScreen('map', 'push');
+  });
+  document.getElementById('poster-back').addEventListener('click', function () {
+    applyScreen('notice', 'push');
+  });
+  document.querySelectorAll('.notice-pin').forEach(function (pin) {
+    pin.addEventListener('click', function () {
+      applyScreen('notice-' + pin.getAttribute('data-poster'), 'push');
+    });
+  });
   document.querySelectorAll('.map-hot[data-note]').forEach(function (pin) {
     pin.addEventListener('click', function () {
       document.getElementById('place-note').textContent = pin.getAttribute('data-note');
     });
   });
+  document.querySelectorAll('.map-hot[data-open="notice"]').forEach(function (pin) {
+    pin.addEventListener('click', function () {
+      document.getElementById('place-note').textContent = '';
+      applyScreen('notice', 'push');
+    });
+  });
+  window.addEventListener('resize', layoutMap);
 
   var sheet = document.getElementById('book-sheet');
   var startX = null;

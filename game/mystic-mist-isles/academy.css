@@ -24,7 +24,8 @@
 html[data-mmi="welcome"] .screen-welcome,
 html[data-mmi="character"] .screen-character,
 html[data-mmi="map"] .screen-map,
-html[data-mmi="guidebook"] .screen-book { display: block; }
+html[data-mmi="guidebook"] .screen-book,
+html[data-mmi^="notice"] .screen-notice { display: block; }
 
 .kicker {
   margin: 0;
@@ -52,7 +53,7 @@ html[data-mmi="guidebook"] .screen-book { display: block; }
 }
 .screen-top { margin: 0 0 0.35rem; }
 
-.go, .ghost, .book-bar button, .about, .who, .map-hot, .cast-card {
+.go, .ghost, .book-bar button, .about, .who, .map-hot, .notice-pin, .cast-card {
   font-family: var(--font-display);
   touch-action: manipulation;
   cursor: pointer;
@@ -198,6 +199,10 @@ html[data-mmi="map"] body {
   flex-direction: column;
 }
 html[data-mmi="map"] .prac-header { flex: 0 0 auto; }
+html[data-mmi^="notice"] .academy {
+  width: min(80rem, calc(100% - 1.5rem));
+  padding-bottom: 0.7rem;
+}
 html[data-mmi="map"] .academy {
   width: 100%;
   max-width: none;
@@ -215,13 +220,13 @@ html[data-mmi="map"] .screen-map {
 .map-stage {
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
-  container-type: size;
+  overflow: hidden;
 }
 .map-board {
-  position: relative;
-  width: min(100cqw, calc(100cqh * 2752 / 1536));
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
   aspect-ratio: 2752 / 1536;
   overflow: visible;
 }
@@ -229,7 +234,7 @@ html[data-mmi="map"] .screen-map {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: fill;
+  object-fit: contain;
 }
 .map-hot {
   position: absolute;
@@ -255,7 +260,7 @@ html[data-mmi="map"] .screen-map {
   height: calc(100% * 100 / var(--h));
   left: calc(-100% * var(--x) / var(--w));
   top: calc(-100% * var(--y) / var(--h));
-  background: url("art/map.jpg?v=2") 0 0 / 100% 100% no-repeat;
+  background: url("art/map.jpg?v=3") 0 0 / 100% 100% no-repeat;
 }
 .map-board .map-hot:nth-child(3) { animation-delay: -0.7s; }
 .map-board .map-hot:nth-child(4) { animation-delay: -1.4s; }
@@ -271,6 +276,40 @@ html[data-mmi="map"] .screen-map {
 .map-hot:focus-visible {
   outline: 3px solid var(--navy);
   outline-offset: 2px;
+}
+
+.notice-sheet {
+  position: relative;
+  width: min(100%, calc((100dvh - 13.5rem) * 1200 / 896));
+  margin: 0 auto;
+}
+.notice-sheet > img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.notice-pin {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+}
+.notice-pin:focus-visible {
+  outline: 3px solid var(--navy);
+  outline-offset: 2px;
+}
+.poster-view { display: none; }
+html[data-mmi^="notice-"] .board-view { display: none; }
+html[data-mmi^="notice-"] .poster-view { display: block; }
+.poster-view img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: min(100%, 52rem);
+  max-height: calc(100dvh - 11rem);
+  margin: 0.2rem auto 0;
 }
 
 .book-sheet {

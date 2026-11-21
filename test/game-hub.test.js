@@ -60,7 +60,21 @@ test('game hub offers two worlds and leaves School Mystery in place', () => {
   assert.match(hold, /Enter the academy/);
   assert.match(hold, /aria-label="The Alchemy Workshop"/);
   assert.match(hold, /href="word-brew\/"/);
-  assert.match(hold, /art\/map\.jpg\?v=2/);
+  assert.match(hold, /art\/map\.jpg\?v=3/);
+  assert.doesNotMatch(hold, /art\/map\.jpg\?v=2/);
+  assert.match(hold, /data-open="notice"/);
+  assert.match(hold, /id="notice-back"/);
+  assert.match(hold, /id="poster-back"/);
+  assert.match(hold, /art\/notice\/board\.png/);
+  assert.match(hold, /data-poster="club"/);
+  assert.match(hold, /data-poster="forest"/);
+  assert.match(hold, /data-poster="lost"/);
+  assert.match(hold, /data-poster="rules"/);
+  assert.match(hold, /data-poster="duel"/);
+  assert.match(hold, /data-poster="chart"/);
+  assert.doesNotMatch(hold, /POTION CLASS|CANCELLED/);
+  const noticeBtn = hold.match(/<button[^>]*data-open="notice"[^>]*>/)[0];
+  assert.doesNotMatch(noticeBtn, /will open later|data-note/);
   assert.match(hold, /mia\.png\?v=3/);
   assert.match(hold, /oliver\.png\?v=2/);
   assert.match(hold, /felix\.png\?v=2/);
@@ -81,6 +95,15 @@ test('game hub offers two worlds and leaves School Mystery in place', () => {
   assert.match(academyCss, /prefers-reduced-motion: reduce\)[\s\S]*\.map-hot \{ animation: none/);
   assert.match(academyCss, /\.cast-card\[aria-checked="true"\] \{[^}]*border-color:\s*#fff/);
   assert.doesNotMatch(academyCss, /feMorphology|#card-select/);
+  assert.match(academyCss, /art\/map\.jpg\?v=3/);
+  assert.doesNotMatch(academyCss, /object-fit:\s*fill/);
+  assert.match(academyCss, /\.map-stage \{[^}]*overflow:\s*hidden/);
+  const academyJs = fs.readFileSync(path.join(root, 'game/mystic-mist-isles/academy.js'), 'utf8');
+  assert.match(academyJs, /MMIMapFit\.fit/);
+  assert.match(academyJs, /getElementById\('notice-back'\)[\s\S]{0,220}applyScreen\('map'/);
+  assert.match(academyJs, /getElementById\('poster-back'\)[\s\S]{0,220}applyScreen\('notice'/);
+  assert.match(academyJs, /applyScreen\('notice-' \+ pin\.getAttribute\('data-poster'\)/);
+  assert.match(academyJs, /data-open="notice"/);
   assert.match(hold, /About the academy/);
   assert.match(hold, /art\/players\/oliver\.png/);
   assert.match(hold, /art\/players\/mia\.png/);
@@ -150,4 +173,30 @@ test('after-school club lists School Mystery and keeps Nunito', () => {
   assert.match(worlds, /translateY\(-8px\)/);
   assert.match(worlds, /\.place-entries \.world-zh \{[^}]*jf-openhuninn/);
   assert.doesNotMatch(worlds, /Fredoka/);
+});
+
+test('campus map covers a wide stage and keeps every painted label inside', () => {
+  const fit = require(path.join(root, 'game/mystic-mist-isles/map-fit.js'));
+  function labelsInside(box, stageW, stageH) {
+    const safe = fit.SAFE;
+    const left = box.left + safe.x * box.width;
+    const top = box.top + safe.y * box.height;
+    const right = box.left + (safe.x + safe.w) * box.width;
+    const bottom = box.top + (safe.y + safe.h) * box.height;
+    assert.ok(left >= -1 && top >= -1, 'labels stay on the stage');
+    assert.ok(right <= stageW + 1 && bottom <= stageH + 1, 'labels are not cropped');
+  }
+  const wide = fit.fit(1440, 760);
+  assert.ok(wide.left <= 1 && wide.top <= 1, 'no cream bar on the top or left');
+  assert.ok(wide.left + wide.width >= 1439, 'painting reaches the right edge');
+  assert.ok(wide.top + wide.height >= 759, 'painting reaches the bottom edge');
+  labelsInside(wide, 1440, 760);
+  const landscape = fit.fit(1180, 620);
+  assert.ok(landscape.left <= 1 && landscape.top <= 1);
+  assert.ok(landscape.left + landscape.width >= 1179);
+  assert.ok(landscape.top + landscape.height >= 619);
+  labelsInside(landscape, 1180, 620);
+  const phone = fit.fit(390, 720);
+  labelsInside(phone, 390, 720);
+  assert.ok(Math.abs(phone.width / phone.height - 2752 / 1536) < 0.01, 'the painting is not stretched');
 });
