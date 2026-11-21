@@ -6,7 +6,7 @@
   'use strict';
 
   var NEED = 4;
-  var REMINDER = "You don't have to use all the letters each time.";
+  var REMINDER = "You don’t have to use all the letters each time.";
 
   /* Strong language is not counted as a real word on this school page. */
   var BLOCK = {
@@ -24,7 +24,7 @@
       id: 'garden',
       name: 'Little Garden Potion',
       theme: 'Words about a garden',
-      instruction: 'Make 4 words about a garden to finish the Little Garden Potion.',
+      instruction: 'Make 4 words about what you can see in a garden to finish the Little Garden Potion.',
       letters: 'enabte',
       targets: ['ant', 'bee', 'bean', 'beet'],
       bonuses: [],
@@ -34,7 +34,7 @@
       id: 'water',
       name: 'Calm Water Potion',
       theme: 'Words about water',
-      instruction: 'Make 4 words about water to finish the Calm Water Potion.',
+      instruction: 'Make 4 words about water you can see or feel to finish the Calm Water Potion.',
       letters: 'wnitaer',
       targets: ['rain', 'wet', 'water', 'tear'],
       bonuses: [],
@@ -44,7 +44,7 @@
       id: 'light',
       name: 'Soft Light Potion',
       theme: 'Words about light',
-      instruction: 'Make 4 words about light to finish the Soft Light Potion.',
+      instruction: 'Make 4 words about light from the sky, and whether a place is bright or dark, to finish the Soft Light Potion.',
       letters: 'tlnuis',
       targets: ['sun', 'lit', 'unlit', 'sunlit'],
       bonuses: [],
@@ -54,7 +54,7 @@
       id: 'room',
       name: 'Cozy Room Potion',
       theme: 'Words about a room',
-      instruction: 'Make 4 words about a room to finish the Cozy Room Potion.',
+      instruction: 'Make 4 words about rooms, and what you can see in them to finish the Cozy Room Potion.',
       letters: 'rmboedo',
       targets: ['bed', 'door', 'room', 'dorm'],
       bonuses: ['bedroom'],
@@ -64,7 +64,7 @@
       id: 'friends',
       name: 'Little Friends Potion',
       theme: 'Words about animals',
-      instruction: 'Make 4 words about animals to finish the Little Friends Potion.',
+      instruction: 'Make 4 words about animals that can be little friends to finish the Little Friends Potion.',
       letters: 'tgdaco',
       targets: ['cat', 'dog', 'goat', 'toad'],
       bonuses: ['cod'],

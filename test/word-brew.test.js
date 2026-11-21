@@ -11,7 +11,12 @@ function potion(id) {
 test('five potions keep the garden, water, light, room, and animal rounds', () => {
   assert.equal(Brew.POTIONS.map((item) => item.id).join(','), 'garden,water,light,room,friends');
   assert.equal(Brew.NEED, 4);
-  assert.match(Brew.REMINDER, /don't have to use all the letters each time/);
+  assert.equal(Brew.REMINDER, 'You don’t have to use all the letters each time.');
+  assert.equal(potion('garden').instruction, 'Make 4 words about what you can see in a garden to finish the Little Garden Potion.');
+  assert.equal(potion('water').instruction, 'Make 4 words about water you can see or feel to finish the Calm Water Potion.');
+  assert.equal(potion('light').instruction, 'Make 4 words about light from the sky, and whether a place is bright or dark, to finish the Soft Light Potion.');
+  assert.equal(potion('room').instruction, 'Make 4 words about rooms, and what you can see in them to finish the Cozy Room Potion.');
+  assert.equal(potion('friends').instruction, 'Make 4 words about animals that can be little friends to finish the Little Friends Potion.');
   Brew.POTIONS.forEach((item) => {
     assert.equal(item.targets.length, 4);
     assert.match(item.instruction, /Make 4 words/);
