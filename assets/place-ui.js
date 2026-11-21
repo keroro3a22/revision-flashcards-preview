@@ -425,12 +425,14 @@
       if (item.height) img.height = item.height;
       var name = document.createElement('span');
       name.className = 'world-name';
-      name.appendChild(document.createTextNode(item.label + ' '));
-      var zh = document.createElement('span');
-      zh.className = 'world-zh';
-      zh.lang = 'zh-Hant';
-      zh.textContent = item.zh || '';
-      name.appendChild(zh);
+      name.appendChild(document.createTextNode(item.label));
+      if (item.zh) {
+        var zh = document.createElement('span');
+        zh.className = 'world-zh';
+        zh.lang = 'zh-Hant';
+        zh.textContent = item.zh;
+        name.appendChild(zh);
+      }
       link.appendChild(img);
       link.appendChild(name);
       li.appendChild(link);

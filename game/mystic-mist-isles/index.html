@@ -8,21 +8,109 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../../assets/huninn.css"/>
-<link rel="stylesheet" href="../worlds.css?v=1"/>
+<link rel="stylesheet" href="../worlds.css?v=4"/>
+<link rel="stylesheet" href="academy.css?v=1"/>
 <link rel="stylesheet" href="../../assets/account.css?v=8"/>
 <script src="../../assets/supabase-public.js?v=1"></script>
 <script src="../../assets/progress-sync.js?v=4"></script>
 <script src="../../assets/account.js?v=19"></script>
+<script>
+(function () {
+  var seen = false;
+  try {
+    var data = JSON.parse(localStorage.getItem('mmi-player-v1') || 'null');
+    seen = !!(data && data.seen && data.id);
+  } catch (e) {}
+  var hash = (location.hash || '').replace('#', '');
+  var screen = 'welcome';
+  if (seen && (hash === 'map' || hash === 'guidebook' || hash === 'character' || hash === '')) screen = hash || 'map';
+  else if (hash === 'character') screen = 'character';
+  document.documentElement.setAttribute('data-mmi', screen);
+})();
+</script>
 </head>
 <body>
 <header class="prac-header">
   <a class="back" href="../">← Game</a>
   <h1>Mystic Mist Isles</h1>
-  <p class="sub">Magic Academy <span lang="zh-Hant">魔法與奇幻學院</span></p>
+  <p class="sub">Magic Academy</p>
 </header>
-<main class="world-wrap hold">
-  <img src="../illust/mystic-mist-isles.png" alt="The Magic Academy on Mystic Mist Isles" width="869" height="780"/>
-  <p>The Magic Academy is getting ready.</p>
+<main class="academy">
+  <section class="screen screen-welcome">
+    <p class="kicker">Misty Landing</p>
+    <h2>Welcome to the Magic Academy.</h2>
+    <p class="lead">The shore is quiet. Choose who you will be, then come onto the island.</p>
+    <img class="welcome-map" src="art/map.png" alt="" width="1271" height="702"/>
+    <button type="button" class="go" id="to-character">Choose a character</button>
+  </section>
+
+  <section class="screen screen-character">
+    <div class="screen-top">
+      <button type="button" class="ghost" id="character-back">Back</button>
+    </div>
+    <h2 id="who-title">Who will you be?</h2>
+    <p class="lead">This will be you in the academy.</p>
+    <div class="cast" role="radiogroup" aria-labelledby="who-title">
+      <button type="button" class="cast-card" role="radio" aria-checked="false" data-player="oliver">
+        <img src="art/players/oliver.png" alt="Oliver. Calm and observant." draggable="false"/>
+      </button>
+      <button type="button" class="cast-card" role="radio" aria-checked="false" data-player="mia">
+        <img src="art/players/mia.png" alt="Mia. Curious and lively." draggable="false"/>
+      </button>
+      <button type="button" class="cast-card" role="radio" aria-checked="false" data-player="felix">
+        <img src="art/players/felix.png" alt="Felix. Cheerful and helpful." draggable="false"/>
+      </button>
+      <button type="button" class="cast-card" role="radio" aria-checked="false" data-player="clara">
+        <img src="art/players/clara.png" alt="Clara. Careful and responsible." draggable="false"/>
+      </button>
+    </div>
+    <div class="enter-bar">
+      <button type="button" class="go" id="enter-academy" disabled>Enter the academy</button>
+    </div>
+  </section>
+
+  <section class="screen screen-map">
+    <h2 class="sr-only">Academy map</h2>
+    <div class="map-tools">
+      <button type="button" class="who" id="change-character">
+        <img id="who-img" alt="" width="64" height="64" src="art/players/oliver.png"/>
+        <span><strong id="who-name">You</strong><small>Change character</small></span>
+      </button>
+      <button type="button" class="about" id="open-book">About the academy</button>
+    </div>
+    <p class="map-hint">Slide across the island to look around.</p>
+    <p class="place-note" id="place-note" aria-live="polite"></p>
+    <div class="map-scroll">
+      <div class="map-board">
+        <img src="art/map.png" alt="Map of the Magic Academy on Mystic Mist Isles" width="1271" height="702"/>
+        <button type="button" class="map-pin is-later" style="left:20%;top:34%" data-note="The Misty Hall opens later.">Misty Hall<small>Later</small></button>
+        <button type="button" class="map-pin is-later" style="left:34%;top:20%" data-note="The library and attic open later.">Library<small>Later</small></button>
+        <button type="button" class="map-pin is-later" style="left:61%;top:22%" data-note="The castle opens later.">Castle<small>Later</small></button>
+        <button type="button" class="map-pin is-later" style="left:78%;top:50%" data-note="The broomstick field opens later.">Broomstick Field<small>Later</small></button>
+        <button type="button" class="map-pin is-shore" style="left:16%;top:73%" data-note="You came ashore here.">Misty Landing<small>Here</small></button>
+        <button type="button" class="map-pin is-later" style="left:42%;top:56%" data-note="The notice board opens later.">Notice Board<small>Later</small></button>
+        <button type="button" class="map-pin is-later" style="left:58%;top:69%" data-note="The conservatory opens later.">Conservatory<small>Later</small></button>
+        <a class="map-pin is-open" style="left:48%;top:49%" href="word-brew/">Alchemy Workshop<small>Open</small></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen screen-book">
+    <div class="screen-top">
+      <button type="button" class="ghost" id="book-back">Back to the map</button>
+    </div>
+    <h2>About the academy</h2>
+    <p class="lead">Turn one page at a time.</p>
+    <div class="book-sheet" id="book-sheet">
+      <img id="book-img" src="art/guidebook/cover.jpg" alt="Guidebook cover" width="896" height="1200"/>
+    </div>
+    <div class="book-bar">
+      <button type="button" id="book-prev">Previous</button>
+      <p class="book-label" id="book-label">Cover</p>
+      <button type="button" id="book-next">Next</button>
+    </div>
+  </section>
 </main>
+<script src="academy.js?v=1"></script>
 </body>
 </html>
