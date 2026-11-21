@@ -8,10 +8,19 @@
     felix: { name: 'Felix', src: 'art/players/felix.png?v=2' },
     clara: { name: 'Clara', src: 'art/players/clara.png?v=2' }
   };
-  var BOOK = [{ src: 'art/guidebook/cover.jpg', alt: 'Guidebook cover' }];
-  for (var n = 1; n <= 10; n++) {
-    BOOK.push({ src: 'art/guidebook/' + n + '.jpg', alt: 'Guidebook page ' + n });
-  }
+  var BOOK = [
+    { src: 'art/guidebook/cover.jpg', alt: 'Guidebook cover', label: 'Cover' },
+    { src: 'art/guidebook/4.jpg', alt: "Headmaster's words", label: "Headmaster's words" },
+    { src: 'art/guidebook/3.jpg', alt: 'About the academy', label: 'About the academy' },
+    { src: 'art/guidebook/9.jpg', alt: 'Skybound Practice', label: 'Skybound Practice' },
+    { src: 'art/guidebook/8.jpg', alt: 'Living Garden Studies', label: 'Living Garden Studies' },
+    { src: 'art/guidebook/5.jpg', alt: 'Potion Crafting', label: 'Potion Crafting' },
+    { src: 'art/guidebook/1.jpg', alt: 'Trace and Memory', label: 'Trace and Memory' },
+    { src: 'art/guidebook/7.jpg', alt: 'Quiet Observation', label: 'Quiet Observation' },
+    { src: 'art/guidebook/6.jpg', alt: 'Rule and Resonance', label: 'Rule and Resonance' },
+    { src: 'art/guidebook/10.jpg', alt: 'The Magic Ledger', label: 'The Magic Ledger' },
+    { src: 'art/guidebook/2.jpg', alt: 'School Rules', label: 'School Rules' }
+  ];
   var POSTERS = {
     club: { src: 'art/notice/club-fair.png', alt: 'Club Fair', w: 896, h: 1200 },
     forest: { src: 'art/notice/forest.png', alt: 'Beware of the Forest', w: 896, h: 1199 },
@@ -19,15 +28,6 @@
     rules: { src: 'art/notice/library-rules.png', alt: 'Library Rules', w: 896, h: 1200 },
     duel: { src: 'art/notice/dueling-club.png', alt: 'The Dueling Club', w: 1200, h: 896 },
     chart: { src: 'art/notice/academy-map.png', alt: 'Map of the Magic Academy', w: 896, h: 1200 }
-  };
-  var NOTICE = {
-    notice: 1,
-    'notice-club': 1,
-    'notice-forest': 1,
-    'notice-lost': 1,
-    'notice-rules': 1,
-    'notice-duel': 1,
-    'notice-chart': 1
   };
 
   var selected = '';
@@ -53,7 +53,7 @@
     return POSTERS[id] ? id : '';
   }
 
-  function showPoster(id) {
+  function openOverlay(id) {
     var poster = POSTERS[id];
     if (!poster) return;
     var img = document.getElementById('poster-img');
@@ -61,39 +61,31 @@
     img.alt = poster.alt;
     img.width = poster.w;
     img.height = poster.h;
-    document.getElementById('poster-title').textContent = poster.alt;
+    document.getElementById('notice-overlay').hidden = false;
   }
 
-  function layoutMap() {
-    if (document.documentElement.getAttribute('data-mmi') !== 'map') return;
-    var stage = document.querySelector('.map-stage');
-    var board = document.querySelector('.map-board');
-    if (!stage || !board || !window.MMIMapFit) return;
-    var box = window.MMIMapFit.fit(stage.clientWidth, stage.clientHeight);
-    if (box.width < 2 || box.height < 2) return;
-    board.style.width = box.width + 'px';
-    board.style.height = box.height + 'px';
-    board.style.left = box.left + 'px';
-    board.style.top = box.top + 'px';
+  function closeOverlay() {
+    var box = document.getElementById('notice-overlay');
+    if (!box || box.hidden) return;
+    box.hidden = true;
+    document.getElementById('poster-img').removeAttribute('src');
+    document.getElementById('poster-img').alt = '';
   }
 
   function applyScreen(name, mode) {
     var save = readSave();
-    var poster = posterId(name);
-    var notice = name === 'notice' || !!poster || !!NOTICE[name];
-    if ((name === 'map' || name === 'guidebook' || notice) && !save.seen) name = 'welcome';
-    poster = posterId(name);
-    notice = name === 'notice' || !!poster;
-    if (name !== 'welcome' && name !== 'character' && name !== 'map' && name !== 'guidebook' && !notice) {
+    var incoming = name;
+    if (name.indexOf('notice') === 0) name = 'notice';
+    var poster = posterId(incoming);
+    if ((name === 'map' || name === 'guidebook' || name === 'notice') && !save.seen) name = 'welcome';
+    if (name !== 'welcome' && name !== 'character' && name !== 'map' && name !== 'guidebook' && name !== 'notice') {
       name = save.seen ? 'map' : 'welcome';
     }
     document.documentElement.setAttribute('data-mmi', name);
-    if (poster) showPoster(poster);
     if (name === 'character') syncCharacterBack();
-    if (name === 'map') {
-      paintWho();
-      layoutMap();
-    }
+    if (name === 'map') paintWho();
+    if (name === 'notice' && poster) openOverlay(poster);
+    else closeOverlay();
     var url = '#' + name;
     if (location.hash !== url) {
       if (mode === 'push') history.pushState({ mmi: name }, '', url);
@@ -125,13 +117,17 @@
     document.getElementById('enter-academy').disabled = !selected;
   }
 
-  function renderPage(index) {
+  function showPage(index) {
     pageIndex = index;
     var page = BOOK[index];
-    var img = document.getElementById('book-img');
-    img.src = page.src;
-    img.alt = page.alt;
-    document.getElementById('book-label').textContent = index === 0 ? 'Cover' : ('Page ' + index + ' of 10');
+    var over = document.getElementById('book-over');
+    var under = document.getElementById('book-under');
+    var following = BOOK[index + 1] || page;
+    over.src = page.src;
+    over.alt = page.alt;
+    under.src = following.src;
+    under.alt = '';
+    document.getElementById('book-label').textContent = page.label;
     document.getElementById('book-prev').disabled = index === 0;
     document.getElementById('book-next').disabled = index === BOOK.length - 1;
     if (BOOK[index + 1]) {
@@ -144,25 +140,46 @@
     if (flipping) return;
     var next = pageIndex + dir;
     if (next < 0 || next >= BOOK.length) return;
+    var over = document.getElementById('book-over');
+    var under = document.getElementById('book-under');
     if (reduce) {
-      renderPage(next);
+      showPage(next);
       return;
     }
     flipping = true;
-    var sheet = document.getElementById('book-sheet');
     var finished = false;
-    function done(event) {
+    function complete() {
       if (finished) return;
-      if (event && event.propertyName && event.propertyName !== 'transform') return;
       finished = true;
-      sheet.removeEventListener('transitionend', done);
-      renderPage(next);
-      sheet.classList.remove('is-turning');
+      over.removeEventListener('transitionend', onEnd);
+      over.style.transition = 'none';
+      over.classList.remove('is-turning');
+      showPage(next);
+      void over.offsetWidth;
+      over.style.transition = '';
       flipping = false;
     }
-    sheet.addEventListener('transitionend', done);
-    sheet.classList.add('is-turning');
-    window.setTimeout(done, 500);
+    function onEnd(event) {
+      if (event.propertyName !== 'transform') return;
+      complete();
+    }
+    over.addEventListener('transitionend', onEnd);
+    if (dir > 0) {
+      under.src = BOOK[next].src;
+      under.alt = '';
+      over.classList.add('is-turning');
+    } else {
+      under.src = BOOK[pageIndex].src;
+      under.alt = '';
+      over.style.transition = 'none';
+      over.src = BOOK[next].src;
+      over.alt = BOOK[next].alt;
+      over.classList.add('is-turning');
+      void over.offsetWidth;
+      over.style.transition = '';
+      over.classList.remove('is-turning');
+    }
+    window.setTimeout(complete, 1200);
   }
 
   document.getElementById('to-character').addEventListener('click', function () {
@@ -188,6 +205,7 @@
     applyScreen('character', 'push');
   });
   document.getElementById('open-book').addEventListener('click', function () {
+    showPage(0);
     applyScreen('guidebook', 'push');
   });
   document.getElementById('book-back').addEventListener('click', function () {
@@ -198,12 +216,12 @@
   document.getElementById('notice-back').addEventListener('click', function () {
     applyScreen('map', 'push');
   });
-  document.getElementById('poster-back').addEventListener('click', function () {
-    applyScreen('notice', 'push');
+  document.getElementById('notice-close').addEventListener('click', function () {
+    closeOverlay();
   });
   document.querySelectorAll('.notice-pin').forEach(function (pin) {
     pin.addEventListener('click', function () {
-      applyScreen('notice-' + pin.getAttribute('data-poster'), 'push');
+      openOverlay(pin.getAttribute('data-poster'));
     });
   });
   document.querySelectorAll('.map-hot[data-note]').forEach(function (pin) {
@@ -217,7 +235,6 @@
       applyScreen('notice', 'push');
     });
   });
-  window.addEventListener('resize', layoutMap);
 
   var sheet = document.getElementById('book-sheet');
   var startX = null;
@@ -230,7 +247,12 @@
     else if (dx >= 48) turn(-1);
   });
   document.addEventListener('keydown', function (event) {
-    if (document.documentElement.getAttribute('data-mmi') !== 'guidebook') return;
+    var screen = document.documentElement.getAttribute('data-mmi');
+    if (event.key === 'Escape' && screen === 'notice') {
+      closeOverlay();
+      return;
+    }
+    if (screen !== 'guidebook') return;
     if (event.key === 'ArrowRight') turn(1);
     if (event.key === 'ArrowLeft') turn(-1);
   });
@@ -241,6 +263,6 @@
 
   selectPlayer(readSave().id);
   paintWho();
-  renderPage(0);
+  showPage(0);
   applyScreen(document.documentElement.getAttribute('data-mmi') || 'welcome', 'replace');
 })();

@@ -60,11 +60,16 @@ test('game hub offers two worlds and leaves School Mystery in place', () => {
   assert.match(hold, /Enter the academy/);
   assert.match(hold, /aria-label="The Alchemy Workshop"/);
   assert.match(hold, /href="word-brew\/"/);
-  assert.match(hold, /art\/map\.jpg\?v=3/);
-  assert.doesNotMatch(hold, /art\/map\.jpg\?v=2/);
+  assert.match(hold, /art\/map\.png\?v=4/);
+  assert.doesNotMatch(hold, /art\/map\.jpg/);
+  assert.match(hold, /class="map-book"/);
+  assert.match(hold, /art\/guidebook\/cover\.jpg/);
+  assert.match(hold, /Tap a notice to read it/);
+  assert.match(hold, /id="notice-close"/);
+  assert.match(hold, /aria-label="Close"/);
+  assert.match(hold, /id="notice-overlay"/);
   assert.match(hold, /data-open="notice"/);
   assert.match(hold, /id="notice-back"/);
-  assert.match(hold, /id="poster-back"/);
   assert.match(hold, /art\/notice\/board\.png/);
   assert.match(hold, /data-poster="club"/);
   assert.match(hold, /data-poster="forest"/);
@@ -85,25 +90,35 @@ test('game hub offers two worlds and leaves School Mystery in place', () => {
   assert.match(hold, /aria-label="Misty Landing"/);
   assert.match(hold, /will open later/);
   assert.match(hold, /You are here/);
-  assert.match(hold, /--x:/);
   assert.doesNotMatch(hold, /id="card-select"|feMorphology|card-filter/);
   assert.doesNotMatch(hold, /map-pin|is-later|is-open|>Later<|>Open<|>Here</);
+  assert.doesNotMatch(hold, /map-fit\.js/);
+  const prevAt = hold.indexOf('id="book-prev"');
+  const sheetAt = hold.indexOf('id="book-sheet"');
+  const nextAt = hold.indexOf('id="book-next"');
+  assert.ok(prevAt > -1 && prevAt < sheetAt && sheetAt < nextAt);
   const academyCss = fs.readFileSync(path.join(root, 'game/mystic-mist-isles/academy.css'), 'utf8');
-  assert.match(academyCss, /\.map-hot:hover \{ transform: translateY\(-8px\)/);
-  assert.match(academyCss, /\.map-hot:active \{ transform: translateY\(-2px\)/);
-  assert.match(academyCss, /@keyframes map-bob/);
-  assert.match(academyCss, /prefers-reduced-motion: reduce\)[\s\S]*\.map-hot \{ animation: none/);
+  assert.match(academyCss, /\.map-art \{[^}]*object-fit:\s*contain/);
+  assert.match(academyCss, /100cqh \* 2752 \/ 1536/);
+  assert.match(academyCss, /\.map-stage \{[^}]*place-items:\s*center/);
+  assert.doesNotMatch(academyCss, /\.map-art \{[^}]*object-fit:\s*(?:cover|fill)/);
+  assert.doesNotMatch(academyCss, /object-fit:\s*fill/);
+  assert.doesNotMatch(academyCss, /map-bob|map-hot::before|translateY\(-8px\)/);
+  assert.match(academyCss, /\.book-stage \{[^}]*align-items:\s*center/);
+  assert.match(academyCss, /transition: transform 0\.95s/);
+  assert.match(academyCss, /prefers-reduced-motion: reduce\)[\s\S]*\.book-over \{ transition: none/);
   assert.match(academyCss, /\.cast-card\[aria-checked="true"\] \{[^}]*border-color:\s*#fff/);
   assert.doesNotMatch(academyCss, /feMorphology|#card-select/);
-  assert.match(academyCss, /art\/map\.jpg\?v=3/);
-  assert.doesNotMatch(academyCss, /object-fit:\s*fill/);
-  assert.match(academyCss, /\.map-stage \{[^}]*overflow:\s*hidden/);
   const academyJs = fs.readFileSync(path.join(root, 'game/mystic-mist-isles/academy.js'), 'utf8');
-  assert.match(academyJs, /MMIMapFit\.fit/);
+  assert.doesNotMatch(academyJs, /MMIMapFit/);
   assert.match(academyJs, /getElementById\('notice-back'\)[\s\S]{0,220}applyScreen\('map'/);
-  assert.match(academyJs, /getElementById\('poster-back'\)[\s\S]{0,220}applyScreen\('notice'/);
-  assert.match(academyJs, /applyScreen\('notice-' \+ pin\.getAttribute\('data-poster'\)/);
-  assert.match(academyJs, /data-open="notice"/);
+  assert.match(academyJs, /getElementById\('notice-close'\)[\s\S]{0,180}closeOverlay/);
+  assert.match(academyJs, /openOverlay\(pin\.getAttribute\('data-poster'\)\)/);
+  assert.doesNotMatch(academyJs, /applyScreen\('notice-'/);
+  assert.match(academyJs, /event\.key === 'Escape'/);
+  assert.match(academyJs, /cover\.jpg[\s\S]*?4\.jpg[\s\S]*?3\.jpg[\s\S]*?9\.jpg[\s\S]*?8\.jpg[\s\S]*?5\.jpg[\s\S]*?1\.jpg[\s\S]*?7\.jpg[\s\S]*?6\.jpg[\s\S]*?10\.jpg[\s\S]*?2\.jpg/);
+  assert.match(academyJs, /School Rules/);
+  assert.ok(!fs.existsSync(path.join(root, 'game/mystic-mist-isles/map-fit.js')));
   assert.match(hold, /About the academy/);
   assert.match(hold, /art\/players\/oliver\.png/);
   assert.match(hold, /art\/players\/mia\.png/);
@@ -175,28 +190,22 @@ test('after-school club lists School Mystery and keeps Nunito', () => {
   assert.doesNotMatch(worlds, /Fredoka/);
 });
 
-test('campus map covers a wide stage and keeps every painted label inside', () => {
-  const fit = require(path.join(root, 'game/mystic-mist-isles/map-fit.js'));
-  function labelsInside(box, stageW, stageH) {
-    const safe = fit.SAFE;
-    const left = box.left + safe.x * box.width;
-    const top = box.top + safe.y * box.height;
-    const right = box.left + (safe.x + safe.w) * box.width;
-    const bottom = box.top + (safe.y + safe.h) * box.height;
-    assert.ok(left >= -1 && top >= -1, 'labels stay on the stage');
-    assert.ok(right <= stageW + 1 && bottom <= stageH + 1, 'labels are not cropped');
+test('campus map shows the whole painting on a wide stage', () => {
+  function contain(stageW, stageH) {
+    const aspect = 2752 / 1536;
+    let width = stageW;
+    let height = width / aspect;
+    if (height > stageH) {
+      height = stageH;
+      width = height * aspect;
+    }
+    return { width: width, height: height };
   }
-  const wide = fit.fit(1440, 760);
-  assert.ok(wide.left <= 1 && wide.top <= 1, 'no cream bar on the top or left');
-  assert.ok(wide.left + wide.width >= 1439, 'painting reaches the right edge');
-  assert.ok(wide.top + wide.height >= 759, 'painting reaches the bottom edge');
-  labelsInside(wide, 1440, 760);
-  const landscape = fit.fit(1180, 620);
-  assert.ok(landscape.left <= 1 && landscape.top <= 1);
-  assert.ok(landscape.left + landscape.width >= 1179);
-  assert.ok(landscape.top + landscape.height >= 619);
-  labelsInside(landscape, 1180, 620);
-  const phone = fit.fit(390, 720);
-  labelsInside(phone, 390, 720);
-  assert.ok(Math.abs(phone.width / phone.height - 2752 / 1536) < 0.01, 'the painting is not stretched');
+  const wide = contain(1440, 760);
+  assert.ok(wide.width <= 1440.5 && wide.height <= 760.5);
+  assert.ok(Math.abs(wide.width - 1440) < 1 || Math.abs(wide.height - 760) < 1);
+  assert.ok(Math.abs(wide.width / wide.height - 2752 / 1536) < 0.001);
+  const phone = contain(390, 720);
+  assert.ok(phone.width <= 390.5 && phone.height <= 720.5);
+  assert.ok(Math.abs(phone.width / phone.height - 2752 / 1536) < 0.001);
 });
