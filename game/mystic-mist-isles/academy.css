@@ -193,9 +193,11 @@ html[data-mmi^="notice"] .screen-notice { display: block; }
 .place-note {
   position: absolute;
   z-index: 4;
-  top: 5.75rem;
-  left: 1rem;
-  right: 1rem;
+  top: 5.85rem;
+  left: 0.85rem;
+  right: auto;
+  width: max-content;
+  max-width: min(24rem, 46%);
   margin: 0;
   padding: 0;
   border: 0;
@@ -203,7 +205,7 @@ html[data-mmi^="notice"] .screen-notice { display: block; }
   background: none;
   color: var(--navy);
   font-weight: 800;
-  text-align: center;
+  text-align: left;
   pointer-events: none;
 }
 html[data-mmi="map"],
@@ -237,10 +239,7 @@ html[data-mmi="map"] .screen-map {
 }
 .map-stage {
   position: absolute;
-  top: 7.5rem;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
   display: grid;
   place-items: center;
   container-type: size;
@@ -418,8 +417,7 @@ html[data-mmi="map"] .screen-map {
     width: min(16rem, 70%);
     white-space: normal;
   }
-  .place-note { top: 8.1rem; }
-  .map-stage { top: 10.4rem; }
+  .place-note { top: 8.4rem; max-width: calc(100% - 1.7rem); }
 }
 
 @media (hover: hover) and (pointer: fine) {

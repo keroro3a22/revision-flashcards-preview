@@ -8,6 +8,7 @@
   padding: clamp(0.85rem, 2vw, 1.4rem) 0 calc(2.2rem + env(safe-area-inset-bottom));
 }
 .brew-copy { width: min(100%, 40rem); margin: 0 auto; }
+#play > .brew-copy { text-align: center; }
 .brew h2 {
   margin: 0.15rem 0 0.3rem;
   text-align: center;
@@ -183,15 +184,10 @@
 }
 
 .play-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 40rem);
-  justify-content: center;
-  gap: 1.25rem;
-  width: min(100%, 58rem);
+  position: relative;
+  width: min(100%, 40rem);
   margin: 0 auto;
-  align-items: start;
 }
-.play-grid.has-side { grid-template-columns: minmax(0, 1fr) minmax(9rem, 13rem); }
 .drops {
   display: flex;
   justify-content: center;
@@ -221,6 +217,7 @@
 .vocab span {
   font-weight: 800;
   font-size: 1.2rem;
+  color: #e07a12;
 }
 .effect {
   margin: 0.85rem auto 0;
@@ -242,11 +239,16 @@
 #play.is-done .drops,
 #play.is-done .play-tools,
 #play.is-done .side-words { display: none; }
+.side-words {
+  position: absolute;
+  left: calc(100% + 1.1rem);
+  top: 0.15rem;
+  width: 10.5rem;
+}
 .side-words h3 { margin: 0.2rem 0 0.35rem; text-align: left; font-size: 0.95rem; }
 .side-words .chips { justify-content: flex-start; }
 @media (max-width: 800px) {
-  .play-grid,
-  .play-grid.has-side { grid-template-columns: minmax(0, 1fr); }
+  .side-words { position: static; width: auto; margin-top: 1rem; }
 }
 .tray, .tiles {
   display: flex;
@@ -295,7 +297,7 @@
   justify-content: center;
   gap: 0.55rem;
 }
-.actions .go { flex: 1 1 12rem; }
+.actions .go { flex: 0 0 auto; width: auto; }
 .word-block { margin: 0.85rem 0 0; }
 .word-block h3 {
   margin: 0 0 0.3rem;
