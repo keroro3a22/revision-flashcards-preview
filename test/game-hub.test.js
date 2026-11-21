@@ -61,8 +61,9 @@ test('game hub offers two worlds and leaves School Mystery in place', () => {
   assert.match(hold, /id="enter-world" disabled/);
   assert.match(hold, /Tap to explore different places/);
   assert.match(hold, /page 1 of 11/);
-  assert.match(hold, /aria-label="Previous"/);
-  assert.match(hold, /aria-label="Next"/);
+  assert.match(hold, />Previous</);
+  assert.match(hold, />Next</);
+  assert.doesNotMatch(hold, /text-back[^>]*>\s*←/);
   assert.match(hold, /class="text-back"/);
   assert.match(hold, /back to the map/);
   assert.doesNotMatch(hold, /About the academy/);
@@ -81,7 +82,7 @@ test('game hub offers two worlds and leaves School Mystery in place', () => {
   assert.match(hold, /id="notice-overlay"/);
   assert.match(hold, /data-open="notice"/);
   assert.match(hold, /id="notice-back"/);
-  assert.match(hold, /art\/notice\/board\.png\?v=2/);
+  assert.match(hold, /art\/notice\/board\.png\?v=3/);
   assert.match(hold, /data-poster="club"/);
   assert.match(hold, /data-poster="forest"/);
   assert.match(hold, /data-poster="lost"/);

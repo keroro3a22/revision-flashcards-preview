@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../../../assets/huninn.css"/>
 <link rel="stylesheet" href="../../worlds.css?v=4"/>
-<link rel="stylesheet" href="brew.css?v=1"/>
+<link rel="stylesheet" href="brew.css?v=2"/>
 <link rel="stylesheet" href="../../../assets/account.css?v=8"/>
 <script src="../../../assets/supabase-public.js?v=1"></script>
 <script src="../../../assets/progress-sync.js?v=4"></script>
@@ -41,27 +41,33 @@
       <img class="bottle bottle-ready" id="bottle-ready" alt=""/>
       <p class="pour" id="pour" hidden></p>
     </div>
-    <div class="brew-copy">
-      <h2 id="potion-name"></h2>
-      <p class="task" id="potion-task"></p>
-      <p class="remind">You don’t have to use all the letters each time.</p>
-      <p class="count" id="count"></p>
-      <div class="pips" id="pips" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
-      <p class="ready-note" id="ready-note" hidden></p>
-      <div class="tray" id="tray" aria-label="Your word"></div>
-      <div class="tiles" id="tiles"></div>
-      <div class="actions">
-        <button type="button" class="go" id="try-word" disabled>Try this word</button>
-        <button type="button" class="ghost" id="clear-word">Clear</button>
+    <div class="play-grid" id="play-grid">
+      <div class="brew-main">
+        <h2 id="potion-name"></h2>
+        <p class="task" id="potion-task"></p>
+        <p class="remind">You don’t have to use all the letters each time.</p>
+        <p class="hint">Use at least 3 letters.</p>
+        <div class="drops" id="drops" aria-label="0 of 4 words found"><i class="drop"></i><i class="drop"></i><i class="drop"></i><i class="drop"></i></div>
+        <div class="play-tools" id="play-tools">
+          <div class="tray" id="tray" aria-label="Your word"></div>
+          <div class="tiles" id="tiles"></div>
+          <div class="actions">
+            <button type="button" class="go" id="try-word" disabled>Try this word</button>
+            <button type="button" class="ghost" id="clear-word">Clear</button>
+          </div>
+          <p class="status" id="status" aria-live="polite"></p>
+        </div>
+        <div class="success" id="success" hidden>
+          <p class="vocab" id="vocab"></p>
+          <p class="effect" id="ready-note"></p>
+        </div>
+        <p class="next-row"><button type="button" class="go" id="next-potion" hidden>Next potion</button></p>
       </div>
-      <p class="hint">Use at least 3 letters.</p>
-      <p class="status" id="status" aria-live="polite"></p>
-      <div id="lists"></div>
-      <p class="next-row"><button type="button" class="go" id="next-potion" hidden>Next potion</button></p>
+      <aside class="side-words" id="lists"></aside>
     </div>
   </section>
 </main>
 <script src="brew-rules.js?v=2"></script>
-<script src="brew.js?v=1"></script>
+<script src="brew.js?v=2"></script>
 </body>
 </html>

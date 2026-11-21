@@ -60,10 +60,11 @@
     if (!same) history.replaceState({}, '', next);
   }
 
-  function setStatus(text, bad) {
+  function setStatus(text, kind) {
     var status = document.getElementById('status');
     status.textContent = text || '';
-    status.classList.toggle('is-bad', !!bad);
+    status.classList.toggle('is-bad', kind === 'bad');
+    status.classList.toggle('is-extra', kind === 'extra');
   }
 
   function syncTry() {
@@ -193,8 +194,10 @@
     box.replaceChildren();
     if (!current) return;
     var state = progress[current.id];
-    if (state.extras.length) addList(box, 'Other words', state.extras, false);
-    if (state.bonuses.length) addList(box, 'Bonus', state.bonuses, true);
+    var done = state.found.length >= WordBrew.NEED;
+    if (!done && state.extras.length) addList(box, 'Other words', state.extras, false);
+    if (!done && state.bonuses.length) addList(box, 'Bonus', state.bonuses, true);
+    document.getElementById('play-grid').classList.toggle('has-side', !done && box.childElementCount > 0);
   }
 
   function addList(box, title, words, bonus) {
@@ -219,13 +222,26 @@
     var state = progress[current.id];
     var count = state.found.length;
     var done = count >= WordBrew.NEED;
-    document.getElementById('count').textContent = count + ' of ' + WordBrew.NEED + ' words in the pot.';
-    var pips = document.querySelectorAll('#pips i');
-    for (var i = 0; i < pips.length; i++) pips[i].classList.toggle('is-on', i < count);
+    var drops = document.querySelectorAll('#drops .drop');
+    for (var i = 0; i < drops.length; i++) drops[i].classList.toggle('is-on', i < count);
+    document.getElementById('drops').setAttribute('aria-label', count + ' of ' + WordBrew.NEED + ' words found');
     var stage = document.getElementById('stage');
     stage.style.setProperty('--p', String(Math.min(count, WordBrew.NEED) / WordBrew.NEED));
     stage.classList.toggle('is-ready', done);
+    document.getElementById('play').classList.toggle('is-done', done);
+    var vocab = document.getElementById('vocab');
+    vocab.replaceChildren();
+    if (done) {
+      current.targets.forEach(function (word) {
+        if (state.found.indexOf(word) === -1) return;
+        var item = document.createElement('span');
+        item.textContent = word;
+        vocab.appendChild(item);
+      });
+    }
     var note = document.getElementById('ready-note');
+    var success = document.getElementById('success');
+    success.hidden = !done;
     if (holdNote) {
       note.hidden = true;
       return;
@@ -358,7 +374,7 @@
     releaseAll();
     paintLists();
     if (result.type === 'invalid') shake();
-    setStatus(messageFor(result), result.type === 'invalid');
+    setStatus(messageFor(result), result.type === 'invalid' ? 'bad' : (result.type === 'extra' ? 'extra' : ''));
   }
 
   document.getElementById('try-word').addEventListener('click', tryWord);

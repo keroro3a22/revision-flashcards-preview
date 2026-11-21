@@ -23,9 +23,9 @@
   ];
   var POSTERS = {
     club: { src: 'art/notice/club-fair.png?v=2', alt: 'Club Fair', w: 896, h: 1200 },
-    forest: { src: 'art/notice/forest.png?v=2', alt: 'Beware of the Forest', w: 896, h: 1199 },
+    forest: { src: 'art/notice/forest.png?v=3', alt: 'Beware of the Forest', w: 896, h: 1199 },
     lost: { src: 'art/notice/lost-and-found.png?v=2', alt: 'Lost and Found', w: 896, h: 1200 },
-    rules: { src: 'art/notice/library-rules.png?v=2', alt: 'Library Rules', w: 896, h: 1200 },
+    rules: { src: 'art/notice/library-rules.png?v=3', alt: 'Library Rules', w: 896, h: 1200 },
     duel: { src: 'art/notice/dueling-club.png?v=2', alt: 'The Dueling Club', w: 1200, h: 896 },
     chart: { src: 'art/notice/academy-map.png?v=2', alt: 'Map of the Magic Academy', w: 896, h: 1200 }
   };

@@ -3,7 +3,7 @@
 [hidden] { display: none !important; }
 
 .brew {
-  width: min(52rem, calc(100% - 2 * var(--margin)));
+  width: min(64rem, calc(100% - 2 * var(--margin)));
   margin: 0 auto;
   padding: clamp(0.85rem, 2vw, 1.4rem) 0 calc(2.2rem + env(safe-area-inset-bottom));
 }
@@ -21,10 +21,11 @@
   text-align: center;
   font-weight: 700;
 }
-.remind, .count { font-weight: 800; }
+.remind { font-weight: 800; }
 .hint { color: color-mix(in srgb, var(--navy) 72%, #fff); font-size: 0.92rem; }
 .status { min-height: 1.4em; font-weight: 800; }
 .status.is-bad { color: #8a3b2a; }
+.status.is-extra { color: #e07a12; }
 
 .workshop {
   display: block;
@@ -181,28 +182,71 @@
   to { transform: translate(-50%, -2.6rem); opacity: 0; }
 }
 
-.pips {
+.play-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 40rem);
+  justify-content: center;
+  gap: 1.25rem;
+  width: min(100%, 58rem);
+  margin: 0 auto;
+  align-items: start;
+}
+.play-grid.has-side { grid-template-columns: minmax(0, 1fr) minmax(9rem, 13rem); }
+.drops {
   display: flex;
   justify-content: center;
-  gap: 0.4rem;
-  margin: 0.35rem 0 0.45rem;
+  gap: 0.7rem;
+  margin: 0.55rem 0 0.35rem;
 }
-.pips i {
-  width: 0.85rem;
-  height: 0.85rem;
-  border-radius: 50%;
-  border: 2px solid var(--navy);
+.drop {
+  width: 0.95rem;
+  height: 0.95rem;
+  border: 2.5px solid var(--navy);
+  border-radius: 0 70% 70% 70%;
+  transform: rotate(45deg);
   background: transparent;
 }
-.pips i.is-on { background: var(--sunny); }
-.ready-note {
-  margin: 0.55rem 0 0.75rem;
-  padding: 0.85rem 1rem;
-  border-radius: 16px;
-  border: 2px solid var(--sunny);
-  background: #fff;
+.drop.is-on {
+  background: #3d8fd4;
+  border-color: var(--navy);
+}
+.success { margin-top: 0.35rem; }
+.vocab {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem 1.1rem;
+  margin: 0.2rem 0 0;
+}
+.vocab span {
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+.effect {
+  margin: 0.85rem auto 0;
+  max-width: 36rem;
+  padding: 0;
+  border: 0;
+  background: none;
   font-weight: 700;
-  text-align: left;
+  text-align: center;
+  animation: effect-in 1.6s ease both;
+}
+@keyframes effect-in {
+  from { opacity: 0; transform: translateY(0.7rem); }
+  to { opacity: 1; transform: none; }
+}
+#play.is-done .task,
+#play.is-done .remind,
+#play.is-done .hint,
+#play.is-done .drops,
+#play.is-done .play-tools,
+#play.is-done .side-words { display: none; }
+.side-words h3 { margin: 0.2rem 0 0.35rem; text-align: left; font-size: 0.95rem; }
+.side-words .chips { justify-content: flex-start; }
+@media (max-width: 800px) {
+  .play-grid,
+  .play-grid.has-side { grid-template-columns: minmax(0, 1fr); }
 }
 .tray, .tiles {
   display: flex;
@@ -272,5 +316,5 @@
   .potion:hover { transform: translateY(-2px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .bottle, .pour, .tray, .potion { transition: none; animation: none !important; }
+  .bottle, .pour, .tray, .potion, .effect { transition: none; animation: none !important; }
 }

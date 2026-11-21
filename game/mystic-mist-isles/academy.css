@@ -75,7 +75,6 @@ html[data-mmi^="notice"] .screen-notice { display: block; }
 .text-back {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
   margin: 0;
   padding: 0.15rem 0;
   border: 0;
@@ -85,26 +84,28 @@ html[data-mmi^="notice"] .screen-notice { display: block; }
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 1.05rem;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1.5px;
   cursor: pointer;
 }
-.text-back span { font-size: 1.25rem; line-height: 1; }
 .text-back:focus-visible { outline: 3px solid var(--navy); outline-offset: 3px; }
 .book-side {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 3rem;
-  height: 3.2rem;
+  width: auto;
+  height: auto;
   margin: 0;
-  padding: 0;
+  padding: 0.2rem 0.1rem;
   border: 0;
   border-radius: 0;
   background: transparent;
-  color: var(--navy);
+  color: #5c3a1e;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 2.2rem;
-  line-height: 1;
+  font-size: 1.05rem;
+  line-height: 1.2;
 }
 .book-side:disabled { opacity: 0.35; cursor: default; }
 .book-side:focus-visible { outline: 3px solid var(--navy); outline-offset: 3px; }
@@ -192,21 +193,18 @@ html[data-mmi^="notice"] .screen-notice { display: block; }
 .place-note {
   position: absolute;
   z-index: 4;
-  top: 4.5rem;
-  left: 0.85rem;
-  right: 0.85rem;
-  min-height: 0;
+  top: 5.75rem;
+  left: 1rem;
+  right: 1rem;
   margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--navy);
   font-weight: 800;
+  text-align: center;
   pointer-events: none;
-}
-.place-note:not(:empty) {
-  width: fit-content;
-  max-width: min(28rem, calc(100% - 1.7rem));
-  padding: 0.35rem 0.75rem;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--cream) 92%, #fff);
-  pointer-events: auto;
 }
 html[data-mmi="map"],
 html[data-mmi="map"] body {
@@ -239,7 +237,10 @@ html[data-mmi="map"] .screen-map {
 }
 .map-stage {
   position: absolute;
-  inset: 0;
+  top: 7.5rem;
+  right: 0;
+  bottom: 0;
+  left: 0;
   display: grid;
   place-items: center;
   container-type: size;
@@ -405,17 +406,20 @@ html[data-mmi="map"] .screen-map {
 }
 .book-over.is-turning { transform: rotateY(-180deg); }
 .page-count {
-  margin: 0.75rem 0 0;
-  color: var(--navy);
+  margin: 0.55rem 0 0;
+  color: #5c3a1e;
   font-weight: 400;
+  font-size: 0.88rem;
   text-align: center;
 }
 @media (max-width: 760px) {
   .map-hint {
-    top: 5.1rem;
+    top: 5.5rem;
     width: min(16rem, 70%);
     white-space: normal;
   }
+  .place-note { top: 8.1rem; }
+  .map-stage { top: 10.4rem; }
 }
 
 @media (hover: hover) and (pointer: fine) {
