@@ -21,8 +21,8 @@
 }
 
 .screen { display: none; }
-html[data-mmi="welcome"] .screen-welcome,
-html[data-mmi="character"] .screen-character,
+html[data-mmi="welcome"] .screen-pick,
+html[data-mmi="character"] .screen-pick,
 html[data-mmi="map"] .screen-map,
 html[data-mmi="guidebook"] .screen-book,
 html[data-mmi^="notice"] .screen-notice { display: block; }
@@ -72,23 +72,44 @@ html[data-mmi^="notice"] .screen-notice { display: block; }
   font-size: 1.05rem;
 }
 .go:disabled { opacity: 0.42; cursor: default; }
-.ghost, .book-side {
-  min-height: 2.7rem;
-  padding: 0.4rem 0.9rem;
-  border-radius: 999px;
-  border: 2px solid color-mix(in srgb, var(--navy) 32%, #fff);
+.text-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.15rem 0;
+  border: 0;
+  border-radius: 0;
   background: transparent;
   color: var(--navy);
-  font-weight: 800;
-  font-size: 0.95rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  cursor: pointer;
 }
-.book-side:disabled { opacity: 0.4; cursor: default; }
+.text-back span { font-size: 1.25rem; line-height: 1; }
+.text-back:focus-visible { outline: 3px solid var(--navy); outline-offset: 3px; }
+.book-side {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3.2rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--navy);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 2.2rem;
+  line-height: 1;
+}
+.book-side:disabled { opacity: 0.35; cursor: default; }
+.book-side:focus-visible { outline: 3px solid var(--navy); outline-offset: 3px; }
 
-.screen-welcome { text-align: center; }
-.welcome-map {
-  width: min(100%, 40rem);
-  margin: 0 auto 1rem;
-}
+.screen-pick { text-align: center; }
 
 .cast {
   display: grid;
@@ -254,22 +275,32 @@ html[data-mmi="map"] .screen-map {
   outline-offset: 2px;
 }
 .map-book {
-  position: absolute;
-  z-index: 5;
-  left: 1.2%;
-  top: 33%;
-  width: 10.5%;
+  flex: 0 0 auto;
+  width: 3.6rem;
   margin: 0;
   padding: 0;
   border: 0;
   background: transparent;
   line-height: 0;
-  filter: drop-shadow(0 10px 12px rgba(48, 32, 16, 0.28));
+  filter: drop-shadow(0 6px 8px rgba(48, 32, 16, 0.28));
 }
 .map-book img {
   display: block;
   width: 100%;
   height: auto;
+}
+.map-hint {
+  position: absolute;
+  z-index: 4;
+  top: 1.15rem;
+  left: 50%;
+  margin: 0;
+  transform: translateX(-50%);
+  color: var(--navy);
+  font-weight: 800;
+  text-align: center;
+  pointer-events: none;
+  white-space: nowrap;
 }
 
 .notice-sheet {
@@ -373,10 +404,18 @@ html[data-mmi="map"] .screen-map {
   transition: transform 0.95s cubic-bezier(0.33, 0.02, 0.12, 1);
 }
 .book-over.is-turning { transform: rotateY(-180deg); }
-.book-label {
+.page-count {
   margin: 0.75rem 0 0;
-  font-weight: 800;
+  color: var(--navy);
+  font-weight: 400;
   text-align: center;
+}
+@media (max-width: 760px) {
+  .map-hint {
+    top: 5.1rem;
+    width: min(16rem, 70%);
+    white-space: normal;
+  }
 }
 
 @media (hover: hover) and (pointer: fine) {

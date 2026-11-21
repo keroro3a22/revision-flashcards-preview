@@ -3,10 +3,10 @@
 
   var KEY = 'mmi-player-v1';
   var PLAYERS = {
-    oliver: { name: 'Oliver', src: 'art/players/oliver.png?v=2' },
-    mia: { name: 'Mia', src: 'art/players/mia.png?v=3' },
-    felix: { name: 'Felix', src: 'art/players/felix.png?v=2' },
-    clara: { name: 'Clara', src: 'art/players/clara.png?v=2' }
+    oliver: { name: 'Oliver', src: 'art/players/oliver.png?v=3' },
+    mia: { name: 'Mia', src: 'art/players/mia.png?v=4' },
+    felix: { name: 'Felix', src: 'art/players/felix.png?v=3' },
+    clara: { name: 'Clara', src: 'art/players/clara.png?v=3' }
   };
   var BOOK = [
     { src: 'art/guidebook/cover.jpg', alt: 'Guidebook cover', label: 'Cover' },
@@ -22,12 +22,12 @@
     { src: 'art/guidebook/2.jpg', alt: 'School Rules', label: 'School Rules' }
   ];
   var POSTERS = {
-    club: { src: 'art/notice/club-fair.png', alt: 'Club Fair', w: 896, h: 1200 },
-    forest: { src: 'art/notice/forest.png', alt: 'Beware of the Forest', w: 896, h: 1199 },
-    lost: { src: 'art/notice/lost-and-found.png', alt: 'Lost and Found', w: 896, h: 1200 },
-    rules: { src: 'art/notice/library-rules.png', alt: 'Library Rules', w: 896, h: 1200 },
-    duel: { src: 'art/notice/dueling-club.png', alt: 'The Dueling Club', w: 1200, h: 896 },
-    chart: { src: 'art/notice/academy-map.png', alt: 'Map of the Magic Academy', w: 896, h: 1200 }
+    club: { src: 'art/notice/club-fair.png?v=2', alt: 'Club Fair', w: 896, h: 1200 },
+    forest: { src: 'art/notice/forest.png?v=2', alt: 'Beware of the Forest', w: 896, h: 1199 },
+    lost: { src: 'art/notice/lost-and-found.png?v=2', alt: 'Lost and Found', w: 896, h: 1200 },
+    rules: { src: 'art/notice/library-rules.png?v=2', alt: 'Library Rules', w: 896, h: 1200 },
+    duel: { src: 'art/notice/dueling-club.png?v=2', alt: 'The Dueling Club', w: 1200, h: 896 },
+    chart: { src: 'art/notice/academy-map.png?v=2', alt: 'Map of the Magic Academy', w: 896, h: 1200 }
   };
 
   var selected = '';
@@ -82,7 +82,7 @@
       name = save.seen ? 'map' : 'welcome';
     }
     document.documentElement.setAttribute('data-mmi', name);
-    if (name === 'character') syncCharacterBack();
+    if (name === 'welcome' || name === 'character') syncPickBack();
     if (name === 'map') paintWho();
     if (name === 'notice' && poster) openOverlay(poster);
     else closeOverlay();
@@ -93,9 +93,9 @@
     }
   }
 
-  function syncCharacterBack() {
-    var back = document.getElementById('character-back');
-    back.textContent = readSave().seen ? 'Back to the map' : 'Back';
+  function syncPickBack() {
+    var back = document.getElementById('pick-back');
+    if (back) back.hidden = !readSave().seen;
   }
 
   function paintWho() {
@@ -114,7 +114,7 @@
       cards[i].setAttribute('aria-checked', on ? 'true' : 'false');
       if (on) selected = id;
     }
-    document.getElementById('enter-academy').disabled = !selected;
+    document.getElementById('enter-world').disabled = !selected;
   }
 
   function showPage(index) {
@@ -127,7 +127,7 @@
     over.alt = page.alt;
     under.src = following.src;
     under.alt = '';
-    document.getElementById('book-label').textContent = page.label;
+    document.getElementById('book-label').textContent = 'page ' + (index + 1) + ' of ' + BOOK.length;
     document.getElementById('book-prev').disabled = index === 0;
     document.getElementById('book-next').disabled = index === BOOK.length - 1;
     if (BOOK[index + 1]) {
@@ -182,19 +182,15 @@
     window.setTimeout(complete, 1200);
   }
 
-  document.getElementById('to-character').addEventListener('click', function () {
-    selectPlayer(readSave().id);
-    applyScreen('character', 'push');
-  });
-  document.getElementById('character-back').addEventListener('click', function () {
-    applyScreen(readSave().seen ? 'map' : 'welcome', 'push');
+  document.getElementById('pick-back').addEventListener('click', function () {
+    applyScreen('map', 'push');
   });
   document.querySelectorAll('.cast-card').forEach(function (card) {
     card.addEventListener('click', function () {
       selectPlayer(card.getAttribute('data-player'));
     });
   });
-  document.getElementById('enter-academy').addEventListener('click', function () {
+  document.getElementById('enter-world').addEventListener('click', function () {
     if (!selected || !PLAYERS[selected]) return;
     writeSave({ id: selected, seen: true });
     paintWho();
