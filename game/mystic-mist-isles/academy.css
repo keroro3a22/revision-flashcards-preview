@@ -52,7 +52,7 @@ html[data-mmi="guidebook"] .screen-book { display: block; }
 }
 .screen-top { margin: 0 0 0.35rem; }
 
-.go, .ghost, .book-bar button, .about, .who, .map-pin, .cast-card {
+.go, .ghost, .book-bar button, .about, .who, .map-hot, .cast-card {
   font-family: var(--font-display);
   touch-action: manipulation;
   cursor: pointer;
@@ -99,20 +99,21 @@ html[data-mmi="guidebook"] .screen-book { display: block; }
 @media (min-width: 860px) {
   .cast { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
+.card-filter { position: absolute; width: 0; height: 0; overflow: hidden; }
 .cast-card {
   padding: 0;
-  border: 3px solid transparent;
-  border-radius: 22px;
+  border: 0;
+  border-radius: 0;
   background: transparent;
+  box-shadow: none;
 }
 .cast-card img {
   width: 100%;
   height: auto;
-  border-radius: 18px;
+  border-radius: 0;
 }
-.cast-card[aria-checked="true"] {
-  border-color: var(--navy);
-  box-shadow: 0 0 0 3px var(--sunny);
+.cast-card[aria-checked="true"] img {
+  filter: url("#card-select");
 }
 .enter-bar {
   position: sticky;
@@ -176,54 +177,25 @@ html[data-mmi="guidebook"] .screen-book { display: block; }
 }
 .map-board { position: relative; width: 100%; }
 .map-board > img { width: 100%; height: auto; }
-.map-pin {
+.map-hot {
   position: absolute;
   z-index: 1;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: max-content;
-  max-width: 8.6rem;
-  min-height: 2.45rem;
   margin: 0;
-  padding: 0.28rem 0.55rem;
-  border-radius: 14px;
-  border: 2px dashed #8ea0bd;
-  background: color-mix(in srgb, var(--cream) 88%, #fff);
-  color: #5c6c88;
-  font-size: 0.78rem;
-  font-weight: 800;
-  line-height: 1.15;
-  text-align: center;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: transparent;
+  font-size: 0;
+  line-height: 0;
   text-decoration: none;
+  cursor: pointer;
 }
-.map-pin small {
-  display: block;
-  margin-top: 0.08rem;
-  font-size: 0.64rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+.map-hot:focus-visible {
+  outline: 3px solid var(--navy);
+  outline-offset: 2px;
+  background: color-mix(in srgb, var(--sunny) 35%, transparent);
 }
-.map-pin.is-shore {
-  border-style: solid;
-  border-color: color-mix(in srgb, var(--navy) 35%, #fff);
-  color: var(--navy);
-}
-.map-pin.is-open {
-  z-index: 2;
-  max-width: 11rem;
-  min-height: 2.8rem;
-  padding: 0.4rem 0.7rem;
-  border-style: solid;
-  border-color: var(--sunny);
-  background: var(--navy);
-  color: #fff;
-  font-size: 0.9rem;
-}
-.map-pin:focus-visible { outline: 3px solid var(--sunny); outline-offset: 2px; }
 
 @media (max-width: 760px) {
   .map-hint { display: block; }
@@ -259,13 +231,10 @@ html[data-mmi="guidebook"] .screen-book { display: block; }
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .go:hover:not(:disabled),
-  .map-pin.is-open:hover,
-  .cast-card:hover { transform: translateY(-2px); }
-  .map-pin.is-open:hover { transform: translate(-50%, calc(-50% - 2px)); }
+  .go:hover:not(:disabled) { transform: translateY(-2px); }
 }
 @media (prefers-reduced-motion: reduce) {
   .book-sheet img { transition: none; }
   .book-sheet.is-turning img { transform: none; }
-  .go, .cast-card, .map-pin.is-open { transition: none; }
+  .go { transition: none; }
 }

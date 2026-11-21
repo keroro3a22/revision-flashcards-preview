@@ -1574,6 +1574,9 @@ html[data-view="home"] .place-shell { display: none; }
   border: 0;
   box-shadow: none;
 }
+.place-entries .world-list > li:nth-child(2) .world img {
+  margin-bottom: -8.3%;
+}
 .place-entries .world-name {
   display: flex;
   flex-direction: column;

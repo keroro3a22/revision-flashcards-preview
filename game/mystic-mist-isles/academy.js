@@ -4,7 +4,7 @@
   var KEY = 'mmi-player-v1';
   var PLAYERS = {
     oliver: { name: 'Oliver', src: 'art/players/oliver.png' },
-    mia: { name: 'Mia', src: 'art/players/mia.png' },
+    mia: { name: 'Mia', src: 'art/players/mia.png?v=2' },
     felix: { name: 'Felix', src: 'art/players/felix.png' },
     clara: { name: 'Clara', src: 'art/players/clara.png' }
   };
@@ -140,7 +140,7 @@
   });
   document.getElementById('book-prev').addEventListener('click', function () { turn(-1); });
   document.getElementById('book-next').addEventListener('click', function () { turn(1); });
-  document.querySelectorAll('.map-pin[data-note]').forEach(function (pin) {
+  document.querySelectorAll('.map-hot[data-note]').forEach(function (pin) {
     pin.addEventListener('click', function () {
       document.getElementById('place-note').textContent = pin.getAttribute('data-note');
     });
