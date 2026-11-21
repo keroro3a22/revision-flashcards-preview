@@ -3,10 +3,10 @@
 
   var KEY = 'mmi-player-v1';
   var PLAYERS = {
-    oliver: { name: 'Oliver', src: 'art/players/oliver.png' },
+    oliver: { name: 'Oliver', src: 'art/players/oliver.png?v=2' },
     mia: { name: 'Mia', src: 'art/players/mia.png?v=3' },
-    felix: { name: 'Felix', src: 'art/players/felix.png' },
-    clara: { name: 'Clara', src: 'art/players/clara.png' }
+    felix: { name: 'Felix', src: 'art/players/felix.png?v=2' },
+    clara: { name: 'Clara', src: 'art/players/clara.png?v=2' }
   };
   var BOOK = [{ src: 'art/guidebook/cover.jpg', alt: 'Guidebook cover' }];
   for (var n = 1; n <= 10; n++) {
