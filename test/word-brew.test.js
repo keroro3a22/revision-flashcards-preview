@@ -1,0 +1,117 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const Brew = require('../game/mystic-mist-isles/word-brew/brew-rules.js');
+
+function potion(id) {
+  return Brew.POTIONS.find((item) => item.id === id);
+}
+
+test('five potions keep the garden, water, light, room, and animal rounds', () => {
+  assert.equal(Brew.POTIONS.map((item) => item.id).join(','), 'garden,water,light,room,friends');
+  assert.equal(Brew.NEED, 4);
+  assert.match(Brew.REMINDER, /don't have to use all the letters each time/);
+  Brew.POTIONS.forEach((item) => {
+    assert.equal(item.targets.length, 4);
+    assert.match(item.instruction, /Make 4 words/);
+    assert.match(item.effect, /^The potion is ready\./);
+    item.targets.forEach((word) => assert.equal(Brew.canSpell(word, item.letters), true));
+    item.bonuses.forEach((word) => assert.equal(Brew.canSpell(word, item.letters), true));
+  });
+  assert.deepEqual(potion('room').bonuses, ['bedroom']);
+  assert.deepEqual(potion('friends').bonuses, ['cod']);
+  assert.equal(potion('garden').bonuses.length, 0);
+});
+
+test('a shuffled row does not spell a hidden word', () => {
+  Brew.POTIONS.forEach((item) => {
+    const banned = item.targets.concat(item.bonuses);
+    for (let n = 0; n < 20; n++) {
+      const row = Brew.shuffleLetters(item.letters, banned).join('');
+      assert.equal(row.length, item.letters.length);
+      banned.forEach((word) => assert.equal(row.includes(word), false, row + ' contains ' + word));
+    }
+  });
+});
+
+test('targets pour once, plurals count as the same target, and bonuses do not', () => {
+  const dict = Brew.dictionary(['tea', 'eat', 'eaten', 'slut', 'lust', 'write', 'broom', 'coat']);
+  const garden = potion('garden');
+  const start = Brew.blankState();
+  const bee = Brew.judge(garden, 'BEE', start, dict);
+  assert.equal(bee.type, 'target');
+  assert.equal(bee.state.found.join(','), 'bee');
+  assert.deepEqual(start.found, []);
+  const light = potion('light');
+  const lit = Brew.judge(light, 'lit', Brew.blankState(), dict);
+  assert.equal(lit.type, 'target');
+  const again = Brew.judge(light, 'lits', lit.state, dict);
+  assert.equal(again.type, 'repeat');
+  assert.equal(again.target, 'lit');
+  const lits = Brew.judge(light, 'lits', Brew.blankState(), dict);
+  assert.equal(lits.type, 'target');
+  assert.equal(lits.target, 'lit');
+  const room = potion('room');
+  const bonus = Brew.judge(room, 'bedroom', Brew.blankState(), dict);
+  assert.equal(bonus.type, 'bonus');
+  assert.deepEqual(bonus.state.found, []);
+  assert.deepEqual(bonus.state.bonuses, ['bedroom']);
+  const bed = Brew.judge(room, 'bed', bonus.state, dict);
+  assert.equal(bed.type, 'target');
+  assert.equal(bed.state.found.join(','), 'bed');
+  const friends = potion('friends');
+  const cod = Brew.judge(friends, 'cod', Brew.blankState(), dict);
+  assert.equal(cod.type, 'bonus');
+  assert.deepEqual(cod.state.found, []);
+});
+
+test('other real words are kept nearby and invalid words are not', () => {
+  const dict = Brew.dictionary(['tea', 'eat', 'slut', 'lust']);
+  const garden = potion('garden');
+  const tea = Brew.judge(garden, 'tea', Brew.blankState(), dict);
+  assert.equal(tea.type, 'extra');
+  assert.deepEqual(tea.state.found, []);
+  assert.deepEqual(tea.state.extras, ['tea']);
+  const same = Brew.judge(garden, 'tea', tea.state, dict);
+  assert.equal(same.type, 'repeat-extra');
+  assert.deepEqual(same.state.extras, ['tea']);
+  const blocked = Brew.judge(potion('light'), 'slut', Brew.blankState(), dict);
+  assert.equal(blocked.type, 'invalid');
+  assert.deepEqual(blocked.state.extras, []);
+  assert.equal(dict.has('slut'), false);
+  assert.equal(dict.has('lust'), true);
+  const short = Brew.judge(garden, 'be', Brew.blankState(), dict);
+  assert.equal(short.type, 'invalid');
+  const extraLetter = Brew.judge(garden, 'beets', Brew.blankState(), dict);
+  assert.equal(extraLetter.type, 'invalid');
+  const madeUp = Brew.judge(garden, 'zzzz', Brew.blankState(), dict);
+  assert.equal(madeUp.type, 'invalid');
+});
+
+test('four different targets finish the potion', () => {
+  const dict = Brew.dictionary([]);
+  let state = Brew.blankState();
+  let done = false;
+  potion('friends').targets.forEach((word) => {
+    const result = Brew.judge(potion('friends'), word, state, dict);
+    state = result.state;
+    done = !!result.done;
+  });
+  assert.equal(done, true);
+  assert.equal(state.found.length, 4);
+  const cod = Brew.judge(potion('friends'), 'cod', state, dict);
+  assert.equal(cod.type, 'bonus');
+  assert.equal(cod.state.found.length, 4);
+});
+
+test('the bundled word list is local and includes the potion words', () => {
+  const file = fs.readFileSync(path.join(__dirname, '../game/mystic-mist-isles/word-brew/words.txt'), 'utf8');
+  const words = new Set(file.split('\n').filter((line) => /^[a-z]{3,7}$/.test(line)));
+  assert.ok(words.size > 20000);
+  ['ant', 'bee', 'bean', 'beet', 'rain', 'water', 'sunlit', 'unlit', 'bedroom', 'toad', 'cod', 'eaten', 'broom'].forEach((word) => {
+    assert.equal(words.has(word), true, word);
+  });
+  assert.equal(words.has('slut'), false);
+  assert.doesNotMatch(file, /https?:\/\//);
+});

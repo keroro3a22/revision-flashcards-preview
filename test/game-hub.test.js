@@ -36,6 +36,9 @@ test('game hub offers two worlds and leaves School Mystery in place', () => {
   assert.doesNotMatch(hub, /href="clue-hunt\/"/);
   assert.match(hub, /illust\/mystic-mist-isles\.png/);
   assert.match(hub, /illust\/after-school-club\.png/);
+  assert.doesNotMatch(hub, /魔法與奇幻學院/);
+  assert.doesNotMatch(hub, /神秘校園日常/);
+  assert.doesNotMatch(hub, /Star-Frontier|Jungle Ruins|Neon Metropolis/);
   assert.match(hub, /huninn\.css/);
   assert.match(hub, /family=Nunito/);
   assert.doesNotMatch(hub, /Fredoka/);
@@ -51,11 +54,26 @@ test('game hub offers two worlds and leaves School Mystery in place', () => {
   const hold = fs.readFileSync(path.join(root, 'game/mystic-mist-isles/index.html'), 'utf8');
   assert.match(hold, /Mystic Mist Isles/);
   assert.match(hold, /Magic Academy/);
-  assert.match(hold, /\.\.\/illust\/mystic-mist-isles\.png/);
   assert.match(hold, /href="\.\.\/"/);
-  assert.match(hold, /The Magic Academy is getting ready/);
+  assert.match(hold, /Who will you be/);
+  assert.match(hold, /This will be you in the academy/);
+  assert.match(hold, /Enter the academy/);
+  assert.match(hold, /Alchemy Workshop/);
+  assert.match(hold, /About the academy/);
+  assert.match(hold, /word-brew\//);
+  assert.match(hold, /art\/players\/oliver\.png/);
+  assert.match(hold, /art\/players\/mia\.png/);
+  assert.match(hold, /art\/players\/felix\.png/);
+  assert.match(hold, /art\/players\/clara\.png/);
+  assert.match(hold, /art\/guidebook\/cover\.jpg/);
+  assert.doesNotMatch(hold, /The Magic Academy is getting ready/);
+  assert.doesNotMatch(hold, /魔法與奇幻學院/);
+  assert.doesNotMatch(hold, /St\. Elmo/);
   assert.doesNotMatch(hold, /Fredoka/);
   assert.doesNotMatch(hold, /clue-hunt/);
+  const placeJs = fs.readFileSync(path.join(root, 'assets/place.js'), 'utf8');
+  assert.doesNotMatch(placeJs, /魔法與奇幻學院/);
+  assert.doesNotMatch(placeJs, /神秘校園日常/);
   const hunt = fs.readFileSync(path.join(root, 'game/clue-hunt/index.html'), 'utf8');
   assert.match(hunt, /id="fair-map"/);
   assert.match(hunt, /id="notebook"/);
@@ -70,7 +88,8 @@ test('game hub offers two worlds and leaves School Mystery in place', () => {
 test('after-school club lists School Mystery and keeps Nunito', () => {
   const page = fs.readFileSync(path.join(root, 'game/after-school-club/index.html'), 'utf8');
   assert.match(page, /<h1>After-School Club<\/h1>/);
-  assert.match(page, /神秘校園日常/);
+  assert.doesNotMatch(page, /神秘校園日常/);
+  assert.doesNotMatch(page, /魔法與奇幻學院/);
   assert.match(page, /School Mystery/);
   assert.match(page, /Missing raffle box/);
   assert.match(page, /Case file/);

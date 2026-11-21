@@ -145,7 +145,6 @@ test('every book, publisher, grade, and term opens the same worlds', () => {
   function worlds(input) {
     return flat(P.entriesFor(input)).map((item) => ({
       label: item.label,
-      zh: item.zh,
       href: item.href,
       image: item.image,
       ready: item.ready
@@ -159,19 +158,18 @@ test('every book, publisher, grade, and term opens the same worlds', () => {
   assert.equal(JSON.stringify(oxford), JSON.stringify([
     {
       label: 'Mystic Mist Isles',
-      zh: '魔法與奇幻學院',
       href: 'game/mystic-mist-isles/',
       image: 'game/illust/mystic-mist-isles.png',
       ready: true
     },
     {
       label: 'After-School Club',
-      zh: '神秘校園日常',
       href: 'game/after-school-club/',
       image: 'game/illust/after-school-club.png?v=2',
       ready: true
     }
   ]));
+  assert.equal(flat(P.entriesFor({ book: 'oxford', level: 'p6', unit: 'game' })).some((item) => item.zh), false);
   assert.equal(oxford.some((item) => item.label === 'School Mystery' || item.href === 'game/'), false);
   const stayed = P.withChange({ book: 'oxford', level: 'p6', term: 'first', unit: 'game' }, { book: 'longman', level: 'p3', term: 'second' });
   assert.equal(stayed.unit, 'game');
