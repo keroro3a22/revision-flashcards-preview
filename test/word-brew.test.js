@@ -142,3 +142,17 @@ test('the bundled word list is local and includes the potion words', () => {
   assert.equal(words.has('slut'), false);
   assert.doesNotMatch(file, /https?:\/\//);
 });
+
+test('the hint control is the practice lightbulb beside the found words', () => {
+  const html = fs.readFileSync(path.join(__dirname, '../game/mystic-mist-isles/word-brew/index.html'), 'utf8');
+  const css = fs.readFileSync(path.join(__dirname, '../game/mystic-mist-isles/word-brew/brew.css'), 'utf8');
+  const row = html.slice(html.indexOf('class="found-row"'), html.indexOf('class="remind-space"'));
+  assert.match(row, /id="found-words"/);
+  assert.match(row, /id="hint-word"/);
+  assert.match(row, /aria-label="Hint"/);
+  assert.doesNotMatch(row, />Hint</);
+  const actions = html.slice(html.indexOf('class="actions"'), html.indexOf('class="clue"'));
+  assert.doesNotMatch(actions, /hint-word|>Hint</);
+  assert.match(css, /harder-badge\.png/);
+  assert.match(css, /#play\.is-done \.found-row/);
+});
