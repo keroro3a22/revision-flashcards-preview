@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../../../assets/huninn.css"/>
 <link rel="stylesheet" href="../../worlds.css?v=4"/>
-<link rel="stylesheet" href="brew.css?v=3"/>
+<link rel="stylesheet" href="brew.css?v=4"/>
 <link rel="stylesheet" href="../../../assets/account.css?v=8"/>
 <script src="../../../assets/supabase-public.js?v=1"></script>
 <script src="../../../assets/progress-sync.js?v=4"></script>
@@ -45,6 +45,8 @@
       <div class="brew-main">
         <h2 id="potion-name"></h2>
         <p class="task" id="potion-task"></p>
+        <p class="found-words" id="found-words"></p>
+        <div class="remind-space" aria-hidden="true"></div>
         <p class="remind">You don’t have to use all the letters each time. Use at least 3 letters.</p>
         <div class="drops" id="drops" aria-label="0 of 4 words found"><i class="drop"></i><i class="drop"></i><i class="drop"></i><i class="drop"></i></div>
         <div class="play-tools" id="play-tools">
@@ -53,7 +55,9 @@
           <div class="actions">
             <button type="button" class="go" id="try-word" disabled>Try this word</button>
             <button type="button" class="ghost" id="clear-word">Clear</button>
+            <button type="button" class="ghost" id="hint-word">Hint</button>
           </div>
+          <p class="clue" id="clue" hidden></p>
           <p class="status" id="status" aria-live="polite"></p>
         </div>
         <div class="success" id="success" hidden>
@@ -66,7 +70,7 @@
     </div>
   </section>
 </main>
-<script src="brew-rules.js?v=2"></script>
-<script src="brew.js?v=2"></script>
+<script src="brew-rules.js?v=3"></script>
+<script src="brew.js?v=3"></script>
 </body>
 </html>

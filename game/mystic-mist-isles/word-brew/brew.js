@@ -8,6 +8,7 @@
   var bookOk = false;
   var bookReady = false;
   var current = null;
+  var hintedWord = '';
   var picked = [];
   var tileSeq = 0;
   var lock = false;
@@ -218,6 +219,48 @@
     box.appendChild(section);
   }
 
+  function paintFound() {
+    var box = document.getElementById('found-words');
+    box.replaceChildren();
+    if (!current) return;
+    progress[current.id].found.forEach(function (word) {
+      if (current.targets.indexOf(word) === -1) return;
+      var item = document.createElement('span');
+      item.textContent = word;
+      box.appendChild(item);
+    });
+  }
+
+  function hideClue() {
+    hintedWord = '';
+    var clue = document.getElementById('clue');
+    clue.hidden = true;
+    clue.textContent = '';
+  }
+
+  function unfoundTargets() {
+    var found = progress[current.id].found;
+    return current.targets.filter(function (word) {
+      return found.indexOf(word) === -1;
+    });
+  }
+
+  function showHint() {
+    if (!current) return;
+    var left = unfoundTargets();
+    if (!left.length) {
+      hideClue();
+      return;
+    }
+    var start = 0;
+    var at = hintedWord ? left.indexOf(hintedWord) : -1;
+    if (at !== -1) start = (at + 1) % left.length;
+    hintedWord = left[start];
+    var clue = document.getElementById('clue');
+    clue.hidden = false;
+    clue.textContent = current.clues[hintedWord] || '';
+  }
+
   function paintProgress(holdNote) {
     var state = progress[current.id];
     var count = state.found.length;
@@ -229,6 +272,7 @@
     stage.style.setProperty('--p', String(Math.min(count, WordBrew.NEED) / WordBrew.NEED));
     stage.classList.toggle('is-ready', done);
     document.getElementById('play').classList.toggle('is-done', done);
+    paintFound();
     var vocab = document.getElementById('vocab');
     vocab.replaceChildren();
     if (done) {
@@ -304,6 +348,7 @@
     }
     current = WordBrew.POTIONS[index];
     lock = false;
+    hideClue();
     document.getElementById('chooser').hidden = true;
     document.getElementById('play').hidden = false;
     document.getElementById('potion-name').textContent = current.name;
@@ -341,6 +386,7 @@
     progress[current.id] = result.state;
     saveProgress();
     if (result.type === 'target') {
+      if (result.target === hintedWord) hideClue();
       lock = true;
       syncTry();
       fly(result.word);
@@ -381,6 +427,7 @@
   document.getElementById('clear-word').addEventListener('click', function () {
     if (!lock) releaseAll();
   });
+  document.getElementById('hint-word').addEventListener('click', showHint);
   document.getElementById('all-potions').addEventListener('click', showChooser);
   document.getElementById('next-potion').addEventListener('click', function () {
     if (!current) return;
@@ -392,7 +439,7 @@
     if (event.metaKey || event.ctrlKey || event.altKey) return;
     if (event.key === 'Enter') {
       var target = event.target && event.target.id;
-      if (target === 'clear-word' || target === 'all-potions' || target === 'next-potion') return;
+      if (target === 'clear-word' || target === 'all-potions' || target === 'next-potion' || target === 'hint-word') return;
       event.preventDefault();
       tryWord();
       return;

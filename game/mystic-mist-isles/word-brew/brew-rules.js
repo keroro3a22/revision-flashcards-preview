@@ -27,6 +27,12 @@
       instruction: 'Make 4 words about what you can see in a garden to finish the Little Garden Potion.',
       letters: 'enabte',
       targets: ['ant', 'bee', 'bean', 'beet'],
+      clues: {
+        ant: 'A very small insect that walks in a line.',
+        bee: 'A yellow and black insect that makes honey.',
+        bean: 'A small seed that we can eat.',
+        beet: 'A dark red vegetable that grows in the ground.'
+      },
       bonuses: [],
       effect: 'The potion is ready. A small leaf appears on the table, then fades. For a short time, the room feels quiet and safe, as if a tiny garden has grown around you.'
     },
@@ -37,6 +43,12 @@
       instruction: 'Make 4 words about water you can see or feel to finish the Calm Water Potion.',
       letters: 'wnitaer',
       targets: ['rain', 'wet', 'water', 'tear'],
+      clues: {
+        rain: 'Water that falls from the sky.',
+        wet: 'How you feel when water is on you.',
+        water: 'What we drink, and what is in a river or the sea.',
+        tear: 'A drop of water from your eye.'
+      },
       bonuses: [],
       effect: 'The potion is ready. A small ripple moves across the table, then fades. For a short time, the room feels cool and calm, as if you are sitting by still water.'
     },
@@ -47,6 +59,12 @@
       instruction: 'Make 4 words about light from the sky, and whether a place is bright or dark, to finish the Soft Light Potion.',
       letters: 'tlnuis',
       targets: ['sun', 'lit', 'unlit', 'sunlit'],
+      clues: {
+        sun: 'The bright light in the sky in the daytime.',
+        lit: 'A place has light. It is not dark.',
+        unlit: 'A place has no light. It is dark.',
+        sunlit: 'A place is bright because the sun is shining on it.'
+      },
       bonuses: [],
       effect: 'The potion is ready. A soft glow comes from the bottle, then fades. For a short time, the room feels warm and gentle, as if morning light has come in.'
     },
@@ -57,6 +75,12 @@
       instruction: 'Make 4 words about rooms, and what you can see in them to finish the Cozy Room Potion.',
       letters: 'rmboedo',
       targets: ['bed', 'door', 'room', 'dorm'],
+      clues: {
+        bed: 'You sleep on this at night.',
+        door: 'You open this to go in or out.',
+        room: 'A space in a house or school.',
+        dorm: 'A room at school where a few people sleep.'
+      },
       bonuses: ['bedroom'],
       effect: 'The potion is ready. The bottle feels warm for a moment, then fades. For a short time, the room feels tidy and comfortable, as if it has just been made ready for you.'
     },
@@ -67,6 +91,12 @@
       instruction: 'Make 4 words about animals that can be little friends to finish the Little Friends Potion.',
       letters: 'tgdaco',
       targets: ['cat', 'dog', 'goat', 'toad'],
+      clues: {
+        cat: 'A small pet that says meow.',
+        dog: 'A pet that can bark and wag its tail.',
+        goat: 'A farm animal with horns that eats grass.',
+        toad: 'A small animal like a frog that lives on land.'
+      },
       bonuses: ['cod'],
       effect: 'The potion is ready. A tiny paw print appears on the table, then fades. For a short time, you hear a soft, friendly sound nearby, then it is gone.'
     }
