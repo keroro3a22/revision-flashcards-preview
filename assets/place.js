@@ -330,7 +330,6 @@ window.RevisionPlace = (function () {
           {
             id: 'mystic-mist-isles',
             label: 'Mystic Mist Isles',
-            zh: '魔法與奇幻學院',
             href: 'game/mystic-mist-isles/',
             image: 'game/illust/mystic-mist-isles.png',
             width: 869,
@@ -341,7 +340,6 @@ window.RevisionPlace = (function () {
           {
             id: 'after-school-club',
             label: 'After-School Club',
-            zh: '神秘校園日常',
             href: 'game/after-school-club/',
             image: 'game/illust/after-school-club.png?v=2',
             width: 962,

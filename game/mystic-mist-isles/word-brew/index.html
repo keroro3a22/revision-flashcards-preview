@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Word Brew · Play and Learn Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../../../assets/huninn.css"/>
+<link rel="stylesheet" href="../../worlds.css?v=4"/>
+<link rel="stylesheet" href="brew.css?v=6"/>
+<link rel="stylesheet" href="../../../assets/account.css?v=8"/>
+<script src="../../../assets/supabase-public.js?v=1"></script>
+<script src="../../../assets/progress-sync.js?v=4"></script>
+<script src="../../../assets/account.js?v=19"></script>
+</head>
+<body>
+<header class="prac-header">
+  <a class="back" href="../#map">← Map</a>
+  <h1>Word Brew</h1>
+  <p class="sub" id="brew-sub">Alchemy Workshop</p>
+</header>
+<main class="brew">
+  <section id="chooser">
+    <img class="workshop" src="../art/workshop.png" alt="The Alchemy Workshop" width="1133" height="848"/>
+    <div class="brew-copy">
+      <h2>Pick a potion</h2>
+      <p class="lead">Make 4 words for a potion. You can play them in any order.</p>
+      <div class="potion-list" id="potion-list"></div>
+    </div>
+  </section>
+  <section id="play" hidden>
+    <div class="brew-copy">
+      <button type="button" class="ghost" id="all-potions">All potions</button>
+    </div>
+    <div class="stage" id="stage">
+      <img class="scene" src="art/scene.jpg" alt="" width="2000" height="1493"/>
+      <div class="wash" aria-hidden="true"></div>
+      <img class="bottle bottle-unready" id="bottle-unready" alt=""/>
+      <img class="bottle bottle-ready" id="bottle-ready" alt=""/>
+      <p class="pour" id="pour" hidden></p>
+    </div>
+    <div class="play-grid" id="play-grid">
+      <div class="brew-main">
+        <h2 id="potion-name"></h2>
+        <p class="task" id="potion-task"></p>
+        <p class="found-words" id="found-words"></p>
+        <div class="remind-space" aria-hidden="true"></div>
+        <p class="remind">You don’t have to use all the letters each time. Use at least 3 letters.</p>
+        <div class="drops" id="drops" aria-label="0 of 4 words found"><i class="drop"></i><i class="drop"></i><i class="drop"></i><i class="drop"></i></div>
+        <div class="play-tools" id="play-tools">
+          <div class="tray" id="tray" aria-label="Your word"></div>
+          <div class="tile-row">
+            <div class="tiles" id="tiles"></div>
+            <button type="button" class="bulb" id="hint-word" aria-label="Hint"></button>
+          </div>
+          <div class="actions">
+            <button type="button" class="go" id="try-word" disabled>Try this word</button>
+            <button type="button" class="ghost" id="clear-word">Clear</button>
+          </div>
+          <p class="clue" id="clue" hidden></p>
+          <p class="status" id="status" aria-live="polite"></p>
+        </div>
+        <div class="success" id="success" hidden>
+          <p class="vocab" id="vocab"></p>
+          <p class="effect" id="ready-note"></p>
+        </div>
+        <p class="next-row"><button type="button" class="go" id="next-potion" hidden>Next potion</button></p>
+      </div>
+      <aside class="side-words" id="lists"></aside>
+    </div>
+  </section>
+</main>
+<script src="brew-rules.js?v=3"></script>
+<script src="brew.js?v=4"></script>
+</body>
+</html>

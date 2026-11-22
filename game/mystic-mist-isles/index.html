@@ -6,23 +6,132 @@
 <title>Mystic Mist Isles · Play and Learn Club</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../../assets/huninn.css"/>
-<link rel="stylesheet" href="../worlds.css?v=1"/>
+<link rel="stylesheet" href="../worlds.css?v=4"/>
+<link rel="stylesheet" href="academy.css?v=8"/>
 <link rel="stylesheet" href="../../assets/account.css?v=8"/>
 <script src="../../assets/supabase-public.js?v=1"></script>
 <script src="../../assets/progress-sync.js?v=4"></script>
 <script src="../../assets/account.js?v=19"></script>
+<script>
+(function () {
+  var seen = false;
+  try {
+    var data = JSON.parse(localStorage.getItem('mmi-player-v1') || 'null');
+    seen = !!(data && data.seen && data.id);
+  } catch (e) {}
+  var hash = (location.hash || '').replace('#', '');
+  if (hash.indexOf('notice') === 0) hash = 'notice';
+  var screen = 'welcome';
+  if (seen && (hash === 'map' || hash === 'guidebook' || hash === 'character' || hash === 'notice' || hash === '')) screen = hash || 'map';
+  else if (hash === 'character') screen = 'character';
+  document.documentElement.setAttribute('data-mmi', screen);
+})();
+</script>
 </head>
 <body>
 <header class="prac-header">
   <a class="back" href="../">← Game</a>
   <h1>Mystic Mist Isles</h1>
-  <p class="sub">Magic Academy <span lang="zh-Hant">魔法與奇幻學院</span></p>
+  <p class="sub">Magic Academy</p>
 </header>
-<main class="world-wrap hold">
-  <img src="../illust/mystic-mist-isles.png" alt="The Magic Academy on Mystic Mist Isles" width="869" height="780"/>
-  <p>The Magic Academy is getting ready.</p>
+<main class="academy">
+  <section class="screen screen-pick">
+    <div class="screen-top">
+      <button type="button" class="text-back" id="pick-back" hidden>back to the map</button>
+    </div>
+    <p class="kicker">Misty Landing</p>
+    <h2 id="who-title">Welcome to the Magic Academy.</h2>
+    <p class="lead">The shore is quiet. Choose who you will be, then come onto the island.</p>
+    <div class="cast" role="radiogroup" aria-labelledby="who-title">
+      <button type="button" class="cast-card" role="radio" aria-checked="false" data-player="oliver">
+        <img src="art/players/oliver.png?v=3" alt="Oliver. Calm and observant." draggable="false"/>
+      </button>
+      <button type="button" class="cast-card" role="radio" aria-checked="false" data-player="mia">
+        <img src="art/players/mia.png?v=4" alt="Mia. Curious and lively." draggable="false"/>
+      </button>
+      <button type="button" class="cast-card" role="radio" aria-checked="false" data-player="felix">
+        <img src="art/players/felix.png?v=3" alt="Felix. Cheerful and helpful." draggable="false"/>
+      </button>
+      <button type="button" class="cast-card" role="radio" aria-checked="false" data-player="clara">
+        <img src="art/players/clara.png?v=3" alt="Clara. Careful and responsible." draggable="false"/>
+      </button>
+    </div>
+    <div class="enter-bar">
+      <button type="button" class="go" id="enter-world" disabled>Enter the world</button>
+    </div>
+  </section>
+
+  <section class="screen screen-map">
+    <h2 class="sr-only">Academy map</h2>
+    <div class="map-tools">
+      <button type="button" class="who" id="change-character">
+        <img id="who-img" alt="" width="64" height="64" src="art/players/oliver.png?v=3"/>
+        <span><strong id="who-name">You</strong><small>Change character</small></span>
+      </button>
+      <button type="button" class="map-book" id="open-book" aria-label="Open the guidebook">
+        <img src="art/guidebook/cover.jpg" alt="" width="896" height="1200"/>
+      </button>
+    </div>
+    <p class="map-hint">Tap to explore different places.</p>
+    <p class="place-note" id="place-note" aria-live="polite"></p>
+    <div class="map-stage">
+      <div class="map-board">
+        <img class="map-art" src="art/map.png?v=5" alt="Map of the Magic Academy on Mystic Mist Isles" width="2752" height="1536"/>
+        <button type="button" class="map-hot" style="left:14.2%;top:22%;width:16%;height:11.2%" data-note="The Misty Hall will open later." aria-label="The Misty Hall (Student Dormitory)"></button>
+        <button type="button" class="map-hot" style="left:27.6%;top:15.6%;width:17%;height:10.6%" data-note="The Owl's Library and Owl's Attic will open later." aria-label="The Owl's Library &amp; Owl's Attic"></button>
+        <button type="button" class="map-hot" style="left:62.8%;top:14.8%;width:8.6%;height:11.2%" data-note="Academy Castle will open later." aria-label="Academy Castle"></button>
+        <button type="button" class="map-hot" style="left:79%;top:23.2%;width:11.2%;height:11%" data-note="The Broomstick Field will open later." aria-label="The Broomstick Field"></button>
+        <button type="button" class="map-hot" style="left:10.6%;top:60.4%;width:9.2%;height:10.6%" data-note="You are here. This is where you came ashore." aria-label="Misty Landing"></button>
+        <button type="button" class="map-hot" style="left:29.6%;top:79.4%;width:12.6%;height:12.4%" data-open="notice" aria-label="The Notice Board"></button>
+        <button type="button" class="map-hot" style="left:53.2%;top:86.2%;width:22.6%;height:13%" data-note="The Verdant Conservatory will open later." aria-label="The Verdant Conservatory"></button>
+        <a class="map-hot" style="left:64.5%;top:53.8%;width:15.2%;height:14.2%" href="word-brew/" aria-label="The Alchemy Workshop"></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen screen-notice">
+    <div class="board-view">
+      <div class="screen-top">
+        <button type="button" class="text-back" id="notice-back">back to the map</button>
+      </div>
+      <h2 class="sr-only">Notice board</h2>
+      <div class="notice-sheet">
+        <img src="art/notice/board.png?v=3" alt="Notice board with the class schedule and pinned announcements" width="1200" height="896"/>
+        <button type="button" class="notice-pin" style="left:60%;top:27.5%;width:16%;height:20%" data-poster="chart" aria-label="Map of the Magic Academy"></button>
+        <button type="button" class="notice-pin" style="left:72%;top:25%;width:15%;height:22%" data-poster="lost" aria-label="Lost and Found"></button>
+        <button type="button" class="notice-pin" style="left:79%;top:45%;width:13.5%;height:14%" data-poster="duel" aria-label="The Dueling Club"></button>
+        <button type="button" class="notice-pin" style="left:58.5%;top:55.5%;width:15%;height:12%" data-poster="duel" aria-label="The Dueling Club"></button>
+        <button type="button" class="notice-pin" style="left:69.5%;top:46%;width:11%;height:12%" data-poster="club" aria-label="Club Fair"></button>
+        <button type="button" class="notice-pin" style="left:71.5%;top:56%;width:18.5%;height:20%" data-poster="forest" aria-label="Beware of the Forest"></button>
+        <button type="button" class="notice-pin" style="left:76%;top:76.2%;width:15.5%;height:23%" data-poster="rules" aria-label="Library Rules"></button>
+        <div class="notice-overlay" id="notice-overlay" hidden>
+          <div class="notice-paper">
+            <button type="button" class="notice-close" id="notice-close" aria-label="Close">×</button>
+            <img id="poster-img" alt="" width="896" height="1200"/>
+          </div>
+        </div>
+      </div>
+      <p class="notice-hint">Tap a notice to read it.</p>
+    </div>
+  </section>
+
+  <section class="screen screen-book">
+    <div class="screen-top">
+      <button type="button" class="text-back" id="book-back">back to the map</button>
+    </div>
+    <div class="book-stage">
+      <button type="button" class="book-side" id="book-prev">Previous</button>
+      <div class="book-sheet" id="book-sheet">
+        <img class="book-under" id="book-under" alt="" width="896" height="1200"/>
+        <img class="book-over" id="book-over" src="art/guidebook/cover.jpg" alt="Guidebook cover" width="896" height="1200"/>
+      </div>
+      <button type="button" class="book-side" id="book-next">Next</button>
+    </div>
+    <p class="page-count" id="book-label">page 1 of 11</p>
+  </section>
 </main>
+<script src="academy.js?v=8"></script>
 </body>
 </html>

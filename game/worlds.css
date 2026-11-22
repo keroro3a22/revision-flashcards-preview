@@ -116,6 +116,11 @@ a { color: inherit; text-decoration: none; }
   border: 0;
   box-shadow: none;
 }
+/* The school picture has empty space under the playground.
+   Drop it so that ground lines up with the island. */
+.world-list > li:nth-child(2) .world img {
+  margin-bottom: -8.3%;
+}
 .world-name {
   display: flex;
   flex-direction: column;
