@@ -143,16 +143,19 @@ test('the bundled word list is local and includes the potion words', () => {
   assert.doesNotMatch(file, /https?:\/\//);
 });
 
-test('the hint control is the practice lightbulb beside the found words', () => {
+test('the hint control is the practice lightbulb beside the letter tiles', () => {
   const html = fs.readFileSync(path.join(__dirname, '../game/mystic-mist-isles/word-brew/index.html'), 'utf8');
   const css = fs.readFileSync(path.join(__dirname, '../game/mystic-mist-isles/word-brew/brew.css'), 'utf8');
-  const row = html.slice(html.indexOf('class="found-row"'), html.indexOf('class="remind-space"'));
-  assert.match(row, /id="found-words"/);
-  assert.match(row, /id="hint-word"/);
-  assert.match(row, /aria-label="Hint"/);
-  assert.doesNotMatch(row, />Hint</);
+  const tiles = html.slice(html.indexOf('class="tile-row"'), html.indexOf('class="actions"'));
+  assert.match(tiles, /id="tiles"/);
+  assert.match(tiles, /id="hint-word"/);
+  assert.match(tiles, /aria-label="Hint"/);
+  assert.doesNotMatch(tiles, />Hint</);
+  const found = html.slice(html.indexOf('id="found-words"'), html.indexOf('class="remind-space"'));
+  assert.doesNotMatch(found, /hint-word/);
   const actions = html.slice(html.indexOf('class="actions"'), html.indexOf('class="clue"'));
   assert.doesNotMatch(actions, /hint-word|>Hint</);
   assert.match(css, /harder-badge\.png/);
-  assert.match(css, /#play\.is-done \.found-row/);
+  assert.match(css, /#play\.is-done #hint-word/);
+  assert.doesNotMatch(css, /\.found-row/);
 });
