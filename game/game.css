@@ -49,7 +49,7 @@
 .hunt-stage { min-width: 0; }
 .fair-map {
   position: relative;
-  width: min(100%, 640px);
+  width: min(100%, 56rem);
   margin: 0 auto 0.35rem;
 }
 .fair-map-base {
@@ -208,7 +208,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 14rem;
+  height: 18rem;
   overflow: hidden;
   border-radius: 12px;
   background: #fff8ee;
@@ -228,11 +228,11 @@
   display: block;
   width: auto;
   height: auto;
-  max-width: min(100%, 720px);
-  max-height: min(46vh, 420px);
+  max-width: 100%;
+  max-height: min(68vh, 640px);
   margin: 0;
   object-fit: contain;
-  border-radius: 12px;
+  border-radius: 18px;
 }
 .notebook {
   container-type: inline-size;

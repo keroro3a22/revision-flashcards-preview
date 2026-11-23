@@ -230,7 +230,10 @@ html[data-asc="map"] .screen-map {
 }
 .map-stage {
   position: absolute;
-  inset: 0;
+  top: 7.4rem;
+  right: 0;
+  bottom: 0.35rem;
+  left: 0;
   display: grid;
   place-items: center;
   container-type: size;
@@ -262,29 +265,17 @@ html[data-asc="map"] .screen-map {
 .place-view { display: none; }
 html[data-place="notice"] .place-view[data-place-view="notice"],
 html[data-place="hall"] .place-view[data-place-view="hall"] { display: block; }
-.place-frame {
-  position: relative;
-  width: fit-content;
-  max-width: 100%;
-  margin: 0.4rem auto 0;
-}
-.place-frame .case-file {
-  position: absolute;
-  z-index: 2;
-  left: 34%;
-  top: 52%;
-  width: 26%;
+.hall-report {
   display: block;
-  margin: 0;
-  padding: 0;
+  width: min(100%, 28rem);
+  margin: 0.8rem auto 0;
   line-height: 0;
-  filter: drop-shadow(0 8px 10px rgba(48, 32, 16, 0.28));
+  filter: drop-shadow(0 8px 10px rgba(48, 32, 16, 0.22));
 }
-.place-frame .case-file img {
+.hall-report img {
   display: block;
   width: 100%;
   height: auto;
-  object-fit: contain;
   background: transparent;
 }
 .map-hot:focus-visible,
@@ -317,14 +308,11 @@ html[data-place="hall"] .place-view[data-place-view="hall"] { display: block; }
   max-height: calc(100dvh - 12rem);
   margin: 0.4rem auto 0;
   object-fit: contain;
-}
-.place-frame .place-art {
-  width: auto;
-  max-width: min(100%, calc(100dvh - 12rem));
-  margin: 0;
+  border-radius: 18px;
 }
 
 @media (max-width: 760px) {
+  .map-stage { top: 10.6rem; }
   .map-hint {
     top: 5.5rem;
     width: min(16rem, 70%);

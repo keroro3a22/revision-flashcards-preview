@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../assets/huninn.css"/>
 <link rel="stylesheet" href="../practice/grammar/grammar.css?v=52"/>
-<link rel="stylesheet" href="game.css?v=36"/>
+<link rel="stylesheet" href="game.css?v=4"/>
 <link rel="stylesheet" href="../assets/account.css?v=8" />
 <script src="../assets/supabase-public.js?v=1"></script>
 <script src="../assets/progress-sync.js?v=4"></script>
@@ -169,14 +169,14 @@
     </aside>
   </div>
 </main>
-<script src="clue-hunt-state.js?v=3"></script>
+<script src="clue-hunt-state.js?v=4"></script>
 <script>
 (function () {
   var portraits = {
-    evan: { bust: "after-school-club/art/players/evan.png?v=3", head: "after-school-club/art/players/heads/evan.png?v=3" },
-    lily: { bust: "after-school-club/art/players/lily.png?v=3", head: "after-school-club/art/players/heads/lily.png?v=3" },
-    ben: { bust: "after-school-club/art/players/ben.png?v=3", head: "after-school-club/art/players/heads/ben.png?v=3" },
-    hannah: { bust: "after-school-club/art/players/hannah.png?v=3", head: "after-school-club/art/players/heads/hannah.png?v=3" }
+    evan: { bust: "after-school-club/art/players/evan.png?v=3", head: "after-school-club/art/players/heads/evan.png?v=4" },
+    lily: { bust: "after-school-club/art/players/lily.png?v=3", head: "after-school-club/art/players/heads/lily.png?v=4" },
+    ben: { bust: "after-school-club/art/players/ben.png?v=3", head: "after-school-club/art/players/heads/ben.png?v=4" },
+    hannah: { bust: "after-school-club/art/players/hannah.png?v=3", head: "after-school-club/art/players/heads/hannah.png?v=4" }
   };
   var playerId = "";
   try {
@@ -306,7 +306,7 @@
       var portrait = portraits[playerId];
       person = { id: "you", name: "You", head: portrait.head, art: portrait.bust };
     } else if (person && person.head.indexOf("?") < 0) {
-      person = { id: person.id, name: person.name, head: person.head + "?v=3", art: person.art };
+      person = { id: person.id, name: person.name, head: person.head + "?v=4", art: person.art };
     }
     var row = document.createElement("div");
     row.className = "talk-line " + rowClass;
