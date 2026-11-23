@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../../assets/huninn.css"/>
 <link rel="stylesheet" href="../worlds.css?v=4"/>
-<link rel="stylesheet" href="club.css?v=1"/>
+<link rel="stylesheet" href="club.css?v=2"/>
 <link rel="stylesheet" href="../../assets/account.css?v=8"/>
 <script src="../../assets/supabase-public.js?v=1"></script>
 <script src="../../assets/progress-sync.js?v=4"></script>
@@ -23,9 +23,9 @@
   } catch (e) {}
   var hash = (location.hash || '').replace('#', '');
   var screen = 'welcome';
-  if (ok && (hash === 'map' || hash === 'character' || hash.indexOf('place-') === 0 || hash === '')) {
-    screen = hash.indexOf('place-') === 0 ? 'place' : (hash || 'map');
-  } else if (hash === 'character') screen = 'character';
+  if (ok && hash === 'place-notice') screen = 'place';
+  else if (ok && (hash === 'map' || hash === 'character' || hash === '')) screen = hash || 'map';
+  else if (hash === 'character') screen = 'character';
   document.documentElement.setAttribute('data-asc', screen);
 })();
 </script>
@@ -45,21 +45,17 @@
     <h2 id="who-title">Welcome to After-School Club.</h2>
     <p class="lead">Choose who you will be, then come into the school.</p>
     <div class="cast" role="radiogroup" aria-labelledby="who-title">
-      <button type="button" class="cast-card" role="radio" aria-checked="false" data-player="evan">
-        <img src="art/players/evan.png?v=1" alt="" width="584" height="1000" draggable="false"/>
-        <span class="cast-name">Evan</span>
+      <button type="button" class="cast-card" role="radio" aria-checked="false" data-player="evan" aria-label="Evan">
+        <img src="art/players/evan.png?v=1" alt="Evan" width="584" height="1000" draggable="false"/>
       </button>
-      <button type="button" class="cast-card" role="radio" aria-checked="false" data-player="lily">
-        <img src="art/players/lily.png?v=1" alt="" width="765" height="1000" draggable="false"/>
-        <span class="cast-name">Lily</span>
+      <button type="button" class="cast-card" role="radio" aria-checked="false" data-player="lily" aria-label="Lily">
+        <img src="art/players/lily.png?v=1" alt="Lily" width="765" height="1000" draggable="false"/>
       </button>
-      <button type="button" class="cast-card" role="radio" aria-checked="false" data-player="ben">
-        <img src="art/players/ben.png?v=1" alt="" width="793" height="999" draggable="false"/>
-        <span class="cast-name">Ben</span>
+      <button type="button" class="cast-card" role="radio" aria-checked="false" data-player="ben" aria-label="Ben">
+        <img src="art/players/ben.png?v=1" alt="Ben" width="793" height="999" draggable="false"/>
       </button>
-      <button type="button" class="cast-card" role="radio" aria-checked="false" data-player="hannah">
-        <img src="art/players/hannah.png?v=1" alt="" width="862" height="1000" draggable="false"/>
-        <span class="cast-name">Hannah</span>
+      <button type="button" class="cast-card" role="radio" aria-checked="false" data-player="hannah" aria-label="Hannah">
+        <img src="art/players/hannah.png?v=1" alt="Hannah" width="862" height="1000" draggable="false"/>
       </button>
     </div>
     <div class="enter-bar">
@@ -69,27 +65,27 @@
 
   <section class="screen screen-map">
     <h2 class="sr-only">Campus map</h2>
-    <div class="map-bar">
+    <div class="map-tools">
       <button type="button" class="who" id="change-character">
         <img id="who-img" alt="" width="64" height="64" src="art/players/evan.png?v=1"/>
         <span><strong id="who-name">You</strong><small>Change character</small></span>
       </button>
-      <p class="map-hint">Tap to explore different places.</p>
-      <a class="case-file" href="../clue-hunt/">
-        <img src="art/case-001-file.jpg?v=1" alt="Case 001. School Mystery." width="1600" height="1600"/>
-        <span class="case-file-name">Case 001<span>School Mystery</span></span>
-      </a>
     </div>
+    <p class="map-hint">Tap to explore different places.</p>
+    <p class="place-note" id="map-note" aria-live="polite"></p>
     <div class="map-stage">
       <div class="map-board">
-        <img class="map-art" src="art/campus-map.jpg?v=1" alt="Map of Banyan Court Primary School" width="1600" height="1600"/>
-        <button type="button" class="map-hot" style="left:7%;top:39%;width:25%;height:26%" data-place="playground" aria-label="Playground"></button>
-        <button type="button" class="map-hot" style="left:26%;top:19%;width:16%;height:25%" data-place="library" aria-label="Library"></button>
-        <button type="button" class="map-hot" style="left:50%;top:10%;width:23%;height:28%" data-place="hall" aria-label="School Hall"></button>
-        <button type="button" class="map-hot" style="left:43%;top:43%;width:18%;height:13%" data-place="notice" aria-label="Notice Board"></button>
-        <button type="button" class="map-hot" style="left:31%;top:46%;width:13%;height:19%" data-place="canteen" aria-label="Canteen"></button>
-        <button type="button" class="map-hot" style="left:72%;top:22%;width:16%;height:16%" data-place="store" aria-label="Storeroom"></button>
-        <button type="button" class="map-hot" style="left:37%;top:67%;width:18%;height:15%" data-place="gate" aria-label="School Gate"></button>
+        <img class="map-art" src="art/campus-map.png?v=2" alt="Map of Banyan Court Primary School" width="1467" height="1238"/>
+        <button type="button" class="map-hot" style="left:1%;top:39.3%;width:27.3%;height:33.6%" data-note="The playground will open later." aria-label="Playground"></button>
+        <button type="button" class="map-hot" style="left:21.7%;top:13.4%;width:17.5%;height:32.3%" data-note="The library will open later." aria-label="Library"></button>
+        <a class="map-hot" style="left:47.9%;top:1.8%;width:25.1%;height:36.2%" href="../clue-hunt/" aria-label="School Hall"></a>
+        <button type="button" class="map-hot" style="left:40.3%;top:44.4%;width:19.6%;height:16.8%" data-open="notice" aria-label="Notice Board"></button>
+        <button type="button" class="map-hot" style="left:27.2%;top:48.3%;width:14.2%;height:24.6%" data-note="The canteen will open later." aria-label="Canteen"></button>
+        <button type="button" class="map-hot" style="left:71.9%;top:17.3%;width:17.5%;height:20.7%" data-note="The storeroom will open later." aria-label="Storeroom"></button>
+        <button type="button" class="map-hot" style="left:33.7%;top:75.4%;width:19.6%;height:19.4%" data-note="This is the school gate." aria-label="School Gate"></button>
+        <a class="case-file" style="left:53.2%;top:8.3%;width:14.5%;height:21.9%" href="../clue-hunt/" aria-label="Case 001. School Mystery.">
+          <img src="art/case-001-file.png?v=2" alt="" width="1112" height="1414"/>
+        </a>
       </div>
     </div>
   </section>
@@ -98,11 +94,10 @@
     <div class="screen-top">
       <button type="button" class="text-back" id="place-back">back to the map</button>
     </div>
-    <h2 id="place-title"></h2>
-    <img class="place-art" id="place-art" alt="" hidden/>
-    <p class="place-note" id="place-note" hidden></p>
+    <h2>Notice Board</h2>
+    <img class="place-art" src="art/places/view-notice-board.jpg?v=1" alt="Notice Board" width="1600" height="1195"/>
   </section>
 </main>
-<script src="club.js?v=1"></script>
+<script src="club.js?v=2"></script>
 </body>
 </html>
