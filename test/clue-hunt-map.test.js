@@ -54,16 +54,19 @@ test('intro leads to a six-stop paper map before any quiz', () => {
   assert.match(intro, />Start looking</);
   assert.doesNotMatch(intro, /btn-primary/);
   assert.doesNotMatch(intro, /Look around the fair/);
-  assert.match(intro, /u1_09_fair\.jpg/);
+  assert.match(intro, /illust\/intro\/fair\.jpg/);
+  assert.doesNotMatch(intro, /u1_09_fair\.jpg/);
+  assert.doesNotMatch(html, /practice\/grammar\/illust\/u1_09_fair/);
   assert.doesNotMatch(intro, /class="choice"/);
   assert.equal((html.match(/class="hotspot\b/g) || []).length, 6);
   ['stall', 'wheel', 'film', 'hall', 'desk', 'store'].forEach((id) => {
     assert.match(html, new RegExp('data-hotspot="' + id + '"'));
   });
   const map = html.slice(html.indexOf('id="fair-map"'), html.indexOf('id="scene"'));
-  assert.match(map, /illust\/map-school-doorplates\.png/);
+  assert.match(map, /illust\/map-case-001\.jpg/);
+  assert.doesNotMatch(map, /map-school-doorplates/);
   assert.doesNotMatch(map, /class="hotspot\b[^>]*>\s*<img/);
-  ['Charity stall', 'Prize wheel', 'Film club', 'School hall', "Miss Chan's desk", 'Storeroom'].forEach((label) => {
+  ['Charity Hall', 'Prize wheel', 'Film club', 'School hall', 'Staff Room', 'Storeroom'].forEach((label) => {
     assert.match(map, new RegExp(label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   });
   assert.doesNotMatch(html, /u4_comedy\.png/);
@@ -126,7 +129,7 @@ test('notebook and solve page are present, without a missing-person picker', () 
 test('clue hunt styles use fills and contain the pictures', () => {
   const html = huntHtml();
   const css = fs.readFileSync(path.join(root, 'game/game.css'), 'utf8');
-  assert.match(html, /game\.css\?v=34/);
+  assert.match(html, /game\.css\?v=35/);
   assert.doesNotMatch(css, /#e25c12/);
   assert.match(css, /\.fair-map \{/);
   assert.match(css, /\.hotspot \{[^}]*position:\s*absolute/);
@@ -210,25 +213,24 @@ test('the page script opens every state hotspot by talk or search', () => {
 test('scene art files exist and Ken still marks the storeroom pin', () => {
   const ClueHunt = require('../game/clue-hunt-state.js');
   const expected = {
-    stall: 'illust/scene-stall-unsigned.png',
-    wheel: 'illust/scene-prize-wheel-fair.png',
-    film: 'illust/scene-film-sticker.png',
-    hall: 'illust/scene-hall-open-box.png',
-    desk: 'illust/scene-miss-chan-class.png',
-    store: 'illust/scene-storeroom-ken.png'
+    stall: 'illust/scene-stall-unsigned.jpg',
+    wheel: 'illust/scene-prize-wheel-fair.jpg',
+    film: 'illust/scene-film-sticker.jpg',
+    hall: 'illust/scene-hall-open-box.jpg',
+    desk: 'illust/scene-miss-chan-class.jpg',
+    store: 'illust/scene-storeroom-ken.jpg'
   };
+  function isPicture(buf) {
+    const png = buf[0] === 0x89 && buf.slice(1, 4).toString() === 'PNG';
+    const jpg = buf[0] === 0xff && buf[1] === 0xd8;
+    return png || jpg;
+  }
   ClueHunt.HOTSPOTS.forEach((spot) => {
     assert.equal(spot.art, expected[spot.id]);
-    const file = spot.art.startsWith('illust/')
-      ? path.join(root, 'game', spot.art)
-      : path.join(root, 'game', spot.art);
+    const file = path.join(root, 'game', spot.art);
     const buf = fs.readFileSync(file);
-    if (spot.art.startsWith('illust/')) {
-      assert.equal(buf[0], 0x89);
-      assert.equal(buf.slice(1, 4).toString(), 'PNG');
-    } else {
-      assert.ok(buf.length > 1000);
-    }
+    assert.ok(isPicture(buf), spot.art);
+    assert.ok(buf.length > 1000, spot.art);
   });
   assert.equal(ClueHunt.HOTSPOTS.find((spot) => spot.id === 'store').marker, '../practice/grammar/illust/u1_07_books.jpg');
   const zoomArts = [];
@@ -238,8 +240,9 @@ test('scene art files exist and Ken still marks the storeroom pin', () => {
         assert.ok(hit.art, spot.id + ' ' + action.id);
         zoomArts.push(hit.art);
         const buf = fs.readFileSync(path.join(root, 'game', hit.art));
-        assert.equal(buf[0], 0x89);
-        assert.equal(buf.slice(1, 4).toString(), 'PNG');
+        const png = buf[0] === 0x89 && buf.slice(1, 4).toString() === 'PNG';
+        const jpg = buf[0] === 0xff && buf[1] === 0xd8;
+        assert.ok(png || jpg, hit.art);
       });
     });
   });

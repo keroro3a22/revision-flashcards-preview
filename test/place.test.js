@@ -165,7 +165,7 @@ test('every book, publisher, grade, and term opens the same worlds', () => {
     {
       label: 'After-School Club',
       href: 'game/after-school-club/',
-      image: 'game/illust/after-school-club.png?v=2',
+      image: 'game/illust/after-school-club.png?v=3',
       ready: true
     }
   ]));

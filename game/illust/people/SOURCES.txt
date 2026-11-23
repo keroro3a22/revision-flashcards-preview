@@ -1,4 +1,8 @@
-School Mystery people portraits. Official いらすとや only. Do not generate replacements.
+School Mystery people portraits.
+
+The After-School Club preview replaced May, Zoe, Miss Chan, Ken, Leo, and Sam (full figure and head) with the new club art. You is still the earlier portrait. Amy is stored only under game/after-school-club/art/people/ and is not a Case 001 character.
+
+Previous notes:
 
 You — boy with a magnifying glass, not a police officer
 Page: https://www.irasutoya.com/2013/08/blog-post_7373.html

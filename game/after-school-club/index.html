@@ -6,57 +6,103 @@
 <title>After-School Club · Play and Learn Club</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../../assets/huninn.css"/>
 <link rel="stylesheet" href="../worlds.css?v=4"/>
+<link rel="stylesheet" href="club.css?v=1"/>
 <link rel="stylesheet" href="../../assets/account.css?v=8"/>
 <script src="../../assets/supabase-public.js?v=1"></script>
 <script src="../../assets/progress-sync.js?v=4"></script>
 <script src="../../assets/account.js?v=19"></script>
+<script>
+(function () {
+  var ok = false;
+  try {
+    var data = JSON.parse(localStorage.getItem('asc-player-v1') || 'null');
+    ok = !!(data && data.seen && /^(evan|lily|ben|hannah)$/.test(data.id));
+  } catch (e) {}
+  var hash = (location.hash || '').replace('#', '');
+  var screen = 'welcome';
+  if (ok && (hash === 'map' || hash === 'character' || hash.indexOf('place-') === 0 || hash === '')) {
+    screen = hash.indexOf('place-') === 0 ? 'place' : (hash || 'map');
+  } else if (hash === 'character') screen = 'character';
+  document.documentElement.setAttribute('data-asc', screen);
+})();
+</script>
 </head>
 <body>
 <header class="prac-header">
   <a class="back" href="../">← Game</a>
   <h1>After-School Club</h1>
+  <p class="sub">Banyan Court Primary School</p>
 </header>
-<main class="world-wrap">
-  <div class="game-grid">
-    <a class="game-card gc-mystery" href="../clue-hunt/">
-      <div class="case-book">
-        <div class="case-page">
-          <div class="case-page-top">
-            <span class="case-holes" aria-hidden="true"><i></i><i></i><i></i></span>
-            <p class="case-file-kicker">Case file</p>
-            <div class="case-photo">
-              <img src="../illust/zoom-raffle-box.png" alt="" width="72" height="72"/>
-            </div>
-          </div>
-          <img class="case-stamp" src="../../assets/stamps/confidential-irasutoya.png" alt="Confidential" width="640" height="110"/>
-          <div class="case-box">
-            <span class="case-label">Case No.</span>
-            <span class="case-no">001</span>
-          </div>
-          <div class="case-box">
-            <span class="case-label">Case Name</span>
-            <h3>School Mystery</h3>
-            <p>Missing raffle box</p>
-          </div>
-          <div class="case-box">
-            <span class="case-label">Date</span>
-            <p>School Fair Day</p>
-          </div>
-          <div class="case-box">
-            <span class="case-label">Location</span>
-            <p>School</p>
-          </div>
-          <div class="case-box case-incident">
-            <span class="case-label">Incident Details</span>
-            <p>The raffle prize box went missing at the school fair.</p>
-          </div>
-        </div>
+<main class="club">
+  <section class="screen screen-pick">
+    <div class="screen-top">
+      <button type="button" class="text-back" id="pick-back" hidden>back to the map</button>
+    </div>
+    <p class="kicker">Banyan Court Primary School</p>
+    <h2 id="who-title">Welcome to After-School Club.</h2>
+    <p class="lead">Choose who you will be, then come into the school.</p>
+    <div class="cast" role="radiogroup" aria-labelledby="who-title">
+      <button type="button" class="cast-card" role="radio" aria-checked="false" data-player="evan">
+        <img src="art/players/evan.png?v=1" alt="" width="584" height="1000" draggable="false"/>
+        <span class="cast-name">Evan</span>
+      </button>
+      <button type="button" class="cast-card" role="radio" aria-checked="false" data-player="lily">
+        <img src="art/players/lily.png?v=1" alt="" width="765" height="1000" draggable="false"/>
+        <span class="cast-name">Lily</span>
+      </button>
+      <button type="button" class="cast-card" role="radio" aria-checked="false" data-player="ben">
+        <img src="art/players/ben.png?v=1" alt="" width="793" height="999" draggable="false"/>
+        <span class="cast-name">Ben</span>
+      </button>
+      <button type="button" class="cast-card" role="radio" aria-checked="false" data-player="hannah">
+        <img src="art/players/hannah.png?v=1" alt="" width="862" height="1000" draggable="false"/>
+        <span class="cast-name">Hannah</span>
+      </button>
+    </div>
+    <div class="enter-bar">
+      <button type="button" class="go" id="enter-world" disabled>Enter the world</button>
+    </div>
+  </section>
+
+  <section class="screen screen-map">
+    <h2 class="sr-only">Campus map</h2>
+    <div class="map-bar">
+      <button type="button" class="who" id="change-character">
+        <img id="who-img" alt="" width="64" height="64" src="art/players/evan.png?v=1"/>
+        <span><strong id="who-name">You</strong><small>Change character</small></span>
+      </button>
+      <p class="map-hint">Tap to explore different places.</p>
+      <a class="case-file" href="../clue-hunt/">
+        <img src="art/case-001-file.jpg?v=1" alt="Case 001. School Mystery." width="1600" height="1600"/>
+        <span class="case-file-name">Case 001<span>School Mystery</span></span>
+      </a>
+    </div>
+    <div class="map-stage">
+      <div class="map-board">
+        <img class="map-art" src="art/campus-map.jpg?v=1" alt="Map of Banyan Court Primary School" width="1600" height="1600"/>
+        <button type="button" class="map-hot" style="left:7%;top:39%;width:25%;height:26%" data-place="playground" aria-label="Playground"></button>
+        <button type="button" class="map-hot" style="left:26%;top:19%;width:16%;height:25%" data-place="library" aria-label="Library"></button>
+        <button type="button" class="map-hot" style="left:50%;top:10%;width:23%;height:28%" data-place="hall" aria-label="School Hall"></button>
+        <button type="button" class="map-hot" style="left:43%;top:43%;width:18%;height:13%" data-place="notice" aria-label="Notice Board"></button>
+        <button type="button" class="map-hot" style="left:31%;top:46%;width:13%;height:19%" data-place="canteen" aria-label="Canteen"></button>
+        <button type="button" class="map-hot" style="left:72%;top:22%;width:16%;height:16%" data-place="store" aria-label="Storeroom"></button>
+        <button type="button" class="map-hot" style="left:37%;top:67%;width:18%;height:15%" data-place="gate" aria-label="School Gate"></button>
       </div>
-    </a>
-  </div>
+    </div>
+  </section>
+
+  <section class="screen screen-place">
+    <div class="screen-top">
+      <button type="button" class="text-back" id="place-back">back to the map</button>
+    </div>
+    <h2 id="place-title"></h2>
+    <img class="place-art" id="place-art" alt="" hidden/>
+    <p class="place-note" id="place-note" hidden></p>
+  </section>
 </main>
+<script src="club.js?v=1"></script>
 </body>
 </html>
