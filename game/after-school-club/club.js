@@ -3,10 +3,10 @@
 
   var KEY = 'asc-player-v1';
   var PLAYERS = {
-    evan: { name: 'Evan', src: 'art/players/heads/evan.png?v=5' },
-    lily: { name: 'Lily', src: 'art/players/heads/lily.png?v=5' },
-    ben: { name: 'Ben', src: 'art/players/heads/ben.png?v=5' },
-    hannah: { name: 'Hannah', src: 'art/players/heads/hannah.png?v=5' }
+    evan: { name: 'Evan', src: 'art/players/heads/evan.png?v=6' },
+    lily: { name: 'Lily', src: 'art/players/heads/lily.png?v=6' },
+    ben: { name: 'Ben', src: 'art/players/heads/ben.png?v=6' },
+    hannah: { name: 'Hannah', src: 'art/players/heads/hannah.png?v=6' }
   };
   var PLACES = { notice: true, hall: true };
 
