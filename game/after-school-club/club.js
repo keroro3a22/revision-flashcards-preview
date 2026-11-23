@@ -3,13 +3,15 @@
 
   var KEY = 'asc-player-v1';
   var PLAYERS = {
-    evan: { name: 'Evan', src: 'art/players/evan.png?v=1' },
-    lily: { name: 'Lily', src: 'art/players/lily.png?v=1' },
-    ben: { name: 'Ben', src: 'art/players/ben.png?v=1' },
-    hannah: { name: 'Hannah', src: 'art/players/hannah.png?v=1' }
+    evan: { name: 'Evan', src: 'art/players/heads/evan.png?v=3' },
+    lily: { name: 'Lily', src: 'art/players/heads/lily.png?v=3' },
+    ben: { name: 'Ben', src: 'art/players/heads/ben.png?v=3' },
+    hannah: { name: 'Hannah', src: 'art/players/heads/hannah.png?v=3' }
   };
+  var PLACES = { notice: true, hall: true };
 
   var selected = '';
+  var currentPlace = 'notice';
 
   function readSave() {
     try {
@@ -23,6 +25,12 @@
     try { localStorage.setItem(KEY, JSON.stringify({ id: data.id, seen: true })); } catch (e) {}
   }
 
+  function placeId(name) {
+    if (!name || name.indexOf('place-') !== 0) return '';
+    var id = name.slice(6);
+    return PLACES[id] ? id : '';
+  }
+
   function showNote(text) {
     var note = document.getElementById('map-note');
     if (note) note.textContent = text || '';
@@ -30,18 +38,23 @@
 
   function applyScreen(name, mode) {
     var save = readSave();
-    if (name === 'place-notice') name = 'place';
+    var place = placeId(name);
+    if (place) {
+      currentPlace = place;
+      name = 'place';
+    }
     if ((name === 'map' || name === 'place') && !save.seen) name = 'welcome';
     if (name !== 'welcome' && name !== 'character' && name !== 'map' && name !== 'place') {
       name = save.seen ? 'map' : 'welcome';
     }
     document.documentElement.setAttribute('data-asc', name);
+    if (name === 'place') document.documentElement.setAttribute('data-place', currentPlace);
     if (name === 'welcome' || name === 'character') syncPickBack();
     if (name === 'map') paintWho();
-    var url = '#' + (name === 'place' ? 'place-notice' : name);
+    var url = '#' + (name === 'place' ? 'place-' + currentPlace : name);
     if (location.hash !== url) {
-      if (mode === 'push') history.pushState({ asc: name }, '', url);
-      else history.replaceState({ asc: name }, '', url);
+      if (mode === 'push') history.pushState({ asc: name, place: currentPlace }, '', url);
+      else history.replaceState({ asc: name, place: currentPlace }, '', url);
     }
   }
 
@@ -97,10 +110,13 @@
       showNote(pin.getAttribute('data-note'));
     });
   });
-  document.querySelectorAll('.map-hot[data-open="notice"]').forEach(function (pin) {
+  document.querySelectorAll('.map-hot[data-open]').forEach(function (pin) {
     pin.addEventListener('click', function () {
+      var id = pin.getAttribute('data-open');
+      if (!PLACES[id]) return;
       showNote('');
-      applyScreen('place-notice', 'push');
+      currentPlace = id;
+      applyScreen('place-' + id, 'push');
     });
   });
   document.addEventListener('keydown', function (event) {
@@ -109,12 +125,13 @@
     }
   });
   window.addEventListener('popstate', function () {
-    var name = (location.hash || '#welcome').replace('#', '');
-    applyScreen(name, 'stay');
+    applyScreen((location.hash || '#welcome').replace('#', ''), 'stay');
   });
 
   selectPlayer(readSave().id);
   paintWho();
+  var hinted = document.documentElement.getAttribute('data-place');
+  if (PLACES[hinted]) currentPlace = hinted;
   var boot = document.documentElement.getAttribute('data-asc') || 'welcome';
-  applyScreen(boot === 'place' ? 'place-notice' : boot, 'replace');
+  applyScreen(boot === 'place' ? 'place-' + currentPlace : boot, 'replace');
 })();

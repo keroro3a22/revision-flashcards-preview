@@ -170,7 +170,10 @@ test('after-school club lists School Mystery and keeps Nunito', () => {
   assert.match(page, /Change character/);
   assert.match(page, /asc-player-v1/);
   assert.match(page, /art\/campus-map\.png\?v=2/);
-  assert.match(page, /art\/case-001-file\.png\?v=2/);
+  assert.match(page, /art\/case-001-file\.png\?v=3/);
+  assert.match(page, /data-open="hall"/);
+  assert.match(page, /view-school-hall\.jpeg/);
+  assert.match(page, /#place-hall|place-hall/);
   assert.match(page, /width="1467" height="1238"/);
   assert.match(page, /aria-label="Evan"/);
   assert.match(page, /aria-label="Lily"/);
@@ -191,7 +194,7 @@ test('after-school club lists School Mystery and keeps Nunito', () => {
   assert.match(page, /back to the map/);
   assert.match(page, /href="\.\.\/clue-hunt\/"/);
   assert.doesNotMatch(page, /cast-name/);
-  assert.doesNotMatch(page, /view-playground|view-canteen|view-library|view-school-hall|view-storeroom/);
+  assert.doesNotMatch(page, /view-playground|view-canteen|view-library|view-storeroom/);
   assert.doesNotMatch(page, /case-file-name/);
   const clubCss = fs.readFileSync(path.join(root, 'game/after-school-club/club.css'), 'utf8');
   assert.match(clubCss, /1467 \/ 1238/);

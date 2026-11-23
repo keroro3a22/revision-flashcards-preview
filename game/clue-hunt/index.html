@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../assets/huninn.css"/>
 <link rel="stylesheet" href="../practice/grammar/grammar.css?v=52"/>
-<link rel="stylesheet" href="game.css?v=35"/>
+<link rel="stylesheet" href="game.css?v=36"/>
 <link rel="stylesheet" href="../assets/account.css?v=8" />
 <script src="../assets/supabase-public.js?v=1"></script>
 <script src="../assets/progress-sync.js?v=4"></script>
@@ -89,7 +89,7 @@
       <section id="fair-map" hidden>
         <h2 class="hunt-q">School fair</h2>
         <div class="fair-map">
-          <img class="fair-map-base" src="illust/map-case-001.jpg?v=1" alt="School fair map" width="1600" height="1600"/>
+          <img class="fair-map-base" src="illust/map-case-001.png?v=3" alt="School fair map" width="1600" height="1600"/>
           <button type="button" class="hotspot pin-hall" data-hotspot="hall"><span>School hall</span></button>
           <button type="button" class="hotspot pin-film" data-hotspot="film"><span>Film club</span></button>
           <button type="button" class="hotspot pin-stall" data-hotspot="stall"><span>Charity Hall</span></button>
@@ -169,14 +169,14 @@
     </aside>
   </div>
 </main>
-<script src="clue-hunt-state.js?v=2"></script>
+<script src="clue-hunt-state.js?v=3"></script>
 <script>
 (function () {
   var portraits = {
-    evan: { bust: "after-school-club/art/players/evan.png?v=1", head: "after-school-club/art/players/heads/evan.png?v=1" },
-    lily: { bust: "after-school-club/art/players/lily.png?v=1", head: "after-school-club/art/players/heads/lily.png?v=1" },
-    ben: { bust: "after-school-club/art/players/ben.png?v=1", head: "after-school-club/art/players/heads/ben.png?v=1" },
-    hannah: { bust: "after-school-club/art/players/hannah.png?v=1", head: "after-school-club/art/players/heads/hannah.png?v=1" }
+    evan: { bust: "after-school-club/art/players/evan.png?v=3", head: "after-school-club/art/players/heads/evan.png?v=3" },
+    lily: { bust: "after-school-club/art/players/lily.png?v=3", head: "after-school-club/art/players/heads/lily.png?v=3" },
+    ben: { bust: "after-school-club/art/players/ben.png?v=3", head: "after-school-club/art/players/heads/ben.png?v=3" },
+    hannah: { bust: "after-school-club/art/players/hannah.png?v=3", head: "after-school-club/art/players/heads/hannah.png?v=3" }
   };
   var playerId = "";
   try {
@@ -258,7 +258,7 @@
     zoomReply.textContent = reply;
     zoomImg.removeAttribute("style");
     zoomPop.hidden = false;
-    var zoomSrc = artSrc + (artSrc.indexOf("?") === -1 ? "?v=2" : "");
+    var zoomSrc = artSrc + (artSrc.indexOf("?") === -1 ? "?v=3" : "");
     if (zoomImg.getAttribute("src") !== zoomSrc) zoomImg.setAttribute("src", zoomSrc);
     document.getElementById("zoom-close").focus();
   }
@@ -306,7 +306,7 @@
       var portrait = portraits[playerId];
       person = { id: "you", name: "You", head: portrait.head, art: portrait.bust };
     } else if (person && person.head.indexOf("?") < 0) {
-      person = { id: person.id, name: person.name, head: person.head + "?v=2", art: person.art };
+      person = { id: person.id, name: person.name, head: person.head + "?v=3", art: person.art };
     }
     var row = document.createElement("div");
     row.className = "talk-line " + rowClass;

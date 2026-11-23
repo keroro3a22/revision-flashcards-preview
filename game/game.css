@@ -57,7 +57,7 @@
   width: 100%;
   height: auto;
   object-fit: contain;
-  border-radius: 12px;
+  background: transparent;
 }
 .hotspot {
   position: absolute;
