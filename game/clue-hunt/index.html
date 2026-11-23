@@ -173,10 +173,10 @@
 <script>
 (function () {
   var portraits = {
-    evan: { bust: "after-school-club/art/players/evan.png?v=3", head: "after-school-club/art/players/heads/evan.png?v=4" },
-    lily: { bust: "after-school-club/art/players/lily.png?v=3", head: "after-school-club/art/players/heads/lily.png?v=4" },
-    ben: { bust: "after-school-club/art/players/ben.png?v=3", head: "after-school-club/art/players/heads/ben.png?v=4" },
-    hannah: { bust: "after-school-club/art/players/hannah.png?v=3", head: "after-school-club/art/players/heads/hannah.png?v=4" }
+    evan: { bust: "after-school-club/art/players/evan.png?v=3", head: "after-school-club/art/players/heads/evan.png?v=5" },
+    lily: { bust: "after-school-club/art/players/lily.png?v=3", head: "after-school-club/art/players/heads/lily.png?v=5" },
+    ben: { bust: "after-school-club/art/players/ben.png?v=3", head: "after-school-club/art/players/heads/ben.png?v=5" },
+    hannah: { bust: "after-school-club/art/players/hannah.png?v=3", head: "after-school-club/art/players/heads/hannah.png?v=5" }
   };
   var playerId = "";
   try {
@@ -306,7 +306,7 @@
       var portrait = portraits[playerId];
       person = { id: "you", name: "You", head: portrait.head, art: portrait.bust };
     } else if (person && person.head.indexOf("?") < 0) {
-      person = { id: person.id, name: person.name, head: person.head + "?v=4", art: person.art };
+      person = { id: person.id, name: person.name, head: person.head + "?v=5", art: person.art };
     }
     var row = document.createElement("div");
     row.className = "talk-line " + rowClass;
