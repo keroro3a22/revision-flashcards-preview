@@ -341,7 +341,7 @@ window.RevisionPlace = (function () {
             id: 'after-school-club',
             label: 'After-School Club',
             href: 'game/after-school-club/',
-            image: 'game/illust/after-school-club.png?v=2',
+            image: 'game/illust/after-school-club.png?v=4',
             width: 962,
             height: 1024,
             ready: true,

@@ -49,7 +49,7 @@
 .hunt-stage { min-width: 0; }
 .fair-map {
   position: relative;
-  width: min(100%, 640px);
+  width: min(100%, 56rem);
   margin: 0 auto 0.35rem;
 }
 .fair-map-base {
@@ -57,7 +57,7 @@
   width: 100%;
   height: auto;
   object-fit: contain;
-  border-radius: 12px;
+  background: transparent;
 }
 .hotspot {
   position: absolute;
@@ -90,12 +90,12 @@
   color: transparent;
   pointer-events: none;
 }
-.pin-stall { left: 7%; top: 8%; width: 22%; height: 35%; }
-.pin-wheel { left: 8%; top: 60%; width: 28%; height: 40%; }
-.pin-film { left: 72%; top: 8%; width: 24%; height: 35%; }
-.pin-hall { left: 32%; top: 6%; width: 36%; height: 58%; }
-.pin-desk { left: 68%; top: 52%; width: 28%; height: 48%; }
-.pin-store { left: 40%; top: 64%; width: 24%; height: 36%; }
+.fair-map .pin-stall { left: 8%; top: 38%; width: 36%; height: 28%; }
+.fair-map .pin-wheel { left: 43%; top: 38%; width: 28%; height: 18%; }
+.fair-map .pin-film { left: 51%; top: 15%; width: 33%; height: 29%; }
+.fair-map .pin-hall { left: 18%; top: 17%; width: 32%; height: 21%; }
+.fair-map .pin-desk { left: 52%; top: 54%; width: 32%; height: 26%; }
+.fair-map .pin-store { left: 28%; top: 54%; width: 24%; height: 26%; }
 .hotspot:hover,
 .hotspot:focus,
 .hotspot:focus-visible {
@@ -208,7 +208,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 14rem;
+  height: 18rem;
   overflow: hidden;
   border-radius: 12px;
   background: #fff8ee;
@@ -228,11 +228,11 @@
   display: block;
   width: auto;
   height: auto;
-  max-width: min(100%, 720px);
-  max-height: min(46vh, 420px);
+  max-width: 100%;
+  max-height: min(68vh, 640px);
   margin: 0;
   object-fit: contain;
-  border-radius: 12px;
+  border-radius: 18px;
 }
 .notebook {
   container-type: inline-size;

@@ -41,11 +41,17 @@ test('six hotspots and only Ken is misleading', () => {
   assert.match(byId.hall.cardText, /tickets were sticking out/);
   assert.doesNotMatch(byId.hall.cardText, /apple|Leo|Win bike|waiting/i);
   assert.doesNotMatch(byId.hall.cardText, /Amy/);
+  assert.equal(byId.desk.id, 'desk');
+  assert.equal(byId.desk.name, 'Staff Room');
+  assert.equal(byId.desk.cardTitle, 'Staff Room');
   assert.equal(byId.desk.cardText, 'Miss Chan did not ask Sam, or anyone else, to move the raffle box.');
+  assert.match(byId.desk.prompts[1].reply, /I have been in the classroom/);
+  assert.equal(byId.stall.name, 'Charity stall');
+  assert.equal(byId.stall.cardTitle, 'Charity stall');
   assert.match(byId.wheel.cardText, /Sam had left earlier with a big box/);
   assert.doesNotMatch(byId.wheel.cardText, /Amy/);
   assert.doesNotMatch(byId.desk.cardText, /Amy/);
-  assert.equal(byId.store.art, 'illust/scene-storeroom-ken.png');
+  assert.equal(byId.store.art, 'illust/scene-storeroom-ken.jpg');
   assert.equal(byId.store.marker, '../practice/grammar/illust/u1_07_books.jpg');
   const src = fs.readFileSync(path.join(root, 'game/clue-hunt-state.js'), 'utf8');
   assert.doesNotMatch(src, /Who is missing/);
@@ -92,7 +98,7 @@ test('each hotspot has one useful action and a useless stall tap adds nothing', 
   assert.equal(missed.added, false);
   assert.equal(missed.duplicate, false);
   assert.equal(missed.card, null);
-  assert.equal(missed.reply, 'The raffle box is not here. Only the note is left on the table.');
+  assert.equal(missed.reply, 'This is the donation box. It is not the raffle box.');
   assert.deepEqual(missed.state.order, []);
   assert.equal(ClueHunt.visit.length, 3);
 });

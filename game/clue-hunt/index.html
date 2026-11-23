@@ -10,11 +10,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../assets/huninn.css"/>
 <link rel="stylesheet" href="../practice/grammar/grammar.css?v=52"/>
-<link rel="stylesheet" href="game.css?v=34"/>
+<link rel="stylesheet" href="game.css?v=4"/>
 <link rel="stylesheet" href="../assets/account.css?v=8" />
 <script src="../assets/supabase-public.js?v=1"></script>
 <script src="../assets/progress-sync.js?v=4"></script>
 <script src="../assets/account.js?v=19"></script>
+<script>
+(function () {
+  var ok = false;
+  try {
+    var data = JSON.parse(localStorage.getItem('asc-player-v1') || 'null');
+    ok = !!(data && data.seen && /^(evan|lily|ben|hannah)$/.test(data.id));
+  } catch (e) {}
+  if (!ok) location.replace(new URL('../after-school-club/', location.href).href);
+})();
+</script>
 </head>
 <body>
 <header class="prac-header">
@@ -27,7 +37,7 @@
     <div class="hunt-stage">
       <section id="intro">
         <div class="case-art">
-          <img src="../practice/grammar/illust/u1_09_fair.jpg" alt="" width="640" height="480"/>
+          <img src="illust/intro/fair.jpg?v=1" alt="" width="1600" height="1565"/>
         </div>
         <article class="story-card story-card-case" id="case-report">
           <h2 class="block-label">The case</h2>
@@ -71,23 +81,21 @@
             <li><img src="illust/intro/solve.png" alt="" width="54" height="72"/><span>When you have all the notes, tap Solve Case and say who took the box, and why.</span></li>
           </ol>
         </article>
-        <!-- Kid detective: いらすとや https://www.irasutoya.com/2016/09/blog-post_974.html -->
         <button type="button" class="start-look" id="start-map">
-          <img src="illust/intro/detective.png" alt="" width="150" height="200"/>
+          <img src="illust/intro/detective.png?v=2" alt="" width="670" height="999"/>
           <span>Start looking</span>
         </button>
       </section>
       <section id="fair-map" hidden>
         <h2 class="hunt-q">School fair</h2>
         <div class="fair-map">
-          <!-- Door plates: いらすとや https://www.irasutoya.com/2014/12/blog-post_13.html room15 blank, English names. -->
-          <img class="fair-map-base" src="illust/map-school-doorplates.png?v=3" alt="School floor plan" width="1152" height="864"/>
-          <button type="button" class="hotspot pin-stall" data-hotspot="stall"><span>Charity stall</span></button>
-          <button type="button" class="hotspot pin-wheel" data-hotspot="wheel"><span>Prize wheel</span></button>
-          <button type="button" class="hotspot pin-film" data-hotspot="film"><span>Film club</span></button>
+          <img class="fair-map-base" src="illust/map-case-001.png?v=3" alt="School fair map" width="1600" height="1600"/>
           <button type="button" class="hotspot pin-hall" data-hotspot="hall"><span>School hall</span></button>
-          <button type="button" class="hotspot pin-desk" data-hotspot="desk"><span>Miss Chan's desk</span></button>
+          <button type="button" class="hotspot pin-film" data-hotspot="film"><span>Film club</span></button>
+          <button type="button" class="hotspot pin-stall" data-hotspot="stall"><span>Charity Hall</span></button>
           <button type="button" class="hotspot pin-store" data-hotspot="store"><span>Storeroom</span></button>
+          <button type="button" class="hotspot pin-wheel" data-hotspot="wheel"><span>Prize wheel</span></button>
+          <button type="button" class="hotspot pin-desk" data-hotspot="desk"><span>Staff Room</span></button>
         </div>
       </section>
       <section id="scene" hidden>
@@ -161,9 +169,24 @@
     </aside>
   </div>
 </main>
-<script src="clue-hunt-state.js"></script>
+<script src="clue-hunt-state.js?v=4"></script>
 <script>
 (function () {
+  var portraits = {
+    evan: { bust: "after-school-club/art/players/evan.png?v=3", head: "after-school-club/art/players/heads/evan.png?v=8" },
+    lily: { bust: "after-school-club/art/players/lily.png?v=3", head: "after-school-club/art/players/heads/lily.png?v=8" },
+    ben: { bust: "after-school-club/art/players/ben.png?v=3", head: "after-school-club/art/players/heads/ben.png?v=8" },
+    hannah: { bust: "after-school-club/art/players/hannah.png?v=3", head: "after-school-club/art/players/heads/hannah.png?v=8" }
+  };
+  var playerId = "";
+  try {
+    var savedPlayer = JSON.parse(localStorage.getItem("asc-player-v1") || "null");
+    if (savedPlayer && savedPlayer.seen && portraits[savedPlayer.id]) playerId = savedPlayer.id;
+  } catch (e) {}
+  if (!playerId) {
+    window.location.replace(new URL("../after-school-club/", window.location.href).href);
+    return;
+  }
   var hunt = ClueHunt.createHunt();
   var casePicks = { time: null, who: null, why: null };
   var solveOrder = ["time", "who", "why"];
@@ -235,7 +258,8 @@
     zoomReply.textContent = reply;
     zoomImg.removeAttribute("style");
     zoomPop.hidden = false;
-    if (zoomImg.getAttribute("src") !== artSrc) zoomImg.setAttribute("src", artSrc);
+    var zoomSrc = artSrc + (artSrc.indexOf("?") === -1 ? "?v=3" : "");
+    if (zoomImg.getAttribute("src") !== zoomSrc) zoomImg.setAttribute("src", zoomSrc);
     document.getElementById("zoom-close").focus();
   }
 
@@ -278,6 +302,12 @@
 
   function talkLine(personId, text, rowClass) {
     var person = ClueHunt.personById(personId);
+    if (personId === "you") {
+      var portrait = portraits[playerId];
+      person = { id: "you", name: "You", head: portrait.head, art: portrait.bust };
+    } else if (person && person.head.indexOf("?") < 0) {
+      person = { id: person.id, name: person.name, head: person.head + "?v=8", art: person.art };
+    }
     var row = document.createElement("div");
     row.className = "talk-line " + rowClass;
     var img = document.createElement("img");
@@ -379,7 +409,7 @@
     notebook.hidden = false;
     document.getElementById("scene-kicker").textContent = hotspot.kind === "search" ? "Search" : "Talk";
     document.getElementById("scene-title").textContent = hotspot.name;
-    document.getElementById("scene-art").src = hotspot.art;
+    document.getElementById("scene-art").src = hotspot.art + "?v=2";
     replyEl.textContent = hotspot.intro;
     renderActions(hotspot);
     setStep(hotspot.name);
