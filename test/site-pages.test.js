@@ -5,12 +5,13 @@ const pages = require('../assets/site-pages.js');
 const bookB = { book: 'oxford', series: 'oxford', term: 'second', level: 'p6', unit: 'unit1' };
 const bookA = { book: 'oxford', series: 'oxford', term: 'first', level: 'p6', unit: 'unit1' };
 
-test('Book B revision stays open and practice stays closed', () => {
+test('Book B revision stays open and practice follows published rows', () => {
   const lessons = [{ unit_id: 'unit1', track: 'vocab', n: 1, img: 'https://cdn.example/pick.png' }];
   const unit = pages.resolveUnit(bookB, 'unit1', [], lessons, [{ unit_id: 'unit1', track: 'vocab' }]);
   const vocab = unit.items.filter((item) => item.id === 'revision-vocab')[0];
   const grammar = unit.items.filter((item) => item.id === 'revision-grammar')[0];
-  const practice = unit.items.filter((item) => item.group === 'practice');
+  const practiceVocab = unit.items.filter((item) => item.id === 'practice-vocab')[0];
+  const practiceGrammar = unit.items.filter((item) => item.id === 'practice-grammar')[0];
   assert.equal(vocab.ready, true);
   assert.equal(vocab.href, 'unit1/?term=second');
   assert.equal(vocab.image, 'https://cdn.example/pick.png');
@@ -19,12 +20,14 @@ test('Book B revision stays open and practice stays closed', () => {
   assert.equal(grammar.ready, true);
   assert.equal(grammar.href, 'unit1/grammar/?term=second');
   assert.equal(grammar.image, 'oxford-6b/u1-grammar-01-1x1.png');
-  practice.forEach((item) => {
-    assert.equal(item.ready, false);
-    assert.equal(item.href, '');
-    assert.equal(item.note, 'Coming soon');
-    assert.equal(item.image, '');
-  });
+  assert.equal(practiceVocab.ready, true);
+  assert.equal(practiceVocab.href, 'practice/?unit=unit1&term=second');
+  assert.equal(practiceVocab.note, 'Try the word quizzes.');
+  assert.equal(practiceVocab.image, 'https://cdn.example/pick.png');
+  assert.equal(practiceGrammar.ready, false);
+  assert.equal(practiceGrammar.href, '');
+  assert.equal(practiceGrammar.note, 'Coming soon');
+  assert.equal(practiceGrammar.image, '');
   assert.equal(unit.words, 1);
   assert.equal(unit.listed, true);
 });
@@ -34,10 +37,11 @@ test('practice uses the second photo and its own questions', () => {
     { unit_id: 'unit1', track: 'vocab', n: 1, img: 'one.png' },
     { unit_id: 'unit1', track: 'vocab', n: 2, img: 'two.png' }
   ];
-  const closed = pages.resolveUnit(bookB, 'unit1', [], lessons, [{ unit_id: 'unit1', track: 'vocab' }]);
-  const practice = closed.items.filter((item) => item.id === 'practice-vocab')[0];
-  assert.equal(practice.ready, false);
-  assert.equal(practice.href, '');
+  const bookBUnit = pages.resolveUnit(bookB, 'unit1', [], lessons, [{ unit_id: 'unit1', track: 'vocab' }]);
+  const practice = bookBUnit.items.filter((item) => item.id === 'practice-vocab')[0];
+  assert.equal(practice.ready, true);
+  assert.equal(practice.image, 'unit1/two.png');
+  assert.equal(practice.href, 'practice/?unit=unit1&term=second');
   const open = pages.resolveUnit(bookA, 'unit1', [], lessons, [{ unit_id: 'unit1', track: 'vocab' }]);
   const door = open.items.filter((item) => item.id === 'practice-vocab')[0];
   assert.equal(door.ready, true);
@@ -178,13 +182,16 @@ test('The packs Open button names the unit and does not link away', () => {
   const vocab = pages.resolveUnit(bookB, 'unit1', [], [
     { unit_id: 'unit1', track: 'vocab', n: 1, img: 'one.png' }
   ], [{ unit_id: 'unit1', track: 'vocab' }]).items.filter((item) => item.id === 'revision-vocab')[0];
-  const practice = pages.resolveUnit(bookB, 'unit1', [], [], [{ unit_id: 'unit1', track: 'vocab' }]).items
-    .filter((item) => item.group === 'practice');
+  const practice = pages.resolveUnit(bookB, 'unit1', [], [], [{ unit_id: 'unit1', track: 'vocab' }]).items;
+  const practiceVocab = practice.filter((item) => item.id === 'practice-vocab')[0];
+  const practiceGrammar = practice.filter((item) => item.id === 'practice-grammar')[0];
   assert.equal(vocab.href, 'unit1/?term=second');
-  practice.forEach((item) => {
-    assert.equal(item.ready, false);
-    assert.equal(item.note, 'Coming soon');
-  });
+  assert.equal(practiceVocab.ready, true);
+  assert.equal(practiceVocab.href, 'practice/?unit=unit1&term=second');
+  assert.equal(practiceVocab.image, 'oxford-6b/u1-vocab-02-1x1.png');
+  assert.equal(practiceGrammar.ready, false);
+  assert.equal(practiceGrammar.note, 'Coming soon');
+  assert.equal(practiceGrammar.image, '');
 });
 
 function catalogDb(answer) {
@@ -318,7 +325,7 @@ test('a full last page still counts when the next range is past the end', async 
   assert.equal(db.seen.filter((call) => call.table === 'practice_items_live').length, 2);
 });
 
-test('Book B practice stays closed and is loaded on its own', async () => {
+test('Book B practice opens from its own published rows', async () => {
   const rows = practiceRows({
     unit5: { vocab: 192, grammar: 120 },
     unit6: { vocab: 178, grammar: 120 }
@@ -337,10 +344,32 @@ test('Book B practice stays closed and is loaded on its own', async () => {
       assert.equal(door.ready, true);
       assert.notEqual(door.href, '');
     });
-    unit.items.filter((item) => item.group === 'practice').forEach((door) => {
-      assert.equal(door.ready, false);
-      assert.equal(door.note, 'Coming soon');
-      assert.equal(door.href, '');
-    });
+    const vocab = unit.items.filter((item) => item.id === 'practice-vocab')[0];
+    const grammar = unit.items.filter((item) => item.id === 'practice-grammar')[0];
+    assert.equal(vocab.ready, true);
+    assert.equal(vocab.note, 'Try the word quizzes.');
+    assert.equal(vocab.href, 'practice/?unit=' + unitId + '&term=second');
+    assert.equal(vocab.image, unitId + '/card.png');
+    assert.equal(grammar.ready, true);
+    assert.equal(grammar.note, 'Practise the grammar in games.');
+    assert.equal(grammar.href, 'practice/grammar/' + unitId + '-hub/?term=second');
+    assert.equal(grammar.image, unitId === 'unit6'
+      ? 'oxford-6b/u6-grammar-01-1x1-v2.png'
+      : 'oxford-6b/u5-grammar-01-1x1.png');
   });
+  const empty = pages.resolveUnit(bookB, 'unit1', [], [], catalog.practices);
+  empty.items.filter((item) => item.group === 'practice').forEach((door) => {
+    assert.equal(door.ready, false);
+    assert.equal(door.note, 'Coming soon');
+    assert.equal(door.href, '');
+  });
+  const unit4 = pages.resolveUnit(bookB, 'unit4', [], [], [{ unit_id: 'unit4', track: 'grammar' }])
+    .items.filter((item) => item.id === 'practice-grammar')[0];
+  assert.equal(unit4.ready, true);
+  assert.equal(unit4.image, 'oxford-6b/u4-grammar-01-1x1-v2.png');
+  const outside = pages.resolveUnit(bookB, 'unit7', [], [], [{ unit_id: 'unit7', track: 'grammar' }])
+    .items.filter((item) => item.id === 'practice-grammar')[0];
+  assert.equal(outside.ready, false);
+  assert.equal(outside.href, '');
+  assert.equal(outside.note, 'Coming soon');
 });

@@ -83,9 +83,11 @@
 
   function bookBThumb(unitId, slot) {
     var n = String(unitId || '').replace(/^unit/, '');
-    var track = slot === 'revision-grammar' ? 'grammar' : 'vocab';
-    var v2 = track === 'grammar' && (n === '4' || n === '6');
-    return 'oxford-6b/u' + n + '-' + track + '-01-1x1' + (v2 ? '-v2' : '') + '.png';
+    var grammar = slot === 'revision-grammar' || slot === 'practice-grammar';
+    var track = grammar ? 'grammar' : 'vocab';
+    var card = slot === 'practice-vocab' ? '02' : '01';
+    var v2 = grammar && (n === '4' || n === '6');
+    return 'oxford-6b/u' + n + '-' + track + '-' + card + '-1x1' + (v2 ? '-v2' : '') + '.png';
   }
 
   function text(value) {
@@ -152,7 +154,7 @@
     var cards = cardsFor(lessons, unitId, door.track);
     var photo = cardPhoto(cards, door.photo);
     if (!photo && bookA(place) && BOOK_A_IMAGES[unitId]) photo = BOOK_A_IMAGES[unitId][slot] || '';
-    if (!photo && bookB(place) && (slot === 'revision-vocab' || slot === 'revision-grammar')) photo = bookBThumb(unitId, slot);
+    if (!photo && bookB(place)) photo = bookBThumb(unitId, slot);
     return { label: door.label, note: door.note, image: photo };
   }
 
@@ -197,7 +199,6 @@
       var ready = count > 0;
       if (door.id === 'practice-grammar' && !/^unit[1-6]$/.test(unitId)) ready = false;
       if (bookB(place) && door.group === 'revision') ready = true;
-      if (bookB(place) && door.group === 'practice') ready = false;
       var ownImage = savedValue(row, 'image');
       var image = imageSrc(unitId, ownImage || (ready ? base.image : ''));
       return {
