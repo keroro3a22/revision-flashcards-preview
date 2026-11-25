@@ -75,7 +75,7 @@ test('every unit chat page resolves names with the shared helper', () => {
     const html = read(unit + '-chat/index.html');
     assert.match(html, /chat-names\.css\?v=1/, unit);
     assert.match(html, /chat-names\.js\?v=1/, unit);
-    assert.match(html, /grammar-live\.js\?v=3/, unit);
+    assert.match(html, /grammar-live\.js\?v=4/, unit);
     assert.match(html, new RegExp("GrammarLive\\.load\\(\\{ unit: '" + unit + "', mode: 'chat' \\}\\)"), unit);
     assert.equal((html.match(/ChatNames\.who\(b, names\)/g) || []).length, 3, unit);
     assert.equal((html.match(/ChatNames\.display\(bubbles\[idx\], names\)/g) || []).length, 1, unit);

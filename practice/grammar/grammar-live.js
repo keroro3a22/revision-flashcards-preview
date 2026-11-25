@@ -98,11 +98,20 @@
   function officialArt(url) {
     if (!url) return url;
     var text = String(url);
-    var file = text.split('?')[0].split('/').pop();
+    if (/^https?:\/\/(?:[^/?#]*\.)?supabase\.co(?::\d+)?(?:[/?#]|$)/i.test(text)) return text;
+    var clean = text.split('#')[0].split('?')[0];
+    var file = clean.split('/').pop();
     if (file === 'u1_s2_chat_hero.jpg') return 'illust/u1_08_walkathon.jpg';
-    if (/^https?:\/\//i.test(text) || text.indexOf('draft-20261113/') !== -1 || text.indexOf('processed/') !== -1) {
+    if (clean.indexOf('draft-20261113/') !== -1 || clean.indexOf('processed/') !== -1) {
       return 'illust/' + file;
     }
+    if (/^(?:\.\/)?illust\//.test(clean) && !/^https?:\/\//i.test(text)) return text;
+    var folder = 'practice/grammar/illust/';
+    var nested = clean.indexOf(folder);
+    if (nested !== -1) return 'illust/' + clean.slice(nested + folder.length);
+    var bookB = clean.indexOf('draft-6b-20261123/');
+    if (bookB !== -1) return 'illust/' + clean.slice(bookB);
+    if (/^https?:\/\//i.test(text)) return 'illust/' + file;
     return text;
   }
 
