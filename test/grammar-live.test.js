@@ -75,10 +75,71 @@ test('grammar pages wait for the published list before they start', () => {
   assert.equal(pages.length, 19);
   pages.forEach((page) => {
     const html = fs.readFileSync(path.join(root, 'practice/grammar', page, 'index.html'), 'utf8');
-    assert.match(html, /grammar-live\.js\?v=3/);
+    assert.match(html, /grammar-live\.js\?v=4/);
     assert.match(html, /function boot\(SETS\)/);
     assert.match(html, /GrammarLive\.load/);
     const script = html.slice(html.lastIndexOf('<script>'), html.lastIndexOf('</script>'));
     new Function(script.replace(/^<script>/, ''));
   });
+});
+
+test('a library photo on supabase.co stays the address students can open', () => {
+  const coats = 'https://kveotksbvqsxchztmwez.supabase.co/storage/v1/object/public/lesson-media/library/1730000000-winter-coats.jpg';
+  const story = 'https://kveotksbvqsxchztmwez.supabase.co/storage/v1/object/public/lesson-media/unit3/story-set-2.jpg?width=800';
+  assert.equal(grammar.officialArt(coats), coats);
+  assert.equal(grammar.officialArt(story), story);
+  const sets = grammar.rebuild([{
+    n: 1,
+    published: {
+      set: 1,
+      bucket: 'bubbles',
+      meta: { hero: coats },
+      item: { speaker: 'amy', img: story, parts: ['two similar boxes of winter coats'], answer: 'similar' }
+    }
+  }]);
+  assert.equal(sets[0].hero, coats);
+  assert.equal(sets[0].bubbles[0].img, story);
+});
+
+test('Book B art keeps the draft-6b-20261123 folder', () => {
+  const file = 'chat_u4_s1_hero.jpg';
+  const raw = 'https://raw.githubusercontent.com/keroro3a22/revision-flashcards-preview/b9dc342f18c1d63613b47e142f66d1933063b75d/practice/grammar/illust/draft-6b-20261123/' + file;
+  assert.equal(grammar.officialArt(raw), 'illust/draft-6b-20261123/' + file);
+  assert.equal(
+    grammar.officialArt('https://cdn.example/packs/draft-6b-20261123/' + file + '?raw=1'),
+    'illust/draft-6b-20261123/' + file
+  );
+  assert.equal(
+    grammar.officialArt('/practice/grammar/illust/draft-6b-20261123/' + file),
+    'illust/draft-6b-20261123/' + file
+  );
+  assert.equal(fs.existsSync(path.join(root, 'practice/grammar/illust/draft-6b-20261123/' + file)), true);
+  assert.equal(fs.existsSync(path.join(root, 'practice/grammar/illust/' + file)), false);
+});
+
+test('older Book A art still flattens to illust and the file name', () => {
+  assert.equal(
+    grammar.officialArt('https://raw.githubusercontent.com/keroro3a22/revision-flashcards-preview/09b8e7064cfe845d90632916f3cffd1a69cf0ac2/practice/grammar/illust/draft-20261113/boss_u16_s1_q1.jpg'),
+    'illust/boss_u16_s1_q1.jpg'
+  );
+  assert.equal(grammar.officialArt('processed/u6_s5_q4.jpg'), 'illust/u6_s5_q4.jpg');
+  assert.equal(
+    grammar.officialArt('https://cynthiasumyi-spec.github.io/revision-flashcards/practice/grammar/illust/u6_s5_q4.jpg'),
+    'illust/u6_s5_q4.jpg'
+  );
+  assert.equal(grammar.officialArt('https://example.test/photos/u5_s1_q1.jpg'), 'illust/u5_s1_q1.jpg');
+});
+
+test('relative illustration paths stay as they are written', () => {
+  assert.equal(grammar.officialArt('illust/draft-6b-20261123/chat_u4_s1_hero.jpg'), 'illust/draft-6b-20261123/chat_u4_s1_hero.jpg');
+  assert.equal(grammar.officialArt('illust/draft-6b-20261123/chat_u4_s1_hero.jpg?v=1'), 'illust/draft-6b-20261123/chat_u4_s1_hero.jpg?v=1');
+  assert.equal(grammar.officialArt('illust/u1_s1_chat_hero.jpg'), 'illust/u1_s1_chat_hero.jpg');
+  assert.equal(fs.existsSync(path.join(root, 'practice/grammar/illust/u1_s1_chat_hero.jpg')), true);
+});
+
+test('the missing Unit 1 chat hero still uses the walkathon picture', () => {
+  assert.equal(
+    grammar.officialArt('https://raw.githubusercontent.com/keroro3a22/revision-flashcards-preview/c87376a62a769c9a61287749600b774c13ff95b8/practice/grammar/illust/draft-20261113/u1_s2_chat_hero.jpg'),
+    'illust/u1_08_walkathon.jpg'
+  );
 });
