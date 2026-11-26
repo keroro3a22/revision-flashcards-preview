@@ -141,3 +141,78 @@ test('a chosen phrase is marked in the example and left alone when the words dif
     'Tom <span class="studio-hl">would rather</span> go rock climbing <span class="studio-hl">than</span> play air hockey.'
   );
 });
+
+test('a highlight marks whole English words, including phrases and punctuation', () => {
+  const cases = [
+    [
+      'You can either make a card or bake some biscuits for the sale.',
+      'either\nor',
+      'You can <span class="CLASS">either</span> make a card <span class="CLASS">or</span> bake some biscuits for the sale.'
+    ],
+    [
+      'We sell flags on Saturday morning or after school.',
+      'or',
+      'We sell flags on Saturday morning <span class="CLASS">or</span> after school.'
+    ],
+    [
+      'I will neither wait nor call, so you can either write or visit.',
+      'either\nor',
+      'I will neither wait nor call, so you can <span class="CLASS">either</span> write <span class="CLASS">or</span> visit.'
+    ],
+    [
+      'Cake or, tea or. Juice or? Coffee or!',
+      'or',
+      'Cake <span class="CLASS">or</span>, tea <span class="CLASS">or</span>. Juice <span class="CLASS">or</span>? Coffee <span class="CLASS">or</span>!'
+    ],
+    [
+      'Say "or" and \'or\' and “or” and ‘or’ now.',
+      'or',
+      'Say "<span class="CLASS">or</span>" and \'<span class="CLASS">or</span>\' and “<span class="CLASS">or</span>” and ‘<span class="CLASS">or</span>’ now.'
+    ],
+    [
+      'Shall we bake a cake?',
+      'Shall we',
+      '<span class="CLASS">Shall we</span> bake a cake?'
+    ],
+    [
+      'Shall we, please?',
+      'Shall we',
+      '<span class="CLASS">Shall we</span>, please?'
+    ],
+    [
+      'I want to be a cook.',
+      'want to be',
+      'I <span class="CLASS">want to be</span> a cook.'
+    ],
+    [
+      'I want to become a cook.',
+      'want to be',
+      'I want to become a cook.'
+    ],
+    [
+      'You can EITHER stay OR go for a walk this morning.',
+      'either\nor',
+      'You can <span class="CLASS">EITHER</span> stay <span class="CLASS">OR</span> go for a walk this morning.'
+    ]
+  ];
+  function expectMarked(html, className) {
+    return html.replaceAll('CLASS', className);
+  }
+  ['unit1', 'unit2', 'unit3', 'unit4', 'unit5', 'unit6'].forEach((unit) => {
+    ['index.html', 'grammar/index.html'].forEach((file) => {
+      const page = fs.readFileSync(unit + '/' + file, 'utf8');
+      const start = page.indexOf('function hl(text, target)');
+      const end = page.indexOf('function playCard');
+      const hl = new Function(page.slice(start, end) + '\nreturn hl;')();
+      cases.forEach((row) => {
+        assert.equal(hl(row[0], row[1]), expectMarked(row[2], 'hl'), unit + '/' + file);
+      });
+    });
+  });
+  const start = studio.indexOf('function escapeHtml');
+  const end = studio.indexOf('function paintField');
+  const highlightHtml = new Function(studio.slice(start, end) + '\nreturn highlightHtml;')();
+  cases.forEach((row) => {
+    assert.equal(highlightHtml(row[0], row[1]), expectMarked(row[2], 'studio-hl'));
+  });
+});

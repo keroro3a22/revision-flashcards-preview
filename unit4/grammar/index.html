@@ -73,6 +73,7 @@ function hl(text, target) {
   marks.sort((a, b) => b.length - a.length);
   const lower = text.toLowerCase();
   const spans = [];
+  const wordChar = (ch) => !!ch && (/[0-9]/.test(ch) || ch.toLowerCase() !== ch.toUpperCase());
   marks.forEach(mark => {
     const needle = mark.toLowerCase();
     let from = 0;
@@ -80,8 +81,9 @@ function hl(text, target) {
       const at = lower.indexOf(needle, from);
       if (at < 0) break;
       const end = at + mark.length;
-      if (!spans.some(span => at < span.end && end > span.start)) spans.push({ start: at, end });
-      from = at + Math.max(needle.length, 1);
+      const whole = !wordChar(text.charAt(at - 1)) && !wordChar(text.charAt(end));
+      if (whole && !spans.some(span => at < span.end && end > span.start)) spans.push({ start: at, end });
+      from = whole ? at + Math.max(needle.length, 1) : at + 1;
     }
   });
   if (!spans.length) return text;
