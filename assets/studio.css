@@ -664,7 +664,8 @@ body.studio-col-dragging * {
   margin-top: 0.28rem;
 }
 .studio-formats { display: none; }
-.studio-pair:focus-within .studio-formats { display: flex; }
+.studio-pair:focus-within .studio-formats,
+.studio-table td:focus-within .studio-formats { display: flex; }
 .studio-formats .studio-mark,
 .studio-pair:focus-within .studio-formats .studio-mark,
 .studio-funfact-formats .studio-upload {

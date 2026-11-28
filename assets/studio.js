@@ -408,6 +408,41 @@
     paintField(editor, chosen);
     say('Highlight saved for this sentence. Publish to update the unit page.');
   }
+  function isRichField(name) {
+    return name === 'en' || name === 'zh' || name === 'pos' || name === 'syllables' || name === 'pattern' || name === 'note_zh' || name === 'ex_en' || name === 'ex_zh' || name === 'adv_en' || name === 'adv_zh';
+  }
+  function paintRich(field) {
+    var marked = hasInlineStyle(field) ? inlineMarkup(field) : cellText(field.textContent);
+    field.innerHTML = richHtml(marked, '');
+  }
+  function chosenEditor(list) {
+    var sel = window.getSelection();
+    var node = sel && sel.rangeCount ? sel.getRangeAt(0).commonAncestorContainer : null;
+    var i;
+    for (i = 0; i < list.length; i += 1) {
+      if (node && list[i].contains(node)) return list[i];
+    }
+    for (i = 0; i < list.length; i += 1) {
+      if (list[i] === document.activeElement) return list[i];
+    }
+    return list[0];
+  }
+  function formatTools(editors) {
+    var list = [].concat(editors);
+    var bar = document.createElement('div');
+    bar.className = 'studio-formats';
+    [['Bold', 'b'], ['Italic', 'i'], ['Underline', 'u'], ['Strike', 's'], ['Subscript', 'sub'], ['Superscript', 'sup']].forEach(function (item) {
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'studio-mark';
+      button.dataset.style = item[1];
+      button.textContent = item[0];
+      button.addEventListener('mousedown', function (event) { event.preventDefault(); });
+      button.addEventListener('click', function () { formatInline(chosenEditor(list), item[1], 'text'); });
+      bar.appendChild(button);
+    });
+    return bar;
+  }
   function edit(name, value) {
     var field = document.createElement('div');
     field.className = 'studio-edit';
@@ -416,6 +451,13 @@
     field.dataset.field = name;
     field.textContent = cellText(value);
     field.addEventListener('paste', plainPaste);
+    if (isRichField(name)) {
+      paintRich(field);
+      field.addEventListener('blur', function () {
+        if (name === 'ex_en' || name === 'adv_en') return;
+        paintRich(field);
+      });
+    }
     return field;
   }
   function fieldValue(field) {
@@ -423,7 +465,7 @@
     if (field.type === 'checkbox') return field.checked;
     if (field.tagName === 'INPUT' || field.tagName === 'TEXTAREA') return cellText(field.value).trim();
     var name = field.dataset && field.dataset.field;
-    if ((name === 'ex_en' || name === 'adv_en') && hasInlineStyle(field)) return cellText(inlineMarkup(field)).trim();
+    if (isRichField(name) && hasInlineStyle(field)) return cellText(inlineMarkup(field)).trim();
     return cellText(field.textContent).trim();
   }
   function tagEditor(value, options) {
@@ -519,7 +561,13 @@
   }
   function box(name, value) {
     var cell = document.createElement('td');
-    cell.appendChild(name === 'options' ? optionEditor(value) : edit(name, value));
+    if (name === 'options') {
+      cell.appendChild(optionEditor(value));
+      return cell;
+    }
+    var field = edit(name, value);
+    cell.appendChild(field);
+    if (isRichField(name)) cell.appendChild(formatTools(field));
     return cell;
   }
   function pairCell(topName, bottomName, row) {
@@ -543,25 +591,10 @@
       button.textContent = 'Highlight this';
       button.addEventListener('mousedown', function (event) { event.preventDefault(); });
       button.addEventListener('click', function () { markSelection(top, row.id); });
-      function styleButton(label, kind) {
-        var style = document.createElement('button');
-        style.type = 'button';
-        style.className = 'studio-mark';
-        style.dataset.style = kind;
-        style.textContent = label;
-        style.addEventListener('mousedown', function (event) { event.preventDefault(); });
-        style.addEventListener('click', function () { formatInline(top, kind, 'example'); });
-        return style;
-      }
-      var formats = document.createElement('div');
-      formats.className = 'studio-formats';
-      [['Bold', 'b'], ['Italic', 'i'], ['Underline', 'u'], ['Strike', 's'], ['Subscript', 'sub'], ['Superscript', 'sup']].forEach(function (item) {
-        formats.appendChild(styleButton(item[0], item[1]));
-      });
       cell.appendChild(button);
-      cell.appendChild(formats);
     }
     cell.appendChild(bottom);
+    if (isRichField(topName) || isRichField(bottomName)) cell.appendChild(formatTools([top, bottom]));
     return cell;
   }
   var studioAudio = null;
@@ -815,7 +848,7 @@
   function formatInline(editor, kind, where) {
     var className = inlineKindClass(kind);
     var label = inlineKindLabel(kind);
-    var place = where === 'example' ? 'the English words in this example' : 'the words in Brain Boost';
+    var place = where === 'boost' ? 'the words in Brain Boost' : 'the words';
     var sel = window.getSelection();
     if (!sel || !sel.rangeCount || sel.isCollapsed) {
       say('Select ' + place + ', then press ' + label + '.');

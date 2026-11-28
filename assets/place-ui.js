@@ -14,6 +14,10 @@
     boss: 'Whole book · 3 lives.'
   };
 
+  function plainMarks(text) {
+    return String(text || '').replace(/\{\{\/?(?:sub|sup|[bius])\}\}/g, '');
+  }
+
   function show(mode) {
     document.documentElement.setAttribute('data-place', mode);
   }
@@ -384,22 +388,22 @@
         article.className = 'boss-card';
         var en = document.createElement('p');
         en.className = 'boss-card-en';
-        en.textContent = card.en || '';
+        en.textContent = plainMarks(card.en);
         var zh = document.createElement('p');
         zh.className = 'boss-card-zh';
-        zh.textContent = card.pos ? (card.zh || '') + '（' + card.pos + '）' : (card.zh || '');
+        zh.textContent = card.pos ? plainMarks(card.zh) + '（' + plainMarks(card.pos) + '）' : plainMarks(card.zh);
         article.appendChild(en);
         if (zh.textContent) article.appendChild(zh);
         if (card.pattern) {
           var pattern = document.createElement('p');
           pattern.className = 'boss-card-pattern';
-          pattern.textContent = card.pattern;
+          pattern.textContent = plainMarks(card.pattern);
           article.appendChild(pattern);
         }
         if (card.ex_en || card.ex_zh) {
           var ex = document.createElement('p');
           ex.className = 'boss-card-ex';
-          ex.textContent = [String(card.ex_en || '').replace(/\{\{\/?(?:sub|sup|[bius])\}\}/g, ''), card.ex_zh].filter(Boolean).join(' ');
+          ex.textContent = [plainMarks(card.ex_en), plainMarks(card.ex_zh)].filter(Boolean).join(' ');
           article.appendChild(ex);
         }
         section.appendChild(article);

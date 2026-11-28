@@ -10,14 +10,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../assets/huninn.css"/>
-<link rel="stylesheet" href="../assets/unit.css?v=23"/>
+<link rel="stylesheet" href="../assets/unit.css?v=24"/>
 <link rel="stylesheet" href="../assets/chrome.css?v=7" />
 <link rel="stylesheet" href="../assets/profile.css?v=6" />
 <link rel="stylesheet" href="../assets/account.css?v=8" />
 <script src="../assets/supabase-public.js?v=1"></script>
 <script src="../assets/progress-sync.js?v=4"></script>
 <script src="../assets/place.js?v=11"></script>
-<script src="../assets/place-ui.js?v=39"></script>
+<script src="../assets/place-ui.js?v=40"></script>
 <script src="../assets/profile.js?v=7"></script>
 <script src="../assets/account.js?v=19"></script>
 </head>
@@ -155,6 +155,15 @@ function styledSentence(text, target) {
   return html;
 }
 
+function plainMarks(text) {
+  return String(text || '').replace(/\{\{\/?(?:sub|sup|[bius])\}\}/g, '');
+}
+function showMarks(text) {
+  const raw = text == null ? '' : text;
+  if (/\{\{\/?(?:sub|sup|[bius])\}\}/.test(String(raw))) return styledSentence(raw, '');
+  return raw;
+}
+
 function hl(text, target) {
   if (/\{\{\/?(?:sub|sup|[bius])\}\}/.test(String(text || ''))) return styledSentence(text, target);
   const marks = String(target || '').split(/\s*(?:\n|\|)\s*/).map(part => part.trim()).filter(Boolean);
@@ -209,7 +218,7 @@ CARDS.forEach(card => {
     speaker = document.createElement('button');
     speaker.type = 'button';
     speaker.className = 'speaker';
-    speaker.setAttribute('aria-label', 'Play: ' + card.en);
+    speaker.setAttribute('aria-label', 'Play: ' + plainMarks(card.en));
     speaker.innerHTML = SPEAKER_SVG;
     speaker.addEventListener('click', e => { e.stopPropagation(); playCard(card, article); });
     article.appendChild(speaker);
@@ -224,11 +233,11 @@ CARDS.forEach(card => {
     const wrap = document.createElement('div');
     wrap.className = 'illust' + (card.cutout ? ' cutout' : '');
     const img = document.createElement('img');
-    img.src = card.img; img.alt = card.en; img.loading = 'lazy'; img.decoding = 'async';
+    img.src = card.img; img.alt = plainMarks(card.en); img.loading = 'lazy'; img.decoding = 'async';
     wrap.appendChild(img);
     wrap.setAttribute('role', 'button');
     wrap.setAttribute('tabindex', '0');
-    wrap.setAttribute('aria-label', 'Enlarge: ' + card.en);
+    wrap.setAttribute('aria-label', 'Enlarge: ' + plainMarks(card.en));
     wrap.addEventListener('click', e => { e.stopPropagation(); openLightbox(card, article); });
     wrap.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); openLightbox(card, article); }
@@ -238,12 +247,12 @@ CARDS.forEach(card => {
 
   const main = document.createElement('div');
   main.className = 'main';
-  var gloss = card.pos ? card.zh + '（' + card.pos + '）' : card.zh;
+  var gloss = card.pos ? showMarks(card.zh) + '（' + showMarks(card.pos) + '）' : showMarks(card.zh);
   var syl = (card.syllables && String(card.syllables).indexOf('-') >= 0)
-    ? '<p class="syllables">' + card.syllables + '</p>' : '';
+    ? '<p class="syllables">' + showMarks(card.syllables) + '</p>' : '';
   main.innerHTML =
     '<span class="num">' + card.n + '</span>' +
-    '<p class="headword">' + card.en + '</p>' + syl +
+    '<p class="headword">' + showMarks(card.en) + '</p>' + syl +
     '<p class="zh">' + gloss + '</p>';
   top.appendChild(main);
   article.appendChild(top);
@@ -252,22 +261,22 @@ CARDS.forEach(card => {
   if (card.pattern) {
     var pattern = document.createElement('div');
     pattern.className = 'teach';
-    pattern.innerHTML = '<span class="ex-label">Pattern</span><p class="pattern">' + card.pattern + '</p>';
+    pattern.innerHTML = '<span class="ex-label">Pattern</span><p class="pattern">' + showMarks(card.pattern) + '</p>';
     article.appendChild(pattern);
   }
   if (card.note_zh) {
     var tip = document.createElement('div');
     tip.className = 'teach teach-tip';
-    tip.innerHTML = '<span class="ex-label">Note</span><p class="tip-en">' + card.note_zh + '</p>';
+    tip.innerHTML = '<span class="ex-label">Note</span><p class="tip-en">' + showMarks(card.note_zh) + '</p>';
     article.appendChild(tip);
   }
 
   const ex1 = document.createElement('div');
   ex1.className = 'ex';
-  ex1.innerHTML = '<span class="ex-label">Example</span><p class="ex-en">' + hl(card.ex_en, card.highlight) + '</p><p class="ex-zh">' + card.ex_zh + '</p>';
+  ex1.innerHTML = '<span class="ex-label">Example</span><p class="ex-en">' + hl(card.ex_en, card.highlight) + '</p><p class="ex-zh">' + showMarks(card.ex_zh) + '</p>';
   const ex2 = document.createElement('div');
   ex2.className = 'ex';
-  ex2.innerHTML = '<span class="ex-label">Advanced example</span><p class="ex-en">' + hl(card.adv_en, card.highlight_adv || card.highlight) + '</p><p class="ex-zh">' + card.adv_zh + '</p>';
+  ex2.innerHTML = '<span class="ex-label">Advanced example</span><p class="ex-en">' + hl(card.adv_en, card.highlight_adv || card.highlight) + '</p><p class="ex-zh">' + showMarks(card.adv_zh) + '</p>';
   article.appendChild(ex1);
   article.appendChild(ex2);
 

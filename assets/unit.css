@@ -479,6 +479,13 @@ img.is-pending {
 }
 .teach-tip { background: rgba(252, 192, 60, 0.22); }
 .pattern, .tip-en { margin: 0; font-weight: 600; line-height: 1.45; }
+.card .is-bold { font-weight: 800; }
+.card .is-italic { font-style: italic; }
+.card .is-underline { text-decoration: underline; text-underline-offset: 0.12em; }
+.card .is-strike { text-decoration: line-through; }
+.card .is-underline.is-strike { text-decoration: underline line-through; text-underline-offset: 0.12em; }
+.card .is-sub { vertical-align: sub; font-size: 0.75em; }
+.card .is-sup { vertical-align: super; font-size: 0.75em; }
 .card .ex { margin-left: 0.85rem; margin-right: 0.85rem; }
 .card .ex:last-child { margin-bottom: 0.85rem; }
 .illust { position: relative; z-index: 1; }
