@@ -140,6 +140,10 @@
       if (token === 'h') return headlineClass;
       if (token === 'b') return 'is-bold';
       if (token === 'i') return 'is-italic';
+      if (token === 'u') return 'is-underline';
+      if (token === 's') return 'is-strike';
+      if (token === 'sub') return 'is-sub';
+      if (token === 'sup') return 'is-sup';
       return 'hl';
     }
     function append(host, text) {
@@ -157,7 +161,7 @@
           return;
         }
         var token = text.slice(open + 2, end);
-        if (!/^[hbim]$/.test(token)) {
+        if (!/^(?:sub|sup|[bhimsu])$/.test(token)) {
           host.appendChild(document.createTextNode(text.slice(open, end + 2)));
           i = end + 2;
           continue;

@@ -217,11 +217,35 @@
     var name = node.tagName;
     return node.classList.contains('studio-italic') || name === 'I' || name === 'EM' || /font-style:\s*italic/i.test(node.getAttribute('style') || '');
   }
+  function nodeStyle(node) {
+    return (node.getAttribute && node.getAttribute('style') || '').toLowerCase();
+  }
+  function isUnderlineNode(node) {
+    if (!node || node.nodeType !== 1) return false;
+    var name = node.tagName;
+    return node.classList.contains('studio-underline') || name === 'U' || name === 'INS' || /text-decoration(?:-line)?\s*:[^;]*underline/.test(nodeStyle(node));
+  }
+  function isStrikeNode(node) {
+    if (!node || node.nodeType !== 1) return false;
+    var name = node.tagName;
+    return node.classList.contains('studio-strike') || name === 'S' || name === 'STRIKE' || name === 'DEL' || /text-decoration(?:-line)?\s*:[^;]*line-through/.test(nodeStyle(node));
+  }
+  function isSubNode(node) {
+    if (!node || node.nodeType !== 1) return false;
+    return node.classList.contains('studio-sub') || node.tagName === 'SUB' || /vertical-align\s*:\s*sub\b/.test(nodeStyle(node));
+  }
+  function isSupNode(node) {
+    if (!node || node.nodeType !== 1) return false;
+    return node.classList.contains('studio-sup') || node.tagName === 'SUP' || /vertical-align\s*:\s*super\b/.test(nodeStyle(node));
+  }
+  function styleKind(token) {
+    return token === 'b' || token === 'i' || token === 'u' || token === 's' || token === 'sub' || token === 'sup';
+  }
   function hasInlineStyle(field) {
     if (!field || !field.querySelector) return false;
-    if (field.querySelector('b, strong, i, em, .studio-bold, .studio-italic')) return true;
+    if (field.querySelector('b, strong, i, em, u, ins, s, strike, del, sub, sup, .studio-bold, .studio-italic, .studio-underline, .studio-strike, .studio-sub, .studio-sup')) return true;
     return Array.prototype.some.call(field.querySelectorAll('[style]'), function (node) {
-      return isBoldNode(node) || isItalicNode(node);
+      return isBoldNode(node) || isItalicNode(node) || isUnderlineNode(node) || isStrikeNode(node) || isSubNode(node) || isSupNode(node);
     });
   }
   function inlineMarkup(node) {
@@ -236,6 +260,10 @@
         var tags = [];
         if (isBoldNode(child)) tags.push('b');
         if (isItalicNode(child)) tags.push('i');
+        if (isUnderlineNode(child)) tags.push('u');
+        if (isStrikeNode(child)) tags.push('s');
+        if (isSubNode(child)) tags.push('sub');
+        if (isSupNode(child)) tags.push('sup');
         var markAt = out.length;
         tags.forEach(function (tag) { out += '{{' + tag + '}}'; });
         var innerAt = out.length;
@@ -258,13 +286,13 @@
         var end = source.indexOf('}}', i + 2);
         if (end < 0) { plain += source.slice(i); break; }
         var token = source.slice(i + 2, end);
-        if (token === 'b' || token === 'i') {
+        if (styleKind(token)) {
           stack.push({ kind: token, start: plain.length });
           i = end + 2;
           continue;
         }
-        if (token === '/b' || token === '/i') {
-          var kind = token.charAt(1);
+        if (token.charAt(0) === '/' && styleKind(token.slice(1))) {
+          var kind = token.slice(1);
           var s;
           for (s = stack.length - 1; s >= 0; s -= 1) {
             if (stack[s].kind === kind) {
@@ -325,11 +353,19 @@
       if (start === stop) continue;
       var bold = false;
       var italic = false;
+      var underline = false;
+      var strike = false;
+      var sub = false;
+      var sup = false;
       var high = false;
       ranges.forEach(function (range) {
         if (range.start <= start && range.end >= stop) {
           if (range.kind === 'b') bold = true;
           if (range.kind === 'i') italic = true;
+          if (range.kind === 'u') underline = true;
+          if (range.kind === 's') strike = true;
+          if (range.kind === 'sub') sub = true;
+          if (range.kind === 'sup') sup = true;
           if (range.kind === 'm') high = true;
         }
       });
@@ -337,6 +373,10 @@
       if (high) cls.push('studio-hl');
       if (bold) cls.push('studio-bold');
       if (italic) cls.push('studio-italic');
+      if (underline) cls.push('studio-underline');
+      if (strike) cls.push('studio-strike');
+      if (sub) cls.push('studio-sub');
+      if (sup) cls.push('studio-sup');
       var chunk = escapeHtml(styled.plain.slice(start, stop));
       html += cls.length ? '<span class="' + cls.join(' ') + '">' + chunk + '</span>' : chunk;
     }
@@ -513,9 +553,13 @@
         style.addEventListener('click', function () { formatInline(top, kind, 'example'); });
         return style;
       }
+      var formats = document.createElement('div');
+      formats.className = 'studio-formats';
+      [['Bold', 'b'], ['Italic', 'i'], ['Underline', 'u'], ['Strike', 's'], ['Subscript', 'sub'], ['Superscript', 'sup']].forEach(function (item) {
+        formats.appendChild(styleButton(item[0], item[1]));
+      });
       cell.appendChild(button);
-      cell.appendChild(styleButton('Bold', 'b'));
-      cell.appendChild(styleButton('Italic', 'i'));
+      cell.appendChild(formats);
     }
     cell.appendChild(bottom);
     return cell;
@@ -623,6 +667,10 @@
     if (child.classList.contains('studio-funfact-head')) tags.push('h');
     if (isBoldNode(child)) tags.push('b');
     if (isItalicNode(child)) tags.push('i');
+    if (isUnderlineNode(child)) tags.push('u');
+    if (isStrikeNode(child)) tags.push('s');
+    if (isSubNode(child)) tags.push('sub');
+    if (isSupNode(child)) tags.push('sup');
     if (child.classList.contains('studio-hl')) tags.push('m');
     return tags;
   }
@@ -679,6 +727,10 @@
     if (token === 'h') return 'studio-funfact-head';
     if (token === 'b') return 'studio-bold';
     if (token === 'i') return 'studio-italic';
+    if (token === 'u') return 'studio-underline';
+    if (token === 's') return 'studio-strike';
+    if (token === 'sub') return 'studio-sub';
+    if (token === 'sup') return 'studio-sup';
     return 'studio-hl';
   }
   function appendTagged(parent, text, className) {
@@ -696,7 +748,7 @@
         return;
       }
       var token = text.slice(open + 2, end);
-      if (!/^[hbim]$/.test(token)) {
+      if (!/^(?:sub|sup|[bhimsu])$/.test(token)) {
         parent.appendChild(document.createTextNode(text.slice(open, end + 2)));
         i = end + 2;
         continue;
@@ -728,18 +780,30 @@
     if (kind === 'h') return 'studio-funfact-head';
     if (kind === 'b') return 'studio-bold';
     if (kind === 'i') return 'studio-italic';
+    if (kind === 'u') return 'studio-underline';
+    if (kind === 's') return 'studio-strike';
+    if (kind === 'sub') return 'studio-sub';
+    if (kind === 'sup') return 'studio-sup';
     return 'studio-hl';
   }
   function inlineKindLabel(kind) {
     if (kind === 'h') return 'Headline';
     if (kind === 'b') return 'Bold';
     if (kind === 'i') return 'Italic';
+    if (kind === 'u') return 'Underline';
+    if (kind === 's') return 'Strike';
+    if (kind === 'sub') return 'Subscript';
+    if (kind === 'sup') return 'Superscript';
     return 'Highlight';
   }
   function nodeHasKind(node, kind) {
     if (!node || node.nodeType !== 1) return false;
     if (kind === 'b') return isBoldNode(node);
     if (kind === 'i') return isItalicNode(node);
+    if (kind === 'u') return isUnderlineNode(node);
+    if (kind === 's') return isStrikeNode(node);
+    if (kind === 'sub') return isSubNode(node);
+    if (kind === 'sup') return isSupNode(node);
     if (kind === 'h') return node.classList.contains('studio-funfact-head');
     return node.classList.contains('studio-hl');
   }
@@ -766,8 +830,8 @@
     while (host && host !== editor && !nodeHasKind(host, kind)) host = host.parentElement;
     if (host && host !== editor) {
       if (host.classList.contains(className)) host.classList.remove(className);
-      var styled = host.classList.contains('studio-bold') || host.classList.contains('studio-italic') || host.classList.contains('studio-hl') || host.classList.contains('studio-funfact-head');
-      if (!styled || host.tagName === 'B' || host.tagName === 'STRONG' || host.tagName === 'I' || host.tagName === 'EM') unwrapNode(host);
+      var styled = host.classList.contains('studio-bold') || host.classList.contains('studio-italic') || host.classList.contains('studio-underline') || host.classList.contains('studio-strike') || host.classList.contains('studio-sub') || host.classList.contains('studio-sup') || host.classList.contains('studio-hl') || host.classList.contains('studio-funfact-head');
+      if (!styled || /^(?:B|STRONG|I|EM|U|INS|S|STRIKE|DEL|SUB|SUP)$/.test(host.tagName)) unwrapNode(host);
       return true;
     }
     var mark = document.createElement('span');
@@ -865,10 +929,14 @@
     });
     cell.appendChild(toggle);
     cell.appendChild(words);
+    var formats = document.createElement('div');
+    formats.className = 'studio-funfact-formats';
+    [['Bold', 'b'], ['Italic', 'i'], ['Underline', 'u'], ['Strike', 's'], ['Subscript', 'sub'], ['Superscript', 'sup']].forEach(function (item) {
+      formats.appendChild(formatButton(item[0], item[1]));
+    });
     cell.appendChild(formatButton('Headline', 'h'));
     cell.appendChild(formatButton('Highlight', 'm'));
-    cell.appendChild(formatButton('Bold', 'b'));
-    cell.appendChild(formatButton('Italic', 'i'));
+    cell.appendChild(formats);
     cell.appendChild(stored);
     cell.appendChild(thumb);
     cell.appendChild(frameInput);

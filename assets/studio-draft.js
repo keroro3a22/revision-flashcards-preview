@@ -793,7 +793,7 @@
   }
 
   function foldSearch(text) {
-    return String(text || '').replace(/\{\{\/?[hbim]\}\}/g, '').replace(/\s+/g, ' ').trim();
+    return String(text || '').replace(/\{\{\/?(?:sub|sup|[bhimsu])\}\}/g, '').replace(/\s+/g, ' ').trim();
   }
 
   function searchSnippet(text, query) {

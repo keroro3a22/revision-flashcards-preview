@@ -290,6 +290,11 @@ button { font: inherit; cursor: pointer; }
 }
 .funfact-block .is-bold { font-weight: 800; }
 .funfact-block .is-italic { font-style: italic; }
+.funfact-block .is-underline { text-decoration: underline; text-underline-offset: 0.12em; }
+.funfact-block .is-strike { text-decoration: line-through; }
+.funfact-block .is-underline.is-strike { text-decoration: underline line-through; text-underline-offset: 0.12em; }
+.funfact-block .is-sub { vertical-align: sub; font-size: 0.75em; }
+.funfact-block .is-sup { vertical-align: super; font-size: 0.75em; }
 .funfact-close {
   min-height: 48px;
   width: 100%;
@@ -383,6 +388,11 @@ img.is-pending {
 .ex-en { margin: 0 0 0.25rem; font-size: 1rem; line-height: 1.45; }
 .ex-en .is-bold { font-weight: 800; }
 .ex-en .is-italic { font-style: italic; }
+.ex-en .is-underline { text-decoration: underline; text-underline-offset: 0.12em; }
+.ex-en .is-strike { text-decoration: line-through; }
+.ex-en .is-underline.is-strike { text-decoration: underline line-through; text-underline-offset: 0.12em; }
+.ex-en .is-sub { vertical-align: sub; font-size: 0.75em; }
+.ex-en .is-sup { vertical-align: super; font-size: 0.75em; }
 .ex-zh {
   margin: 0;
   font-size: 0.95rem;
