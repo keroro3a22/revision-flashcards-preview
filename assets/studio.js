@@ -180,6 +180,9 @@
     marks.sort(function (a, b) { return b.length - a.length; });
     var lower = value.toLowerCase();
     var spans = [];
+    function wordChar(ch) {
+      return !!ch && (/[0-9]/.test(ch) || ch.toLowerCase() !== ch.toUpperCase());
+    }
     marks.forEach(function (mark) {
       var needle = mark.toLowerCase();
       var from = 0;
@@ -187,9 +190,10 @@
         var at = lower.indexOf(needle, from);
         if (at < 0) break;
         var end = at + mark.length;
+        var whole = !wordChar(value.charAt(at - 1)) && !wordChar(value.charAt(end));
         var clash = spans.some(function (span) { return at < span.end && end > span.start; });
-        if (!clash) spans.push({ start: at, end: end });
-        from = at + Math.max(needle.length, 1);
+        if (whole && !clash) spans.push({ start: at, end: end });
+        from = whole ? at + Math.max(needle.length, 1) : at + 1;
       }
     });
     if (!spans.length) return escapeHtml(value);
