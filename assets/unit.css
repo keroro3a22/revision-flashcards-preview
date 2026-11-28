@@ -288,6 +288,8 @@ button { font: inherit; cursor: pointer; }
   background: #f6c3d0;
   color: #e04870;
 }
+.funfact-block .is-bold { font-weight: 800; }
+.funfact-block .is-italic { font-style: italic; }
 .funfact-close {
   min-height: 48px;
   width: 100%;
@@ -379,6 +381,8 @@ img.is-pending {
   margin-bottom: 0.3rem;
 }
 .ex-en { margin: 0 0 0.25rem; font-size: 1rem; line-height: 1.45; }
+.ex-en .is-bold { font-weight: 800; }
+.ex-en .is-italic { font-style: italic; }
 .ex-zh {
   margin: 0;
   font-size: 0.95rem;

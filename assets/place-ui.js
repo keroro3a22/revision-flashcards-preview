@@ -399,7 +399,7 @@
         if (card.ex_en || card.ex_zh) {
           var ex = document.createElement('p');
           ex.className = 'boss-card-ex';
-          ex.textContent = [card.ex_en, card.ex_zh].filter(Boolean).join(' ');
+          ex.textContent = [String(card.ex_en || '').replace(/\{\{\/?[bi]\}\}/g, ''), card.ex_zh].filter(Boolean).join(' ');
           article.appendChild(ex);
         }
         section.appendChild(article);

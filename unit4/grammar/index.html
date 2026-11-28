@@ -8,16 +8,16 @@
 <title>Unit 4 Film magic · Grammar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="../assets/huninn.css"/>
-<link rel="stylesheet" href="../assets/unit.css?v=21"/>
+<link rel="stylesheet" href="../assets/unit.css?v=22"/>
 <link rel="stylesheet" href="../assets/chrome.css?v=7" />
 <link rel="stylesheet" href="../assets/profile.css?v=6" />
 <link rel="stylesheet" href="../assets/account.css?v=8" />
 <script src="../assets/supabase-public.js?v=1"></script>
 <script src="../assets/progress-sync.js?v=4"></script>
 <script src="../assets/place.js?v=11"></script>
-<script src="../assets/place-ui.js?v=37"></script>
+<script src="../assets/place-ui.js?v=38"></script>
 <script src="../assets/profile.js?v=7"></script>
 <script src="../assets/account.js?v=19"></script>
 </head>
@@ -67,7 +67,88 @@ if (lightbox) lightbox.addEventListener('click', e => { if (e.target === lightbo
 if (lbPlay) lbPlay.addEventListener('click', () => { if (activeCard) playCard(activeCard.card, activeCard.article); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 
+function styledSentence(text, target) {
+  const raw = String(text || '');
+  let plain = '';
+  const marks = [];
+  const stack = [];
+  let i = 0;
+  while (i < raw.length) {
+    if (raw.slice(i, i + 2) === '{{') {
+      const end = raw.indexOf('}}', i + 2);
+      if (end < 0) { plain += raw.slice(i); break; }
+      const token = raw.slice(i + 2, end);
+      if (token === 'b' || token === 'i') {
+        stack.push({ kind: token, start: plain.length });
+        i = end + 2;
+        continue;
+      }
+      if (token === '/b' || token === '/i') {
+        const kind = token.slice(1);
+        for (let s = stack.length - 1; s >= 0; s -= 1) {
+          if (stack[s].kind === kind) {
+            const open = stack.splice(s, 1)[0];
+            if (plain.length > open.start) marks.push({ start: open.start, end: plain.length, kind });
+            break;
+          }
+        }
+        i = end + 2;
+        continue;
+      }
+      plain += raw.slice(i, end + 2);
+      i = end + 2;
+      continue;
+    }
+    plain += raw.charAt(i);
+    i += 1;
+  }
+  stack.forEach(open => {
+    if (plain.length > open.start) marks.push({ start: open.start, end: plain.length, kind: open.kind });
+  });
+  String(target || '').split(/\s*(?:\n|\|)\s*/).map(part => part.trim()).filter(Boolean)
+    .sort((a, b) => b.length - a.length)
+    .forEach(mark => {
+      const needle = mark.toLowerCase();
+      const lower = plain.toLowerCase();
+      let from = 0;
+      while (from <= lower.length - needle.length) {
+        const at = lower.indexOf(needle, from);
+        if (at < 0) break;
+        const stop = at + mark.length;
+        if (!marks.some(span => span.kind === 'h' && at < span.end && stop > span.start)) marks.push({ start: at, end: stop, kind: 'h' });
+        from = at + Math.max(needle.length, 1);
+      }
+    });
+  if (!marks.length) return plain;
+  const cuts = [0, plain.length];
+  marks.forEach(span => { cuts.push(span.start, span.end); });
+  const points = cuts.filter((n, index, all) => all.indexOf(n) === index).sort((a, b) => a - b);
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  let html = '';
+  for (let c = 0; c < points.length - 1; c += 1) {
+    const start = points[c];
+    const stop = points[c + 1];
+    if (start === stop) continue;
+    let bold = false, italic = false, high = false;
+    marks.forEach(span => {
+      if (span.start <= start && span.end >= stop) {
+        if (span.kind === 'b') bold = true;
+        if (span.kind === 'i') italic = true;
+        if (span.kind === 'h') high = true;
+      }
+    });
+    const cls = [];
+    if (high) cls.push('hl');
+    if (bold) cls.push('is-bold');
+    if (italic) cls.push('is-italic');
+    const chunk = esc(plain.slice(start, stop));
+    html += cls.length ? '<span class="' + cls.join(' ') + '">' + chunk + '</span>' : chunk;
+  }
+  return html;
+}
+
 function hl(text, target) {
+  if (/\{\{\/?[bi]\}\}/.test(String(text || ''))) return styledSentence(text, target);
   const marks = String(target || '').split(/\s*(?:\n|\|)\s*/).map(part => part.trim()).filter(Boolean);
   if (!marks.length) return text;
   marks.sort((a, b) => b.length - a.length);
@@ -206,6 +287,6 @@ if (window.LastPlace && location.hash) {
 }
 </script>
 <script src="../assets/img-frame.js?v=15"></script>
-<script src="../assets/lesson-live.js?v=14"></script>
+<script src="../assets/lesson-live.js?v=15"></script>
 </body>
 </html>

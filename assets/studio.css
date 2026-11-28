@@ -265,6 +265,12 @@ textarea.studio-funfact-text,
   background: transparent;
 }
 .studio-funfact-head { font-weight: 800; }
+.studio-bold,
+.studio-edit b,
+.studio-edit strong { font-weight: 800; }
+.studio-italic,
+.studio-edit i,
+.studio-edit em { font-style: italic; }
 .studio-funfact .studio-hl { background: #f6c3d0; color: #e04870; }
 .studio-funfact .studio-thumb-preview { aspect-ratio: 3 / 2; }
 .studio-funfact.is-off .studio-funfact-text,
@@ -638,6 +644,10 @@ body.studio-col-dragging * {
 .studio-table .is-actions button { display: block; }
 .studio-mark { display: none; }
 .studio-pair:focus-within .studio-mark { display: block; }
+.studio-mark[data-style="b"],
+.studio-upload[data-style="b"] { font-weight: 800; }
+.studio-mark[data-style="i"],
+.studio-upload[data-style="i"] { font-style: italic; }
 .studio-table td.is-actions { height: 1px; }
 .studio-actions {
   display: flex;

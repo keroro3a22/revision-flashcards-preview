@@ -204,7 +204,143 @@
     return html + escapeHtml(value.slice(cursor));
   }
   function paintField(field, phrase) {
-    field.innerHTML = highlightHtml(field.textContent, phrase);
+    var marked = hasInlineStyle(field) ? inlineMarkup(field) : cellText(field.textContent);
+    field.innerHTML = richHtml(marked, phrase);
+  }
+  function isBoldNode(node) {
+    if (!node || node.nodeType !== 1) return false;
+    var name = node.tagName;
+    return node.classList.contains('studio-bold') || name === 'B' || name === 'STRONG' || /font-weight:\s*(bold|[6-9]00)/i.test(node.getAttribute('style') || '');
+  }
+  function isItalicNode(node) {
+    if (!node || node.nodeType !== 1) return false;
+    var name = node.tagName;
+    return node.classList.contains('studio-italic') || name === 'I' || name === 'EM' || /font-style:\s*italic/i.test(node.getAttribute('style') || '');
+  }
+  function hasInlineStyle(field) {
+    if (!field || !field.querySelector) return false;
+    if (field.querySelector('b, strong, i, em, .studio-bold, .studio-italic')) return true;
+    return Array.prototype.some.call(field.querySelectorAll('[style]'), function (node) {
+      return isBoldNode(node) || isItalicNode(node);
+    });
+  }
+  function inlineMarkup(node) {
+    var out = '';
+    function walk(current) {
+      Array.prototype.forEach.call(current.childNodes, function (child) {
+        if (child.nodeType === 3) {
+          out += child.textContent.replace(/\u00a0/g, ' ');
+          return;
+        }
+        if (child.nodeType !== 1) return;
+        var tags = [];
+        if (isBoldNode(child)) tags.push('b');
+        if (isItalicNode(child)) tags.push('i');
+        var markAt = out.length;
+        tags.forEach(function (tag) { out += '{{' + tag + '}}'; });
+        var innerAt = out.length;
+        walk(child);
+        if (out.length === innerAt) out = out.slice(0, markAt);
+        else tags.slice().reverse().forEach(function (tag) { out += '{{/' + tag + '}}'; });
+      });
+    }
+    walk(node);
+    return out;
+  }
+  function styleRanges(text) {
+    var plain = '';
+    var marks = [];
+    var stack = [];
+    var i = 0;
+    var source = String(text || '');
+    while (i < source.length) {
+      if (source.slice(i, i + 2) === '{{') {
+        var end = source.indexOf('}}', i + 2);
+        if (end < 0) { plain += source.slice(i); break; }
+        var token = source.slice(i + 2, end);
+        if (token === 'b' || token === 'i') {
+          stack.push({ kind: token, start: plain.length });
+          i = end + 2;
+          continue;
+        }
+        if (token === '/b' || token === '/i') {
+          var kind = token.charAt(1);
+          var s;
+          for (s = stack.length - 1; s >= 0; s -= 1) {
+            if (stack[s].kind === kind) {
+              var open = stack.splice(s, 1)[0];
+              if (plain.length > open.start) marks.push({ start: open.start, end: plain.length, kind: kind });
+              break;
+            }
+          }
+          i = end + 2;
+          continue;
+        }
+        plain += source.slice(i, end + 2);
+        i = end + 2;
+        continue;
+      }
+      plain += source.charAt(i);
+      i += 1;
+    }
+    stack.forEach(function (open) {
+      if (plain.length > open.start) marks.push({ start: open.start, end: plain.length, kind: open.kind });
+    });
+    return { plain: plain, marks: marks };
+  }
+  function highlightSpans(value, phrase) {
+    var marks = String(phrase || '').split(/\s*(?:\n|\|)\s*/).map(function (part) {
+      return part.trim();
+    }).filter(Boolean);
+    var spans = [];
+    if (!marks.length) return spans;
+    marks.sort(function (a, b) { return b.length - a.length; });
+    var lower = String(value || '').toLowerCase();
+    marks.forEach(function (mark) {
+      var needle = mark.toLowerCase();
+      var from = 0;
+      while (from <= lower.length - needle.length) {
+        var at = lower.indexOf(needle, from);
+        if (at < 0) break;
+        var end = at + mark.length;
+        var clash = spans.some(function (span) { return at < span.end && end > span.start; });
+        if (!clash) spans.push({ start: at, end: end, kind: 'm' });
+        from = at + Math.max(needle.length, 1);
+      }
+    });
+    return spans;
+  }
+  function richHtml(text, phrase) {
+    var styled = styleRanges(text);
+    if (!styled.marks.length) return highlightHtml(styled.plain, phrase);
+    var ranges = styled.marks.concat(highlightSpans(styled.plain, phrase));
+    var cuts = [0, styled.plain.length];
+    ranges.forEach(function (range) { cuts.push(range.start, range.end); });
+    cuts = cuts.filter(function (n, index, all) { return all.indexOf(n) === index; });
+    cuts.sort(function (a, b) { return a - b; });
+    var html = '';
+    for (var c = 0; c < cuts.length - 1; c += 1) {
+      var start = cuts[c];
+      var stop = cuts[c + 1];
+      if (start === stop) continue;
+      var bold = false;
+      var italic = false;
+      var high = false;
+      ranges.forEach(function (range) {
+        if (range.start <= start && range.end >= stop) {
+          if (range.kind === 'b') bold = true;
+          if (range.kind === 'i') italic = true;
+          if (range.kind === 'm') high = true;
+        }
+      });
+      var cls = [];
+      if (high) cls.push('studio-hl');
+      if (bold) cls.push('studio-bold');
+      if (italic) cls.push('studio-italic');
+      var chunk = escapeHtml(styled.plain.slice(start, stop));
+      html += cls.length ? '<span class="' + cls.join(' ') + '">' + chunk + '</span>' : chunk;
+    }
+    return html;
   }
   function rowById(rowId) {
     return rows.filter(function (item) { return String(item.id) === String(rowId); })[0];
@@ -246,6 +382,8 @@
     if (!field) return '';
     if (field.type === 'checkbox') return field.checked;
     if (field.tagName === 'INPUT' || field.tagName === 'TEXTAREA') return cellText(field.value).trim();
+    var name = field.dataset && field.dataset.field;
+    if ((name === 'ex_en' || name === 'adv_en') && hasInlineStyle(field)) return cellText(inlineMarkup(field)).trim();
     return cellText(field.textContent).trim();
   }
   function tagEditor(value, options) {
@@ -365,7 +503,19 @@
       button.textContent = 'Highlight this';
       button.addEventListener('mousedown', function (event) { event.preventDefault(); });
       button.addEventListener('click', function () { markSelection(top, row.id); });
+      function styleButton(label, kind) {
+        var style = document.createElement('button');
+        style.type = 'button';
+        style.className = 'studio-mark';
+        style.dataset.style = kind;
+        style.textContent = label;
+        style.addEventListener('mousedown', function (event) { event.preventDefault(); });
+        style.addEventListener('click', function () { formatInline(top, kind, 'example'); });
+        return style;
+      }
       cell.appendChild(button);
+      cell.appendChild(styleButton('Bold', 'b'));
+      cell.appendChild(styleButton('Italic', 'i'));
     }
     cell.appendChild(bottom);
     return cell;
@@ -467,6 +617,15 @@
       say('Brain Boost photo is in this row. Publish to show it on the site.');
     });
   }
+  function funfactTags(child) {
+    var tags = [];
+    var name = child.tagName;
+    if (child.classList.contains('studio-funfact-head')) tags.push('h');
+    if (isBoldNode(child)) tags.push('b');
+    if (isItalicNode(child)) tags.push('i');
+    if (child.classList.contains('studio-hl')) tags.push('m');
+    return tags;
+  }
   function funfactMarkup(node) {
     var out = '';
     function walk(current) {
@@ -483,65 +642,145 @@
         }
         var block = name === 'DIV' || name === 'P';
         if (block && out && out.charAt(out.length - 1) !== '\n') out += '\n';
-        if (child.classList.contains('studio-funfact-head')) out += '{{h}}';
-        else if (child.classList.contains('studio-hl')) out += '{{m}}';
+        var tags = funfactTags(child);
+        var markAt = out.length;
+        tags.forEach(function (tag) { out += '{{' + tag + '}}'; });
+        var innerAt = out.length;
         walk(child);
-        if (child.classList.contains('studio-funfact-head')) out += '{{/h}}';
-        else if (child.classList.contains('studio-hl')) out += '{{/m}}';
+        if (out.length === innerAt) out = out.slice(0, markAt);
+        else tags.slice().reverse().forEach(function (tag) { out += '{{/' + tag + '}}'; });
         if (block && out.charAt(out.length - 1) !== '\n') out += '\n';
       });
     }
     walk(node);
     return out.replace(/\n+$/g, '');
   }
+  function matchingClose(text, from, token) {
+    var openTag = '{{' + token + '}}';
+    var closeTag = '{{/' + token + '}}';
+    var depth = 1;
+    var i = from;
+    while (i < text.length) {
+      var nextOpen = text.indexOf(openTag, i);
+      var nextClose = text.indexOf(closeTag, i);
+      if (nextClose < 0) return -1;
+      if (nextOpen >= 0 && nextOpen < nextClose) {
+        depth += 1;
+        i = nextOpen + openTag.length;
+        continue;
+      }
+      depth -= 1;
+      if (depth === 0) return nextClose;
+      i = nextClose + closeTag.length;
+    }
+    return -1;
+  }
+  function studioMarkClass(token) {
+    if (token === 'h') return 'studio-funfact-head';
+    if (token === 'b') return 'studio-bold';
+    if (token === 'i') return 'studio-italic';
+    return 'studio-hl';
+  }
+  function appendTagged(parent, text, className) {
+    var i = 0;
+    while (i < text.length) {
+      var open = text.indexOf('{{', i);
+      if (open < 0) {
+        if (i < text.length) parent.appendChild(document.createTextNode(text.slice(i)));
+        return;
+      }
+      if (open > i) parent.appendChild(document.createTextNode(text.slice(i, open)));
+      var end = text.indexOf('}}', open + 2);
+      if (end < 0) {
+        parent.appendChild(document.createTextNode(text.slice(open)));
+        return;
+      }
+      var token = text.slice(open + 2, end);
+      if (!/^[hbim]$/.test(token)) {
+        parent.appendChild(document.createTextNode(text.slice(open, end + 2)));
+        i = end + 2;
+        continue;
+      }
+      var closeAt = matchingClose(text, end + 2, token);
+      if (closeAt < 0) {
+        parent.appendChild(document.createTextNode(text.slice(open, end + 2)));
+        i = end + 2;
+        continue;
+      }
+      var inner = text.slice(end + 2, closeAt);
+      if (inner) {
+        var span = document.createElement('span');
+        span.className = className(token);
+        appendTagged(span, inner, className);
+        if (span.childNodes.length) parent.appendChild(span);
+      }
+      i = closeAt + ('{{/' + token + '}}').length;
+    }
+  }
   function fillFunfactEditor(editor, value) {
     editor.textContent = '';
     String(value || '').split('\n').forEach(function (line, index) {
       if (index) editor.appendChild(document.createElement('br'));
-      var re = /\{\{(h|m)\}\}([\s\S]*?)\{\{\/\1\}\}/g;
-      var last = 0;
-      var match;
-      while ((match = re.exec(line))) {
-        if (match.index > last) editor.appendChild(document.createTextNode(line.slice(last, match.index)));
-        if (match[2]) {
-          var span = document.createElement('span');
-          span.className = match[1] === 'h' ? 'studio-funfact-head' : 'studio-hl';
-          span.textContent = match[2];
-          editor.appendChild(span);
-        }
-        last = re.lastIndex;
-      }
-      if (last < line.length) editor.appendChild(document.createTextNode(line.slice(last)));
+      appendTagged(editor, line, studioMarkClass);
     });
   }
-  function formatFunfact(editor, stored, kind) {
-    var className = kind === 'h' ? 'studio-funfact-head' : 'studio-hl';
-    var label = kind === 'h' ? 'Headline' : 'Highlight';
+  function inlineKindClass(kind) {
+    if (kind === 'h') return 'studio-funfact-head';
+    if (kind === 'b') return 'studio-bold';
+    if (kind === 'i') return 'studio-italic';
+    return 'studio-hl';
+  }
+  function inlineKindLabel(kind) {
+    if (kind === 'h') return 'Headline';
+    if (kind === 'b') return 'Bold';
+    if (kind === 'i') return 'Italic';
+    return 'Highlight';
+  }
+  function nodeHasKind(node, kind) {
+    if (!node || node.nodeType !== 1) return false;
+    if (kind === 'b') return isBoldNode(node);
+    if (kind === 'i') return isItalicNode(node);
+    if (kind === 'h') return node.classList.contains('studio-funfact-head');
+    return node.classList.contains('studio-hl');
+  }
+  function unwrapNode(node) {
+    var parent = node.parentNode;
+    while (node.firstChild) parent.insertBefore(node.firstChild, node);
+    parent.removeChild(node);
+  }
+  function formatInline(editor, kind, where) {
+    var className = inlineKindClass(kind);
+    var label = inlineKindLabel(kind);
+    var place = where === 'example' ? 'the English words in this example' : 'the words in Brain Boost';
     var sel = window.getSelection();
     if (!sel || !sel.rangeCount || sel.isCollapsed) {
-      say('Select the words in Brain Boost, then press ' + label + '.');
-      return;
+      say('Select ' + place + ', then press ' + label + '.');
+      return false;
     }
     var range = sel.getRangeAt(0);
     if (!editor.contains(range.commonAncestorContainer)) {
-      say('Select the words in Brain Boost, then press ' + label + '.');
-      return;
+      say('Select ' + place + ', then press ' + label + '.');
+      return false;
     }
     var host = range.commonAncestorContainer.nodeType === 1 ? range.commonAncestorContainer : range.commonAncestorContainer.parentElement;
-    while (host && host !== editor && !(host.classList && host.classList.contains(className))) host = host.parentElement;
+    while (host && host !== editor && !nodeHasKind(host, kind)) host = host.parentElement;
     if (host && host !== editor) {
-      var parent = host.parentNode;
-      while (host.firstChild) parent.insertBefore(host.firstChild, host);
-      parent.removeChild(host);
-    } else {
-      var mark = document.createElement('span');
-      mark.className = className;
-      try { range.surroundContents(mark); }
-      catch (error) {
-        say('Select the words inside one part of the text.');
-        return;
-      }
+      if (host.classList.contains(className)) host.classList.remove(className);
+      var styled = host.classList.contains('studio-bold') || host.classList.contains('studio-italic') || host.classList.contains('studio-hl') || host.classList.contains('studio-funfact-head');
+      if (!styled || host.tagName === 'B' || host.tagName === 'STRONG' || host.tagName === 'I' || host.tagName === 'EM') unwrapNode(host);
+      return true;
     }
+    var mark = document.createElement('span');
+    mark.className = className;
+    try { range.surroundContents(mark); }
+    catch (error) {
+      say('Select the words inside one part of the text.');
+      return false;
+    }
+    return true;
+  }
+  function formatFunfact(editor, stored, kind) {
+    if (!formatInline(editor, kind, 'boost')) return;
     stored.value = funfactMarkup(editor);
   }
   function funfactCell(row) {
@@ -574,6 +813,7 @@
       var button = document.createElement('button');
       button.type = 'button';
       button.className = 'studio-upload';
+      button.dataset.style = kind;
       button.textContent = label;
       button.addEventListener('mousedown', function (event) { event.preventDefault(); });
       button.addEventListener('click', function () { formatFunfact(words, stored, kind); });
@@ -627,6 +867,8 @@
     cell.appendChild(words);
     cell.appendChild(formatButton('Headline', 'h'));
     cell.appendChild(formatButton('Highlight', 'm'));
+    cell.appendChild(formatButton('Bold', 'b'));
+    cell.appendChild(formatButton('Italic', 'i'));
     cell.appendChild(stored);
     cell.appendChild(thumb);
     cell.appendChild(frameInput);

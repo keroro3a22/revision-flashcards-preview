@@ -115,21 +115,70 @@
     return funfactPop;
   }
 
-  function appendFunfactPieces(parent, line, headlineClass) {
-    var re = /\{\{(h|m)\}\}([\s\S]*?)\{\{\/\1\}\}/g;
-    var last = 0;
-    var match;
-    while ((match = re.exec(line))) {
-      if (match.index > last) parent.appendChild(document.createTextNode(line.slice(last, match.index)));
-      if (match[2]) {
-        var span = document.createElement('span');
-        span.className = match[1] === 'h' ? headlineClass : 'hl';
-        span.textContent = match[2];
-        parent.appendChild(span);
+  function funfactClose(text, from, token) {
+    var openTag = '{{' + token + '}}';
+    var closeTag = '{{/' + token + '}}';
+    var depth = 1;
+    var i = from;
+    while (i < text.length) {
+      var nextOpen = text.indexOf(openTag, i);
+      var nextClose = text.indexOf(closeTag, i);
+      if (nextClose < 0) return -1;
+      if (nextOpen >= 0 && nextOpen < nextClose) {
+        depth += 1;
+        i = nextOpen + openTag.length;
+        continue;
       }
-      last = re.lastIndex;
+      depth -= 1;
+      if (depth === 0) return nextClose;
+      i = nextClose + closeTag.length;
     }
-    if (last < line.length) parent.appendChild(document.createTextNode(line.slice(last)));
+    return -1;
+  }
+  function appendFunfactPieces(parent, line, headlineClass) {
+    function className(token) {
+      if (token === 'h') return headlineClass;
+      if (token === 'b') return 'is-bold';
+      if (token === 'i') return 'is-italic';
+      return 'hl';
+    }
+    function append(host, text) {
+      var i = 0;
+      while (i < text.length) {
+        var open = text.indexOf('{{', i);
+        if (open < 0) {
+          if (i < text.length) host.appendChild(document.createTextNode(text.slice(i)));
+          return;
+        }
+        if (open > i) host.appendChild(document.createTextNode(text.slice(i, open)));
+        var end = text.indexOf('}}', open + 2);
+        if (end < 0) {
+          host.appendChild(document.createTextNode(text.slice(open)));
+          return;
+        }
+        var token = text.slice(open + 2, end);
+        if (!/^[hbim]$/.test(token)) {
+          host.appendChild(document.createTextNode(text.slice(open, end + 2)));
+          i = end + 2;
+          continue;
+        }
+        var closeAt = funfactClose(text, end + 2, token);
+        if (closeAt < 0) {
+          host.appendChild(document.createTextNode(text.slice(open, end + 2)));
+          i = end + 2;
+          continue;
+        }
+        var inner = text.slice(end + 2, closeAt);
+        if (inner) {
+          var span = document.createElement('span');
+          span.className = className(token);
+          append(span, inner);
+          if (span.childNodes.length) host.appendChild(span);
+        }
+        i = closeAt + ('{{/' + token + '}}').length;
+      }
+    }
+    append(parent, line);
   }
   function paintFunfactBlock(block, raw) {
     block.textContent = '';

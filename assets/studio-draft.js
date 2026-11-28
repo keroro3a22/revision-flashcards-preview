@@ -790,7 +790,7 @@
   }
 
   function foldSearch(text) {
-    return String(text || '').replace(/\s+/g, ' ').trim();
+    return String(text || '').replace(/\{\{\/?[hbim]\}\}/g, '').replace(/\s+/g, ' ').trim();
   }
 
   function searchSnippet(text, query) {
