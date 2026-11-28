@@ -251,13 +251,18 @@
       });
       var imageField = tr.querySelector('[data-field="image"]');
       var frameField = tr.querySelector('[data-field="frame"]');
+      var preview = tr.querySelector('.studio-thumb-preview img');
       var imageText = (imageField && imageField.dataset.src) || textOf(imageField);
+      var visible = preview && !preview.hidden ? (preview.getAttribute('src') || '') : '';
+      if (visible && !/^blob:|^data:/i.test(visible)) imageText = visible;
       var fallbackImage = imageField && imageField.dataset.default || '';
       var picked = imageField && imageField.dataset.picked === '1';
-      data.image = picked || imageText !== fallbackImage ? imageText : '';
+      data.frame = null;
       if (frameField && frameField.value) {
         try { data.frame = JSON.parse(frameField.value); } catch (error) { data.frame = null; }
       }
+      data.frame = window.SitePages.liveFrame(data.frame);
+      data.image = window.SitePages.keptPhoto(imageText, fallbackImage, picked, data.frame);
       return data;
     }
     function copyText(text, button) {

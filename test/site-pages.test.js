@@ -159,6 +159,10 @@ test('Get started packs follow titles and open doors', () => {
   assert.equal(intro.label, 'Choose one');
   assert.equal(intro.note, 'Swipe the row.');
   assert.equal(pages.packsIntro([]).label, 'The packs');
+  assert.equal(pages.keptPhoto('https://cdn.example/storage/v1/object/public/lesson-media/new.jpg', 'unit1/thumb_01.jpg', false, null), 'https://cdn.example/storage/v1/object/public/lesson-media/new.jpg');
+  assert.equal(pages.keptPhoto('https://keroro3a22.github.io/revision-flashcards-preview/unit1/thumb_01.jpg', 'unit1/thumb_01.jpg', false, null), '');
+  assert.equal(pages.keptPhoto('unit1/thumb_01.jpg', 'unit1/thumb_01.jpg', false, { x: 12, y: 40, z: 1.4, bg: '#ffffff' }), 'unit1/thumb_01.jpg');
+  assert.equal(pages.liveFrame({ x: 50, y: 50, z: 1, bg: '#ffffff' }), null);
   const fallback = pages.defaults(bookA, 'home', 'pack-unit1', catalog.lessons, catalog.pages);
   assert.equal(fallback.label, 'Unit 1 · For a good cause');
   assert.match(fallback.note, /Charity verbs/);

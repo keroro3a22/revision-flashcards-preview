@@ -157,7 +157,7 @@
       label: chosen(row, 'label', heading),
       note: chosen(row, 'note', unit.packNote || ''),
       image: own ? imageSrc('', own) : auto,
-      frame: rowFrame(row)
+      frame: liveFrame(rowFrame(row))
     };
   }
 
@@ -219,6 +219,35 @@
     return null;
   }
 
+  function fileKey(value) {
+    var raw = text(value).split('?')[0].split('#')[0];
+    var storage = raw.match(/\/storage\/v1\/object\/(?:public|sign)\/(.+)$/);
+    if (storage) return storage[1];
+    var tail = raw.match(/(?:^|\/)((?:covers|oxford-6b|practice|unit\d+)\/.+)$/);
+    if (tail) return tail[1];
+    return raw;
+  }
+
+  function liveFrame(frame) {
+    if (!frame) return null;
+    var x = Number(frame.x);
+    var y = Number(frame.y);
+    var z = Number(frame.z);
+    var bg = String(frame.bg || '#ffffff').toLowerCase();
+    if (x === 50 && y === 50 && z === 1 && bg === '#ffffff') return null;
+    return frame;
+  }
+
+  function keptPhoto(shown, fallback, picked, frame) {
+    var photo = text(shown);
+    var base = text(fallback);
+    var same = !!photo && fileKey(photo) === fileKey(base);
+    var file = same ? base : photo;
+    if (liveFrame(frame)) return file || base;
+    if (!same && photo) return photo;
+    return '';
+  }
+
   function hrefFor(place, unitId, doorId) {
     var term = 'term=' + encodeURIComponent(place.term || 'first');
     if (doorId === 'revision-vocab') return unitId + '/?' + term;
@@ -247,7 +276,7 @@
         label: chosen(row, 'label', base.label),
         note: ready ? chosen(row, 'note', base.note) : 'Coming soon',
         image: ready ? image : '',
-        frame: ready ? rowFrame(row) : null,
+        frame: ready ? liveFrame(rowFrame(row)) : null,
         href: ready ? hrefFor(place, unitId, door.id) : '',
         ready: ready
       };
@@ -291,7 +320,7 @@
         label: chosen(row, 'label', item.label),
         note: chosen(row, 'note', item.note),
         image: imageSrc('', chosen(row, 'image', item.image)),
-        frame: rowFrame(row)
+        frame: liveFrame(rowFrame(row))
       };
     });
     return out;
@@ -619,6 +648,8 @@
     mount: mount,
     paintHome: paintHome,
     applyHeading: applyHeading,
-    placeFrom: placeFrom
+    placeFrom: placeFrom,
+    keptPhoto: keptPhoto,
+    liveFrame: liveFrame
   };
 });
