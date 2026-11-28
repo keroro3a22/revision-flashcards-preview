@@ -566,6 +566,9 @@
 
   var PAGE_SLOTS = {
     title: 1, hero: 1, hear: 1, see: 1, read: 1,
+    packs: 1,
+    'pack-unit1': 1, 'pack-unit2': 1, 'pack-unit3': 1,
+    'pack-unit4': 1, 'pack-unit5': 1, 'pack-unit6': 1,
     'revision-vocab': 1, 'revision-grammar': 1, 'practice-vocab': 1, 'practice-grammar': 1
   };
 

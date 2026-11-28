@@ -203,6 +203,8 @@ test('the pages table can stay on Get started', () => {
   assert.equal(oldHome.slot, 'hear');
   assert.equal(oldHome.term, 'second');
   assert.equal(draft.parseStudioPath(row).slot, 'hear');
+  assert.equal(draft.parseStudioPath('oxford/Livingoxfordenglish/bookA/p6/home/pack-unit3').slot, 'pack-unit3');
+  assert.equal(draft.studioPath(Object.assign({}, saved, { term: 'first' }), { slot: 'packs' }), 'oxford/Livingoxfordenglish/bookA/p6/home/packs');
   assert.equal(draft.parseStudioPath(row).term, 'second');
   assert.equal(draft.parseStudioPath(row).unit, 'home');
   const grammar = 'oxford/Livingoxfordenglish/second/p6/unit1/pages/revision-grammar';

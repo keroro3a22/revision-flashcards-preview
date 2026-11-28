@@ -1,4 +1,4 @@
-/* The Pages table: unit title, four doors, and the Get started lines. */
+/* The Pages table: unit title, four doors, and the Get started lines, including the packs. */
 (function () {
   function $(id) { return document.getElementById(id); }
   function textOf(field) {
@@ -23,10 +23,11 @@
     var cards = client.from('lesson_cards').select('unit_id,track,n,en,img,img_frame,status')
       .eq('book', place.book).eq('series', place.series).eq('term', place.term).eq('level', place.level);
     if (unitId !== 'home') cards = cards.eq('unit_id', unitId);
+    var pages = client.from('site_pages').select('id,unit_id,slot,label,note,image,image_frame,status,published')
+      .eq('book', place.book).eq('series', place.series).eq('term', place.term).eq('level', place.level);
+    if (unitId !== 'home') pages = pages.eq('unit_id', unitId);
     Promise.all([
-      client.from('site_pages').select('id,unit_id,slot,label,note,image,image_frame,status,published')
-        .eq('book', place.book).eq('series', place.series).eq('term', place.term).eq('level', place.level)
-        .eq('unit_id', unitId),
+      pages,
       cards.limit(2000)
     ]).then(function (results) {
       if (results[0].error) { say(results[0].error.message); return; }
@@ -54,10 +55,12 @@
     }
     body.replaceChildren();
     var publishedLessons = lessons.filter(function (card) { return card.status === 'published'; });
+    var own = rows.filter(function (item) { return item.unit_id === unitId; });
+    var live = livePages(rows);
     var hit = null;
-    window.SitePages.slotsFor(unitId).forEach(function (slot) {
-      var row = rows.filter(function (item) { return item.slot === slot.id; })[0] || null;
-      var fallback = window.SitePages.defaults(place, unitId, slot.id, publishedLessons);
+    window.SitePages.slotsFor(unitId, place).forEach(function (slot) {
+      var row = own.filter(function (item) { return item.slot === slot.id; })[0] || null;
+      var fallback = window.SitePages.defaults(place, unitId, slot.id, publishedLessons, live);
       var tr = line(client, place, unitId, slot, row, fallback, say);
       if (focus && slot.id === focus) hit = tr;
       body.appendChild(tr);
@@ -71,6 +74,21 @@
     return stored ? stored : fallback;
   }
 
+  function livePages(rows) {
+    return (rows || []).filter(function (row) {
+      return row && row.status === 'published' && row.published && typeof row.published === 'object';
+    }).map(function (row) {
+      return {
+        unit_id: row.unit_id,
+        slot: row.slot,
+        label: row.published.label || '',
+        note: row.published.note || '',
+        image: row.published.image || '',
+        frame: row.published.frame || null
+      };
+    });
+  }
+
   function line(client, place, unitId, slot, row, fallback, say) {
     var tr = document.createElement('tr');
     tr.dataset.slot = slot.id;
@@ -78,7 +96,8 @@
     var name = document.createElement('td');
     name.textContent = slot.name;
     tr.appendChild(name);
-    tr.appendChild(photoCell(client, row, fallback, slot, say, unitId, place));
+    if (slot.photo === false) tr.appendChild(document.createElement('td'));
+    else tr.appendChild(photoCell(client, row, fallback, slot, say, unitId, place));
     tr.appendChild(editCell('label', shown(row && row.label, fallback.label), fallback.label));
     tr.appendChild(editCell('note', shown(row && row.note, fallback.note), fallback.note));
     var state = document.createElement('td');

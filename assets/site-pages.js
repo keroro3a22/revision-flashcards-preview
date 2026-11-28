@@ -17,6 +17,8 @@
     { id: 'see', label: 'See it', note: 'Look at the picture for the word. Tap it to enlarge and notice the scene.', image: 'unit3/thumb_01.jpg' },
     { id: 'read', label: 'Read it', note: 'Read a textbook sentence and a Form 1 sentence. Traditional Chinese is under each one.', image: 'unit1/thumb_01.jpg' }
   ];
+  var PACKS_LABEL = 'The packs';
+  var PACKS_NOTE = 'Swipe left or right. Pick a pack to open.';
   var BOOK_A_TITLES = {
     unit1: 'For a good cause',
     unit2: 'Lend a helping hand',
@@ -137,8 +139,46 @@
     return cards[0].img;
   }
 
-  function defaults(place, unitId, slot, lessons) {
+  function packUnitId(slot) {
+    var match = /^pack-(unit[1-6])$/.exec(slot || '');
+    return match ? match[1] : '';
+  }
+
+  function packCard(place, unit, catalog) {
+    var pages = catalog && catalog.pages || [];
+    var lessons = catalog && catalog.lessons || [];
+    var row = bySlot(pages, 'home')['pack-' + unit.id];
+    var n = String(unit.id).replace(/^unit/, '');
+    var heading = 'Unit ' + n + (unit.title ? ' · ' + unit.title : '');
+    var cover = (unit.items || []).filter(function (item) { return item.id === 'revision-vocab'; })[0];
+    var auto = coverSrc(place, unit.id, (cover && cover.image) || imageSrc(unit.id, cardPhoto(cardsFor(lessons, unit.id, 'vocab'), 'first')));
+    var own = savedValue(row, 'image');
+    return {
+      label: chosen(row, 'label', heading),
+      note: chosen(row, 'note', unit.packNote || ''),
+      image: own ? imageSrc('', own) : auto,
+      frame: rowFrame(row)
+    };
+  }
+
+  function packsIntro(pages) {
+    var row = bySlot(pages, 'home').packs;
+    return {
+      label: chosen(row, 'label', PACKS_LABEL),
+      note: chosen(row, 'note', PACKS_NOTE)
+    };
+  }
+
+  function defaults(place, unitId, slot, lessons, pages) {
     if (unitId === 'home') {
+      if (slot === 'packs') return { label: PACKS_LABEL, note: PACKS_NOTE, image: '' };
+      var packId = packUnitId(slot);
+      if (packId) {
+        var unitPages = (pages || []).filter(function (row) { return row.unit_id !== 'home'; });
+        var unit = resolveUnit(place, packId, unitPages, lessons || [], []);
+        var card = packCard(place, unit, { pages: [], lessons: lessons || [] });
+        return { label: card.label, note: card.note, image: card.image };
+      }
       var home = HOME.filter(function (item) { return item.id === slot; })[0] || { label: '', note: '', image: '' };
       return { label: home.label, note: home.note, image: home.image };
     }
@@ -168,7 +208,7 @@
   }
 
   function photoRatio(slot) {
-    if (slot === 'title' || slot === 'hero') return 1;
+    if (slot === 'title' || slot === 'hero' || packUnitId(slot)) return 1;
     return 4 / 3;
   }
 
@@ -257,14 +297,19 @@
     return out;
   }
 
-  function slotsFor(unitId) {
+  function slotsFor(unitId, place) {
     if (unitId === 'home') {
+      var packs = unitIds(place).map(function (id) {
+        return { id: 'pack-' + id, name: 'Pack · Unit ' + String(id).replace(/^unit/, '') };
+      });
       return [
         { id: 'hero', name: 'Get started' },
+        { id: 'packs', name: 'The packs', photo: false }
+      ].concat(packs).concat([
         { id: 'hear', name: 'Hear it' },
         { id: 'see', name: 'See it' },
         { id: 'read', name: 'Read it' }
-      ];
+      ]);
     }
     return [{ id: 'title', name: 'Unit title' }].concat(DOORS.map(function (door) {
       return { id: door.id, name: door.groupLabel + ' · ' + door.label };
@@ -390,6 +435,11 @@
         if (line) line.textContent = copy[id].note;
       });
     }
+    var intro = packsIntro(catalog.pages);
+    var packsTitle = root.document.getElementById('packs-title');
+    var packsNote = root.document.querySelector('#packs .sheet-note');
+    if (packsTitle) packsTitle.textContent = intro.label;
+    if (packsNote) packsNote.textContent = intro.note;
     if (!track) return;
     var tones = ['coral', 'green', 'sky', 'sunny', 'coral', 'pink'];
     var packs = packsFor(place, unitIds(place), catalog);
@@ -399,15 +449,15 @@
       var article = root.document.createElement('article');
       article.className = 'pack-card tone-' + tones[index % tones.length];
       article.setAttribute('aria-roledescription', 'slide');
-      var cover = unit.items.filter(function (item) { return item.id === 'revision-vocab'; })[0];
-      var src = coverSrc(place, unit.id, (cover && cover.image) || imageSrc(unit.id, cardPhoto(cardsFor(catalog.lessons, unit.id, 'vocab'), 'first')));
-      var heading = 'Unit ' + n + (unit.title ? ' · ' + unit.title : '');
-      article.innerHTML = '<div class="pack-cover">' + (src ? '<img src="' + escapeHtml(src) + '" alt="" width="640" height="480" loading="lazy" />' : '') + '</div>'
-        + '<div class="pack-body"><h3>' + escapeHtml(heading) + '</h3>'
-        + (unit.packNote ? '<p>' + escapeHtml(unit.packNote) + '</p>' : '')
+      var shown = packCard(place, unit, catalog);
+      article.innerHTML = '<div class="pack-cover">' + (shown.image ? '<img src="' + escapeHtml(shown.image) + '" alt="" width="640" height="480" loading="lazy" />' : '') + '</div>'
+        + '<div class="pack-body"><h3>' + escapeHtml(shown.label) + '</h3>'
+        + (shown.note ? '<p>' + escapeHtml(shown.note) + '</p>' : '')
         + '<p class="pack-tags"><span class="tag">Unit ' + n + '</span>'
         + (unit.words ? '<span class="tag nums">' + unit.words + ' words</span>' : '')
         + '</p><button type="button" class="btn btn-primary pack-open" data-unit="' + escapeHtml(unit.id) + '">Open Unit ' + n + '</button></div>';
+      var img = article.querySelector && article.querySelector('img');
+      if (img && shown.frame) usePhoto(img, shown.image, shown.frame, photoRatio('pack-' + unit.id));
       track.appendChild(article);
     });
     var status = root.document.getElementById('pack-status');
@@ -562,6 +612,8 @@
     groupsFor: groupsFor,
     packsFor: packsFor,
     homeCopy: homeCopy,
+    packCard: packCard,
+    packsIntro: packsIntro,
     slotsFor: slotsFor,
     loadCatalog: loadCatalog,
     mount: mount,

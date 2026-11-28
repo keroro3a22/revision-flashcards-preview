@@ -110,6 +110,7 @@ test('a saved crop stays on the automatic photo', () => {
 test('page photos use the shape students see', () => {
   assert.equal(Math.round(pages.photoRatio('hear') * 100) / 100, Math.round(4 / 3 * 100) / 100);
   assert.equal(pages.photoRatio('title'), 1);
+  assert.equal(pages.photoRatio('pack-unit1'), 1);
   assert.equal(Math.round(pages.photoRatio('revision-vocab') * 100) / 100, Math.round(4 / 3 * 100) / 100);
   assert.equal(Math.round(pages.photoRatio('see') * 100) / 100, Math.round(4 / 3 * 100) / 100);
 });
@@ -147,6 +148,22 @@ test('Get started packs follow titles and open doors', () => {
   const home = pages.homeCopy(bookB, []);
   assert.equal(home.hero.label, 'Play and Learn Club');
   assert.equal(home.see.label, 'See it');
+  const shown = pages.packCard(bookB, packs[0], {
+    pages: [{ unit_id: 'home', slot: 'pack-unit1', label: 'Green start', note: 'A new line.', image: 'covers/custom.jpg' }],
+    lessons: catalog.lessons
+  });
+  assert.equal(shown.label, 'Green start');
+  assert.equal(shown.note, 'A new line.');
+  assert.equal(shown.image, 'covers/custom.jpg');
+  const intro = pages.packsIntro([{ unit_id: 'home', slot: 'packs', label: 'Choose one', note: 'Swipe the row.' }]);
+  assert.equal(intro.label, 'Choose one');
+  assert.equal(intro.note, 'Swipe the row.');
+  assert.equal(pages.packsIntro([]).label, 'The packs');
+  const fallback = pages.defaults(bookA, 'home', 'pack-unit1', catalog.lessons, catalog.pages);
+  assert.equal(fallback.label, 'Unit 1 · For a good cause');
+  assert.match(fallback.note, /Charity verbs/);
+  assert.equal(pages.slotsFor('home', bookA).filter((slot) => slot.id === 'pack-unit6').length, 1);
+  assert.equal(pages.slotsFor('home', bookA).filter((slot) => slot.id === 'packs')[0].photo, false);
 });
 
 test('The packs Open button names the unit and does not link away', () => {
