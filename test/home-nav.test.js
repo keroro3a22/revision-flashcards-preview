@@ -56,7 +56,7 @@ test('homepage topbar is the account link, with book, level, and unit navigation
   assert.match(html, /assets\/place\.js\?v=14/);
   assert.match(html, /assets\/place-ui\.js\?v=38/);
   assert.match(html, /assets\/site-pages\.js\?v=13/);
-  assert.equal(html.includes('site.css?v=75'), true);
+  assert.equal(html.includes('site.css?v=77'), true);
   assert.match(html, /<header class="topbar">[\s\S]*id="unit-tabs" role="tablist"[\s\S]*<\/header>/);
   assert.doesNotMatch(html, /Open Dictation/);
 });
